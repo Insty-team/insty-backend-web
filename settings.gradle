@@ -1,0 +1,6 @@
+rootProject.name = 'insty-backend-web'
+include 'insty-api'
+include 'insty-domain'
+include 'insty-common'
+include 'insty-external'
+
