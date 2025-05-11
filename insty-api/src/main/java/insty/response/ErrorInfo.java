@@ -1,5 +1,7 @@
 package insty.response;
 
+import insty.error.ErrorCode;
+
 public record ErrorInfo<T>(
         String code,
         String message,

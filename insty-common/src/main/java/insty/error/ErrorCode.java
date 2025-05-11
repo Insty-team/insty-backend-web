@@ -1,4 +1,4 @@
-package insty.response;
+package insty.error;
 
 public interface ErrorCode {
 

@@ -1,6 +1,6 @@
 package insty.exception;
 
-import insty.response.ErrorCode;
+import insty.error.ErrorCode;
 
 public class CustomException extends RuntimeException {
 
