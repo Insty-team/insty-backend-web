@@ -6,7 +6,7 @@ public record ErrorInfo<T>(
         T details
 ) {
 
-    private static <T> ErrorInfo<T> createErrorInfo(ErrorCode errorCode, T details, String customMessage) {
+    private static <T> ErrorInfo<T> createErrorInfo(ErrorCode errorCode, String customMessage, T details) {
         return new ErrorInfo<>(
                 errorCode.getCode(),
                 customMessage != null ? customMessage : errorCode.getMessage(),
@@ -19,14 +19,14 @@ public record ErrorInfo<T>(
     }
 
     public static <T> ErrorInfo<T> of(ErrorCode errorCode, String customMessage) {
-        return ErrorInfo.createErrorInfo(errorCode, null, customMessage);
+        return ErrorInfo.createErrorInfo(errorCode, customMessage, null);
     }
 
     public static <T> ErrorInfo<T> ofWithDetails(ErrorCode errorCode, T details) {
-        return ErrorInfo.createErrorInfo(errorCode, details, null);
+        return ErrorInfo.createErrorInfo(errorCode, null, details);
     }
 
-    public static <T> ErrorInfo<T> ofWithDetails(ErrorCode errorCode, T details, String message) {
-        return ErrorInfo.createErrorInfo(errorCode, details, message);
+    public static <T> ErrorInfo<T> ofWithDetails(ErrorCode errorCode, T details, String customMessage) {
+        return ErrorInfo.createErrorInfo(errorCode, customMessage, details);
     }
 }
