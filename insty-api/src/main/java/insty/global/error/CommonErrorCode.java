@@ -1,5 +1,6 @@
 package insty.global.error;
 
+import insty.error.ErrorCode;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
