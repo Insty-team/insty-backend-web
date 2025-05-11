@@ -1,4 +1,4 @@
-package insty.advice;
+package insty.global.advice;
 
 public record ParameterData(
         String key,

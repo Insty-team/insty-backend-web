@@ -1,4 +1,4 @@
-package insty.response;
+package insty.global.response;
 
 import insty.error.ErrorCode;
 

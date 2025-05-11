@@ -1,10 +1,10 @@
-package insty.advice;
+package insty.global.advice;
 
-import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
 import insty.exception.CustomException;
-import insty.response.ErrorInfo;
-import insty.response.FailRes;
+import insty.global.error.CommonErrorCode;
+import insty.global.response.ErrorInfo;
+import insty.global.response.FailRes;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

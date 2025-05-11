@@ -1,4 +1,4 @@
-package insty.error;
+package insty.global.error;
 
 import lombok.AllArgsConstructor;
 
