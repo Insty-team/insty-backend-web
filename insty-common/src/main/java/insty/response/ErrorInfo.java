@@ -1,0 +1,32 @@
+package insty.response;
+
+public record ErrorInfo<T>(
+        String code,
+        String message,
+        T details
+) {
+
+    private static <T> ErrorInfo<T> createErrorInfo(ErrorCode errorCode, T details, String customMessage) {
+        return new ErrorInfo<>(
+                errorCode.getCode(),
+                customMessage != null ? customMessage : errorCode.getMessage(),
+                details
+        );
+    }
+
+    public static <T> ErrorInfo<T> of(ErrorCode errorCode) {
+        return ErrorInfo.createErrorInfo(errorCode, null, null);
+    }
+
+    public static <T> ErrorInfo<T> of(ErrorCode errorCode, String customMessage) {
+        return ErrorInfo.createErrorInfo(errorCode, null, customMessage);
+    }
+
+    public static <T> ErrorInfo<T> ofWithDetails(ErrorCode errorCode, T details) {
+        return ErrorInfo.createErrorInfo(errorCode, details, null);
+    }
+
+    public static <T> ErrorInfo<T> ofWithDetails(ErrorCode errorCode, T details, String message) {
+        return ErrorInfo.createErrorInfo(errorCode, details, message);
+    }
+}
