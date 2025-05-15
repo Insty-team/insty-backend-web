@@ -58,8 +58,8 @@ jobs:
           docker-compose down
           docker-compose up -d
 
-      - name: Cleanup Previous Workspace
-        run: rm -rf ./*
+      #      - name: Cleanup Previous Workspace
+      #        run: rm -rf ./*
 
       - name: Cleanup Docker and Cache
         run: |
