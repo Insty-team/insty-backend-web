@@ -37,3 +37,6 @@ out/
 .vscode/
 
 node_modules
+
+.env
+.secrets

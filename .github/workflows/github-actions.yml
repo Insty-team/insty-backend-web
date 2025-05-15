@@ -1,0 +1,62 @@
+name: Insty 백엔드 CI/CD 파이프라인
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  ACTOR: ajroot5685
+  DOCKER_IMAGE_NAME: ghcr.io/ajroot5685/insty-backend-web
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Spring Boot Application
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -x test
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.ACTOR }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ env.DOCKER_IMAGE_NAME }}:latest -f insty-api/Dockerfile insty-api
+          docker push ${{ env.DOCKER_IMAGE_NAME }}:latest
+
+  deploy:
+    needs: build
+    runs-on: [ self-hosted, insty-dev ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ env.ACTOR }} --password-stdin
+
+      - name: Pull latest image and restart via Docker Compose
+        run: |
+          docker-compose pull
+          docker-compose down
+          docker-compose up -d
+
+      - name: Cleanup
+        run: |
+          docker system prune -af --volumes
+          rm -rf ~/.gradle/caches
