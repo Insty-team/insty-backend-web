@@ -44,15 +44,13 @@ jobs:
     runs-on: [ self-hosted, insty-dev ]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Login to GitHub Container Registry
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ env.ACTOR }} --password-stdin
 
       - name: Add Private Files
         run: |
           echo "${{ secrets.DEV_APPLICATION_ENV }}" | base64 --decode > .env
+          echo "${{ secrets.DEV_DOCKER_COMPOSE }}" | base64 --decode > docker-compose.yml
 
       - name: Pull latest image and restart via Docker Compose
         run: |
@@ -60,7 +58,10 @@ jobs:
           docker-compose down
           docker-compose up -d
 
-      - name: Cleanup
+      - name: Cleanup Previous Workspace
+        run: rm -rf ./*
+
+      - name: Cleanup Docker and Cache
         run: |
           docker system prune -af --volumes
           rm -rf ~/.gradle/caches
