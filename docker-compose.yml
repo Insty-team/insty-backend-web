@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./insty-api
-    image: insty-backend-web:latest
+    image: ghcr.io/ajroot5685/insty-backend-web:latest
     container_name: backend
     ports:
       - "8080:8080"
