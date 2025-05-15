@@ -50,12 +50,6 @@ jobs:
       - name: Login to GitHub Container Registry
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ env.ACTOR }} --password-stdin
 
-      - name: Who am I
-        run: |
-          whoami
-          groups
-          ls -l /var/run/docker.sock
-
       - name: Pull latest image and restart via Docker Compose
         run: |
           docker-compose pull
