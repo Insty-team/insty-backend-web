@@ -1,2 +1,2 @@
 swagger:
-  server-url: https://www.insty.ai.kr/
+  server-url: ${SWAGGER_SERVER_URL}
