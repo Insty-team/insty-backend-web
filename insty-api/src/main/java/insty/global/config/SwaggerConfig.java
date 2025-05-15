@@ -12,18 +12,21 @@ import insty.global.swagger.ExampleHolder;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.servers.Server;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerMethod;
@@ -37,6 +40,18 @@ import org.springframework.web.method.HandlerMethod;
 )
 @Configuration
 public class SwaggerConfig {
+
+    @Value("${swagger.server-url:https://localhost:8080/}")
+    private String swaggerServerUrl;
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        Server server = new Server();
+        server.setUrl(swaggerServerUrl);
+        server.setDescription("서버 주소");
+
+        return new OpenAPI().servers(List.of(server));
+    }
 
     @Bean
     public OperationCustomizer customize() {
