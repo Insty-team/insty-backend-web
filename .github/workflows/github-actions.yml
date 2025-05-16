@@ -5,6 +5,10 @@ on:
     branches:
       - dev
 
+concurrency:
+  group: insty-dev
+  cancel-in-progress: false
+
 env:
   ACTOR: ajroot5685
   DOCKER_IMAGE_NAME: ghcr.io/ajroot5685/insty-backend-web
