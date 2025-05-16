@@ -90,8 +90,8 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
-          author_name: insty-백엔드 파이프라인
-          fields: commit,author,action,ref,workflow,job,took
+          author_name: 백엔드-개발 파이프라인
+          fields: commit,author,ref,workflow
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         if: always()
