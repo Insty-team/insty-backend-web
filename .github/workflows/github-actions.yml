@@ -73,7 +73,7 @@ jobs:
       - name: Check ping
         run: |
           for i in {1..20}; do
-            RESPONSE=$(curl -s localhost:8080)
+            RESPONSE=$(curl -s localhost:8080 || true)
           
             if echo "$RESPONSE" | grep -q "COMMON_005"; then
               echo "✅ 애플리케이션 실행 완료"
