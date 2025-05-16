@@ -65,3 +65,29 @@ jobs:
         run: |
           docker system prune -af --volumes
           rm -rf ~/.gradle/caches
+
+      - name: Check ping
+        run: |
+          for i in {1..10}; do
+            RESPONSE=$(curl -s localhost:8080)
+          
+            if echo "$RESPONSE" | grep -q "COMMON_005"; then
+              echo "✅ 애플리케이션 실행 완료"
+              exit 0
+            fi
+          
+            sleep 3
+          done
+          
+          echo "❌ 애플리케이션 실행 실패"
+          exit 1
+
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          author_name: insty-백엔드 파이프라인
+          fields: commit,author,action,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
