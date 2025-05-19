@@ -1,8 +1,8 @@
 package insty.global.advice;
 
+import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
 import insty.exception.CustomException;
-import insty.global.error.CommonErrorCode;
 import insty.global.response.ErrorInfo;
 import insty.global.response.FailRes;
 import java.util.ArrayList;

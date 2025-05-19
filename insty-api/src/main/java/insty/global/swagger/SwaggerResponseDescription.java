@@ -1,8 +1,8 @@
 package insty.global.swagger;
 
+import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
-import insty.global.error.CommonErrorCode;
-import insty.global.error.ExampleErrorCode;
+import insty.error.ExampleErrorCode;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -11,7 +11,10 @@ import lombok.Getter;
 public enum SwaggerResponseDescription {
 
     EXAMPLE_SEARCH(new LinkedHashSet<>(Set.of(
-    )));
+    ))),
+
+    // video
+    VIDEO_UPLOAD(new LinkedHashSet<>(Set.of()));
 
     private Set<ErrorCode> errorCodeList;
 

@@ -2,10 +2,10 @@ package insty.global.config;
 
 import static java.util.stream.Collectors.groupingBy;
 
+import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
 import insty.global.advice.ParameterData;
 import insty.global.annotation.CustomExceptionDescription;
-import insty.global.error.CommonErrorCode;
 import insty.global.response.ErrorInfo;
 import insty.global.response.FailRes;
 import insty.global.swagger.ExampleHolder;
