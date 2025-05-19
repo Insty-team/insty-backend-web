@@ -1,9 +1,5 @@
-package insty.global.error;
+package insty.error;
 
-import insty.error.ErrorCode;
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 public enum CommonErrorCode implements ErrorCode {
     INVALID_INPUT("COMMON_001", "입력 데이터가 유효하지 않습니다.", 400),
     UNAUTHORIZED("COMMON_002", "인증이 필요합니다.", 401),
@@ -20,6 +16,12 @@ public enum CommonErrorCode implements ErrorCode {
     private final String code;
     private final String message;
     private final int httpCode;
+
+    CommonErrorCode(String code, String message, int httpCode) {
+        this.code = code;
+        this.message = message;
+        this.httpCode = httpCode;
+    }
 
     @Override
     public String getCode() {
