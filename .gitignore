@@ -40,3 +40,5 @@ node_modules
 
 .env
 .secrets
+
+insty-domain/src/main/generated/**
