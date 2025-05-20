@@ -5,10 +5,9 @@ jar.enabled = true
 dependencies {
     implementation project(':insty-common')
 
-    implementation platform("software.amazon.awssdk:bom:2.25.28") // 최신 BOM
+    implementation platform("software.amazon.awssdk:bom:2.25.28")
     implementation 'software.amazon.awssdk:s3'
-    implementation 'software.amazon.awssdk:s3-presigner'
-    
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
