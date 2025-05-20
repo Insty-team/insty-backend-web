@@ -1,11 +1,16 @@
 package insty.domain.video.dto;
 
-import java.time.LocalDateTime;
+import insty.s3.dto.PresignedUrlDto;
+import java.time.Instant;
 import java.util.UUID;
 
 public record VideoUploadRes(
         UUID uuid,
         String uploadUrl,
-        LocalDateTime expiredAt
+        Instant expiredAt
 ) {
+
+    public static VideoUploadRes from(UUID uuid, PresignedUrlDto presignedUrlDto) {
+        return new VideoUploadRes(uuid, presignedUrlDto.presignedUrl(), presignedUrlDto.expiredAt());
+    }
 }
