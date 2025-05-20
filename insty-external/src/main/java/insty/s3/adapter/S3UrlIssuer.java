@@ -1,6 +1,7 @@
 package insty.s3.adapter;
 
 import insty.s3.constant.S3Constants;
+import insty.s3.dto.PresignedUrlDto;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class S3UrlIssuer {
         this.bucket = bucket;
     }
 
-    public String generatePresignedUrl(String key, String contentType) {
+    public PresignedUrlDto generatePresignedUrl(String key, String contentType) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
@@ -36,6 +37,6 @@ public class S3UrlIssuer {
                 .build();
 
         PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(presignRequest);
-        return presigned.url().toString();
+        return new PresignedUrlDto(presigned.url().toString(), presigned.expiration());
     }
 }

@@ -6,6 +6,7 @@ import insty.domain.video.implement.VideoIssuer;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.model.video.Video;
+import insty.s3.dto.PresignedUrlDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class VideoService {
 
         Video video = videoWriter.save(req);
         // TODO - aws 람다에 인코딩 완료 시 db 컬럼 상태값 업데이트
-        return videoIssuer.getUploadInfo(video.getVideoUuid(), video.getS3Key(), req.contentType());
+        PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(video.getS3Key(), req.contentType());
+        return VideoUploadRes.from(video.getVideoUuid(), presignedUrlDto);
     }
 }
