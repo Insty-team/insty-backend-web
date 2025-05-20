@@ -32,9 +32,10 @@ public class Video extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private UUID videoUuid;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String s3Key;
 
     @Column(nullable = false, length = 10)
@@ -63,12 +64,22 @@ public class Video extends BaseEntity {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
 
+        UUID uuid = UUID.randomUUID();
+        String s3BucketKey = getS3BucketKey(fileName, uuid);
+
         return Video.builder()
-                .videoUuid(UUID.randomUUID())
+                .videoUuid(uuid)
+                .s3Key(s3BucketKey)
                 .extension(extension)
                 .originalFileName(fileName)
                 .encodingStatus(EncodingStatus.WAITING)
                 .analysisStatus(AnalysisStatus.WAITING)
                 .build();
+    }
+
+    private static String getS3BucketKey(String fileName, UUID uuid) {
+        String extension = FileUtils.extractExtension(fileName)
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
+        return "vod/" + VideoType.COURSE + "/" + extension + "/" + uuid + "/" + fileName;
     }
 }

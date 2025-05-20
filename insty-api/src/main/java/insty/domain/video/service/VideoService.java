@@ -25,6 +25,6 @@ public class VideoService {
 
         Video video = videoWriter.save(req);
         // TODO - aws 람다에 인코딩 완료 시 db 컬럼 상태값 업데이트
-        return videoIssuer.getUploadInfo(video.getVideoUuid(), video.getOriginalFileName(), req.contentType());
+        return videoIssuer.getUploadInfo(video.getVideoUuid(), video.getS3Key(), req.contentType());
     }
 }
