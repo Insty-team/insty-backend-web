@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,8 +34,6 @@ public class Video extends BaseEntity {
 
     private UUID videoUuid;
 
-    private Long courseId;
-
     @Column(length = 100)
     private String s3Key;
 
@@ -51,9 +50,13 @@ public class Video extends BaseEntity {
     @Column(nullable = false, length = 100)
     private EncodingStatus encodingStatus;
 
+    private Instant encodingAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
     private AnalysisStatus analysisStatus;
+
+    private Instant analysisAt;
 
 
     public static Video create(String fileName) {
