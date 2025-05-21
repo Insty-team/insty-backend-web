@@ -72,7 +72,8 @@ public class Video extends BaseEntity {
                 .s3Key(s3BucketKey)
                 .extension(extension)
                 .originalFileName(fileName)
-                .encodingStatus(EncodingStatus.WAITING)
+                .encodingStatus(EncodingStatus.PROCESSING)
+                .encodingAt(Instant.now()) // 비용 문제로 영상 삽입 시 인코딩 시작했다고 가정
                 .analysisStatus(AnalysisStatus.WAITING)
                 .build();
     }
