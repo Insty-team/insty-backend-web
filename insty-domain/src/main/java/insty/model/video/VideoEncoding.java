@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,10 +27,7 @@ public class VideoEncoding {
     private Long id;
 
     @Column(nullable = false)
-    private Long videoId;
-
-    @Column(nullable = false, length = 10)
-    private String resolution;
+    private UUID videoUuid;
 
     @Column(nullable = false, length = 10)
     private String format;
@@ -37,7 +35,10 @@ public class VideoEncoding {
     @Column(nullable = false, length = 1000)
     private String encodingS3Key;
 
-    private int duration;
+    // 임시 비활성화 - 넣기 까다로움
+//    @Column(nullable = false, length = 20)
+//    private String resolution;
+//    private int duration;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
