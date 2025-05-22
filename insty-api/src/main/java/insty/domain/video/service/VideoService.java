@@ -5,7 +5,7 @@ import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoIssuer;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
-import insty.model.video.Video;
+import insty.model.video.VideoCourse;
 import insty.s3.dto.PresignedUrlDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +24,9 @@ public class VideoService {
         videoValidator.validateContentType(req.fileName(), req.contentType());
         videoValidator.validateUploadable(); // TODO - 메서드 구현
 
-        Video video = videoWriter.save(req);
+        VideoCourse videoCourse = videoWriter.save(req);
         // TODO - aws 람다에 인코딩 완료 시 db 컬럼 상태값 업데이트
-        PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(video.getS3Key(), req.contentType());
-        return VideoUploadRes.from(video.getVideoUuid(), presignedUrlDto);
+        PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(videoCourse.getS3Key(), req.contentType());
+        return VideoUploadRes.from(videoCourse.getVideoUuid(), presignedUrlDto);
     }
 }
