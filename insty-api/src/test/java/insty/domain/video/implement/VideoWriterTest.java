@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.model.video.VideoCourse;
+import insty.uuid.UuidProvider;
+import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,8 @@ class VideoWriterTest {
 
     @Mock
     private VideoCourseRepository videoCourseRepository;
+    @Mock
+    private UuidProvider uuidProvider;
 
     @InjectMocks
     private VideoWriter videoWriter;
@@ -32,6 +36,8 @@ class VideoWriterTest {
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
 
         // mock
+        when(uuidProvider.generate())
+                .thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         when(videoCourseRepository.save(any(VideoCourse.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 

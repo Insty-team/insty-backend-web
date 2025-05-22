@@ -60,11 +60,9 @@ public class VideoCourse extends BaseEntity {
     private Instant analysisAt;
 
 
-    public static VideoCourse create(String fileName) {
+    public static VideoCourse create(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
-
-        UUID uuid = UUID.randomUUID();
         String s3BucketKey = getS3BucketKey(fileName, uuid);
 
         return VideoCourse.builder()
