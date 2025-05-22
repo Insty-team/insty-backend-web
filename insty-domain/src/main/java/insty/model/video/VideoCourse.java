@@ -21,12 +21,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "videos", schema = "shared")
+@Table(name = "video_courses", schema = "shared")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Video extends BaseEntity {
+public class VideoCourse extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,14 +60,14 @@ public class Video extends BaseEntity {
     private Instant analysisAt;
 
 
-    public static Video create(String fileName) {
+    public static VideoCourse create(String fileName) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
 
         UUID uuid = UUID.randomUUID();
         String s3BucketKey = getS3BucketKey(fileName, uuid);
 
-        return Video.builder()
+        return VideoCourse.builder()
                 .videoUuid(uuid)
                 .s3Key(s3BucketKey)
                 .extension(extension)
