@@ -32,7 +32,7 @@ public class VideoEncoding {
     @Column(nullable = false, length = 10)
     private String format;
 
-    @Column(nullable = false, length = 1000)
+    @Column(name = "encoding_s3_key", nullable = false, length = 1000)
     private String encodingS3Key;
 
     // 임시 비활성화 - 넣기 까다로움
