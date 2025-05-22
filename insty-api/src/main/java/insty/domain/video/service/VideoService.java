@@ -25,7 +25,7 @@ public class VideoService {
         videoValidator.validateUploadable(); // TODO - 메서드 구현
 
         VideoCourse videoCourse = videoWriter.save(req);
-        // TODO - aws 람다에 인코딩 완료 시 db 컬럼 상태값 업데이트
+        // TODO - 답변영상도 처리할 수 있도록 수정
         PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(videoCourse.getS3Key(), req.contentType());
         return VideoUploadRes.from(videoCourse.getVideoUuid(), presignedUrlDto);
     }
