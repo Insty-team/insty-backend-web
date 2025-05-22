@@ -13,6 +13,8 @@ public enum SwaggerResponseDescription {
     EXAMPLE_SEARCH(new LinkedHashSet<>(Set.of(
     ))),
 
+    // user
+    USER_INFO(new LinkedHashSet<>(Set.of())),
     // video
     VIDEO_UPLOAD(new LinkedHashSet<>(Set.of()));
 
