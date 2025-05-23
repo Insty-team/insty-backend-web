@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> {
 
     Optional<VideoCourse> findByVideoUuid(UUID videoUuid);
+
+    Optional<UUID> findVideoUuidByCourseId(Long courseId);
 }

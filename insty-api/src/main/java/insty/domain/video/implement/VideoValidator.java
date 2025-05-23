@@ -2,6 +2,7 @@ package insty.domain.video.implement;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.video.VideoType;
 import insty.util.FileUtils;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -33,5 +34,9 @@ public class VideoValidator {
 
     public void validateUploadable() {
         // TODO - 해당 유저가 업로드할 수 있는지 검증(하루 업로드 제한 등)
+    }
+
+    public void validateReadable(VideoType videoType, Long id) {
+        // TODO - 해당 유저가 영상을 조회할 수 있는지 검증
     }
 }
