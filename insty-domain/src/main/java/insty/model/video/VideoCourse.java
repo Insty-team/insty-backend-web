@@ -35,6 +35,9 @@ public class VideoCourse extends BaseEntity {
     @Column(nullable = false)
     private UUID videoUuid;
 
+    // TODO - 강의 테이블 추가 시 객체로 변경
+    private Long courseId;
+
     @Column(nullable = false, length = 100)
     private String s3Key;
 
