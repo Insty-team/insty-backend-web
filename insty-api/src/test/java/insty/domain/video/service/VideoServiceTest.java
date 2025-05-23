@@ -50,7 +50,7 @@ class VideoServiceTest {
     private S3UrlIssuer s3UrlIssuer;
 
     @Test
-    void getPreSignedURLForUpload_정상() {
+    void getPreSignedURLForCourseVideoUpload_정상() {
         // given
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
@@ -71,7 +71,7 @@ class VideoServiceTest {
                 ));
 
         // when
-        VideoUploadRes res = videoService.getPreSignedURLForUpload(req);
+        VideoUploadRes res = videoService.getPreSignedURLForCourseVideoUpload(req);
 
         // then
         assertThat(res).isNotNull();

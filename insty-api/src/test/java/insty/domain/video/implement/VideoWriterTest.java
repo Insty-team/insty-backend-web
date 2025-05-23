@@ -29,7 +29,7 @@ class VideoWriterTest {
     private VideoWriter videoWriter;
 
     @Test
-    void save_정상() {
+    void saveVideoCourse_정상() {
         // given
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
@@ -42,7 +42,7 @@ class VideoWriterTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        VideoCourse videoCourse = videoWriter.save(req);
+        VideoCourse videoCourse = videoWriter.saveVideoCourse(req);
 
         // then
         assertThat(videoCourse).isNotNull();

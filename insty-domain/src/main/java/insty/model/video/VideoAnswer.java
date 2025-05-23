@@ -1,6 +1,9 @@
 package insty.model.video;
 
+import insty.error.VideoErrorCode;
+import insty.exception.CustomException;
 import insty.model.BaseEntity;
+import insty.util.FileUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -52,4 +55,26 @@ public class VideoAnswer extends BaseEntity {
     private EncodingStatus encodingStatus;
 
     private Instant encodingAt;
+
+
+    public static VideoAnswer create(String fileName, UUID uuid) {
+        String extension = FileUtils.extractExtension(fileName)
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
+        String s3BucketKey = getS3BucketKey(fileName, uuid);
+
+        return VideoAnswer.builder()
+                .videoUuid(uuid)
+                .s3Key(s3BucketKey)
+                .extension(extension)
+                .originalFileName(fileName)
+                .encodingStatus(EncodingStatus.PROCESSING)
+                .encodingAt(Instant.now()) // 비용 문제로 영상 삽입 시 인코딩 시작했다고 가정
+                .build();
+    }
+
+    private static String getS3BucketKey(String fileName, UUID uuid) {
+        String extension = FileUtils.extractExtension(fileName)
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
+        return "vod/" + VideoType.ANSWER + "/" + extension + "/" + uuid + "/" + fileName;
+    }
 }
