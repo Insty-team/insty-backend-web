@@ -33,7 +33,7 @@ public class S3UrlIssuer {
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
                 .putObjectRequest(objectRequest)
-                .signatureDuration(Duration.ofMinutes(S3Constants.URL_EXPIRATION_MINUTES))
+                .signatureDuration(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES))
                 .build();
 
         PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(presignRequest);

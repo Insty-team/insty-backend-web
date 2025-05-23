@@ -23,12 +23,21 @@ public class VideoController {
 
     private final VideoService videoService;
 
-    @Operation(summary = "영상 업로드", description = "영상을 업로드하기 위한 URL을 제공받는다.")
+    @Operation(summary = "강의 영상 업로드", description = "강의 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
-    @PostMapping
-    public SuccessRes<VideoUploadRes> upload(
+    @PostMapping("/upload/course")
+    public SuccessRes<VideoUploadRes> uploadCourse(
             @RequestBody @Validated VideoUploadReq req
     ) {
-        return SuccessRes.of(videoService.getPreSignedURLForUpload(req));
+        return SuccessRes.of(videoService.getPreSignedURLForCourseVideoUpload(req));
+    }
+
+    @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
+    @PostMapping("/upload/answer")
+    public SuccessRes<VideoUploadRes> uploadAnswer(
+            @RequestBody @Validated VideoUploadReq req
+    ) {
+        return SuccessRes.of(videoService.getPreSignedURLForAnswerVideoUpload(req));
     }
 }

@@ -5,6 +5,7 @@ import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoIssuer;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
+import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.s3.dto.PresignedUrlDto;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,21 @@ public class VideoService {
     private final VideoWriter videoWriter;
     private final VideoIssuer videoIssuer;
 
-    public VideoUploadRes getPreSignedURLForUpload(VideoUploadReq req) {
+    public VideoUploadRes getPreSignedURLForCourseVideoUpload(VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
         videoValidator.validateUploadable(); // TODO - 메서드 구현
 
-        VideoCourse videoCourse = videoWriter.save(req);
-        // TODO - 답변영상도 처리할 수 있도록 수정
+        VideoCourse videoCourse = videoWriter.saveVideoCourse(req);
         PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(videoCourse.getS3Key(), req.contentType());
         return VideoUploadRes.from(videoCourse.getVideoUuid(), presignedUrlDto);
+    }
+
+    public VideoUploadRes getPreSignedURLForAnswerVideoUpload(VideoUploadReq req) {
+        videoValidator.validateContentType(req.fileName(), req.contentType());
+        videoValidator.validateUploadable(); // TODO - 메서드 구현(강의 영상과 다름)
+
+        VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req);
+        PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(videoAnswer.getS3Key(), req.contentType());
+        return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
     }
 }

@@ -21,12 +21,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "video_courses", schema = "shared")
+@Table(name = "video_answers", schema = "web_service")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class VideoCourse extends BaseEntity {
+public class VideoAnswer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,8 +35,8 @@ public class VideoCourse extends BaseEntity {
     @Column(nullable = false)
     private UUID videoUuid;
 
-    // TODO - 강의 테이블 추가 시 객체로 변경
-    private Long courseId;
+    // TODO - 커뮤니티 답변 테이블 추가 시 객체로 변경
+    private Long communityQuestionId;
 
     @Column(nullable = false, length = 100)
     private String s3Key;
@@ -56,32 +56,25 @@ public class VideoCourse extends BaseEntity {
 
     private Instant encodingAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 100)
-    private AnalysisStatus analysisStatus;
 
-    private Instant analysisAt;
-
-
-    public static VideoCourse create(String fileName, UUID uuid) {
+    public static VideoAnswer create(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         String s3BucketKey = getS3BucketKey(fileName, uuid);
 
-        return VideoCourse.builder()
+        return VideoAnswer.builder()
                 .videoUuid(uuid)
                 .s3Key(s3BucketKey)
                 .extension(extension)
                 .originalFileName(fileName)
                 .encodingStatus(EncodingStatus.PROCESSING)
                 .encodingAt(Instant.now()) // 비용 문제로 영상 삽입 시 인코딩 시작했다고 가정
-                .analysisStatus(AnalysisStatus.WAITING)
                 .build();
     }
 
     private static String getS3BucketKey(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
-        return "vod/" + VideoType.COURSE + "/" + extension + "/" + uuid + "/" + fileName;
+        return "vod/" + VideoType.ANSWER + "/" + extension + "/" + uuid + "/" + fileName;
     }
 }

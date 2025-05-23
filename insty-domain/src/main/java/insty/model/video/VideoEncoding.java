@@ -35,7 +35,7 @@ public class VideoEncoding {
     @Column(name = "encoding_s3_key", nullable = false, length = 1000)
     private String encodingS3Key;
 
-    // 임시 비활성화 - 넣기 까다로움
+    // TODO 우선순위 미룸 - 넣기 까다로움
 //    @Column(nullable = false, length = 20)
 //    private String resolution;
 //    private int duration;

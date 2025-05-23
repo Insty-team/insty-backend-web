@@ -43,7 +43,7 @@ class S3UrlIssuerTest {
 
         // mock
         String fakeUrl = "https://s3.ap-northeast-2.amazonaws.com/bucket/key?..";
-        Instant expiration = Instant.now().plus(Duration.ofMinutes(S3Constants.URL_EXPIRATION_MINUTES));
+        Instant expiration = Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES));
         PresignedPutObjectRequest mockPresigned = mock(PresignedPutObjectRequest.class);
 
         when(mockPresigned.url()).thenReturn(URI.create(fakeUrl).toURL());

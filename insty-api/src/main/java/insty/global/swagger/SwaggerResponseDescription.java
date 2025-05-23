@@ -1,5 +1,9 @@
 package insty.global.swagger;
 
+import static insty.error.VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR;
+import static insty.error.VideoErrorCode.VIDEO_INVALID_FILE_NAME;
+import static insty.error.VideoErrorCode.VIDEO_TYPE_NOT_MATCH;
+
 import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
 import insty.error.ExampleErrorCode;
@@ -14,7 +18,11 @@ public enum SwaggerResponseDescription {
     ))),
 
     // video
-    VIDEO_UPLOAD(new LinkedHashSet<>(Set.of()));
+    VIDEO_UPLOAD(new LinkedHashSet<>(Set.of(
+            VIDEO_CONTENT_TYPE_ERROR,
+            VIDEO_INVALID_FILE_NAME,
+            VIDEO_TYPE_NOT_MATCH
+    )));
 
     private Set<ErrorCode> errorCodeList;
 

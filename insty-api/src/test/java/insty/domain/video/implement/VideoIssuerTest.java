@@ -34,7 +34,7 @@ class VideoIssuerTest {
         // mock
         when(s3UrlIssuer.generatePresignedUrl(s3Key, contentType))
                 .thenReturn(new PresignedUrlDto("https://s3.ap-northeast-2.amazonaws.com/bucket/key?..",
-                        Instant.now().plus(Duration.ofMinutes(S3Constants.URL_EXPIRATION_MINUTES))));
+                        Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES))));
 
         // when
         PresignedUrlDto uploadInfo = videoIssuer.getUploadInfo(s3Key, contentType);
