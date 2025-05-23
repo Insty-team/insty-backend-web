@@ -27,3 +27,8 @@ aws:
   region:
     static: ${AWS_REGION}
   s3-upload-bucket: ${AWS_S3_UPLOAD_BUCKET}
+
+  cloudfront:
+    domain: ${AWS_CLOUDFRONT_DOMAIN}
+    key-pair-id: ${AWS_CLOUDFRONT_KEY_PAIR_ID}
+    private-key-path: ${AWS_CLOUDFRONT_PRIVATE_KEY_PATH}
