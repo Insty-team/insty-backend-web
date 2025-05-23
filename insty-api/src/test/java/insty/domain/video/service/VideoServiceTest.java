@@ -9,10 +9,13 @@ import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoIssuer;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
+import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.model.video.AnalysisStatus;
 import insty.model.video.EncodingStatus;
+import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
+import insty.model.video.VideoType;
 import insty.s3.adapter.S3UrlIssuer;
 import insty.s3.constant.S3Constants;
 import insty.s3.dto.PresignedUrlDto;
@@ -46,6 +49,8 @@ class VideoServiceTest {
     private VideoIssuer videoIssuer;
     @Autowired
     private VideoCourseRepository videoCourseRepository;
+    @Autowired
+    private VideoAnswerRepository videoAnswerRepository;
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
 
@@ -61,9 +66,9 @@ class VideoServiceTest {
         when(uuidProvider.generate())
                 .thenReturn(fixedUuid);
 
-        String s3Key = "vod/COURSE/mp4/" + fixedUuid + "/" + fileName;
+        String s3Key = "vod/" + VideoType.COURSE + "/mp4/" + fixedUuid + "/" + fileName;
         String presignedUrl = "https://s3.ap-northeast-2.amazonaws.com/test-bucket/" + s3Key + "?...";
-        Instant expiredAt = Instant.now().plus(Duration.ofMinutes(S3Constants.URL_EXPIRATION_MINUTES));
+        Instant expiredAt = Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES));
         when(s3UrlIssuer.generatePresignedUrl(anyString(), anyString()))
                 .thenReturn(new PresignedUrlDto(
                         presignedUrl,
@@ -93,5 +98,49 @@ class VideoServiceTest {
         assertThat(videoCourse.getEncodingAt()).isNotNull();
         assertThat(videoCourse.getAnalysisStatus()).isEqualTo(AnalysisStatus.WAITING);
         assertThat(videoCourse.getAnalysisAt()).isNull();
+    }
+
+    @Test
+    void getPreSignedURLForAnswerVideoUpload_정상() {
+        // given
+        String fileName = "fileName.mp4";
+        String contentType = "video/mp4";
+        VideoUploadReq req = new VideoUploadReq(fileName, contentType);
+
+        // mock
+        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        when(uuidProvider.generate())
+                .thenReturn(fixedUuid);
+
+        String s3Key = "vod/" + VideoType.ANSWER + "/mp4/" + fixedUuid + "/" + fileName;
+        String presignedUrl = "https://s3.ap-northeast-2.amazonaws.com/test-bucket/" + s3Key + "?...";
+        Instant expiredAt = Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES));
+        when(s3UrlIssuer.generatePresignedUrl(anyString(), anyString()))
+                .thenReturn(new PresignedUrlDto(
+                        presignedUrl,
+                        expiredAt
+                ));
+
+        // when
+        VideoUploadRes res = videoService.getPreSignedURLForAnswerVideoUpload(req);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.uuid()).isEqualTo(fixedUuid);
+        assertThat(res.uploadUrl()).isEqualTo(presignedUrl);
+        assertThat(res.expiredAt()).isEqualTo(expiredAt);
+
+        Optional<VideoAnswer> optional = videoAnswerRepository.findByVideoUuid(fixedUuid);
+        assertThat(optional).isPresent();
+
+        VideoAnswer videoAnswer = optional.get();
+        assertThat(videoAnswer.getId()).isNotNull();
+        assertThat(videoAnswer.getVideoUuid()).isEqualTo(fixedUuid);
+        assertThat(videoAnswer.getS3Key()).isEqualTo(s3Key);
+        assertThat(videoAnswer.getExtension()).isEqualTo("mp4");
+        assertThat(videoAnswer.getOriginalFileName()).isEqualTo(fileName);
+        assertThat(videoAnswer.getThumbnailUrl()).isNull();
+        assertThat(videoAnswer.getEncodingStatus()).isEqualTo(EncodingStatus.PROCESSING);
+        assertThat(videoAnswer.getEncodingAt()).isNotNull();
     }
 }
