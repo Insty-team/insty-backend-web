@@ -4,6 +4,8 @@ package insty.domain.user.controller;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.response.UserCreateRes;
+import insty.domain.user.service.UserService;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -26,11 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
+    private final UserService userService;
+
     @Operation(summary = "이메일 회원 가입", description = "이메일로 회원 가입을 진행합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @PostMapping
-    public SuccessRes<String> signUp(@Validated @RequestBody UserCreateReq req) {
-        return SuccessRes.of(null);
+    public SuccessRes<UserCreateRes> signup(@Validated @RequestBody UserCreateReq req) {
+        return SuccessRes.of(userService.signup(req));
     }
 
     @Operation(summary = "이메일 중복 체크", description = "이메일이 이미 사용중인지 중복체크를 합니다.")
