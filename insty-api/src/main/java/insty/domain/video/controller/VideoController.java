@@ -1,5 +1,7 @@
 package insty.domain.video.controller;
 
+import insty.domain.video.dto.VideoHlsPlaylistReq;
+import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.service.VideoService;
@@ -39,5 +41,14 @@ public class VideoController {
             @RequestBody @Validated VideoUploadReq req
     ) {
         return SuccessRes.of(videoService.getPreSignedURLForAnswerVideoUpload(req));
+    }
+
+    @Operation(summary = "영상 조회", description = "HLS 영상 url을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_GET)
+    @PostMapping("/playlist")
+    public SuccessRes<VideoHlsPlaylistRes> getHlsPlaylist(
+            @RequestBody @Validated VideoHlsPlaylistReq req
+    ) {
+        return SuccessRes.of(videoService.getHlsPlaylist(req));
     }
 }

@@ -22,6 +22,9 @@ public enum SwaggerResponseDescription {
             VIDEO_CONTENT_TYPE_ERROR,
             VIDEO_INVALID_FILE_NAME,
             VIDEO_TYPE_NOT_MATCH
+    ))),
+    VIDEO_GET(new LinkedHashSet<>(Set.of(
+
     )));
 
     private Set<ErrorCode> errorCodeList;
