@@ -9,9 +9,11 @@ import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CloudFrontSigner {
 
@@ -41,6 +43,7 @@ public class CloudFrontSigner {
                     expiration
             );
         } catch (Exception e) {
+            log.error("CloudFront 에러\n", e);
             throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL);
         }
     }

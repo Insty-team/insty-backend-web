@@ -27,6 +27,7 @@ aws:
   region:
     static: ${AWS_REGION}
   s3-upload-bucket: ${AWS_S3_UPLOAD_BUCKET}
+  s3-encoding-video-bucket: ${AWS_S3_ENCODING_VIDEO_BUCKET}
 
   cloudfront:
     domain: ${AWS_CLOUDFRONT_DOMAIN}
