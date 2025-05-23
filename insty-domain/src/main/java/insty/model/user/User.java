@@ -34,9 +34,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;        // 비밀번호
 
-    @Column(nullable = false, length = 10)
-    private String userName;        // 사용자 이름
-
     @Column(nullable = false, length = 30)
     private String nickname;        // 사용자 닉네임
 
