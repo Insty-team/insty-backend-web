@@ -23,9 +23,9 @@ public class VideoController {
 
     private final VideoService videoService;
 
-    @Operation(summary = "영상 업로드", description = "영상을 업로드하기 위한 URL을 제공받는다.")
+    @Operation(summary = "강의 영상 업로드", description = "강의 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
-    @PostMapping
+    @PostMapping("/upload/course")
     public SuccessRes<VideoUploadRes> upload(
             @RequestBody @Validated VideoUploadReq req
     ) {
