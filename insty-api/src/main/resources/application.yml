@@ -30,6 +30,7 @@ aws:
   s3-encoding-video-bucket: ${AWS_S3_ENCODING_VIDEO_BUCKET}
 
   cloudfront:
-    domain: ${AWS_CLOUDFRONT_DOMAIN}
     key-pair-id: ${AWS_CLOUDFRONT_KEY_PAIR_ID}
     private-key-path: ${AWS_CLOUDFRONT_PRIVATE_KEY_PATH}
+
+domain: ${INSTY_DOMAIN}
