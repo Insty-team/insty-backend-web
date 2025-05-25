@@ -1,7 +1,6 @@
 package insty.domain.video.service;
 
 import insty.domain.video.dto.VideoHlsPlaylistReq;
-import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoIssuer;
@@ -44,15 +43,6 @@ public class VideoService {
         VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req);
         PresignedUrlDto presignedUrlDto = videoIssuer.getUploadInfo(videoAnswer.getS3Key(), req.contentType());
         return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
-    }
-
-    public VideoHlsPlaylistRes getHlsPlaylist(VideoHlsPlaylistReq req) {
-        videoValidator.validateReadable(req.type(), req.id());
-
-        UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
-        String encodingS3Key = videoReader.getEncodingS3Key(videoUuid);
-        String signedM3u8Url = videoIssuer.getSignedM3u8Url(encodingS3Key);
-        return new VideoHlsPlaylistRes(signedM3u8Url);
     }
 
     public Map<String, String> getSingedCookieMap(VideoHlsPlaylistReq req) {

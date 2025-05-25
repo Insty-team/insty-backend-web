@@ -31,11 +31,6 @@ public class VideoReader {
         throw new CustomException(VideoErrorCode.VIDEO_NOT_FOUND);
     }
 
-    public String getEncodingS3Key(UUID videoUuid) {
-        return videoEncodingRepository.findEncodingS3KeyByVideoUuid(videoUuid)
-                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
-    }
-
     public VideoEncoding getVideoEncoding(UUID videoUuid) {
         return videoEncodingRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
