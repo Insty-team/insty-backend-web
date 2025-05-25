@@ -10,7 +10,9 @@ import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
+import insty.model.video.VideoEncoding;
 import insty.s3.dto.PresignedUrlDto;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,5 +53,15 @@ public class VideoService {
         String encodingS3Key = videoReader.getEncodingS3Key(videoUuid);
         String signedM3u8Url = videoIssuer.getSignedM3u8Url(encodingS3Key);
         return new VideoHlsPlaylistRes(signedM3u8Url);
+    }
+
+    public Map<String, String> getSingedCookieMap(VideoHlsPlaylistReq req) {
+        videoValidator.validateReadable(req.type(), req.id());
+
+        UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
+        VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
+
+        return videoIssuer.getSignedCookieMap(videoEncoding.getEncodingVideoDirectoryPath(),
+                videoEncoding.getHlsMasterFileKey());
     }
 }

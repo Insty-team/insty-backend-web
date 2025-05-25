@@ -1,10 +1,14 @@
 package insty.domain.video.implement;
 
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_URL;
+import static insty.constants.VideoConstants.HLS_MASTER_FILE;
+
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.s3.adapter.S3EncodingVideoReader;
 import insty.s3.adapter.S3UrlIssuer;
 import insty.s3.dto.PresignedUrlDto;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,5 +41,13 @@ public class VideoIssuer {
             return cloudFrontSigner.generateSignedUrlForVideo(line.trim());
         }
         return line;
+    }
+
+    public Map<String, String> getSignedCookieMap(String encodingVideoDirectoryPath, String hlsMasterFileKey) {
+        Map<String, String> signedCookieMap = cloudFrontSigner.generateSignedCookiesForVideo(
+                encodingVideoDirectoryPath);
+        signedCookieMap.put(CLOUDFRONT_SIGNED_URL, cloudFrontSigner.generateResourcePath(encodingVideoDirectoryPath));
+        signedCookieMap.put(HLS_MASTER_FILE, cloudFrontSigner.generateResourcePath(hlsMasterFileKey));
+        return signedCookieMap;
     }
 }

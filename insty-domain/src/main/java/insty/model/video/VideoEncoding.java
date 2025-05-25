@@ -1,5 +1,7 @@
 package insty.model.video;
 
+import insty.error.VideoErrorCode;
+import insty.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,4 +44,25 @@ public class VideoEncoding {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+
+    public String getEncodingVideoDirectoryPath() {
+        validateEncodingS3Key();
+        int lastSlashIndex = this.encodingS3Key.lastIndexOf('/');
+        return this.encodingS3Key.substring(0, lastSlashIndex) + "/*";
+    }
+
+    public String getHlsMasterFileKey() {
+        validateEncodingS3Key();
+        return this.encodingS3Key + ".m3u8";
+    }
+
+    public void validateEncodingS3Key() {
+        int slashCount = (int) this.encodingS3Key.chars()
+                .filter(c -> c == '/')
+                .count();
+        if (slashCount != 4) {
+            throw new CustomException(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
+        }
+    }
 }

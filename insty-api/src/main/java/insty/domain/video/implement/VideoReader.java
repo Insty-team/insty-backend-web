@@ -5,6 +5,7 @@ import insty.domain.video.repository.VideoCourseRepository;
 import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.video.VideoEncoding;
 import insty.model.video.VideoType;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,11 @@ public class VideoReader {
 
     public String getEncodingS3Key(UUID videoUuid) {
         return videoEncodingRepository.findEncodingS3KeyByVideoUuid(videoUuid)
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+    }
+
+    public VideoEncoding getVideoEncoding(UUID videoUuid) {
+        return videoEncodingRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
     }
 }
