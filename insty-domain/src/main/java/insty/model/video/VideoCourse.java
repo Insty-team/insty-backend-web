@@ -32,7 +32,7 @@ public class VideoCourse extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private UUID videoUuid;
 
     // TODO - 강의 테이블 추가 시 객체로 변경

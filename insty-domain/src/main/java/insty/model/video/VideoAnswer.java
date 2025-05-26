@@ -32,7 +32,7 @@ public class VideoAnswer extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private UUID videoUuid;
 
     // TODO - 커뮤니티 답변 테이블 추가 시 객체로 변경
