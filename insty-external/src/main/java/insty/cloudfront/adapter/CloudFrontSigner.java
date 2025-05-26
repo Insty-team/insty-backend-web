@@ -1,14 +1,12 @@
 package insty.cloudfront.adapter;
 
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
-import com.amazonaws.services.cloudfront.CloudFrontCookieSigner.CookiesForCannedPolicy;
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
+import com.amazonaws.services.cloudfront.CloudFrontCookieSigner.CookiesForCustomPolicy;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import com.amazonaws.services.cloudfront.util.SignerUtils.Protocol;
 import insty.cloudfront.constant.CloudFrontConstants;
 import insty.cloudfront.error.CloudFrontErrorCode;
 import insty.exception.CustomException;
-import java.io.File;
 import java.security.PrivateKey;
 import java.time.Duration;
 import java.time.Instant;
@@ -23,56 +21,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class CloudFrontSigner {
 
-    @Value("${domain}")
-    private String domain;
-
     @Value("${aws.cloudfront.key-pair-id}")
     private String keyPairId;
 
     @Value("${aws.cloudfront.private-key-path}")
     private String privateKeyPath;
 
-    public String generateSignedUrlForVideo(String objectKey) {
+    public Map<String, String> generateSignedCookiesForVideo(String domain, String objectPath) {
         try {
-            Instant expiredAt = Instant.now()
-                    .plus(Duration.ofHours(CloudFrontConstants.GET_VIDEO_URL_EXPIRATION_HOURS));
-            Date expiration = Date.from(expiredAt);
-
-            File privateKeyFile = new File(privateKeyPath);
-
-            return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
-                    SignerUtils.Protocol.https,
-                    domain,
-                    privateKeyFile,
-                    objectKey,
-                    keyPairId,
-                    expiration
-            );
-        } catch (Exception e) {
-            log.error("CloudFront 에러\n", e);
-            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL);
-        }
-    }
-
-    public Map<String, String> generateSignedCookiesForVideo(String objectPath) {
-        try {
-            String resourcePath = generateResourcePath(objectPath);
+            String resourcePath = generateResourcePath(domain, objectPath);
             PrivateKey privateKey = SignerUtils.loadPrivateKey(privateKeyPath);
             Instant expiredAt = Instant.now()
                     .plus(Duration.ofHours(CloudFrontConstants.GET_VIDEO_URL_EXPIRATION_HOURS));
             Date expiration = Date.from(expiredAt);
 
-            CookiesForCannedPolicy cookies = CloudFrontCookieSigner.getCookiesForCannedPolicy(
-                    resourcePath,
-                    keyPairId,
-                    privateKey,
-                    expiration
-            );
+            CookiesForCustomPolicy cookies = CloudFrontCookieSigner.getCookiesForCustomPolicy(
+                    resourcePath, privateKey, keyPairId, expiration, null, null);
 
             Map<String, String> cookieMap = new HashMap<>();
             cookieMap.put(cookies.getSignature().getKey(), cookies.getSignature().getValue());
             cookieMap.put(cookies.getKeyPairId().getKey(), cookies.getKeyPairId().getValue());
-            cookieMap.put(cookies.getExpires().getKey(), cookies.getExpires().getValue());
+            cookieMap.put(cookies.getPolicy().getKey(), cookies.getPolicy().getValue());
             return cookieMap;
         } catch (Exception e) {
             log.error("CloudFront 에러\n", e);
@@ -80,7 +49,7 @@ public class CloudFrontSigner {
         }
     }
 
-    public String generateResourcePath(String resourcePath) {
+    public String generateResourcePath(String domain, String resourcePath) {
         return Protocol.https + "://" + domain + "/" + resourcePath;
     }
 }

@@ -45,7 +45,7 @@ public class VideoService {
         return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
     }
 
-    public Map<String, String> getSingedCookieMap(VideoHlsPlaylistReq req) {
+    public Map<String, String> getSignedCookieMap(VideoHlsPlaylistReq req) {
         videoValidator.validateReadable(req.type(), req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());

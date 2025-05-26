@@ -2,5 +2,6 @@ package insty.constants;
 
 public class VideoConstants {
 
-    public static final String HLS_MASTER_FILE = "Hls_Master_File";
+    public static final String DOMAIN = "Domain";
+    public static final String PATH = "Path";
 }

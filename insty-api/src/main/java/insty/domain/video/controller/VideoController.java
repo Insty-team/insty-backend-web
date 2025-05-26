@@ -1,10 +1,11 @@
 package insty.domain.video.controller;
 
-import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_EXPIRES;
 import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_KEY_PAIR_ID;
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_POLICY;
 import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNATURE;
-import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_URL;
-import static insty.constants.VideoConstants.HLS_MASTER_FILE;
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_MASTER_M3U8_URL;
+import static insty.constants.VideoConstants.DOMAIN;
+import static insty.constants.VideoConstants.PATH;
 
 import insty.domain.video.dto.VideoHlsPlaylistReq;
 import insty.domain.video.dto.VideoHlsPlaylistRes;
@@ -59,32 +60,40 @@ public class VideoController {
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylist(
             @RequestBody @Validated VideoHlsPlaylistReq req
     ) {
-        Map<String, String> singedCookieMap = videoService.getSingedCookieMap(req);
-        String signedUrl = singedCookieMap.get(CLOUDFRONT_SIGNED_URL);
+        Map<String, String> signedCookieMap = videoService.getSignedCookieMap(req);
+        String domain = signedCookieMap.get(DOMAIN);
+        String path = signedCookieMap.get(PATH);
+        String signedUrl = signedCookieMap.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL);
 
         ResponseCookie cookie1 = ResponseCookie.from(CLOUDFRONT_KEY_PAIR_ID,
-                        singedCookieMap.get(CLOUDFRONT_KEY_PAIR_ID))
-                .path(signedUrl)
+                        signedCookieMap.get(CLOUDFRONT_KEY_PAIR_ID))
+                .domain(domain)
+                .path(path)
                 .httpOnly(true)
-                .sameSite("Lax")
+                .sameSite("None")
+                .secure(true)
                 .build();
 
-        ResponseCookie cookie2 = ResponseCookie.from(CLOUDFRONT_SIGNATURE, singedCookieMap.get(CLOUDFRONT_SIGNATURE))
-                .path(signedUrl)
+        ResponseCookie cookie2 = ResponseCookie.from(CLOUDFRONT_SIGNATURE, signedCookieMap.get(CLOUDFRONT_SIGNATURE))
+                .domain(domain)
+                .path(path)
                 .httpOnly(true)
-                .sameSite("Lax")
+                .sameSite("None")
+                .secure(true)
                 .build();
 
-        ResponseCookie cookie3 = ResponseCookie.from(CLOUDFRONT_EXPIRES, singedCookieMap.get(CLOUDFRONT_EXPIRES))
-                .path(signedUrl)
+        ResponseCookie cookie3 = ResponseCookie.from(CLOUDFRONT_POLICY, signedCookieMap.get(CLOUDFRONT_POLICY))
+                .domain(domain)
+                .path(path)
                 .httpOnly(true)
-                .sameSite("Lax")
+                .sameSite("None")
+                .secure(true)
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie1.toString())
                 .header(HttpHeaders.SET_COOKIE, cookie2.toString())
                 .header(HttpHeaders.SET_COOKIE, cookie3.toString())
-                .body(SuccessRes.of(new VideoHlsPlaylistRes(singedCookieMap.get(HLS_MASTER_FILE))));
+                .body(SuccessRes.of(new VideoHlsPlaylistRes(signedUrl)));
     }
 }

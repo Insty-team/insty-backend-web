@@ -32,4 +32,5 @@ aws:
     key-pair-id: ${AWS_CLOUDFRONT_KEY_PAIR_ID}
     private-key-path: ${AWS_CLOUDFRONT_PRIVATE_KEY_PATH}
 
-domain: ${INSTY_DOMAIN}
+app:
+  domain: ${INSTY_DOMAIN}

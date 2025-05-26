@@ -49,7 +49,7 @@ public class VideoEncoding {
     public String getEncodingVideoDirectoryPath() {
         validateEncodingS3Key();
         int lastSlashIndex = this.encodingS3Key.lastIndexOf('/');
-        return this.encodingS3Key.substring(0, lastSlashIndex) + "/*";
+        return this.encodingS3Key.substring(0, lastSlashIndex);
     }
 
     public String getHlsMasterFileKey() {
