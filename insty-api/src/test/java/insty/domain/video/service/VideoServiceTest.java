@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
+import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoIssuer;
@@ -11,6 +12,7 @@ import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
+import insty.global.property.AppProperties;
 import insty.model.video.AnalysisStatus;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
@@ -53,6 +55,10 @@ class VideoServiceTest {
     private VideoAnswerRepository videoAnswerRepository;
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
+    @MockitoBean
+    private CloudFrontSigner cloudFrontSigner;
+    @MockitoBean
+    private AppProperties appProperties;
 
     @Test
     void getPreSignedURLForCourseVideoUpload_정상() {
