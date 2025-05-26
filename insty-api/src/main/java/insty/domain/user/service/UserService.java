@@ -2,7 +2,11 @@ package insty.domain.user.service;
 
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.response.UserCreateRes;
+import insty.domain.user.dto.response.UserDuplicateCheckRes;
+import insty.domain.user.implement.UserReader;
+import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
+import insty.error.UserErrorCode;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,17 +19,43 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserWriter userWriter;
+    private final UserValidator userValidator;
+    private final UserReader userReader;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
-     * 이메일 회원가입 Facade 패턴
+     * 이메일 회원가입
      */
     public UserCreateRes signup(UserCreateReq req) {
+        // 유효성 체크
+        userValidator.validateDuplicateEmail(req.email());
+        userValidator.validateDuplicateNickname(req.nickname());
+
         // 비밀번호 암호화
         String encodedPassword = bCryptPasswordEncoder.encode(req.password());
         // 유저 저장
         User user = userWriter.save(req.email(), encodedPassword, req.nickname());
 
         return UserCreateRes.from(user.getId(), user.getEmail(), user.getNickname(), user.getUserType());
+    }
+
+    /**
+     * 이메일 존재여부 체크
+     */
+    public UserDuplicateCheckRes existCheckByEmail(String email) {
+        boolean emailExists = userReader.existCheckByEmail(email);
+        boolean isAvailable = !emailExists; // 존재하지 않으면 사용가능
+        String message = isAvailable ? "사용 가능한 이메일입니다." : UserErrorCode.USER_DUPLICATE_EMAIL.getMessage();
+        return UserDuplicateCheckRes.from(isAvailable, message);
+    }
+
+    /**
+     * 닉네임 존재여부 체크
+     */
+    public UserDuplicateCheckRes existsCheckByNickname(String nickname) {
+        boolean nicknameExists = userReader.existCheckByNickname(nickname);
+        boolean isAvailable = !nicknameExists; // 존재하지 않으면 사용가능
+        String message = isAvailable ? "사용 가능한 닉네임입니다." : UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage();
+        return UserDuplicateCheckRes.from(isAvailable, message);
     }
 }
