@@ -14,7 +14,7 @@ import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
-import insty.domain.video.implement.VideoIssuer;
+import insty.domain.video.implement.VideoAccessManager;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.domain.video.repository.VideoAnswerRepository;
@@ -61,7 +61,7 @@ class VideoServiceTest {
     @MockitoBean
     private UuidProvider uuidProvider;
     @Autowired
-    private VideoIssuer videoIssuer;
+    private VideoAccessManager videoAccessManager;
     @Autowired
     private VideoCourseRepository videoCourseRepository;
     @Autowired
