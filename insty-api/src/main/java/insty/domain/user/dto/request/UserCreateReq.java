@@ -8,12 +8,6 @@ import jakarta.validation.constraints.Size;
 
 public record UserCreateReq(
 
-        @Schema(description = "닉네임", example = "유재석")
-        @NotBlank(message = "닉네임은 필수입니다.")
-        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
-        @Pattern(regexp = "^[a-zA-Z가-힣]{1,10}$", message = "닉네임은 한글 또는 영문만 허용되며 특수문자는 사용할 수 없습니다.")
-        String nickname,
-
         @Schema(description = "이메일 주소", example = "youremail@example.com")
         @NotBlank(message = "이메일은 필수입니다.")
         @Email(message = "올바른 이메일 형식이어야 합니다.")
@@ -30,7 +24,13 @@ public record UserCreateReq(
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
                 message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
         )
-        String password
+        String password,
+
+        @Schema(description = "닉네임", example = "유재석")
+        @NotBlank(message = "닉네임은 필수입니다.")
+        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
+        @Pattern(regexp = "^[a-zA-Z가-힣]{1,10}$", message = "닉네임은 한글 또는 영문만 허용되며 특수문자는 사용할 수 없습니다.")
+        String nickname
 ) {
 
 }
