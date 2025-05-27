@@ -11,12 +11,14 @@ import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
 import java.util.Optional;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class UserValidatorTest {
 

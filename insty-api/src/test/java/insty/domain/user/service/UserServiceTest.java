@@ -13,6 +13,7 @@ import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
 import insty.model.user.User;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
