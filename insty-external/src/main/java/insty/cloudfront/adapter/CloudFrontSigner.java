@@ -21,11 +21,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class CloudFrontSigner {
 
-    @Value("${aws.cloudfront.key-pair-id}")
-    private String keyPairId;
+    private final String keyPairId;
+    private final String privateKeyPath;
 
-    @Value("${aws.cloudfront.private-key-path}")
-    private String privateKeyPath;
+    public CloudFrontSigner(
+            @Value("${aws.cloudfront.key-pair-id}") String keyPairId,
+            @Value("${aws.cloudfront.private-key-path}") String privateKeyPath
+    ) {
+        this.keyPairId = keyPairId;
+        this.privateKeyPath = privateKeyPath;
+    }
 
     public Map<String, String> generateSignedCookiesForVideo(String domain, String objectPath) {
         try {
