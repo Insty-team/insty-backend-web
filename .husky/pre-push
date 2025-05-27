@@ -3,8 +3,8 @@
 
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 
-if [[ "$branch_name" == "main" ]]; then
-  echo "🛠 (main 브랜치 전용) 단위 테스트 실행 중..."
+if [[ "$branch_name" == "main" || "$branch_name" == "dev" ]]; then
+  echo "🛠 (main/dev 브랜치 전용) 단위 테스트 실행 중..."
   ./gradlew unitTest
 else
   echo "🛠 모든 테스트 실행 중..."
