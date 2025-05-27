@@ -1,10 +1,17 @@
 package insty.domain.video.service;
 
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_KEY_PAIR_ID;
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_POLICY;
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNATURE;
+import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_MASTER_M3U8_URL;
+import static insty.constants.VideoConstants.DOMAIN;
+import static insty.constants.VideoConstants.PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
+import insty.domain.video.dto.VideoHlsPlaylistReq;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoIssuer;
@@ -12,6 +19,7 @@ import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.global.property.AppProperties;
 import insty.model.video.AnalysisStatus;
 import insty.model.video.EncodingStatus;
@@ -24,6 +32,8 @@ import insty.s3.dto.PresignedUrlDto;
 import insty.uuid.UuidProvider;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -32,9 +42,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
 @Tag("integration")
 @SpringBootTest
+@Transactional
 @ActiveProfiles("test")
 class VideoServiceTest {
 
@@ -59,6 +72,8 @@ class VideoServiceTest {
     private CloudFrontSigner cloudFrontSigner;
     @MockitoBean
     private AppProperties appProperties;
+    @Autowired
+    private VideoEncodingRepository videoEncodingRepository;
 
     @Test
     void getPreSignedURLForCourseVideoUpload_정상() {
@@ -148,5 +163,51 @@ class VideoServiceTest {
         assertThat(videoAnswer.getThumbnailUrl()).isNull();
         assertThat(videoAnswer.getEncodingStatus()).isEqualTo(EncodingStatus.PROCESSING);
         assertThat(videoAnswer.getEncodingAt()).isNotNull();
+    }
+
+    @Sql(statements = {
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', NULL, 'PROCESSING', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
+            "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
+                    "VALUES (1L, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
+    })
+    @Test
+    void getSignedCookieMap_정상() {
+        // given
+        VideoType videoType = VideoType.COURSE;
+        Long id = 1L;
+        VideoHlsPlaylistReq req = new VideoHlsPlaylistReq(videoType, id);
+
+        // mock
+        Map<String, String> cookieMap = new HashMap<>();
+        cookieMap.put("CloudFront-Signature", "sig-value");
+        cookieMap.put("CloudFront-Key-Pair-Id", "key-pair-id");
+        cookieMap.put("CloudFront-Policy", "policy-value");
+        when(cloudFrontSigner.generateSignedCookiesForVideo(anyString(), anyString()))
+                .thenReturn(cookieMap);
+
+        when(cloudFrontSigner.generateResourcePath(anyString(), anyString()))
+                .thenAnswer(invocation -> {
+                    String domain = invocation.getArgument(0);
+                    String path = invocation.getArgument(1);
+                    return "https://" + domain + "/" + path;
+                });
+
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
+        // when
+        Map<String, String> res = videoService.getSignedCookieMap(req);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.size()).isEqualTo(6);
+        assertThat(cookieMap.get(CLOUDFRONT_KEY_PAIR_ID)).isNotNull();
+        assertThat(cookieMap.get(CLOUDFRONT_SIGNATURE)).isNotNull();
+        assertThat(cookieMap.get(CLOUDFRONT_POLICY)).isNotNull();
+        assertThat(cookieMap.get(PATH)).isEqualTo("/vod/COURSE/hls/00000000-0000-0000-0000-000000000001/");
+        assertThat(cookieMap.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL)).isEqualTo(
+                "https://insty.test.com/vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.m3u8");
+        assertThat(cookieMap.get(DOMAIN)).isEqualTo("insty.test.com");
     }
 }

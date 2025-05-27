@@ -46,7 +46,7 @@ public class VideoService {
     }
 
     public Map<String, String> getSignedCookieMap(VideoHlsPlaylistReq req) {
-        videoValidator.validateReadable(req.type(), req.id());
+        videoValidator.validateReadable(req.type(), req.id()); // TODO - 메서드 구현
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
