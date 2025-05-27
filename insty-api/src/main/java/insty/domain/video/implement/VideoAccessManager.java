@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class VideoIssuer {
+public class VideoAccessManager {
 
     private final S3UrlIssuer s3UrlIssuer;
     private final CloudFrontSigner cloudFrontSigner;

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "영상 API")
 @RestController
-@RequestMapping("/api/videos")
+@RequestMapping("/api/v1/videos")
 @RequiredArgsConstructor
 public class VideoController {
 
