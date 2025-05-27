@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.video.VideoType;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -76,7 +77,18 @@ class VideoValidatorTest {
         // given
 
         // when
-        
+
+        // then
+    }
+
+    @Test
+    void validateReadable_메서드_미완성() {
+        // given
+        VideoType videoType = VideoType.COURSE;
+        Long id = 1L;
+
+        // when
+
         // then
     }
 }
