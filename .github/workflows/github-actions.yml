@@ -91,13 +91,30 @@ jobs:
       - build
       - deploy
     runs-on: ubuntu-latest
-    if: always()
+    if: success()
 
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
         with:
-          status: ${{ job.status }}
+          status: success
+          author_name: 백엔드-개발 파이프라인
+          fields: commit,author,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  notify-failure:
+    needs:
+      - build
+      - deploy
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
           author_name: 백엔드-개발 파이프라인
           fields: commit,author,ref,workflow
         env:
