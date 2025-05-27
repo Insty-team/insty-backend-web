@@ -45,8 +45,8 @@ public class UserService {
     public UserDuplicateCheckRes existCheckByEmail(String email) {
         boolean emailExists = userReader.existCheckByEmail(email);
         boolean isAvailable = !emailExists; // 존재하지 않으면 사용가능
-        String message = isAvailable ? "사용 가능한 이메일입니다." : UserErrorCode.USER_DUPLICATE_EMAIL.getMessage();
-        return UserDuplicateCheckRes.from(isAvailable, message);
+        String reason = isAvailable ? "사용 가능한 이메일입니다." : UserErrorCode.USER_DUPLICATE_EMAIL.getMessage();
+        return UserDuplicateCheckRes.from(isAvailable, reason);
     }
 
     /**
@@ -55,7 +55,7 @@ public class UserService {
     public UserDuplicateCheckRes existsCheckByNickname(String nickname) {
         boolean nicknameExists = userReader.existCheckByNickname(nickname);
         boolean isAvailable = !nicknameExists; // 존재하지 않으면 사용가능
-        String message = isAvailable ? "사용 가능한 닉네임입니다." : UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage();
-        return UserDuplicateCheckRes.from(isAvailable, message);
+        String reason = isAvailable ? "사용 가능한 닉네임입니다." : UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage();
+        return UserDuplicateCheckRes.from(isAvailable, reason);
     }
 }
