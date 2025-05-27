@@ -17,13 +17,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class VideoIssuerTest {
+class VideoAccessManagerTest {
 
     @Mock
     private S3UrlIssuer s3UrlIssuer;
 
     @InjectMocks
-    private VideoIssuer videoIssuer;
+    private VideoAccessManager videoAccessManager;
 
     @Test
     void getUploadInfo_정상() {
@@ -37,7 +37,7 @@ class VideoIssuerTest {
                         Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES))));
 
         // when
-        PresignedUrlDto uploadInfo = videoIssuer.getUploadInfo(s3Key, contentType);
+        PresignedUrlDto uploadInfo = videoAccessManager.getUploadInfo(s3Key, contentType);
 
         // then
         assertThat(uploadInfo).isNotNull();
