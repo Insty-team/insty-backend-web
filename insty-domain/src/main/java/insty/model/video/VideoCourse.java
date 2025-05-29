@@ -62,6 +62,8 @@ public class VideoCourse extends BaseEntity {
 
     private Instant analysisAt;
 
+    private boolean isDeleted;
+
 
     public static VideoCourse create(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)

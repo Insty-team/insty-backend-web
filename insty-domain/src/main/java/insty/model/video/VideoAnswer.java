@@ -56,6 +56,8 @@ public class VideoAnswer extends BaseEntity {
 
     private Instant encodingAt;
 
+    private boolean isDeleted;
+
 
     public static VideoAnswer create(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
