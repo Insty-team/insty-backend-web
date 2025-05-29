@@ -26,8 +26,9 @@ public enum SwaggerResponseDescription {
             VIDEO_TYPE_NOT_MATCH
     ))),
     VIDEO_GET(new LinkedHashSet<>(Set.of(
-
-    )));
+    ))),
+    // course
+    COURSE_POST(new LinkedHashSet<>(Set.of()));
 
     private Set<ErrorCode> errorCodeList;
 

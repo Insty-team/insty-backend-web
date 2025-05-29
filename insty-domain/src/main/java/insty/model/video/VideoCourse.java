@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "video_courses", schema = "shared")
 @Getter
-@Builder
+@Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class VideoCourse extends BaseEntity {
@@ -61,6 +61,8 @@ public class VideoCourse extends BaseEntity {
     private AnalysisStatus analysisStatus;
 
     private Instant analysisAt;
+
+    private boolean isDeleted;
 
 
     public static VideoCourse create(String fileName, UUID uuid) {
