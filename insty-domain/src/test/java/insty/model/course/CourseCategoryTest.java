@@ -3,6 +3,7 @@ package insty.model.course;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import insty.model.category.Category;
+import insty.model.course.fixture.CourseFixtureBuilder;
 import insty.model.course.id.CourseCategoryId;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ class CourseCategoryTest {
     @Test
     void create_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "대상자", null);
+        Course course = CourseFixtureBuilder.getCourse();
         Category category = Category.create(null, 0, "카테고리 이름", 1);
 
         // when
