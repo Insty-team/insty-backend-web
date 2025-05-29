@@ -19,6 +19,13 @@ public class VideoReader {
     private final VideoAnswerRepository videoAnswerRepository;
     private final VideoEncodingRepository videoEncodingRepository;
 
+    /**
+     * videoType, 부모 id에 따라 UUID를 조회한다.<br> 조회되지 않거나 처리되지 않은 타입은 404를 반환한다.
+     *
+     * @param videoType COURSE/ANSWER
+     * @param parentId
+     * @return uuid
+     */
     public UUID getVideoUuid(VideoType videoType, Long parentId) {
         if (videoType.equals(VideoType.COURSE)) {
             return videoCourseRepository.findVideoUuidByCourseId(parentId)

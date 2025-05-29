@@ -16,6 +16,13 @@ public class VideoValidator {
             "webm", "video/webm"
     );
 
+    /**
+     * 처리할 수 있는 영상 타입인지 확인하고, 영상 타입이 파일명과 일치하는지 확인한다.<br> mp4 = video/mp4<br> mov = video/quicktime<br> webm =
+     * video/webm<br>
+     *
+     * @param fileName    fileName.mp4
+     * @param contentType video/mp4
+     */
     public void validateContentType(String fileName, String contentType) {
         if (!EXTENSION_TO_CONTENT_TYPE.containsValue(contentType)) {
             throw new CustomException(VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR);
