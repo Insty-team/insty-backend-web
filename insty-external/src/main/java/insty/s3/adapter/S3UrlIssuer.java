@@ -24,6 +24,13 @@ public class S3UrlIssuer {
         this.bucket = bucket;
     }
 
+    /**
+     * 사용자가 영상을 업로드 할 수 있는 Pre-Signed URL을 발급한다.
+     *
+     * @param key         vod/COURSE/mp4/uuid/fileName.mp4
+     * @param contentType video/mp4
+     * @return url, 만료일자
+     */
     public PresignedUrlDto generatePresignedUrl(String key, String contentType) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)

@@ -32,6 +32,13 @@ public class CloudFrontSigner {
         this.privateKeyPath = privateKeyPath;
     }
 
+    /**
+     * CloudFront 유틸 클래스를 이용해 리소스에 접근할 수 있는 쿠키를 발급한다.
+     *
+     * @param domain     {도메인}
+     * @param objectPath /vod/{type}/hls/{uuid}/*
+     * @return CloudFront-Key-Pair-Id, CloudFront-Signature, CloudFront-Policy
+     */
     public Map<String, String> generateSignedCookiesForVideo(String domain, String objectPath) {
         try {
             String resourcePath = generateResourcePath(domain, objectPath);
@@ -54,6 +61,13 @@ public class CloudFrontSigner {
         }
     }
 
+    /**
+     * 도메인과 리소스 경로로부터 완전한 https url을 만든다.
+     *
+     * @param domain       {도메인}
+     * @param resourcePath /vod/{type}/hls/{uuid}
+     * @return https://{도메인}/vod/{type}/hls/{uuid}
+     */
     public String generateResourcePath(String domain, String resourcePath) {
         return Protocol.https + "://" + domain + "/" + resourcePath;
     }
