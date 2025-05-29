@@ -1,8 +1,8 @@
 package insty.model.course;
 
 import insty.model.BaseEntity;
-import insty.model.category.Category;
 import insty.model.course.id.CourseTagId;
+import insty.model.tag.Tags;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -32,16 +32,16 @@ public class CourseTag extends BaseEntity {
     private Course course;
 
     @ManyToOne
-    @MapsId("categoryId")
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @MapsId("tagId")
+    @JoinColumn(name = "tag_id", nullable = false)
+    private Tags tags;
 
 
-    public static CourseTag create(Course course, Category category) {
+    public static CourseTag create(Course course, Tags tags) {
         return CourseTag.builder()
-                .courseTagId(CourseTagId.create(course.getId(), category.getId()))
+                .courseTagId(CourseTagId.create(course.getId(), tags.getId()))
                 .course(course)
-                .category(category)
+                .tags(tags)
                 .build();
     }
 }

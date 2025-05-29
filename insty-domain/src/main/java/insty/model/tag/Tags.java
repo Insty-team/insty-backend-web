@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Tag extends BaseEntity {
+public class Tags extends BaseEntity { // 테스트에 @Tag와 겹치므로 Tags로 사용
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,8 +31,8 @@ public class Tag extends BaseEntity {
     private boolean isUsed;
 
 
-    public static Tag create(String tagName) {
-        return Tag.builder()
+    public static Tags create(String tagName) {
+        return Tags.builder()
                 .tagName(tagName)
                 .build();
     }

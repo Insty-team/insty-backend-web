@@ -48,7 +48,8 @@ public class Category extends BaseEntity {
         if (depth < 0) {
             throw new CustomException(CategoryErrorCode.CATEGORY_INVALID_DEPTH);
         }
-        if (parentCategory == null && depth == 0) {
+        if (parentCategory == null && depth != 0 ||
+                parentCategory != null && depth == 0) {
             throw new CustomException(CategoryErrorCode.CATEGORY_INVALID_DEPTH);
         }
 
