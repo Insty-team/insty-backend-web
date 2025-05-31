@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
@@ -59,6 +60,15 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.CONFLICT)
     public FailRes<?> handleDataIntegrityViolationExceptions(DataIntegrityViolationException e) {
         return FailRes.of(ErrorInfo.of(CommonErrorCode.CONFLICT));
+    }
+
+    /**
+     * 요청/파일 크기 제한 - 413
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public FailRes<?> handleMaxUploadSizeExceededExceptions(MaxUploadSizeExceededException e) {
+        return FailRes.of(ErrorInfo.of(CommonErrorCode.REQUEST_TOO_LARGE));
     }
 
     /**
