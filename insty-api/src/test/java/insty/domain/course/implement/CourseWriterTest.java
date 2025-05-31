@@ -255,4 +255,28 @@ class CourseWriterTest {
         assertThatCode(() -> courseWriter.updateCourseTags(course, tags))
                 .doesNotThrowAnyException();
     }
+
+    @Test
+    void deleteAllCourseTags_정상() {
+        // given
+        Long courseId = 1L;
+
+        // when
+
+        // then
+        assertThatCode(() -> courseWriter.deleteAllCourseTags(courseId))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void deleteCourse_정상_논리적으로_삭제된다() {
+        // given
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", null, true);
+
+        // when
+        courseWriter.deleteCourse(course);
+
+        // then
+        assertThat(course.isDeleted()).isTrue();
+    }
 }
