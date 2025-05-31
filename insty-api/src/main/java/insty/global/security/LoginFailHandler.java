@@ -3,9 +3,9 @@ package insty.global.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
+import insty.exception.CustomException;
 import insty.global.response.ErrorInfo;
 import insty.global.response.FailRes;
-import insty.global.security.exception.CustomAuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -35,13 +35,14 @@ public class LoginFailHandler implements AuthenticationFailureHandler {
         log.debug("=========== Security Login 로그인 실패 =========== ");
         // 에러 조회
         ErrorCode errorCode;
-        String errorMessage = "";
+        String errorMessage;
 
-        if (e instanceof CustomAuthenticationException customException) {
-            errorCode = customException.getErrorCode();
-            errorMessage = customException.getMessage();
+        if (e.getCause() instanceof CustomException ex) {
+            // CustomException에서 errorCode를 추출
+            errorCode = ex.getErrorCode();
+            errorMessage = ex.getMessage();
         } else {
-            // CustomAuthenticationException이 아닐 경우 기본 에러코드 지정
+            // 기본 에러 처리
             errorCode = CommonErrorCode.UNAUTHORIZED;
             errorMessage = e.getMessage() != null ? e.getMessage() : errorCode.getMessage();
         }
