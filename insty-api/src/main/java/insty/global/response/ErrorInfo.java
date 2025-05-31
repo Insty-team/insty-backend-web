@@ -1,11 +1,12 @@
 package insty.global.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import insty.error.ErrorCode;
 
 public record ErrorInfo<T>(
         String code,
         String message,
-        T details
+        @JsonInclude(JsonInclude.Include.NON_NULL) T details
 ) {
 
     private static <T> ErrorInfo<T> createErrorInfo(ErrorCode errorCode, String customMessage, T details) {
