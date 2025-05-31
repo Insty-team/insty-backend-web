@@ -2,21 +2,28 @@ package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CoursePostReq;
+import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -130,6 +137,122 @@ class CourseWriterTest {
 
         // then
         assertThatCode(() -> courseWriter.saveCourseTags(course, tags))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void updateCourse_정상() {
+        // given
+        Long courseId = 1L;
+        String title = "제목";
+        String description = "설명";
+        String targetAudience = "강의 대상자";
+        int price = 10000;
+        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null);
+
+        // mock
+        Course beforeCourse = Course.create("이전 제목", "이전 설명", 0, "이전 대상자", null, false);
+        when(courseRepository.findById(courseId))
+                .thenReturn(Optional.of(beforeCourse));
+        when(courseRepository.save(any(Course.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        Course course = courseWriter.updateCourse(courseId, req);
+
+        // then
+        assertThat(course).isNotNull();
+        assertThat(course.getTitle()).isEqualTo(title);
+        assertThat(course.getDescription()).isEqualTo(description);
+        assertThat(course.getTargetAudience()).isEqualTo(targetAudience);
+        assertThat(course.getPrice()).isEqualTo(price);
+    }
+
+    @Test
+    void updateCourse_에러_강의가_존재하지_않다() {
+        // given
+        Long courseId = 1L;
+        String title = "제목";
+        String description = "설명";
+        String targetAudience = "강의 대상자";
+        int price = 10000;
+        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null);
+
+        // mock
+        when(courseRepository.findById(courseId))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> courseWriter.updateCourse(courseId, req))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_NOT_FOUND);
+    }
+
+    @Test
+    void updateCourseInstallEnvChecklist_정상() {
+        // given
+        Course course = mock(Course.class);
+        CourseInstallEnvChecklistInfo checklist1 = new CourseInstallEnvChecklistInfo("내용1", true);
+        CourseInstallEnvChecklistInfo checklist2 = new CourseInstallEnvChecklistInfo("내용2", false);
+        List<CourseInstallEnvChecklistInfo> checklistInfos = List.of(checklist1, checklist2);
+
+        // mock
+        // deleteAllByCourseId를 수행하여 빈 상태가 되었다고 가정
+        when(courseInstallEnvChecklistRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        List<CourseInstallEnvChecklist> result = courseWriter.updateCourseInstallEnvChecklist(course, checklistInfos);
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0).getContent()).isEqualTo(checklist1.content());
+        assertThat(result.get(0).isSupported()).isEqualTo(checklist1.isSupported());
+        assertThat(result.get(1).getContent()).isEqualTo(checklist2.content());
+        assertThat(result.get(1).isSupported()).isEqualTo(checklist2.isSupported());
+    }
+
+    @Test
+    void updateCourseKeypoints_정상() {
+        // given
+        Course course = mock(Course.class);
+        List<String> keypointContents = List.of("내용1", "내용2");
+
+        // mock
+        // deleteAllByCourseId를 수행하여 빈 상태가 되었다고 가정
+        when(courseKeypointRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        List<CourseKeypoint> result = courseWriter.updateCourseKeypoints(course, keypointContents);
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0).getContent()).isEqualTo(keypointContents.get(0));
+        assertThat(result.get(1).getContent()).isEqualTo(keypointContents.get(1));
+    }
+
+    @Test
+    void updateCourseTags_정상() {
+        // given
+        Course course = mock(Course.class);
+        Tags tags1 = Tags.create("태그1");
+        Tags tags2 = Tags.create("태그2");
+        Set<Tags> tags = Set.of(tags1, tags2);
+
+        // mock
+        when(courseTagRepository.findAllExistsTagIdsByCourseIdAndTagIdIn(anyLong(), any()))
+                .thenReturn(new HashSet<>()); // 저장되어 있는 태그가 없다고 가정
+        when(courseTagRepository.saveAll(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+
+        // then
+        assertThatCode(() -> courseWriter.updateCourseTags(course, tags))
                 .doesNotThrowAnyException();
     }
 }
