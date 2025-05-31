@@ -12,6 +12,7 @@ public enum CommonErrorCode implements ErrorCode {
     BAD_REQUEST_BODY("COMMON_009", "요청 형식이 잘못되었습니다.", 422),
     INVALID_TYPE_PARAMETER("COMMON_010", "파라미터 타입이 유효하지 않습니다.", 422),
     INTERNAL_ERROR("COMMON_011", "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", 500),
+    DOCUMENTATION_ONLY("COMMON_099", "문서 생성을 위한 목업 API 입니다.", 501)
     ;
 
     private final String code;

@@ -3,15 +3,23 @@ package insty.domain.user.controller;
 
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
+import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
+import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.service.UserService;
+import insty.error.CommonErrorCode;
+import insty.exception.CustomException;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.security.CustomUserDetails;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +69,36 @@ public class UserController {
     @GetMapping("/profile")
     public SuccessRes<?> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
         return SuccessRes.of(userDetails);
+    }
+
+    @Operation(summary = "로그인 (Swagger 문서용)", description = "이메일과 비밀번호로 로그인합니다. | 실제 인증은 Spring Security Filter에서 처리됩니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "로그인 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserLoginRes.class),
+                                    examples = @ExampleObject(value = """
+                                            {
+                                                "success": true,
+                                                "data": {
+                                                    "id": 1,
+                                                    "nickname": "test@example.com",
+                                                    "userType": "NONE",
+                                                    "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6Ik5PTkUiLCJpYXQiOjE3NDg3MDU2MjIsImV4cCI6MTc0ODcwOTIyMn0.UwLCFcBKCfMeN5JTsV4-H6hc1FGGZUxNXQrRVhjqHsO7v0iLJfVs2KkJuvTESGV-4eJFeHNQUpPOzBXhmlPf4A",
+                                                    "refreshToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiODRhM2YxNWItYjk5YS00NWFkLTgzOTctOTFjNTFjM2FkNTk2IiwiaWF0IjoxNzQ4NzA1NjIyLCJleHAiOjE3NDg3OTIwMjJ9.WkAr-sgqOIDN7oWWWnELsW1mKbTn-8FtnU5l8F82drZR8zT7U8hUk1DlHaSewahCJoL7tXq7p5DpEjy3eo8XbA",
+                                                    "accessTokenExpiresIn": 1748709222000,
+                                                    "refreshTokenExpiresIn": 1748792022000
+                                                }
+                                            }
+                                    """)
+                            )
+                    )
+            }
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @PostMapping("/login")
+    public SuccessRes<UserLoginRes> login(@RequestBody UserLoginReq userLoginReq) {
+        throw new CustomException(CommonErrorCode.DOCUMENTATION_ONLY);
     }
 }
 
