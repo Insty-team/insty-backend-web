@@ -43,6 +43,14 @@ public class CourseService {
     public CoursePostRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                       MultipartFile[] practiceFile) {
         // TODO - 파일들이 null이 아니면 기존 파일들 삭제하고 새 썸네일/실습자료 추가
-        return null;
+        Course course = courseWriter.updateCourse(courseId, req);
+        List<CourseInstallEnvChecklist> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
+                req.installEnvChecklist());
+        List<CourseKeypoint> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
+        Set<Tags> tags = tagWriter.saveTags(req.tags());
+        courseWriter.updateCourseTags(course, tags);
+
+        // TODO - 썸네일 url
+        return CoursePostRes.from(course, checklists, keypoints, tags, null);
     }
 }

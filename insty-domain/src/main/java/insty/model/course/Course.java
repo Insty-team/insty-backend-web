@@ -68,4 +68,11 @@ public class Course extends BaseEntity {
                 .isShow(isShow)
                 .build();
     }
+
+    public void update(String title, String description, int price, String targetAudience) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+        this.targetAudience = targetAudience;
+    }
 }
