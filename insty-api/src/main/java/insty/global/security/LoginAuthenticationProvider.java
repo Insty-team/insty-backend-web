@@ -1,10 +1,11 @@
 package insty.global.security;
 
 import insty.error.UserErrorCode;
-import insty.global.security.exception.CustomAuthenticationException;
+import insty.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -26,7 +27,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        log.debug("=========== Security Login 사용자 인증 검증 시작 =========== ");
+        log.debug("=========== Security Login 사용자 인증 검증 시작 ===========");
         // 사용자 정보 조회
         UserDetails user = userDetailsService.loadUserByUsername(String.valueOf(authentication.getPrincipal()));
 
@@ -38,7 +39,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 
         } else {
             log.debug("=========== Security Login 사용자 비밀번호 불일치 ===========");
-            throw new CustomAuthenticationException(UserErrorCode.USER_PASSWORD_MISMATCH);
+            throw new BadCredentialsException(UserErrorCode.USER_PASSWORD_MISMATCH.getMessage(), new CustomException(UserErrorCode.USER_PASSWORD_MISMATCH));
         }
     }
 

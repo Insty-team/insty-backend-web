@@ -72,7 +72,7 @@ public class SecurityConfig {
 
     // 시큐리티 설정
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtUtils jwtUtils) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // 허용 URL
         final String[] WHITE_LIST_URL = new String[]{"/api/v1/**", HEALTH_CHECK_PATH};
@@ -88,7 +88,7 @@ public class SecurityConfig {
 
                 configuration.setAllowedOrigins(ALLOW_CROSS_ORIGIN_DOMAIN);            // Cors 도메인 (Credentials 때문에 필수)
                 configuration.setAllowedMethods(ALLOW_METHODS);            // HTTP 메서드
-                configuration.setAllowedHeaders(Collections.singletonList("*"));    // 헤더 값 다 허용
+                configuration.setAllowedHeaders(List.of(CorsConfiguration.ALL));                 // 모든 헤더 허용
                 configuration.setAllowCredentials(true);                    // 인증 관련 정보 (JWT, 세션 쿠키 받기 위함)
                 configuration.setMaxAge(3600L);                         // 브라우저의 preflight 요청 캐싱 시간
 

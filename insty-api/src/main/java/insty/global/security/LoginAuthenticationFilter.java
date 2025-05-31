@@ -3,7 +3,8 @@ package insty.global.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.error.CommonErrorCode;
-import insty.global.security.exception.CustomAuthenticationException;
+import insty.error.UserErrorCode;
+import insty.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -31,7 +33,7 @@ public class LoginAuthenticationFilter extends UsernamePasswordAuthenticationFil
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         // JSON 타입으로 받아야함
         if (request.getContentType() == null || !request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
-            throw new CustomAuthenticationException(CommonErrorCode.UNSUPPORTED_MEDIA_TYPE);
+            throw new AuthenticationServiceException(CommonErrorCode.UNSUPPORTED_MEDIA_TYPE.getMessage(), new CustomException(CommonErrorCode.UNSUPPORTED_MEDIA_TYPE));
         }
 
         try {
@@ -47,7 +49,7 @@ public class LoginAuthenticationFilter extends UsernamePasswordAuthenticationFil
 
         } catch (IOException e) {
             log.error("로그인 요청 중 파라미터 바인딩 실패 : ", e);
-            throw new CustomAuthenticationException(CommonErrorCode.PARAMETER_VALIDATION_ERROR);
+            throw new AuthenticationServiceException(UserErrorCode.USER_PASSWORD_MISMATCH.getMessage(), new CustomException(UserErrorCode.USER_PASSWORD_MISMATCH));
         }
     }
 

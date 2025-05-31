@@ -1,7 +1,7 @@
 package insty.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import insty.domain.user.dto.response.LoginSuccessRes;
+import insty.domain.user.dto.response.UserLoginRes;
 import insty.global.response.SuccessRes;
 import insty.util.JwtUtils;
 import jakarta.servlet.ServletException;
@@ -47,7 +47,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setStatus(HttpServletResponse.SC_OK);
 
         // 응답 객체 생성
-        LoginSuccessRes loginSuccessRes = LoginSuccessRes.create(
+        UserLoginRes userLoginRes = UserLoginRes.create(
                 user.getUserId(),
                 user.getUsername(),
                 user.getUserType(),
@@ -56,7 +56,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                 accessTokenExpiresAt,
                 refreshTokenExpiresAt
         );
-        SuccessRes<LoginSuccessRes> successResponse = SuccessRes.of(loginSuccessRes);
+        SuccessRes<UserLoginRes> successResponse = SuccessRes.of(userLoginRes);
 
         // 응답
         response.getWriter().write(objectMapper.writeValueAsString(successResponse));
