@@ -47,3 +47,4 @@ aws:
 
 app:
   domain: ${INSTY_DOMAIN}
+  health-check-path: ${HEALTH_CHECK_PATH}
