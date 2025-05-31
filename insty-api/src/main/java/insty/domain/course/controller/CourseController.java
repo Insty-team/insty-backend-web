@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -67,5 +68,14 @@ public class CourseController {
     ) {
         courseService.deleteCourse(courseId);
         return SuccessRes.of(null);
+    }
+
+    @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
+    @GetMapping("/{courseId}")
+    public SuccessRes<CoursePostRes> courseDetail(
+            @PathVariable("courseId") Long courseId
+    ) {
+        return SuccessRes.of(courseService.detailCourse(courseId));
     }
 }

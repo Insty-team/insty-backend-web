@@ -1,8 +1,10 @@
 package insty.domain.course.service;
 
+import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CoursePostRes;
 import insty.domain.course.dto.CourseUpdateReq;
+import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
@@ -25,6 +27,7 @@ public class CourseService {
     private final CourseWriter courseWriter;
     private final CourseReader courseReader;
     private final TagWriter tagWriter;
+    private final CourseCounter courseCounter;
 
     public CoursePostRes createCourse(CoursePostReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
         // TODO - 썸네일 저장
@@ -64,5 +67,15 @@ public class CourseService {
         Course course = courseReader.getCourseById(courseId);
         courseWriter.deleteAllCourseTags(course.getId());
         courseWriter.deleteCourse(course);
+    }
+
+    public CoursePostRes detailCourse(Long courseId) {
+        Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
+        List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
+        List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
+        List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
+
+        // TODO - 썸네일 url
+        return CoursePostRes.from(course, checklists, keypoints, tagNames, null);
     }
 }
