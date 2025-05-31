@@ -1,6 +1,7 @@
 package insty.global.security;
 
 import insty.model.user.User;
+import insty.model.user.UserType;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,12 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
-    public String getUserType() {
-        return user.getUserType().name();
+    public Long getUserId() {
+        return user.getId();
+    }
+
+    public UserType getUserType() {
+        return user.getUserType();
     }
 
     // 계정이 만료되지 않는지 (true 여야 통과)

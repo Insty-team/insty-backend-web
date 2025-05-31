@@ -2,6 +2,8 @@ package insty.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.domain.user.dto.request.UserLoginReq;
+import insty.error.CommonErrorCode;
+import insty.global.security.exception.CustomAuthenticationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +12,6 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -30,7 +31,7 @@ public class LoginAuthenticationFilter extends UsernamePasswordAuthenticationFil
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         // JSON 타입으로 받아야함
         if (request.getContentType() == null || !request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE)) {
-            throw new AuthenticationServiceException("잘못된 Content-Type으로 요청하였습니다.");    // TODO 커스텀 예외로 변경
+            throw new CustomAuthenticationException(CommonErrorCode.UNSUPPORTED_MEDIA_TYPE);
         }
 
         try {
@@ -45,7 +46,8 @@ public class LoginAuthenticationFilter extends UsernamePasswordAuthenticationFil
             return super.getAuthenticationManager().authenticate(unauthenticated);
 
         } catch (IOException e) {
-            throw new AuthenticationServiceException("잘못된 Key 이름으로 요청하였습니다.", e);   // TODO 커스텀 예외로 변경
+            log.error("로그인 요청 중 파라미터 바인딩 실패 : ", e);
+            throw new CustomAuthenticationException(CommonErrorCode.PARAMETER_VALIDATION_ERROR);
         }
     }
 
@@ -54,7 +56,7 @@ public class LoginAuthenticationFilter extends UsernamePasswordAuthenticationFil
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        log.debug("=========== Security Login 로그인 인증 성공 =========== ");
+        log.debug("=========== Security Login 인증 성공 =========== ");
         super.successfulAuthentication(request, response, chain, authResult);
     }
 

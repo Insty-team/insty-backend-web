@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.global.security.LoginAuthenticationFilter;
 import insty.global.security.LoginFailHandler;
 import insty.global.security.LoginSuccessHandler;
+import insty.global.security.jwt.JwtAuthenticationFilter;
+import insty.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +40,7 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final LoginFailHandler loginFailHandler;
     private final LoginSuccessHandler loginSuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
     @Bean
@@ -65,7 +68,7 @@ public class SecurityConfig {
 
     // 시큐리티 설정
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtUtils jwtUtils) throws Exception {
 
         // 허용 URL
         final String[] WHITE_LIST_URL = new String[]{"/api/v1/**"};
@@ -99,6 +102,7 @@ public class SecurityConfig {
         );
 
         http
+                .addFilterBefore(jwtAuthenticationFilter, LoginAuthenticationFilter.class)
                 .addFilterAt(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);  // 내가 만든 로그인 필터로 대체(교체)
 
         return http.build();

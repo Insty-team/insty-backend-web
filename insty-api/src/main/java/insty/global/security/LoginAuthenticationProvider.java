@@ -1,9 +1,10 @@
 package insty.global.security;
 
+import insty.error.UserErrorCode;
+import insty.global.security.exception.CustomAuthenticationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -36,8 +37,8 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
             return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities()); // 인증 된 객체
 
         } else {
-            log.warn("=========== Security Login 사용자 비밀번호 불일치 ===========");
-            throw new AuthenticationServiceException("비밀번호가 다릅니다.");    // TODO 커스텀 예외로 변경
+            log.debug("=========== Security Login 사용자 비밀번호 불일치 ===========");
+            throw new CustomAuthenticationException(UserErrorCode.USER_PASSWORD_MISMATCH);
         }
     }
 

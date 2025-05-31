@@ -2,6 +2,7 @@ package insty.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.domain.user.dto.response.LoginSuccessRes;
+import insty.global.response.SuccessRes;
 import insty.util.JwtUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,13 +30,12 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-
         // 유저ID
-        String email = user.getUsername();
+        Long userId = user.getUserId();
 
         // 토큰 생성
-        String accessToken = jwtHelper.generateAccessToken(email, user.getUserType());
-        String refreshToken = jwtHelper.generateRefreshToken(email);
+        String accessToken = jwtHelper.generateAccessToken(String.valueOf(userId), user.getUserType().name());
+        String refreshToken = jwtHelper.generateRefreshToken(String.valueOf(userId));
 
         // 만료 시간 추출
         long accessTokenExpiresAt = jwtHelper.extractExpiredAt(accessToken);
@@ -47,7 +47,16 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setStatus(HttpServletResponse.SC_OK);
 
         // 응답 객체 생성
-        LoginSuccessRes successResponse = LoginSuccessRes.create(accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
+        LoginSuccessRes loginSuccessRes = LoginSuccessRes.create(
+                user.getUserId(),
+                user.getUsername(),
+                user.getUserType(),
+                accessToken,
+                refreshToken,
+                accessTokenExpiresAt,
+                refreshTokenExpiresAt
+        );
+        SuccessRes<LoginSuccessRes> successResponse = SuccessRes.of(loginSuccessRes);
 
         // 응답
         response.getWriter().write(objectMapper.writeValueAsString(successResponse));
