@@ -1,6 +1,8 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
@@ -8,10 +10,14 @@ import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
+import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,5 +101,39 @@ class CourseReaderTest {
         assertThat(tagNames.size()).isEqualTo(2);
         assertThat(tagNames.get(0)).isEqualTo(tag1.getTagName());
         assertThat(tagNames.get(1)).isEqualTo(tag2.getTagName());
+    }
+
+    @Test
+    void getCourseById_정상() {
+        // given
+        Long courseId = 1L;
+
+        // mock
+        when(courseRepository.findById(courseId))
+                .thenReturn(Optional.of(mock(Course.class)));
+
+        // when
+        Course course = courseReader.getCourseById(courseId);
+
+        // then
+        assertThat(course).isNotNull();
+    }
+
+    @Test
+    void getCourseById_에러_강의가_존재하지_않다() {
+        // given
+        Long courseId = 1L;
+
+        // mock
+        when(courseRepository.findById(courseId))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> courseReader.getCourseById(courseId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_NOT_FOUND);
     }
 }

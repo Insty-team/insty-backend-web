@@ -53,4 +53,16 @@ public class CourseService {
         // TODO - 썸네일 url
         return CoursePostRes.from(course, checklists, keypoints, tags, null);
     }
+
+    /**
+     * CourseTag만 삭제하고, Course는 isDeleted=true만 설정하여 논리적 삭제한다.
+     *
+     * @param courseId
+     */
+    public void deleteCourse(Long courseId) {
+        // TODO - 게시자와 동일한 유저인지 검증
+        Course course = courseReader.getCourseById(courseId);
+        courseWriter.deleteAllCourseTags(course.getId());
+        courseWriter.deleteCourse(course);
+    }
 }

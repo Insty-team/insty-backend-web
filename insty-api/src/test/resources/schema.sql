@@ -75,7 +75,8 @@ CREATE TABLE IF NOT EXISTS web_service.courses (
     thumbnail_id     BIGINT,
     is_show          BOOLEAN NOT NULL,
     created_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    updated_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL
+    updated_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    is_deleted       BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS web_service.tags (

@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -56,5 +57,15 @@ public class CourseController {
             @RequestPart(value = "practiceFile", required = false) @Size(max = 2) MultipartFile[] practiceFile
     ) {
         return SuccessRes.of(courseService.updateCourse(courseId, req, thumbnail, practiceFile));
+    }
+
+    @Operation(summary = "강의 삭제", description = "강의를 삭제한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DELETE)
+    @DeleteMapping("/{courseId}")
+    public SuccessRes<?> courseDelete(
+            @PathVariable("courseId") Long courseId
+    ) {
+        courseService.deleteCourse(courseId);
+        return SuccessRes.of(null);
     }
 }

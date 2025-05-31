@@ -5,6 +5,9 @@ import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
+import insty.model.course.Course;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
 import java.util.List;
@@ -38,5 +41,10 @@ public class CourseReader {
         return courseTagRepository.findAllTagsByCourseId(courseId).stream()
                 .map(Tags::getTagName)
                 .toList();
+    }
+
+    public Course getCourseById(Long courseId) {
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> new CustomException(CourseErrorCode.COURSE_NOT_FOUND));
     }
 }

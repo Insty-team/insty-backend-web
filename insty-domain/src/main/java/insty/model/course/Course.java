@@ -52,6 +52,8 @@ public class Course extends BaseEntity {
 
     private boolean isShow;
 
+    private boolean isDeleted;
+
 
     // TODO - 유저도 필수로 받기
     public static Course create(String title, String description, int price, String targetAudience, Long thumbnailId,
@@ -74,5 +76,9 @@ public class Course extends BaseEntity {
         this.description = description;
         this.price = price;
         this.targetAudience = targetAudience;
+    }
+
+    public void deleteLogically() {
+        this.isDeleted = true;
     }
 }
