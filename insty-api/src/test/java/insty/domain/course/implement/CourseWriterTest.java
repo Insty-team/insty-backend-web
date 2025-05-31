@@ -8,8 +8,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
-import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
@@ -56,7 +56,7 @@ class CourseWriterTest {
         String targetAudience = "강의 대상자";
         int price = 10000;
         boolean isShow = true;
-        CoursePostReq req = new CoursePostReq(title, description, targetAudience, price, isShow, null, null, null);
+        CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, null, null, null);
         Long thumbnailId = null;
 
         // mock

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
 
-public record CoursePostReq(
+public record CourseCreateReq(
         @NotNull @Size(min = 1, max = 255)
         String title,
         String description,
