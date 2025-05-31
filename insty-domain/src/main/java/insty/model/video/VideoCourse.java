@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "video_courses", schema = "shared")
 @Getter
-@Builder
+@Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class VideoCourse extends BaseEntity {
@@ -62,6 +62,8 @@ public class VideoCourse extends BaseEntity {
 
     private Instant analysisAt;
 
+    private boolean isDeleted;
+
 
     public static VideoCourse create(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
@@ -79,6 +81,13 @@ public class VideoCourse extends BaseEntity {
                 .build();
     }
 
+    /**
+     * s3 객체 키에 대응되는 문자열을 반환한다.
+     *
+     * @param fileName 파일명 fileName.mp4
+     * @param uuid
+     * @return vod/COURSE/mp4/uuid/fileName.mp4
+     */
     private static String getS3BucketKey(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));

@@ -24,6 +24,15 @@ public class VideoAccessManager {
         return s3UrlIssuer.generatePresignedUrl(s3Key, contentType);
     }
 
+    /**
+     * CloudFront의 Signed Cookie와 여러 정보를 담은 Map을 반환한다.
+     *
+     * @param encodingVideoDirectoryPath vod/{type}/hls/{uuid}
+     * @param hlsMasterFileKey           vod/{type}/hls/{uuid}/fileName.m3u8
+     * @return <br>Path : 쿠키를 적용할 api path
+     * <br>CloudFront-Signed-Url : 클라이언트가 접근할 HLS 마스터 파일 경로
+     * <br>Domain : 쿠키를 적용할 도메인
+     */
     public Map<String, String> getSignedCookieMap(String encodingVideoDirectoryPath, String hlsMasterFileKey) {
         Map<String, String> signedCookieMap = cloudFrontSigner.generateSignedCookiesForVideo(
                 appProperties.getDomain(), encodingVideoDirectoryPath + "/*");

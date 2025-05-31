@@ -6,6 +6,11 @@ spring:
     resources:
       add-mappings: false
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -42,3 +47,4 @@ aws:
 
 app:
   domain: ${INSTY_DOMAIN}
+  health-check-path: ${HEALTH_CHECK_PATH}

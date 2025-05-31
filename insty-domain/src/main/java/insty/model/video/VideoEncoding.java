@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "video_encodings", schema = "web_service")
 @Getter
-@Builder
+@Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class VideoEncoding {
@@ -46,17 +46,30 @@ public class VideoEncoding {
     private Instant createdAt;
 
 
+    /**
+     * 인코딩 영상의 디렉토리 경로를 반환한다.
+     *
+     * @return vod/{type}/hls/{uuid}
+     */
     public String getEncodingVideoDirectoryPath() {
         validateEncodingS3Key();
         int lastSlashIndex = this.encodingS3Key.lastIndexOf('/');
         return this.encodingS3Key.substring(0, lastSlashIndex);
     }
 
+    /**
+     * HLS 영상의 마스터 파일 경로를 반환한다.
+     *
+     * @return vod/{type}/hls/{uuid}/fileName.m3u8
+     */
     public String getHlsMasterFileKey() {
         validateEncodingS3Key();
         return this.encodingS3Key + ".m3u8";
     }
 
+    /**
+     * s3 키의 형식을 검사한다.<br> 키의 형식은 vod/{type}/hls/{uuid}/{파일명} 으로 /가 4개 들어가야 한다.
+     */
     public void validateEncodingS3Key() {
         int slashCount = (int) this.encodingS3Key.chars()
                 .filter(c -> c == '/')

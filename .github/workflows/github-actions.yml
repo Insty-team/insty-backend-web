@@ -73,9 +73,9 @@ jobs:
       - name: Check ping
         run: |
           for i in {1..20}; do
-            RESPONSE=$(curl -s localhost:8080 || true)
+            RESPONSE=$(curl -s localhost:8080${{ secrets.HEALTH_CHECK_PATH }} || true)
           
-            if echo "$RESPONSE" | grep -q "COMMON_005"; then
+            if echo "$RESPONSE" | grep -q "true"; then
               echo "✅ 애플리케이션 실행 완료"
               exit 0
             fi
