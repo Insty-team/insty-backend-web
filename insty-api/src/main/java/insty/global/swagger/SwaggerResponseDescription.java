@@ -30,6 +30,7 @@ public enum SwaggerResponseDescription {
     // course
     COURSE_CREATE(new LinkedHashSet<>(Set.of())),
     COURSE_UPDATE(new LinkedHashSet<>(Set.of())),
+    COURSE_DELETE(new LinkedHashSet<>(Set.of())),
     ;
 
     private Set<ErrorCode> errorCodeList;

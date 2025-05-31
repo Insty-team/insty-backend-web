@@ -89,4 +89,13 @@ public class CourseWriter {
                 .collect(Collectors.toSet());
         saveCourseTags(course, saveTargetTags);
     }
+
+    public void deleteAllCourseTags(Long courseId) {
+        courseTagRepository.deleteAllByCourseId(courseId);
+    }
+
+    public void deleteCourse(Course course) {
+        course.deleteLogically();
+        courseRepository.save(course);
+    }
 }
