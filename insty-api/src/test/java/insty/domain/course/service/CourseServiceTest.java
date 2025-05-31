@@ -16,8 +16,11 @@ import insty.domain.course.repository.CourseTagRepository;
 import insty.domain.tag.implement.TagWriter;
 import insty.domain.tag.repository.TagsRepository;
 import insty.global.property.AppProperties;
+import insty.model.course.Course;
+import insty.model.tag.Tags;
 import insty.s3.adapter.S3UrlIssuer;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -157,5 +160,30 @@ class CourseServiceTest {
         assertThat(courseKeypointRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(courseTagRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(tagsRepository.count()).isEqualTo(3); // 새로운 태그가 생성되어 3개가 됨
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (100L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
+                    "VALUES (100L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+            "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
+                    "VALUES (100L, 100L, NOW(), NOW())"
+    })
+    @Test
+    void deleteCourse_정상() {
+        // given
+        Long courseId = 100L;
+
+        // when
+        courseService.deleteCourse(courseId);
+
+        // then
+        Optional<Course> course = courseRepository.findById(courseId);
+        assertThat(course.isPresent()).isTrue();
+        assertThat(course.get().isDeleted()).isTrue();
+
+        List<Tags> allTagsByCourseId = courseTagRepository.findAllTagsByCourseId(courseId);
+        assertThat(allTagsByCourseId.isEmpty()).isTrue();
     }
 }
