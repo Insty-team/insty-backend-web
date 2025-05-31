@@ -19,8 +19,8 @@ public interface CourseTagRepository extends JpaRepository<CourseTag, Long> {
 
     @Query("""
             SELECT t.id FROM CourseTag ct
-                JOIN Tags t ON t.id = ct.tags.id AND ct.course.id = :courseId
                 JOIN Course c ON c.id = ct.course.id AND c.id = :courseId
+                JOIN Tags t ON t.id = ct.tags.id AND t.id IN :tagIds
             """)
     Set<Long> findAllExistsTagIdsByCourseIdAndTagIdIn(@Param("courseId") Long courseId,
                                                       @Param("tagIds") List<Long> tagIds);
