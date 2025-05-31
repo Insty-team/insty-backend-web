@@ -28,8 +28,6 @@ public class Tags extends BaseEntity { // 테스트에 @Tag와 겹치므로 Tags
     @Column(nullable = false, length = 50)
     private String tagName;
 
-    private boolean isUsed;
-
 
     public static Tags create(String tagName) {
         return Tags.builder()
