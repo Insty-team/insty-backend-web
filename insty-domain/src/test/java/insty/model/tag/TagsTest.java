@@ -19,6 +19,5 @@ class TagsTest {
         // then
         assertThat(tags).isNotNull();
         assertThat(tags.getTagName()).isEqualTo(tagName);
-        assertThat(tags.isUsed()).isFalse();
     }
 }

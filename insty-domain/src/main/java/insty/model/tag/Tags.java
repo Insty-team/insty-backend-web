@@ -25,7 +25,7 @@ public class Tags extends BaseEntity { // 테스트에 @Tag와 겹치므로 Tags
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String tagName;
 
 

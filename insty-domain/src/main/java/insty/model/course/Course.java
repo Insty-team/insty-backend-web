@@ -54,7 +54,8 @@ public class Course extends BaseEntity {
 
 
     // TODO - 유저도 필수로 받기
-    public static Course create(String title, String description, int price, String targetAudience, Long thumbnailId) {
+    public static Course create(String title, String description, int price, String targetAudience, Long thumbnailId,
+                                boolean isShow) {
         return Course.builder()
                 .user(null)
                 .title(title)
@@ -64,7 +65,7 @@ public class Course extends BaseEntity {
                 .likeCount(0)
                 .targetAudience(targetAudience)
                 .thumbnailId(thumbnailId)
-                .isShow(true)
+                .isShow(isShow)
                 .build();
     }
 }
