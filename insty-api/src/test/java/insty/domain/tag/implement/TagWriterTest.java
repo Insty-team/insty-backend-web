@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.tag.repository.TagsRepository;
 import insty.model.tag.Tags;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,12 +36,12 @@ class TagWriterTest {
 
         // mock
         when(tagsRepository.findByTagNameIn(tagNames))
-                .thenReturn(new ArrayList<>(List.of(Tags.create(tag1))));
-        when(tagsRepository.save(any(Tags.class)))
+                .thenReturn(new HashSet<>(List.of(Tags.create(tag1))));
+        when(tagsRepository.saveAll(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        List<Tags> result = tagWriter.saveTags(tagNames);
+        Set<Tags> result = tagWriter.saveTags(tagNames);
 
         // then
         assertThat(result.size()).isEqualTo(2);

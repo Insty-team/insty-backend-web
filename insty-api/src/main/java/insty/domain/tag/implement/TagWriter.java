@@ -4,6 +4,7 @@ import insty.domain.tag.repository.TagsRepository;
 import insty.model.tag.Tags;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,19 +22,19 @@ public class TagWriter {
      * @param tagNames 요청된 태그명 집합
      * @return 요청된 태그명에 대한 모든 태그
      */
-    public List<Tags> saveTags(Set<String> tagNames) {
-        List<Tags> tags = tagsRepository.findByTagNameIn(tagNames);
+    public Set<Tags> saveTags(Set<String> tagNames) {
+        Set<Tags> tags = tagsRepository.findByTagNameIn(tagNames);
 
-        List<String> alreadySavedTags = tags.stream()
+        Set<String> existingTagNames = tags.stream()
                 .map(Tags::getTagName)
+                .collect(Collectors.toSet());
+        List<Tags> newTags = tagNames.stream()
+                .filter(tagName -> !existingTagNames.contains(tagName))
+                .map(Tags::create)
                 .toList();
-        for (String tag : tagNames) {
-            if (!alreadySavedTags.contains(tag)) {
-                Tags newTag = tagsRepository.save(Tags.create(tag));
-                tags.add(newTag);
-            }
-        }
+        List<Tags> savedNewTags = tagsRepository.saveAll(newTags);
 
+        tags.addAll(savedNewTags);
         return tags;
     }
 }

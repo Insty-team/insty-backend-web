@@ -84,7 +84,7 @@ class CourseReaderTest {
 
         // mock
         Tags tag1 = Tags.create("태그1");
-        Tags tag2 = Tags.create("태그1");
+        Tags tag2 = Tags.create("태그2");
         when(courseTagRepository.findAllTagsByCourseId(courseId))
                 .thenReturn(List.of(tag1, tag2));
 

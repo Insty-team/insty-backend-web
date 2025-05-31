@@ -15,9 +15,9 @@ import insty.domain.course.repository.CourseTagRepository;
 import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
-import insty.model.course.CourseTag;
 import insty.model.tag.Tags;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,7 +81,7 @@ class CourseWriterTest {
         List<CourseInstallEnvChecklistInfo> checklistInfos = List.of(checklist1, checklist2);
 
         // mock
-        when(courseInstallEnvChecklistRepository.save(any(CourseInstallEnvChecklist.class)))
+        when(courseInstallEnvChecklistRepository.saveAll(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -102,7 +102,7 @@ class CourseWriterTest {
         List<String> keypointContents = List.of("내용1", "내용2");
 
         // mock
-        when(courseKeypointRepository.save(any(CourseKeypoint.class)))
+        when(courseKeypointRepository.saveAll(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -120,10 +120,10 @@ class CourseWriterTest {
         Course course = mock(Course.class);
         Tags tags1 = Tags.create("태그1");
         Tags tags2 = Tags.create("태그2");
-        List<Tags> tags = List.of(tags1, tags2);
+        Set<Tags> tags = Set.of(tags1, tags2);
 
         // mock
-        when(courseTagRepository.save(any(CourseTag.class)))
+        when(courseTagRepository.saveAll(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when

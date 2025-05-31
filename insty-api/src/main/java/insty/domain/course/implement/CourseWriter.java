@@ -12,6 +12,7 @@ import insty.model.course.CourseKeypoint;
 import insty.model.course.CourseTag;
 import insty.model.tag.Tags;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,28 +35,24 @@ public class CourseWriter {
 
     public List<CourseInstallEnvChecklist> saveCourseInstallEnvChecklist(Course course,
                                                                          List<CourseInstallEnvChecklistInfo> checklistInfos) {
-        return checklistInfos.stream()
-                .map(checklistInfo -> {
-                    CourseInstallEnvChecklist checklist = CourseInstallEnvChecklist.create(course,
-                            checklistInfo.content(), checklistInfo.isSupported());
-                    return courseInstallEnvChecklistRepository.save(checklist);
-                })
+        List<CourseInstallEnvChecklist> checklists = checklistInfos.stream()
+                .map(checklistInfo -> CourseInstallEnvChecklist.create(course,
+                        checklistInfo.content(), checklistInfo.isSupported()))
                 .toList();
+        return courseInstallEnvChecklistRepository.saveAll(checklists);
     }
 
     public List<CourseKeypoint> saveCourseKeypoints(Course course, List<String> keypointContents) {
-        return keypointContents.stream()
-                .map(keypoint -> {
-                    CourseKeypoint courseKeypoint = CourseKeypoint.create(course, keypoint);
-                    return courseKeypointRepository.save(courseKeypoint);
-                })
+        List<CourseKeypoint> keypoints = keypointContents.stream()
+                .map(keypoint -> CourseKeypoint.create(course, keypoint))
                 .toList();
+        return courseKeypointRepository.saveAll(keypoints);
     }
 
-    public void saveCourseTags(Course course, List<Tags> tags) {
-        for (Tags tag : tags) {
-            CourseTag courseTag = CourseTag.create(course, tag);
-            courseTagRepository.save(courseTag);
-        }
+    public void saveCourseTags(Course course, Set<Tags> tags) {
+        List<CourseTag> list = tags.stream()
+                .map(tag -> CourseTag.create(course, tag))
+                .toList();
+        courseTagRepository.saveAll(list);
     }
 }
