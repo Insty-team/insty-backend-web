@@ -34,6 +34,9 @@ public class SecurityConfig {
     @Value("${spring.security.cors.allowed-methods}")
     private List<String> ALLOW_METHODS;
 
+    @Value("${app.health-check-path}")
+    private String HEALTH_CHECK_PATH;
+
     // 시큐리티에게 AuthenticationConfiguration 주입 받기
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -50,7 +53,8 @@ public class SecurityConfig {
 
     // 인증 관리자
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -71,9 +75,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtUtils jwtUtils) throws Exception {
 
         // 허용 URL
-        final String[] WHITE_LIST_URL = new String[]{"/api/v1/**"};
+        final String[] WHITE_LIST_URL = new String[]{"/api/v1/**", HEALTH_CHECK_PATH};
         // 스웨거 허용 URL
-        final String[] SWAGGER_LIST_URL = new String[]{"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**"};
+        final String[] SWAGGER_LIST_URL = new String[]{"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
+                "/webjars/**"};
 
         // CORS 설정
         http.cors((cors -> cors.configurationSource(new CorsConfigurationSource() {
@@ -103,11 +108,11 @@ public class SecurityConfig {
 
         http
                 .addFilterBefore(jwtAuthenticationFilter, LoginAuthenticationFilter.class)
-                .addFilterAt(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);  // 내가 만든 로그인 필터로 대체(교체)
+                .addFilterAt(loginAuthenticationFilter(),
+                        UsernamePasswordAuthenticationFilter.class);  // 내가 만든 로그인 필터로 대체(교체)
 
         return http.build();
     }
-
 
 
 }
