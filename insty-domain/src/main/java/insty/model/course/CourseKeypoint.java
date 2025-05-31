@@ -1,6 +1,5 @@
 package insty.model.course;
 
-import insty.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CourseKeypoint extends BaseEntity {
+public class CourseKeypoint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
