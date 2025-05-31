@@ -1,7 +1,7 @@
 package insty.error;
 
-public enum CategoryErrorCode implements ErrorCode {
-    CATEGORY_INVALID_DEPTH("CATEGORY_001", "카테고리의 깊이가 유효하지 않습니다.", 400),
+public enum CourseErrorCode implements ErrorCode {
+    COURSE_NOT_FOUND("COURSE_001", "강의를 찾을 수 없습니다.", 404),
 
     ;
 
@@ -9,7 +9,7 @@ public enum CategoryErrorCode implements ErrorCode {
     private final String message;
     private final int httpCode;
 
-    CategoryErrorCode(String code, String message, int httpCode) {
+    CourseErrorCode(String code, String message, int httpCode) {
         this.code = code;
         this.message = message;
         this.httpCode = httpCode;

@@ -17,7 +17,7 @@ public class TagWriter {
     private final TagsRepository tagsRepository;
 
     /**
-     * 태그 명이 유니크하게 유지되도록 저장되지 않은 태그명 새로 저장한다.<br> 이로 인해 태그 기반 필터 구현에 이점이 생긴다.
+     * 태그 명이 유니크하게 유지되도록 저장되지 않은 태그명만 새로 저장한다.<br> 이로 인해 태그 기반 필터 구현에 이점이 생긴다.
      *
      * @param tagNames 요청된 태그명 집합
      * @return 요청된 태그명에 대한 모든 태그

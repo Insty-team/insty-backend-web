@@ -28,7 +28,9 @@ public enum SwaggerResponseDescription {
     VIDEO_GET(new LinkedHashSet<>(Set.of(
     ))),
     // course
-    COURSE_POST(new LinkedHashSet<>(Set.of()));
+    COURSE_CREATE(new LinkedHashSet<>(Set.of())),
+    COURSE_UPDATE(new LinkedHashSet<>(Set.of())),
+    ;
 
     private Set<ErrorCode> errorCodeList;
 
