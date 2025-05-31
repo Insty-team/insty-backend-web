@@ -18,6 +18,6 @@ public class CommunityController {
 
     @GetMapping("/questions/{question_id}")
     public SuccessRes<?> selectQuestionDetails() {
-
+        return SuccessRes.of(null);
     }
 }
