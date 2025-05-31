@@ -3,9 +3,9 @@ package insty.domain.course.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
+import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CoursePostReq;
-import insty.domain.course.dto.CoursePostRes;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseReader;
@@ -93,7 +93,7 @@ class CourseServiceTest {
         };
 
         // when
-        CoursePostRes res = courseService.createCourse(req, thumbnail, practiceFiles);
+        CourseDetailRes res = courseService.createCourse(req, thumbnail, practiceFiles);
 
         // then
         assertThat(res).isNotNull();
@@ -148,7 +148,7 @@ class CourseServiceTest {
         };
 
         // when
-        CoursePostRes res = courseService.updateCourse(courseId, req, thumbnail, practiceFiles);
+        CourseDetailRes res = courseService.updateCourse(courseId, req, thumbnail, practiceFiles);
 
         // then
         assertThat(res).isNotNull();
@@ -211,7 +211,7 @@ class CourseServiceTest {
         Long courseId = 100L;
 
         // when
-        CoursePostRes res = courseService.detailCourse(courseId);
+        CourseDetailRes res = courseService.detailCourse(courseId);
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);

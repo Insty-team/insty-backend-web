@@ -1,8 +1,8 @@
 package insty.domain.course.service;
 
+import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CoursePostReq;
-import insty.domain.course.dto.CoursePostRes;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseReader;
@@ -29,7 +29,7 @@ public class CourseService {
     private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
 
-    public CoursePostRes createCourse(CoursePostReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
+    public CourseDetailRes createCourse(CoursePostReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
         // TODO - 썸네일 저장
         // TODO - 실습자료 저장
         Course course = courseWriter.saveCourse(req, null);
@@ -40,11 +40,11 @@ public class CourseService {
         courseWriter.saveCourseTags(course, tags);
 
         // TODO - 썸네일 url
-        return CoursePostRes.from(course, checklists, keypoints, tags, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, null);
     }
 
-    public CoursePostRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
-                                      MultipartFile[] practiceFile) {
+    public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
+                                        MultipartFile[] practiceFile) {
         // TODO - 파일들이 null이 아니면 기존 파일들 삭제하고 새 썸네일/실습자료 추가
         Course course = courseWriter.updateCourse(courseId, req);
         List<CourseInstallEnvChecklist> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
@@ -54,7 +54,7 @@ public class CourseService {
         courseWriter.updateCourseTags(course, tags);
 
         // TODO - 썸네일 url
-        return CoursePostRes.from(course, checklists, keypoints, tags, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, null);
     }
 
     /**
@@ -69,13 +69,13 @@ public class CourseService {
         courseWriter.deleteCourse(course);
     }
 
-    public CoursePostRes detailCourse(Long courseId) {
+    public CourseDetailRes detailCourse(Long courseId) {
         Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
 
         // TODO - 썸네일 url
-        return CoursePostRes.from(course, checklists, keypoints, tagNames, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null);
     }
 }

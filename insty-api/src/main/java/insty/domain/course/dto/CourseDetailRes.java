@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-public record CoursePostRes(
+public record CourseDetailRes(
         Long courseId,
         String title,
         String description,
@@ -24,8 +24,8 @@ public record CoursePostRes(
         Instant createdAt
 ) {
 
-    public static CoursePostRes from(Course course, List<CourseInstallEnvChecklist> installEnvChecklist,
-                                     List<CourseKeypoint> keyPoints, Set<Tags> tags, String thumbnailUrl) {
+    public static CourseDetailRes from(Course course, List<CourseInstallEnvChecklist> installEnvChecklist,
+                                       List<CourseKeypoint> keyPoints, Set<Tags> tags, String thumbnailUrl) {
         List<CourseInstallEnvChecklistInfo> checklistInfos = installEnvChecklist.stream()
                 .map(CourseInstallEnvChecklistInfo::from)
                 .toList();
@@ -36,7 +36,7 @@ public record CoursePostRes(
                 .map(Tags::getTagName)
                 .toList();
 
-        return new CoursePostRes(
+        return new CourseDetailRes(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
@@ -51,9 +51,9 @@ public record CoursePostRes(
         );
     }
 
-    public static CoursePostRes from(Course course, List<CourseInstallEnvChecklistInfo> installEnvChecklist,
-                                     List<String> keyPoints, List<String> tags, String thumbnailUrl) {
-        return new CoursePostRes(
+    public static CourseDetailRes from(Course course, List<CourseInstallEnvChecklistInfo> installEnvChecklist,
+                                       List<String> keyPoints, List<String> tags, String thumbnailUrl) {
+        return new CourseDetailRes(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
