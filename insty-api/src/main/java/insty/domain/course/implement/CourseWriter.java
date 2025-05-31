@@ -1,7 +1,7 @@
 package insty.domain.course.implement;
 
+import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
-import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
@@ -31,7 +31,7 @@ public class CourseWriter {
     private final CourseKeypointRepository courseKeypointRepository;
     private final CourseTagRepository courseTagRepository;
 
-    public Course saveCourse(CoursePostReq req, Long thumbnailId) {
+    public Course saveCourse(CourseCreateReq req, Long thumbnailId) {
         Course course = Course.create(req.title(), req.description(), req.price(), req.targetAudience(), thumbnailId,
                 req.isShow());
         return courseRepository.save(course);

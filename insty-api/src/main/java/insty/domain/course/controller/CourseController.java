@@ -1,7 +1,7 @@
 package insty.domain.course.controller;
 
+import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
-import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.service.CourseService;
 import insty.global.annotation.CustomExceptionDescription;
@@ -37,7 +37,7 @@ public class CourseController {
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_CREATE)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseCreate(
-            @RequestPart("coursePostReq") @Validated CoursePostReq req,
+            @RequestPart("coursePostReq") @Validated CourseCreateReq req,
             @Parameter(description = "썸네일", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
             @Parameter(description = "실습자료(최대 2개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))

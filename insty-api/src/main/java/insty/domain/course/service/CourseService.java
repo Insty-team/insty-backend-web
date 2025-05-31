@@ -1,8 +1,8 @@
 package insty.domain.course.service;
 
+import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
-import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseReader;
@@ -29,7 +29,7 @@ public class CourseService {
     private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
 
-    public CourseDetailRes createCourse(CoursePostReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
+    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
         // TODO - 썸네일 저장
         // TODO - 실습자료 저장
         Course course = courseWriter.saveCourse(req, null);

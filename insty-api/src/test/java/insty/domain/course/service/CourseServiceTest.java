@@ -3,9 +3,9 @@ package insty.domain.course.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
+import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
-import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseReader;
@@ -85,7 +85,8 @@ class CourseServiceTest {
         List<String> keypoints = List.of("핵심 내용1", "핵심 내용2");
         Set<String> tags = Set.of("태그1", "태그2");
 
-        CoursePostReq req = new CoursePostReq(title, description, targetAudience, price, isShow, checklists, keypoints,
+        CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, checklists,
+                keypoints,
                 tags);
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg", new byte[0]);
         MockMultipartFile[] practiceFiles = new MockMultipartFile[]{
