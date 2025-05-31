@@ -2,6 +2,7 @@ package insty.domain.course.service;
 
 import insty.domain.course.dto.CoursePostReq;
 import insty.domain.course.dto.CoursePostRes;
+import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
@@ -37,5 +38,11 @@ public class CourseService {
 
         // TODO - 썸네일 url
         return CoursePostRes.from(course, checklists, keypoints, tags, null);
+    }
+
+    public CoursePostRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
+                                      MultipartFile[] practiceFile) {
+        // TODO - 파일들이 null이 아니면 기존 파일들 삭제하고 새 썸네일/실습자료 추가
+        return null;
     }
 }
