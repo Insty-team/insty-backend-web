@@ -82,7 +82,7 @@ public class UserService {
         // 인증 시도
         Authentication authenticated = authenticationManager.authenticate(authenticationRequest);
 
-        if(!authenticated.isAuthenticated()) throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        if(!authenticated.isAuthenticated()) throw new CustomException(UserErrorCode.UNAUTHORIZED);
 
         // 인증된 객체
         CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
