@@ -1,4 +1,7 @@
 package insty.domain.community.reposiotry;
 
-public interface CommunityRepository {
+import insty.model.community.CommunityQuestion;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CommunityRepository extends JpaRepository<CommunityQuestion, Long> {
 }
