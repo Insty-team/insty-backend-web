@@ -61,26 +61,29 @@ public class JwtUtils {
                 .sign(Algorithm.HMAC512(secretKey.getBytes(StandardCharsets.UTF_8)));   // 명시적으로 UTF-8을 지정하면 어떤 환경에서도 동일한 결과가 보장
     }
 
+    /**
+     * JWT 유효성 검사 및 상태 값 조회
+     */
     public JwtValidationType validateToken(String token) {
         try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC512(secretKey.getBytes(StandardCharsets.UTF_8)))
-                    .build();
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC512(secretKey.getBytes(StandardCharsets.UTF_8))).build();
             verifier.verify(token);
+            // 정상
             return JwtValidationType.VALID;
         } catch (TokenExpiredException e) {
-            log.warn("토큰 만료: {} >>>> {}", token, e.getMessage());
+            // 토큰 만료
             return JwtValidationType.EXPIRED;
         } catch (SignatureVerificationException e) {
-            log.error("서명 불일치: {} >>>> {}", token, e.getMessage());
+            log.error("서명 검증 실패 (토큰 변조 의심): {} >>>> {}", token, e.getMessage());
             return JwtValidationType.INVALID_SIGNATURE;
         } catch (AlgorithmMismatchException e) {
-            log.error("지원하지 않는 알고리즘: {} >>>> {}", token, e.getMessage());
+            log.error("지원하지 않는 알고리즘 또는 타입: {} >>>> {}", token, e.getMessage());
             return JwtValidationType.UNSUPPORTED;
         } catch (JWTDecodeException e) {
-            log.error("잘못된 토큰 형식: {} >>>> {}", token, e.getMessage());
+            log.error("토큰 형식이 올바르지 않음: {} >>>> {}", token, e.getMessage());
             return JwtValidationType.MALFORMED;
         } catch (JWTVerificationException e) {
-            log.error("클레임 검증 실패 혹은 기타 검증 실패: {} >>>> {}", token, e.getMessage());
+            log.error("토큰 내부 클레임 검증 실패: {} >>>> {}", token, e.getMessage());
             return JwtValidationType.CLAIMS_INVALID;
         } catch (Exception e) {
             log.error("토큰 검증 중 알 수 없는 에러 발생: {}", e.getMessage());

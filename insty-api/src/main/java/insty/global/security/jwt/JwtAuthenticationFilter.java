@@ -3,6 +3,7 @@ package insty.global.security.jwt;
 import insty.constants.JwtValidationType;
 import insty.domain.user.implement.UserReader;
 import insty.error.CommonErrorCode;
+import insty.error.TokenErrorCode;
 import insty.exception.CustomException;
 import insty.global.security.CustomUserDetails;
 import insty.model.user.User;
@@ -14,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -41,26 +41,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 토큰 검증
-        JwtValidationType jwtValidationType = jwtUtils.validateToken(accessToken);
-        switch (jwtValidationType) {        // TODO 필터 예외처리
-            case VALID:
-                log.info("정상 토큰입니다.");
+        JwtValidationType tokenValidStatus = jwtUtils.validateToken(accessToken);
+        switch (tokenValidStatus) {
+            case VALID:     // 정상
                 break;
-            case EXPIRED:
-                log.info("토큰이 만료되었습니다.");
-                throw new AuthenticationServiceException(CommonErrorCode.UNAUTHORIZED.getMessage(), new CustomException(CommonErrorCode.UNAUTHORIZED)); // 401
-            case INVALID_SIGNATURE:
-            case MALFORMED:
-            case UNSUPPORTED:
-                log.warn("토큰이 위조되었거나 형식이 잘못되었습니다.");
-//                throw new AuthenticationServiceException(CommonErrorCode.FORBIDDEN.getMessage(), new CustomException(CommonErrorCode.FORBIDDEN)); // 403
-                throw new CustomException(CommonErrorCode.FORBIDDEN);
-            case CLAIMS_INVALID:
-                log.warn("토큰 클레임이 유효하지 않습니다.");
-                throw new AuthenticationServiceException(CommonErrorCode.UNAUTHORIZED.getMessage(), new CustomException(CommonErrorCode.UNAUTHORIZED)); // 401
+
+            case EXPIRED:           // 만료
+                throw new CustomException(TokenErrorCode.ACCESS_TOKEN_EXPIRED);
+
+            case CLAIMS_INVALID:    // 내부 클레임 검증 실패
+                throw new CustomException(TokenErrorCode.TOKEN_CLAIMS_INVALID);
+
+            case INVALID_SIGNATURE: // 서명 검증 실패
+                throw new CustomException(TokenErrorCode.ACCESS_TOKEN_SIGNATURE_INVALID);
+
+            case MALFORMED:         // 토큰 형식이 올바르지 않음
+                throw new CustomException(TokenErrorCode.TOKEN_MALFORMED);
+
+            case UNSUPPORTED:       // 지원하지 않음
+                throw new CustomException(TokenErrorCode.TOKEN_UNSUPPORTED);
+
             default:
-                log.error("토큰 검증 중 알 수 없는 오류가 발생했습니다.");
-                throw new AuthenticationServiceException(CommonErrorCode.INTERNAL_ERROR.getMessage(), new CustomException(CommonErrorCode.INTERNAL_ERROR)); // 401
+                throw new CustomException(CommonErrorCode.INTERNAL_ERROR); // 500
         }
 
         // 토큰에 있는 정보로 스프링 시큐리티 컨텍스트에 유저정보 저장
