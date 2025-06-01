@@ -9,20 +9,13 @@ import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.service.UserService;
-import insty.error.CommonErrorCode;
-import insty.exception.CustomException;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.security.CustomUserDetails;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -33,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @Tag(name = "유저 API")
 @Validated
 @RestController
@@ -71,34 +63,11 @@ public class UserController {
         return SuccessRes.of(userDetails);
     }
 
-    @Operation(summary = "로그인 (Swagger 문서용)", description = "이메일과 비밀번호로 로그인합니다. | 실제 인증은 Spring Security Filter에서 처리됩니다.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "로그인 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = UserLoginRes.class),
-                                    examples = @ExampleObject(value = """
-                                            {
-                                                 "success": true,
-                                                 "data": {
-                                                     "id": 1,
-                                                     "nickname": "test@example.com",
-                                                     "userType": "NONE",
-                                                     "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6Ik5PTkUiLCJpYXQiOjE3NDg3NDMzMDQsImV4cCI6MjA2NDEwMzMwNH0.TNM4Dh5ZTNemn3aKrtMCMN7JT_YMZx80nlLSectikkNoYfeI-5KiFJz6HjJfKqTdnOrI4xEo_kOt_3cdQMtoNA",
-                                                     "refreshToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiZTg3MWNiNDMtYWFjMC00NDU1LWFhOTUtMjQ0Y2IyZmIzMTM5IiwiaWF0IjoxNzQ4NzQzMzA0LCJleHAiOjIwNjQxMDMzMDR9.5KL9PHdKItQKEVE9Dep3k3YQiCNCxNAv4HEACYKFGbu1BKIJPl8oY-sldJnDAgPfEs5DofgNHkCJ7bRTlsTPcw",
-                                                     "accessTokenExpiresIn": 2064103304000,
-                                                     "refreshTokenExpiresIn": 2064103304000
-                                                 }
-                                            }
-                                    """)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "사용자 이메일 로그인", description = "이메일과 비밀번호로 로그인합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @PostMapping("/login")
-    public SuccessRes<UserLoginRes> login(@RequestBody UserLoginReq userLoginReq) {
-        throw new CustomException(CommonErrorCode.DOCUMENTATION_ONLY);
+    public SuccessRes<UserLoginRes> login(@RequestBody UserLoginReq req) {
+        return SuccessRes.of(userService.loginByEmail(req));
     }
 }
 
