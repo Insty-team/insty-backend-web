@@ -1,9 +1,12 @@
 package insty.domain.course.service;
 
 import insty.domain.common.SearchRes;
+import insty.domain.common.dto.PaginationReq;
+import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
+import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
@@ -83,6 +86,12 @@ public class CourseService {
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {
-        return null;
+        PaginationReq paginationReq = req.toPaginationReq();
+        CourseSearchFilter filter = req.toSearchFilter();
+
+        List<CourseSearchInfo> searchInfo = courseReader.searchCourse(paginationReq, filter);
+        PaginationRes paginationRes = courseReader.countSearchCourse(paginationReq, filter);
+
+        return SearchRes.from(paginationRes, searchInfo);
     }
 }
