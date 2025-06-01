@@ -39,9 +39,10 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
 
     private final ObjectMapper objectMapper;
-    private final LoginFailHandler loginFailHandler;
-    private final LoginSuccessHandler loginSuccessHandler;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final LoginFailHandler loginFailHandler;            // 로그인 실패 핸들러
+    private final LoginSuccessHandler loginSuccessHandler;      // 로그인 성공 핸들러
+    private final CustomAuthenticationEntryPoint entryPoint;            // 인증 에러 핸들러
+    private final CustomAccessDeniedHandler accessDeniedHandler;        // 인가 에러 핸들러
 
 
     @Bean
