@@ -80,7 +80,7 @@ public class UserController {
 
     @Operation(summary = "사용자 로그아웃", description = "로그아웃을 요청합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PatchMapping("/me/profile")
+    @PatchMapping("/logout")
     public SuccessRes<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
         return SuccessRes.of(null);
     }
