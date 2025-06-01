@@ -35,10 +35,13 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserService {
 
+    // 사용자 모듈 서비스
     private final UserWriter userWriter;
     private final UserValidator userValidator;
     private final UserReader userReader;
     private final UserTokenIssuer userTokenIssuer;
+
+    // 스프링 시큐리티
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
 

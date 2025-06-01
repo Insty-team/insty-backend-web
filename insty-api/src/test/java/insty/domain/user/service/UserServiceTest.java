@@ -2,19 +2,26 @@ package insty.domain.user.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import insty.domain.user.dto.CurrentUserDto;
+import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserTypeUpdateReq;
+import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
+import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
 import insty.model.user.User;
+import insty.model.user.UserType;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -121,5 +129,85 @@ class UserServiceTest {
         // then
         assertThat(result.isAvailable()).isFalse();
         assertThat(result.reason()).isEqualTo(UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage());
+    }
+
+    @Test
+    void 사용자_상세정보_조회에_성공한다() {
+        // given
+        Long userId = 1L;
+        User mockUser = User.create("email@example.com", "encodedPassword", "nickname");
+        CurrentUserDto currentUser = new CurrentUserDto(userId,  "email@example.com", "nickname");
+
+        when(userReader.getUser(userId)).thenReturn(mockUser);
+
+        // when
+        UserDetailRes result = userService.getDetailUser(currentUser);
+
+        // then
+        verify(userReader).getUser(userId);
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(mockUser));
+    }
+
+    @Test
+    void 사용자_정보_수정_시_비밀번호를_암호화하고_업데이트한다() {
+        // given
+        Long userId = 1L;
+        UserUpdateReq req = new UserUpdateReq("new@example.com", "rawPassword1!", "newnick", "introduce");
+        MultipartFile profileImage = mock(MultipartFile.class);
+        String encodedPassword = "encodedPassword";
+
+        User updatedUser = User.create("old@example.com", "mockUser", "oldnick");
+
+        when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
+        when(userWriter.updateUser(
+                userId,
+                req.email(),
+                encodedPassword,
+                req.nickname(),
+                req.introduce(),
+                profileImage
+        )).thenReturn(updatedUser);
+
+        // when
+        UserDetailRes result = userService.updateUser(userId, req, profileImage);
+
+        // then
+        verify(bCryptPasswordEncoder).encode(req.password());
+        verify(userWriter).updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce(), profileImage);
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser));
+    }
+
+    @Test
+    void 사용자_타입_변경_시_업데이트가_정상적으로_동작한다() {
+        // given
+        Long userId = 1L;
+        UserTypeUpdateReq req = new UserTypeUpdateReq(UserType.LEARNER);
+        User updatedUser = User.create("old@example.com", "mockUser", "oldnick");
+
+        when(userWriter.updateUserByUserType(userId, req.userType())).thenReturn(updatedUser);
+
+        // when
+        UserDetailRes result = userService.updateUserType(userId, req);
+
+        // then
+        verify(userWriter).updateUserByUserType(userId, req.userType());
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser));
+    }
+
+    @Test
+    void 사용자_수신_및_약관_동의_변경이_정상적으로_동작한다() {
+        // given
+        Long userId = 1L;
+        UserAgreementUpdateReq req = new UserAgreementUpdateReq(true);
+        User updatedUser = User.create("old@example.com", "mockUser", "oldnick");
+
+        when(userWriter.updateUserByAgreement(userId, req.isEmailAgree())).thenReturn(updatedUser);
+
+        // when
+        UserDetailRes result = userService.updateAgreement(userId, req);
+
+        // then
+        verify(userWriter).updateUserByAgreement(userId, req.isEmailAgree());
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser));
     }
 }
