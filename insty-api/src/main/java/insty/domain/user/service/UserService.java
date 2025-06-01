@@ -2,10 +2,12 @@ package insty.domain.user.service;
 
 import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.UserAuthTokenDto;
+import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
@@ -124,6 +126,22 @@ public class UserService {
                 req.introduce(),
                 profileImage
         );
+        return UserDetailRes.from(updatedUser);
+    }
+
+    /**
+     * 사용자 타입 변경
+     */
+    public UserDetailRes updateUserType(Long userId, UserTypeUpdateReq req) {
+        User updatedUser = userWriter.updateUserByUserType(userId, req.userType());
+        return UserDetailRes.from(updatedUser);
+    }
+
+    /**
+     * 사용자 수신 및 약관 동의 여부 변경
+     */
+    public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
+        User updatedUser = userWriter.updateUserByAgreement(userId, req.isEmailAgree());
         return UserDetailRes.from(updatedUser);
     }
 }

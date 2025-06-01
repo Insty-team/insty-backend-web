@@ -4,6 +4,7 @@ import insty.domain.user.repository.UserRepository;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
+import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,20 @@ public class UserWriter {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         user.update(email, password, nickname, introduce);
+        return userRepository.save(user);
+    }
+
+    public User updateUserByUserType(Long userId, UserType userType) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+        user.update(userType);
+        return userRepository.save(user);
+    }
+
+    public User updateUserByAgreement(Long userId, boolean isEmailAgreed) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+        user.update(isEmailAgreed);
         return userRepository.save(user);
     }
 }

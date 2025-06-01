@@ -79,4 +79,10 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.introduce = introduce;
     }
+    public void update(UserType userType) {
+        this.userType = userType;
+    }
+    public void update(boolean isEmailAgreed) {
+        this.isEmailAgreed = isEmailAgreed;
+    }
 }

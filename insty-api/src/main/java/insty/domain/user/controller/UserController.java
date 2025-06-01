@@ -2,10 +2,12 @@ package insty.domain.user.controller;
 
 
 import insty.domain.user.dto.CurrentUserDto;
+import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
@@ -26,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -95,6 +98,32 @@ public class UserController {
             @Validated @ModelAttribute UserUpdateReq req,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return SuccessRes.of(userService.updateUser(currentUser.id(), req, profileImage));
+    }
+
+    @Operation(
+            summary = "사용자 타입 변경",
+            description = "사용자 타입을 변경합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PatchMapping("/profile/userType")
+    public SuccessRes<UserDetailRes> updateUserType(
+            @CurrentUser CurrentUserDto currentUser,
+            @ParameterObject @Validated @ModelAttribute UserTypeUpdateReq req) {
+        return SuccessRes.of(userService.updateUserType(currentUser.id(), req));
+    }
+
+    @Operation(
+            summary = "사용자 이메일 수신 동의 상태 값 변경",
+            description = "로그아웃을 요청합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PatchMapping("/profile/email-agree")
+    public SuccessRes<UserDetailRes> updateEmailAgreed(
+            @CurrentUser CurrentUserDto currentUser,
+            @ParameterObject @ModelAttribute UserAgreementUpdateReq req) {
+        return SuccessRes.of(userService.updateAgreement(currentUser.id(), req));
     }
 
     @Operation(
