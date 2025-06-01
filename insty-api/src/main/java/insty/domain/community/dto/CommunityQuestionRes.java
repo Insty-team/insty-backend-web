@@ -8,4 +8,11 @@ public record CommunityQuestionRes(
         @NotNull
         String content
 ) {
+
+    public static CommunityQuestionRes create(
+            @NotNull String title,
+            @NotNull String content
+    ) {
+        return new CommunityQuestionRes(title, content);
+    }
 }

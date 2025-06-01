@@ -21,6 +21,7 @@ public class CommunityController {
 
     @GetMapping("/questions/{question_id}")
     public SuccessRes<?> retrieveQuestionDetails(@PathVariable @NotBlank String questionId) {
+
         return SuccessRes.of(null);
     }
 

@@ -21,6 +21,9 @@ public class CommunityServiceImpl implements CommunityService {
         String title = communityQuestion.getTitle();
         String content = communityQuestion.getContent();
 
-        return new CommunityQuestionRes(title, content);
+        return CommunityQuestionRes.create(
+                title,
+                content
+        );
     }
 }
