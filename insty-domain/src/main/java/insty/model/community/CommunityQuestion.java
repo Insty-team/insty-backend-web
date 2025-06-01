@@ -8,7 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,11 +41,13 @@ public class CommunityQuestion extends BaseEntity {
     @Column(nullable = false, name = "is_answered")
     private boolean isAnswered;
 
-    @Column(nullable = false, name = "created_at")
-    private LocalDateTime createdAt;
+    @CreatedDate
+    @Column(nullable = false, name = "created_at", updatable = false)
+    private Instant createdAt;
 
-    @Column(nullable = false, name = "updated_at")
-    private LocalDateTime updatedAt;
+    @LastModifiedDate
+    @Column(nullable = false, name = "updated_at", updatable = false)
+    private Instant updatedAt;
 
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
