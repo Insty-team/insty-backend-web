@@ -1,11 +1,14 @@
 package insty.domain.user.service;
 
+import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
+import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.implement.UserReader;
@@ -23,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -99,7 +103,27 @@ public class UserService {
         );
     }
 
-    public Object getUserInfo(CustomUserDetails userDetails) {
-        return userDetails;
+    /**
+     * 사용자 상세 정보 조회
+     */
+    public UserDetailRes getDetailUser(CurrentUserDto currentUser) {
+        User findUser = userReader.getUser(currentUser.id());
+        return UserDetailRes.from(findUser);
+    }
+
+    /**
+     * 사용자 정보 수정
+     */
+    public UserDetailRes updateUser(Long userId, UserUpdateReq req, MultipartFile profileImage) {
+        String encodedPassword = bCryptPasswordEncoder.encode(req.password());
+        User updatedUser = userWriter.updateUser(
+                userId,
+                req.email(),
+                encodedPassword,
+                req.nickname(),
+                req.introduce(),
+                profileImage
+        );
+        return UserDetailRes.from(updatedUser);
     }
 }

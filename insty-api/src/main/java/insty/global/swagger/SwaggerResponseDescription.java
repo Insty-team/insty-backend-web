@@ -2,6 +2,7 @@ package insty.global.swagger;
 
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL;
 import static insty.error.CourseErrorCode.COURSE_NOT_FOUND;
+import static insty.error.UserErrorCode.USER_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR;
 import static insty.error.VideoErrorCode.VIDEO_INVALID_FILE_NAME;
 import static insty.error.VideoErrorCode.VIDEO_NOT_FOUND;
@@ -22,6 +23,16 @@ public enum SwaggerResponseDescription {
 
     // user
     USER_INFO(new LinkedHashSet<>(Set.of())),
+    USER_CREATE(new LinkedHashSet<>(Set.of())),
+    USER_UPDATE(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
+    ))),
+    USER_DETAIL(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
+    ))),
+    USER_DELETE(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
+    ))),
     // video
     VIDEO_UPLOAD(new LinkedHashSet<>(Set.of(
             VIDEO_CONTENT_TYPE_ERROR,

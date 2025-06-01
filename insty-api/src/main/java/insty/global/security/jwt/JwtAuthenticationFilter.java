@@ -1,6 +1,9 @@
 package insty.global.security.jwt;
 
+import insty.constants.JwtValidationType;
 import insty.domain.user.implement.UserReader;
+import insty.error.CommonErrorCode;
+import insty.exception.CustomException;
 import insty.global.security.CustomUserDetails;
 import insty.model.user.User;
 import insty.util.JwtUtils;
@@ -9,12 +12,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -24,38 +30,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = extractAccessToken(request);
+        // 사용자 토큰 조회
+        final String accessToken = extractAccessToken(request);
 
-        // 토큰이 없으면 넘겨~
+        // 토큰이 없으면 넘기기
         if(accessToken.isEmpty()){
+            log.debug("token이 header에 존재하지 않습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
         // 토큰 검증
-        if(!jwtUtils.validateToken(accessToken)) {
-            // TODO 없거나 유효하지 않으면 401, 403 예외
-            // Front 와 협의하여 어떻게 내려줄지 해야한다.
-            response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("유효하지 않은 토큰입니다.");
-
-            return;
+        JwtValidationType jwtValidationType = jwtUtils.validateToken(accessToken);
+        switch (jwtValidationType) {        // TODO 필터 예외처리
+            case VALID:
+                log.info("정상 토큰입니다.");
+                break;
+            case EXPIRED:
+                log.info("토큰이 만료되었습니다.");
+                throw new AuthenticationServiceException(CommonErrorCode.UNAUTHORIZED.getMessage(), new CustomException(CommonErrorCode.UNAUTHORIZED)); // 401
+            case INVALID_SIGNATURE:
+            case MALFORMED:
+            case UNSUPPORTED:
+                log.warn("토큰이 위조되었거나 형식이 잘못되었습니다.");
+//                throw new AuthenticationServiceException(CommonErrorCode.FORBIDDEN.getMessage(), new CustomException(CommonErrorCode.FORBIDDEN)); // 403
+                throw new CustomException(CommonErrorCode.FORBIDDEN);
+            case CLAIMS_INVALID:
+                log.warn("토큰 클레임이 유효하지 않습니다.");
+                throw new AuthenticationServiceException(CommonErrorCode.UNAUTHORIZED.getMessage(), new CustomException(CommonErrorCode.UNAUTHORIZED)); // 401
+            default:
+                log.error("토큰 검증 중 알 수 없는 오류가 발생했습니다.");
+                throw new AuthenticationServiceException(CommonErrorCode.INTERNAL_ERROR.getMessage(), new CustomException(CommonErrorCode.INTERNAL_ERROR)); // 401
         }
 
-        // 토큰에서 정보 획득
-        Long userId = Long.parseLong(jwtUtils.extractSubject(accessToken));
+        // 토큰에 있는 정보로 스프링 시큐리티 컨텍스트에 유저정보 저장
+        setSecurityContextAuthentication(accessToken);
 
-        User user = getUser(userId);
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
-
-        JwtAuthenticationToken authToken = new JwtAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-
-        SecurityContextHolder.clearContext();
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
+        // 다음 필터 실행
         filterChain.doFilter(request, response);
-
     }
 
     /**
@@ -76,5 +88,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return "";
+    }
+
+    /**
+     * 정상적으로 토큰에 있는 정보로 스프링 시큐리티 컨텍스트에 유저정보 저장
+     */
+    private void setSecurityContextAuthentication(String token) {
+        // 토큰에서 정보 획득
+        Long userId = Long.parseLong(jwtUtils.extractSubject(token));
+
+        User user = getUser(userId);
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+        JwtAuthenticationToken authToken = new JwtAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+
+        SecurityContextHolder.clearContext();
+        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }

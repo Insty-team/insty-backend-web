@@ -71,4 +71,12 @@ public class User extends BaseEntity {
                 .isDeleted(false)      // 기본 false
                 .build();
     }
+
+    // 사용자 정보 수정 객체 생성
+    public void update(String email, String password, String nickname, String introduce) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.introduce = introduce;
+    }
 }

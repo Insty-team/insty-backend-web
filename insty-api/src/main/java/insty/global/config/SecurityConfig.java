@@ -1,6 +1,9 @@
 package insty.global.config;
 
+import insty.global.security.CustomAccessDeniedHandler;
+import insty.global.security.CustomAuthenticationEntryPoint;
 import insty.global.security.LoginAuthenticationProvider;
+import insty.global.security.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -32,6 +36,9 @@ public class SecurityConfig {
     private String HEALTH_CHECK_PATH;
 
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint customEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 
     @Bean
@@ -56,10 +63,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         // 허용 URL
-        final String[] WHITE_LIST_URL = new String[]{"/api/v1/**", HEALTH_CHECK_PATH};
+        final String[] WHITE_LIST_URL = new String[]{"/api/v1/**", "/api/v1/users/login", HEALTH_CHECK_PATH};
         // 스웨거 허용 URL
         final String[] SWAGGER_LIST_URL = new String[]{"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
                 "/webjars/**"};
+        // 인증 필수 URL
+        final String[] AUTH_REQUIRED_URL = new String[]{"/api/v1/users/profile/**", "/api/v1/users/logout"};
+
 
         // CORS 설정
         http.cors((cors -> cors.configurationSource(new CorsConfigurationSource() {
@@ -87,12 +97,20 @@ public class SecurityConfig {
 
         // 인증 커스텀 (hasRole : 역할, hasAuthority : 권한)
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/api/v1/users/login", "/api/v1/users/logout").permitAll()       // 로그인, 로그아웃
+                .requestMatchers(AUTH_REQUIRED_URL).authenticated()     // 인증 필수 URL
                 .requestMatchers(WHITE_LIST_URL).permitAll()       // 누구나 접근 가능
                 .requestMatchers(SWAGGER_LIST_URL).permitAll()       // 누구나 접근 가능
                 .anyRequest().authenticated()                // 이외의 경로 모두 인증 필요
         );
 
+        // 필터 등록
+        http
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling((ex) -> {
+                ex.authenticationEntryPoint(customEntryPoint);        // 인증 실패
+                 ex.accessDeniedHandler(customAccessDeniedHandler);     // 인가 실패
+            })
+        ;
 
         return http.build();
     }

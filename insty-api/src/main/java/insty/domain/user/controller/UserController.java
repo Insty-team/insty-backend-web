@@ -1,32 +1,40 @@
 package insty.domain.user.controller;
 
 
+import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
+import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.service.UserService;
+import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
-import insty.global.security.CustomUserDetails;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Tag(name = "유저 API")
 @Validated
 @RestController
@@ -37,7 +45,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "이메일 회원 가입", description = "이메일로 회원 가입을 진행합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_CREATE)
     @PostMapping
     public SuccessRes<UserCreateRes> signup(@Validated @RequestBody UserCreateReq req) {
         return SuccessRes.of(userService.signup(req));
@@ -57,11 +65,15 @@ public class UserController {
         return SuccessRes.of(userService.existsCheckByNickname(req));
     }
 
-    @Operation(summary = "내 사용자 정보 조회", description = "사용자가 가지고 있는 토큰 기반으로 사용자 정보를 조회합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @Operation(
+            summary = "내 사용자 정보 조회",
+            description = "사용자가 가지고 있는 토큰 기반으로 사용자 정보를 조회합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_DETAIL)
     @GetMapping("/profile")
-    public SuccessRes<?> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
-        return SuccessRes.of(userDetails);
+    public SuccessRes<UserDetailRes> getProfile(@CurrentUser CurrentUserDto currentUser) {
+        return SuccessRes.of(userService.getDetailUser(currentUser));
     }
 
     @Operation(summary = "사용자 이메일 로그인", description = "이메일과 비밀번호로 로그인합니다.")
@@ -71,17 +83,28 @@ public class UserController {
         return SuccessRes.of(userService.loginByEmail(req));
     }
 
-    @Operation(summary = "내 사용자 정보 수정", description = "내 사용자 정보를 수정합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PatchMapping("/me/profile")
-    public SuccessRes<?> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
-        return SuccessRes.of(null);
+    @Operation(
+            summary = "내 사용자 정보 수정",
+            description = "내 사용자 정보를 수정합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SuccessRes<UserDetailRes> updateProfile(
+            @CurrentUser CurrentUserDto currentUser,
+            @Validated @ModelAttribute UserUpdateReq req,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        return SuccessRes.of(userService.updateUser(currentUser.id(), req, profileImage));
     }
 
-    @Operation(summary = "사용자 로그아웃", description = "로그아웃을 요청합니다.")
+    @Operation(
+            summary = "사용자 로그아웃",
+            description = "로그아웃을 요청합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PatchMapping("/logout")
-    public SuccessRes<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
+    @PostMapping("/logout")
+    public SuccessRes<Void> logout(@CurrentUser CurrentUserDto currentUser) {
         return SuccessRes.of(null);
     }
 }

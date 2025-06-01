@@ -11,7 +11,9 @@ import insty.global.response.FailRes;
 import insty.global.swagger.ExampleHolder;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.examples.Example;
@@ -37,6 +39,14 @@ import org.springframework.web.method.HandlerMethod;
                 description = "springdoc을 이용한 Swagger API 문서입니다.",
                 version = "1.0"
         )
+)
+@SecurityScheme(
+        name = "JWT",                        // 스키마 이름 (아래 Components.addSecuritySchemes에 매칭)
+        type = SecuritySchemeType.HTTP,      // HTTP 기반 인증
+        scheme = "bearer",                   // bearer 타입 사용
+        bearerFormat = "JWT",                // 포맷 힌트
+        in = io.swagger.v3.oas.annotations.enums.SecuritySchemeIn.HEADER, // 헤더에 담기
+        paramName = "Authorization"          // 실제 헤더명
 )
 @Configuration
 public class SwaggerConfig {
