@@ -1,4 +1,4 @@
-package insty.domain.common;
+package insty.domain.common.dto;
 
 public record PaginationRes(
         int totalItems,

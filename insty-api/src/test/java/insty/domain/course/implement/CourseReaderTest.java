@@ -2,12 +2,19 @@ package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import insty.domain.common.dto.PaginationReq;
+import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
+import insty.domain.course.dto.CourseSearchFilter;
+import insty.domain.course.dto.CourseSearchInfo;
+import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
+import insty.domain.course.repository.CourseQueryRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
@@ -16,7 +23,9 @@ import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -40,6 +49,8 @@ class CourseReaderTest {
     private CourseKeypointRepository courseKeypointRepository;
     @Mock
     private CourseTagRepository courseTagRepository;
+    @Mock
+    private CourseQueryRepository courseQueryRepository;
 
     @Test
     void getChecklistsByCourseId_정상() {
@@ -135,5 +146,59 @@ class CourseReaderTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseErrorCode.COURSE_NOT_FOUND);
+    }
+
+    @Test
+    void searchCourse_정상() {
+        // given
+        int page = 1;
+        int pageSize = 10;
+        String search = "파이썬";
+        CourseSearchReq req = new CourseSearchReq(page, pageSize, search);
+        PaginationReq paginationReq = req.toPaginationReq();
+        CourseSearchFilter filter = req.toSearchFilter();
+
+        // mock
+        CourseSearchInfo searchInfo = new CourseSearchInfo(1L, "파이썬 설치 강의", "설명", null, null, null);
+        when(courseQueryRepository.searchCourses(paginationReq, filter))
+                .thenReturn(List.of(searchInfo));
+        Map<Long, List<String>> map = new HashMap<>();
+        map.put(1L, List.of("태그1", "태그2"));
+        when(courseQueryRepository.getCourseTags(any()))
+                .thenReturn(map);
+
+        // when
+        List<CourseSearchInfo> courseSearchInfos = courseReader.searchCourse(paginationReq, filter);
+
+        // then
+        assertThat(courseSearchInfos.size()).isEqualTo(1);
+        assertThat(courseSearchInfos.get(0).courseId()).isEqualTo(1L);
+        assertThat(courseSearchInfos.get(0).title()).contains(search);
+        assertThat(courseSearchInfos.get(0).tags()).containsExactlyInAnyOrder("태그1", "태그2");
+    }
+
+    @Test
+    void countSearchCourse_정상() {
+        // given
+        int page = 1;
+        int pageSize = 10;
+        String search = "파이썬";
+        CourseSearchReq req = new CourseSearchReq(page, pageSize, search);
+        PaginationReq paginationReq = req.toPaginationReq();
+        CourseSearchFilter filter = req.toSearchFilter();
+
+        // mock
+        when(courseQueryRepository.countSearchCourses(paginationReq, filter))
+                .thenReturn(new PaginationRes(1, 1, 1, 10));
+
+        // when
+        PaginationRes paginationRes = courseReader.countSearchCourse(paginationReq, filter);
+        
+        // then
+        assertThat(paginationRes).isNotNull();
+        assertThat(paginationRes.totalItems()).isEqualTo(1);
+        assertThat(paginationRes.totalPages()).isEqualTo(1);
+        assertThat(paginationRes.currentPage()).isEqualTo(1);
+        assertThat(paginationRes.perPage()).isEqualTo(10);
     }
 }
