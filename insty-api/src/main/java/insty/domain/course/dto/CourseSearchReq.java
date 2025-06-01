@@ -1,5 +1,6 @@
 package insty.domain.course.dto;
 
+import insty.domain.common.dto.PaginationReq;
 import jakarta.validation.constraints.Min;
 
 public record CourseSearchReq(
@@ -10,7 +11,11 @@ public record CourseSearchReq(
         String search
 ) {
 
-    public long getOffset() {
-        return (long) (page - 1) * pageSize;
+    public PaginationReq toPaginationReq() {
+        return new PaginationReq(page, pageSize);
+    }
+
+    public CourseSearchFilter toSearchFilter() {
+        return new CourseSearchFilter(search);
     }
 }

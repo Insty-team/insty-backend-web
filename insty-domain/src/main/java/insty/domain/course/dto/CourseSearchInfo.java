@@ -10,4 +10,9 @@ public record CourseSearchInfo(
         String thumbnailUrl,
         String duration // TODO - 영상 길이 추가
 ) {
+
+    public static CourseSearchInfo withTags(CourseSearchInfo origin, List<String> tags) {
+        return new CourseSearchInfo(origin.courseId(), origin.title(), origin.description(), tags,
+                origin.thumbnailUrl(), origin.duration());
+    }
 }
