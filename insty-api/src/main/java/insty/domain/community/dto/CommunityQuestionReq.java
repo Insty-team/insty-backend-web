@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CommunityQuestionReq(
         @NotNull
-        String title,
+        Long id,
         @NotNull
         String content
 ) {
