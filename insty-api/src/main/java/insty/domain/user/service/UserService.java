@@ -2,7 +2,9 @@ package insty.domain.user.service;
 
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserCreateReq;
+import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserLoginReq;
+import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.dto.response.UserLoginRes;
@@ -53,8 +55,8 @@ public class UserService {
     /**
      * 이메일 존재여부 체크
      */
-    public UserDuplicateCheckRes existCheckByEmail(String email) {
-        boolean emailExists = userReader.existCheckByEmail(email);
+    public UserDuplicateCheckRes existCheckByEmail(UserEmailCheckReq req) {
+        boolean emailExists = userReader.existCheckByEmail(req.email());
         boolean isAvailable = !emailExists; // 존재하지 않으면 사용가능
         String reason = isAvailable ? "사용 가능한 이메일입니다." : UserErrorCode.USER_DUPLICATE_EMAIL.getMessage();
         return UserDuplicateCheckRes.from(isAvailable, reason);
@@ -63,8 +65,8 @@ public class UserService {
     /**
      * 닉네임 존재여부 체크
      */
-    public UserDuplicateCheckRes existsCheckByNickname(String nickname) {
-        boolean nicknameExists = userReader.existCheckByNickname(nickname);
+    public UserDuplicateCheckRes existsCheckByNickname(UserNicknameCheckReq req) {
+        boolean nicknameExists = userReader.existCheckByNickname(req.nickname());
         boolean isAvailable = !nicknameExists; // 존재하지 않으면 사용가능
         String reason = isAvailable ? "사용 가능한 닉네임입니다." : UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage();
         return UserDuplicateCheckRes.from(isAvailable, reason);

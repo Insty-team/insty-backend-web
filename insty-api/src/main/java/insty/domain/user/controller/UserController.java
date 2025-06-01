@@ -46,14 +46,14 @@ public class UserController {
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/email/check")
     public SuccessRes<UserDuplicateCheckRes> emailCheck(@ParameterObject @Validated @ModelAttribute UserEmailCheckReq req) {
-        return SuccessRes.of(userService.existCheckByEmail(req.email()));
+        return SuccessRes.of(userService.existCheckByEmail(req));
     }
 
     @Operation(summary = "닉네임 중복 체크", description = "닉네임이 이미 사용중인지 중복체크를 합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/nickname/check")
     public SuccessRes<UserDuplicateCheckRes> nicknameCheck(@ParameterObject @Validated @ModelAttribute UserNicknameCheckReq req) {
-        return SuccessRes.of(userService.existsCheckByNickname(req.nickname()));
+        return SuccessRes.of(userService.existsCheckByNickname(req));
     }
 
     @Operation(summary = "[임시] 내 사용자 정보 조회", description = "[임시] 사용자가 가지고 있는 토큰 기반으로 사용자 정보를 조회합니다.")

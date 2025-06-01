@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.user.dto.request.UserCreateReq;
+import insty.domain.user.dto.request.UserEmailCheckReq;
+import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.implement.UserReader;
@@ -65,10 +67,11 @@ class UserServiceTest {
     void 이메일이_존재하지_않으면_사용가능_응답을_반환한다() {
         // given
         String email = "unique@example.com";
+        UserEmailCheckReq req = new UserEmailCheckReq(email);
         when(userReader.existCheckByEmail(email)).thenReturn(false);
 
         // when
-        UserDuplicateCheckRes result = userService.existCheckByEmail(email);
+        UserDuplicateCheckRes result = userService.existCheckByEmail(req);
 
         // then
         assertThat(result.isAvailable()).isTrue();
@@ -79,10 +82,11 @@ class UserServiceTest {
     void 이메일이_존재하면_사용불가_응답을_반환한다() {
         // given
         String email = "duplicate@example.com";
+        UserEmailCheckReq req = new UserEmailCheckReq(email);
         when(userReader.existCheckByEmail(email)).thenReturn(true);
 
         // when
-        UserDuplicateCheckRes result = userService.existCheckByEmail(email);
+        UserDuplicateCheckRes result = userService.existCheckByEmail(req);
 
         // then
         assertThat(result.isAvailable()).isFalse();
@@ -93,10 +97,11 @@ class UserServiceTest {
     void 닉네임이_존재하지_않으면_사용가능_응답을_반환한다() {
         // given
         String nickname = "uniqueNick";
+        UserNicknameCheckReq req = new UserNicknameCheckReq(nickname);
         when(userReader.existCheckByNickname(nickname)).thenReturn(false);
 
         // when
-        UserDuplicateCheckRes result = userService.existsCheckByNickname(nickname);
+        UserDuplicateCheckRes result = userService.existsCheckByNickname(req);
 
         // then
         assertThat(result.isAvailable()).isTrue();
@@ -107,10 +112,11 @@ class UserServiceTest {
     void 닉네임이_존재하면_사용불가_응답을_반환한다() {
         // given
         String nickname = "duplicatedNick";
+        UserNicknameCheckReq req = new UserNicknameCheckReq(nickname);
         when(userReader.existCheckByNickname(nickname)).thenReturn(true);
 
         // when
-        UserDuplicateCheckRes result = userService.existsCheckByNickname(nickname);
+        UserDuplicateCheckRes result = userService.existsCheckByNickname(req);
 
         // then
         assertThat(result.isAvailable()).isFalse();
