@@ -70,6 +70,7 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(ALLOW_CROSS_ORIGIN_DOMAIN);            // Cors 도메인 (Credentials 때문에 필수)
                 configuration.setAllowedMethods(ALLOW_METHODS);            // HTTP 메서드
                 configuration.setAllowedHeaders(List.of(CorsConfiguration.ALL));                 // 모든 헤더 허용
+                configuration.addAllowedHeader(CorsConfiguration.ALL);
                 configuration.setAllowCredentials(true);                    // 인증 관련 정보 (JWT, 세션 쿠키 받기 위함)
                 configuration.setMaxAge(3600L);                         // 브라우저의 preflight 요청 캐싱 시간
 

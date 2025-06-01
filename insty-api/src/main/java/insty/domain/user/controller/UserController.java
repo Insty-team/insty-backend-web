@@ -21,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,7 +57,7 @@ public class UserController {
         return SuccessRes.of(userService.existsCheckByNickname(req));
     }
 
-    @Operation(summary = "[임시] 내 사용자 정보 조회", description = "[임시] 사용자가 가지고 있는 토큰 기반으로 사용자 정보를 조회합니다.")
+    @Operation(summary = "내 사용자 정보 조회", description = "사용자가 가지고 있는 토큰 기반으로 사용자 정보를 조회합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/profile")
     public SuccessRes<?> getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
@@ -68,6 +69,20 @@ public class UserController {
     @PostMapping("/login")
     public SuccessRes<UserLoginRes> login(@RequestBody UserLoginReq req) {
         return SuccessRes.of(userService.loginByEmail(req));
+    }
+
+    @Operation(summary = "내 사용자 정보 수정", description = "내 사용자 정보를 수정합니다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @PatchMapping("/me/profile")
+    public SuccessRes<?> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
+        return SuccessRes.of(null);
+    }
+
+    @Operation(summary = "사용자 로그아웃", description = "로그아웃을 요청합니다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @PatchMapping("/me/profile")
+    public SuccessRes<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {   // TODO 커스텀 에노테이션으로 인증 유저 편한 값으로 변경
+        return SuccessRes.of(null);
     }
 }
 
