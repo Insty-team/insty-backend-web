@@ -1,11 +1,16 @@
 package insty.domain.user.service;
 
+import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.UserAuthTokenDto;
+import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserTypeUpdateReq;
+import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
+import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.implement.UserReader;
@@ -23,16 +28,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
 
+    // 사용자 모듈 서비스
     private final UserWriter userWriter;
     private final UserValidator userValidator;
     private final UserReader userReader;
     private final UserTokenIssuer userTokenIssuer;
+
+    // 스프링 시큐리티
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationManager authenticationManager;
 
@@ -86,6 +95,8 @@ public class UserService {
 
         // 인증된 객체
         CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
+        // 마지막 로그인 시간 변경
+        userWriter.updateLastLoginAt(user.getUserId());
 
         // 토큰 발급
         UserAuthTokenDto token = userTokenIssuer.generateUserTokens(user);
@@ -99,7 +110,43 @@ public class UserService {
         );
     }
 
-    public Object getUserInfo(CustomUserDetails userDetails) {
-        return userDetails;
+    /**
+     * 사용자 상세 정보 조회
+     */
+    public UserDetailRes getDetailUser(CurrentUserDto currentUser) {
+        User findUser = userReader.getUser(currentUser.id());
+        return UserDetailRes.from(findUser);
+    }
+
+    /**
+     * 사용자 정보 수정
+     */
+    public UserDetailRes updateUser(Long userId, UserUpdateReq req, MultipartFile profileImage) {
+        String encodedPassword = bCryptPasswordEncoder.encode(req.password());
+        User updatedUser = userWriter.updateUser(
+                userId,
+                req.email(),
+                encodedPassword,
+                req.nickname(),
+                req.introduce(),
+                profileImage
+        );
+        return UserDetailRes.from(updatedUser);
+    }
+
+    /**
+     * 사용자 타입 변경
+     */
+    public UserDetailRes updateUserType(Long userId, UserTypeUpdateReq req) {
+        User updatedUser = userWriter.updateUserByUserType(userId, req.userType());
+        return UserDetailRes.from(updatedUser);
+    }
+
+    /**
+     * 사용자 수신 및 약관 동의 여부 변경
+     */
+    public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
+        User updatedUser = userWriter.updateUserByAgreement(userId, req.isEmailAgree());
+        return UserDetailRes.from(updatedUser);
     }
 }

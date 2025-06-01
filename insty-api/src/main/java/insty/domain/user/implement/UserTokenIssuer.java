@@ -3,6 +3,7 @@ package insty.domain.user.implement;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.global.security.CustomUserDetails;
 import insty.util.JwtUtils;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,8 @@ public class UserTokenIssuer {
         String refreshToken = jwtHelper.generateRefreshToken(String.valueOf(userId));
 
         // 만료 시간 추출
-        long accessTokenExpiresAt = jwtHelper.extractExpiredAt(accessToken);
-        long refreshTokenExpiresAt = jwtHelper.extractExpiredAt(refreshToken);
+        Instant accessTokenExpiresAt = jwtHelper.extractExpiredAt(accessToken);
+        Instant refreshTokenExpiresAt = jwtHelper.extractExpiredAt(refreshToken);
 
         return UserAuthTokenDto.create(accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt);
     }
