@@ -44,6 +44,7 @@ public class SecurityConfig {
     private final LoginFailHandler loginFailHandler;
     private final LoginSuccessHandler loginSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+//    private final JwtAuthenticationFilter jwtAuthenticationFilter;      // JWT 검증 필터
 
 
     @Bean

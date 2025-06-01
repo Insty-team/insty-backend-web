@@ -79,16 +79,16 @@ public class UserController {
                                     schema = @Schema(implementation = UserLoginRes.class),
                                     examples = @ExampleObject(value = """
                                             {
-                                                "success": true,
-                                                "data": {
-                                                    "id": 1,
-                                                    "nickname": "test@example.com",
-                                                    "userType": "NONE",
-                                                    "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6Ik5PTkUiLCJpYXQiOjE3NDg3MDU2MjIsImV4cCI6MTc0ODcwOTIyMn0.UwLCFcBKCfMeN5JTsV4-H6hc1FGGZUxNXQrRVhjqHsO7v0iLJfVs2KkJuvTESGV-4eJFeHNQUpPOzBXhmlPf4A",
-                                                    "refreshToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiODRhM2YxNWItYjk5YS00NWFkLTgzOTctOTFjNTFjM2FkNTk2IiwiaWF0IjoxNzQ4NzA1NjIyLCJleHAiOjE3NDg3OTIwMjJ9.WkAr-sgqOIDN7oWWWnELsW1mKbTn-8FtnU5l8F82drZR8zT7U8hUk1DlHaSewahCJoL7tXq7p5DpEjy3eo8XbA",
-                                                    "accessTokenExpiresIn": 1748709222000,
-                                                    "refreshTokenExpiresIn": 1748792022000
-                                                }
+                                                 "success": true,
+                                                 "data": {
+                                                     "id": 1,
+                                                     "nickname": "test@example.com",
+                                                     "userType": "NONE",
+                                                     "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6Ik5PTkUiLCJpYXQiOjE3NDg3NDMzMDQsImV4cCI6MjA2NDEwMzMwNH0.TNM4Dh5ZTNemn3aKrtMCMN7JT_YMZx80nlLSectikkNoYfeI-5KiFJz6HjJfKqTdnOrI4xEo_kOt_3cdQMtoNA",
+                                                     "refreshToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwianRpIjoiZTg3MWNiNDMtYWFjMC00NDU1LWFhOTUtMjQ0Y2IyZmIzMTM5IiwiaWF0IjoxNzQ4NzQzMzA0LCJleHAiOjIwNjQxMDMzMDR9.5KL9PHdKItQKEVE9Dep3k3YQiCNCxNAv4HEACYKFGbu1BKIJPl8oY-sldJnDAgPfEs5DofgNHkCJ7bRTlsTPcw",
+                                                     "accessTokenExpiresIn": 2064103304000,
+                                                     "refreshTokenExpiresIn": 2064103304000
+                                                 }
                                             }
                                     """)
                             )
