@@ -2,10 +2,10 @@ package insty.domain.common;
 
 public record PaginationReq(
         int page,
-        int perPage
+        int pageSize
 ) {
 
     public long getOffset() {
-        return (long) (page - 1) * perPage;
+        return (long) (page - 1) * pageSize;
     }
 }

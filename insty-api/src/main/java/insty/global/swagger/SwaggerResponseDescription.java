@@ -43,6 +43,8 @@ public enum SwaggerResponseDescription {
     COURSE_DETAIL(new LinkedHashSet<>(Set.of(
             COURSE_NOT_FOUND
     ))),
+    COURSE_SEARCH(new LinkedHashSet<>(Set.of(
+    ))),
     ;
 
     private Set<ErrorCode> errorCodeList;

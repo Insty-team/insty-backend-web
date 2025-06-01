@@ -1,7 +1,10 @@
 package insty.domain.course.controller;
 
+import insty.domain.common.SearchRes;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
+import insty.domain.course.dto.CourseSearchInfo;
+import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.service.CourseService;
 import insty.global.annotation.CustomExceptionDescription;
@@ -17,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -77,5 +81,14 @@ public class CourseController {
             @PathVariable("courseId") Long courseId
     ) {
         return SuccessRes.of(courseService.detailCourse(courseId));
+    }
+
+    @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_SEARCH)
+    @GetMapping
+    public SuccessRes<SearchRes<CourseSearchInfo>> courseSearch(
+            @ModelAttribute @Validated CourseSearchReq req
+    ) {
+        return SuccessRes.of(courseService.searchCourse(req));
     }
 }
