@@ -54,7 +54,9 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .where(searchCourseConditions(filter))
                 .fetchOne();
 
-        assert totalItems != null;
+        if (totalItems == null) {
+            totalItems = 0L;
+        }
         return PaginationRes.of(totalItems.intValue(), paginationReq.page(), paginationReq.pageSize());
     }
 

@@ -8,6 +8,8 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import insty.domain.common.config.CustomHibernate5Templates;
+import insty.error.CommonErrorCode;
+import insty.exception.CustomException;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
@@ -94,16 +96,28 @@ public abstract class QuerydslRepositorySupport {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
 
         for (String order : orders) {
-            String[] parts = order.split(":");
+            String[] parts = order.trim().split(":");
             if (parts.length != 2) {
                 continue;
             }
             String fieldName = parts[0];
             String direction = parts[1];
 
+            if (fieldName.isBlank() || direction.isBlank()) {
+                continue;
+            }
+
             Order orderDirection = "asc".equalsIgnoreCase(direction) ? Order.ASC : Order.DESC;
-            orderSpecifiers.add(
-                    new OrderSpecifier<>(orderDirection, pathBuilder.getComparable(fieldName, Comparable.class)));
+            try {
+                orderSpecifiers.add(
+                        new OrderSpecifier<>(orderDirection, pathBuilder.getComparable(fieldName, Comparable.class)));
+            } catch (Exception e) {
+                throw new CustomException(CommonErrorCode.INVALID_SORT_REQUEST);
+            }
+        }
+
+        if (orderSpecifiers.isEmpty()) {
+            return getDefaultOrderSpecifier();
         }
 
         return orderSpecifiers.toArray(new OrderSpecifier[0]);
