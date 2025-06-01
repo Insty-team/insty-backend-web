@@ -98,4 +98,8 @@ public class UserService {
                 token
         );
     }
+
+    public Object getUserInfo(CustomUserDetails userDetails) {
+        return userDetails;
+    }
 }
