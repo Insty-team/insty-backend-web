@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.global.security.LoginAuthenticationFilter;
 import insty.global.security.LoginFailHandler;
 import insty.global.security.LoginSuccessHandler;
-import insty.global.security.jwt.JwtAuthenticationFilter;
-import insty.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +42,6 @@ public class SecurityConfig {
     private final LoginFailHandler loginFailHandler;
     private final LoginSuccessHandler loginSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-//    private final JwtAuthenticationFilter jwtAuthenticationFilter;      // JWT 검증 필터
 
 
     @Bean
@@ -108,7 +105,6 @@ public class SecurityConfig {
         );
 
         http
-                .addFilterBefore(jwtAuthenticationFilter, LoginAuthenticationFilter.class)
                 .addFilterAt(loginAuthenticationFilter(),
                         UsernamePasswordAuthenticationFilter.class);  // 내가 만든 로그인 필터로 대체(교체)
 
