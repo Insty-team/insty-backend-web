@@ -1,23 +1,19 @@
 package insty.global.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import insty.global.security.LoginAuthenticationFilter;
-import insty.global.security.LoginFailHandler;
-import insty.global.security.LoginSuccessHandler;
+import insty.global.security.LoginAuthenticationProvider;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -35,12 +31,7 @@ public class SecurityConfig {
     @Value("${app.health-check-path}")
     private String HEALTH_CHECK_PATH;
 
-    // 시큐리티에게 AuthenticationConfiguration 주입 받기
-    private final AuthenticationConfiguration authenticationConfiguration;
-
-    private final ObjectMapper objectMapper;
-    private final LoginFailHandler loginFailHandler;            // 로그인 실패 핸들러
-    private final LoginSuccessHandler loginSuccessHandler;      // 로그인 성공 핸들러
+    private final UserDetailsService userDetailsService;
 
 
     @Bean
@@ -50,20 +41,13 @@ public class SecurityConfig {
 
     // 인증 관리자
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+    public AuthenticationManager authenticationManager() {
+        LoginAuthenticationProvider authenticationProvider = new LoginAuthenticationProvider(userDetailsService, bCryptPasswordEncoder());
 
-    // 상속으로 새로운 클래스를 사용하기 위해 Config에 정의
-    @Bean
-    public LoginAuthenticationFilter loginAuthenticationFilter() throws Exception {
-        LoginAuthenticationFilter loginAuthenticationFilter = new LoginAuthenticationFilter(objectMapper);
-        loginAuthenticationFilter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        loginAuthenticationFilter.setFilterProcessesUrl("/api/v1/login");  // 로그인 경로 /login -> /api/login 으로 변경
-        loginAuthenticationFilter.setAuthenticationSuccessHandler(loginSuccessHandler);  // 로그인 성공했을 때 실행시킬 핸들러
-        loginAuthenticationFilter.setAuthenticationFailureHandler(loginFailHandler);      // 로그인 실패했을 때 실행시킬 핸들러
-        return loginAuthenticationFilter;
+        ProviderManager providerManager = new ProviderManager(authenticationProvider);
+        providerManager.setEraseCredentialsAfterAuthentication(false);
+
+        return providerManager;
     }
 
 
@@ -94,21 +78,21 @@ public class SecurityConfig {
         })));
 
         // Form 형식이 아니기 때문에 disabled 처리
-        http.csrf((csrf) -> csrf.disable());
+        http
+            .csrf((csrf) -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
+
 
         // 인증 커스텀 (hasRole : 역할, hasAuthority : 권한)
         http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/api/v1/users/login", "/api/v1/users/logout").permitAll()       // 로그인, 로그아웃
                 .requestMatchers(WHITE_LIST_URL).permitAll()       // 누구나 접근 가능
                 .requestMatchers(SWAGGER_LIST_URL).permitAll()       // 누구나 접근 가능
                 .anyRequest().authenticated()                // 이외의 경로 모두 인증 필요
         );
 
-        http
-                .addFilterAt(loginAuthenticationFilter(),
-                        UsernamePasswordAuthenticationFilter.class);  // 내가 만든 로그인 필터로 대체(교체)
 
         return http.build();
     }
-
-
 }

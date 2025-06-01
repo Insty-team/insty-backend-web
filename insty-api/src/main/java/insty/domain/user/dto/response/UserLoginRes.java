@@ -1,25 +1,20 @@
 package insty.domain.user.dto.response;
 
+import insty.domain.user.dto.UserAuthTokenDto;
 import insty.model.user.UserType;
 
 public record UserLoginRes(
         Long id,
         String nickname,
         UserType userType,
-        String accessToken,
-        String refreshToken,
-        long accessTokenExpiresIn,
-        long refreshTokenExpiresIn
+        UserAuthTokenDto token
 ) {
     public static UserLoginRes create(
             Long id,
             String nickname,
             UserType userType,
-            String accessToken,
-            String refreshToken,
-            long accessTokenExpiresIn,
-            long refreshTokenExpiresIn
+            UserAuthTokenDto token
     ) {
-        return new UserLoginRes(id, nickname, userType, accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn);
+        return new UserLoginRes(id, nickname, userType, token);
     }
 }

@@ -5,7 +5,6 @@ import insty.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -39,7 +38,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 
         } else {
             log.debug("=========== Security Login 사용자 비밀번호 불일치 ===========");
-            throw new BadCredentialsException(UserErrorCode.USER_PASSWORD_MISMATCH.getMessage(), new CustomException(UserErrorCode.USER_PASSWORD_MISMATCH));
+            throw new CustomException(UserErrorCode.USER_PASSWORD_MISMATCH);
         }
     }
 
