@@ -1,8 +1,9 @@
 package insty.domain.community.service;
 
-import insty.domain.community.dto.CommunityQuestionReq;
+import insty.domain.community.dto.CommunityQuestionRes;
 
 public interface CommunityService {
 
-    CommunityQuestionReq getQuestionDetails(String questionId);
+    CommunityQuestionRes getQuestionDetails(String questionId);
+
 }

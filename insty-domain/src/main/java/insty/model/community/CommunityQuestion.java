@@ -28,4 +28,8 @@ public class CommunityQuestion extends BaseEntity {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    private String title;
+
+    private String content;
+
 }
