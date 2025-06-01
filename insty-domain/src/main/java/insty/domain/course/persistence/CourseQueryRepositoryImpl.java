@@ -40,7 +40,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 )
         )
                 .from(course)
-                .where(searchFilter(filter.search()))
+                .where(searchCourseConditions(filter))
                 .orderBy(createOrderSpecifier(null))
                 .offset(paginationReq.getOffset())
                 .limit(paginationReq.pageSize())
@@ -51,7 +51,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
     public PaginationRes countSearchCourses(PaginationReq paginationReq, CourseSearchFilter filter) {
         Long totalItems = select(course.count())
                 .from(course)
-                .where(searchFilter(filter.search()))
+                .where(searchCourseConditions(filter))
                 .fetchOne();
 
         assert totalItems != null;
@@ -74,6 +74,13 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
     /**
      * 필터
      */
+    private BooleanExpression[] searchCourseConditions(CourseSearchFilter filter) {
+        return new BooleanExpression[]{
+                searchFilter(filter.search()), // 검색
+                course.isDeleted.eq(false), // 가상 삭제x
+        };
+    }
+
     private BooleanExpression searchFilter(String search) {
         if (search == null || search.isEmpty()) {
             return null;
