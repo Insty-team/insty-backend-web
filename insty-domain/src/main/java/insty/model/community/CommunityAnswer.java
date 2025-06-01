@@ -1,42 +1,36 @@
 package insty.model.community;
 
-import insty.model.BaseEntity;
-import insty.model.course.Course;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "community_questions", schema = "web_service")
+@Table(name = "community_answers", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityQuestion extends BaseEntity {
+public class CommunityAnswer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
-    
-    //TODO: user객체 참조
+    @JoinColumn(name = "question_id", nullable = false)
+    private CommunityQuestion question;
+
+    //TODO: user 테이블 생성 후 user id
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(nullable = false, name = "is_answered")
-    private boolean isAnswered;
+    //ToDo: 답변 image
 
     @Column(nullable = false, name = "created_at")
     private LocalDateTime createdAt;
@@ -46,5 +40,4 @@ public class CommunityQuestion extends BaseEntity {
 
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
-
 }
