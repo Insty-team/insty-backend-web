@@ -85,4 +85,7 @@ public class User extends BaseEntity {
     public void update(boolean isEmailAgreed) {
         this.isEmailAgreed = isEmailAgreed;
     }
+    public void updateLastLoginAt() {
+        this.lastLoginAt = Instant.now();
+    }
 }

@@ -92,6 +92,8 @@ public class UserService {
 
         // 인증된 객체
         CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
+        // 마지막 로그인 시간 변경
+        userWriter.updateLastLoginAt(user.getUserId());
 
         // 토큰 발급
         UserAuthTokenDto token = userTokenIssuer.generateUserTokens(user);
