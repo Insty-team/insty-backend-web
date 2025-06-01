@@ -6,4 +6,6 @@ public interface CommunityService {
 
     CommunityQuestionRes getQuestionDetails(String questionId);
 
+    CommunityQuestionRes saveAnswer(CommunityQuestionRes communityQuestionRes);
+
 }

@@ -20,10 +20,17 @@ public class CommunityServiceImpl implements CommunityService {
 
         String title = communityQuestion.getTitle();
         String content = communityQuestion.getContent();
+        
+        //ToDo : user table 추가 후 user_id 정보 포함
 
         return CommunityQuestionRes.create(
                 title,
                 content
         );
+    }
+
+    @Override
+    public CommunityQuestionRes saveAnswer(CommunityQuestionRes communityQuestionRes) {
+        return null;
     }
 }
