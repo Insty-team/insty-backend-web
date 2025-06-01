@@ -12,6 +12,7 @@ import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserTokenIssuer;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
+import insty.error.CommonErrorCode;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.global.security.CustomUserDetails;
@@ -82,7 +83,7 @@ public class UserService {
         // 인증 시도
         Authentication authenticated = authenticationManager.authenticate(authenticationRequest);
 
-        if(!authenticated.isAuthenticated()) throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        if(!authenticated.isAuthenticated()) throw new CustomException(UserErrorCode.UNAUTHORIZED);
 
         // 인증된 객체
         CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
