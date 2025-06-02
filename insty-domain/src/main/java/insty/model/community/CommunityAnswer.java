@@ -45,4 +45,12 @@ public class CommunityAnswer {
 
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
+
+    public static CommunityAnswer create(CommunityQuestion question, String content) {
+        return CommunityAnswer.builder()
+                .question(question)
+                .content(content)
+                .isDeleted(false)
+                .build();
+    }
 }

@@ -52,4 +52,14 @@ public class CommunityQuestion extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
+    public static CommunityQuestion create(Course course, String title, String content) {
+        return CommunityQuestion.builder()
+                .course(course)
+                .title(title)
+                .content(content)
+                .isAnswered(false)
+                .isDeleted(false)
+                .build();
+    }
+
 }

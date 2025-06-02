@@ -1,7 +1,9 @@
 package insty.domain.community.service;
 
+import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
+import insty.domain.community.implement.CommunityWriter;
 import insty.model.community.CommunityQuestion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityServiceImpl implements CommunityService {
 
     private final CommunityReader communityReader;
+    private final CommunityWriter communityWriter;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
@@ -30,7 +33,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityQuestionRes saveAnswer(CommunityQuestionRes communityQuestionRes) {
-        return null;
+    public void saveAnswer(CommunityAnswerReq communityAnswerReq) {
+
     }
 }
