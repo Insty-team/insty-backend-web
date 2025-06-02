@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS web_service.courses (
     is_show          BOOLEAN NOT NULL,
     created_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    is_deleted       BOOLEAN NOT NULL
+    is_deleted       BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES shared.users(id)
 );
 
 CREATE TABLE IF NOT EXISTS web_service.tags (
@@ -81,7 +82,7 @@ CREATE TABLE IF NOT EXISTS shared.video_courses
     updated_at         TIMESTAMP    NOT NULL,
     is_deleted         BOOLEAN      NOT NULL,
     FOREIGN KEY (course_id) REFERENCES web_service.courses(id)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS web_service.video_answers
 (
@@ -97,7 +98,7 @@ CREATE TABLE IF NOT EXISTS web_service.video_answers
     created_at              TIMESTAMP    NOT NULL,
     updated_at              TIMESTAMP    NOT NULL,
     is_deleted              BOOLEAN      NOT NULL
-    );
+);
 
 CREATE TABLE IF NOT EXISTS web_service.video_encodings
 (
@@ -106,4 +107,4 @@ CREATE TABLE IF NOT EXISTS web_service.video_encodings
     format          VARCHAR(10)   NOT NULL,
     encoding_s3_key VARCHAR(1000) NOT NULL,
     created_at      TIMESTAMP     NOT NULL
-    );
+);
