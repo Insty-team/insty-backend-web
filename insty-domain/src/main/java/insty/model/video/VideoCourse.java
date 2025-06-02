@@ -3,14 +3,18 @@ package insty.model.video;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
+import insty.model.course.Course;
 import insty.util.FileUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
@@ -35,8 +39,9 @@ public class VideoCourse extends BaseEntity {
     @Column(nullable = false, unique = true)
     private UUID videoUuid;
 
-    // TODO - 강의 테이블 추가 시 객체로 변경
-    private Long courseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
 
     @Column(nullable = false, length = 100)
     private String s3Key;
