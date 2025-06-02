@@ -40,6 +40,11 @@ aws:
   region:
     static: ${AWS_REGION}
   s3-upload-bucket: ${AWS_S3_UPLOAD_BUCKET}
+  s3:
+    file:
+      bucket: ${AWS_S3_FILE_BUCKET}
+      access-key: ${AWS_S3_FILE_ACCESS_KEY}
+      secret-key: ${AWS_S3_FILE_SECRET_KEY}
 
   cloudfront:
     key-pair-id: ${AWS_CLOUDFRONT_KEY_PAIR_ID}
