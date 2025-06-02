@@ -1,0 +1,23 @@
+package insty.domain.course.dto;
+
+import java.time.Instant;
+import java.util.List;
+
+public record CourseMySearchInfo(
+        Long courseId,
+        String title,
+        int price,
+        int viewCount,
+        Long commentCount,
+        List<String> tags,
+        String thumbnailUrl,
+        boolean isShow,
+        Instant createdAt
+) {
+
+    public static CourseMySearchInfo withTags(CourseMySearchInfo origin, List<String> tags) {
+        return new CourseMySearchInfo(origin.courseId(), origin.title(), origin.price(), origin.viewCount(),
+                origin.commentCount(), tags,
+                origin.thumbnailUrl(), origin.isShow(), origin.createdAt());
+    }
+}

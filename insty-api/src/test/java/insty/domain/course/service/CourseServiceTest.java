@@ -8,6 +8,8 @@ import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
+import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseMySearchReq;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
@@ -277,10 +279,50 @@ class CourseServiceTest {
         assertThat(pagination.totalPages()).isEqualTo(1);
         assertThat(pagination.currentPage()).isEqualTo(1);
         assertThat(pagination.perPage()).isEqualTo(10);
-        
+
         assertThat(items).isNotNull();
         assertThat(items.size()).isEqualTo(1);
         assertThat(items.get(0).title()).contains(search);
+        assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
+    }
+
+    @Sql(statements = {
+            "INSERT INTO shared.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (100L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (101L, 2L, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
+                    "VALUES (100L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+            "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
+                    "VALUES (200L, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
+            "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
+                    "VALUES (100L, 100L, NOW(), NOW())"
+    })
+    @Test
+    void searchMyCourse_정상() {
+        // given
+        Long userId = 1L;
+        int page = 1;
+        int pageSize = 10;
+        CourseMySearchReq req = new CourseMySearchReq(page, pageSize);
+
+        // when
+        SearchRes<CourseMySearchInfo> res = courseService.searchMyCourse(userId, req);
+
+        // then
+        List<CourseMySearchInfo> items = res.items();
+        PaginationRes pagination = res.pagination();
+
+        assertThat(pagination).isNotNull();
+        assertThat(pagination.totalItems()).isEqualTo(1);
+        assertThat(pagination.totalPages()).isEqualTo(1);
+        assertThat(pagination.currentPage()).isEqualTo(1);
+        assertThat(pagination.perPage()).isEqualTo(10);
+
+        assertThat(items).isNotNull();
+        assertThat(items.size()).isEqualTo(1);
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
     }
 }

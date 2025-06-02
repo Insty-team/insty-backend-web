@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
+import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseMySearchReq;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
@@ -23,6 +25,7 @@ import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +196,59 @@ class CourseReaderTest {
 
         // when
         PaginationRes paginationRes = courseReader.countSearchCourse(paginationReq, filter);
-        
+
+        // then
+        assertThat(paginationRes).isNotNull();
+        assertThat(paginationRes.totalItems()).isEqualTo(1);
+        assertThat(paginationRes.totalPages()).isEqualTo(1);
+        assertThat(paginationRes.currentPage()).isEqualTo(1);
+        assertThat(paginationRes.perPage()).isEqualTo(10);
+    }
+
+    @Test
+    void searchMyCourse_정상() {
+        // given
+        Long userId = 1L;
+        int page = 1;
+        int pageSize = 10;
+        CourseMySearchReq req = new CourseMySearchReq(page, pageSize);
+        PaginationReq paginationReq = req.toPaginationReq();
+
+        // mock
+        CourseMySearchInfo searchInfo = new CourseMySearchInfo(1L, "파이썬 설치 강의", 0, 100, 10L, null, null, true,
+                Instant.now());
+        when(courseQueryRepository.searchMyCourses(paginationReq, userId))
+                .thenReturn(List.of(searchInfo));
+        Map<Long, List<String>> map = new HashMap<>();
+        map.put(1L, List.of("태그1", "태그2"));
+        when(courseQueryRepository.getCourseTags(any()))
+                .thenReturn(map);
+
+        // when
+        List<CourseMySearchInfo> courseMySearchInfos = courseReader.searchMyCourse(paginationReq, userId);
+
+        // then
+        assertThat(courseMySearchInfos.size()).isEqualTo(1);
+        assertThat(courseMySearchInfos.get(0).courseId()).isEqualTo(1L);
+        assertThat(courseMySearchInfos.get(0).tags()).containsExactlyInAnyOrder("태그1", "태그2");
+    }
+
+    @Test
+    void countSearchMyCourse_정상() {
+        // given
+        Long userId = 1L;
+        int page = 1;
+        int pageSize = 10;
+        CourseMySearchReq req = new CourseMySearchReq(page, pageSize);
+        PaginationReq paginationReq = req.toPaginationReq();
+
+        // mock
+        when(courseQueryRepository.countSearchMyCourses(paginationReq, userId))
+                .thenReturn(new PaginationRes(1, 1, 1, 10));
+
+        // when
+        PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq, userId);
+
         // then
         assertThat(paginationRes).isNotNull();
         assertThat(paginationRes.totalItems()).isEqualTo(1);

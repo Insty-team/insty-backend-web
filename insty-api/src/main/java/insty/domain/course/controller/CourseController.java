@@ -3,6 +3,8 @@ package insty.domain.course.controller;
 import insty.domain.common.SearchRes;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
+import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseMySearchReq;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
@@ -90,5 +92,15 @@ public class CourseController {
             @ModelAttribute @Validated CourseSearchReq req
     ) {
         return SuccessRes.of(courseService.searchCourse(req));
+    }
+
+    @Operation(summary = "내가 업로드한 강의 목록조회", description = "해당 크리에이터가 업로드한 강의 목록을 조회한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_MY_SEARCH)
+    @GetMapping("/my")
+    public SuccessRes<SearchRes<CourseMySearchInfo>> courseMySearch(
+            @ModelAttribute @Validated CourseMySearchReq req
+    ) {
+        Long userId = 1L; // TODO - 인증 정보로부터 추출
+        return SuccessRes.of(courseService.searchMyCourse(userId, req));
     }
 }

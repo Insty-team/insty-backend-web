@@ -6,6 +6,8 @@ import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
+import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseMySearchReq;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
@@ -91,6 +93,16 @@ public class CourseService {
 
         List<CourseSearchInfo> searchInfo = courseReader.searchCourse(paginationReq, filter);
         PaginationRes paginationRes = courseReader.countSearchCourse(paginationReq, filter);
+
+        return SearchRes.from(paginationRes, searchInfo);
+    }
+
+    public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {
+        PaginationReq paginationReq = req.toPaginationReq();
+        // TODO - 유저 아이디 필터
+
+        List<CourseMySearchInfo> searchInfo = courseReader.searchMyCourse(paginationReq, userId);
+        PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq, userId);
 
         return SearchRes.from(paginationRes, searchInfo);
     }
