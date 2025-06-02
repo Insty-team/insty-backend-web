@@ -26,6 +26,7 @@ import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
+import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import insty.s3.constant.S3Constants;
 import insty.s3.dto.PresignedUrlDto;
@@ -58,22 +59,25 @@ class VideoServiceTest {
     private VideoValidator videoValidator;
     @Autowired
     private VideoWriter videoWriter;
-    @MockitoBean
-    private UuidProvider uuidProvider;
     @Autowired
     private VideoAccessManager videoAccessManager;
     @Autowired
     private VideoCourseRepository videoCourseRepository;
     @Autowired
     private VideoAnswerRepository videoAnswerRepository;
+    @Autowired
+    private VideoEncodingRepository videoEncodingRepository;
+
+    @MockitoBean
+    private UuidProvider uuidProvider;
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
+    @MockitoBean
+    private S3FileManager s3FileManager;
     @MockitoBean
     private CloudFrontSigner cloudFrontSigner;
     @MockitoBean
     private AppProperties appProperties;
-    @Autowired
-    private VideoEncodingRepository videoEncodingRepository;
 
     @Test
     void getPreSignedURLForCourseVideoUpload_정상() {

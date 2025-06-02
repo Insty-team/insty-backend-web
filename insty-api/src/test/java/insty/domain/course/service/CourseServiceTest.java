@@ -28,6 +28,7 @@ import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
 import insty.model.video.VideoType;
+import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +73,8 @@ class CourseServiceTest {
 
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
+    @MockitoBean
+    private S3FileManager s3FileManager;
     @MockitoBean
     private CloudFrontSigner cloudFrontSigner;
     @MockitoBean

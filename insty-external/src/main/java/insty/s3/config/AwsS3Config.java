@@ -14,32 +14,38 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Profile("!test")
 public class AwsS3Config {
 
-    @Value("${aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${aws.credentials.secret-key}")
-    private String secretKey;
-
     @Value("${aws.region.static}")
     private String region;
 
+    @Value("${aws.s3.video.access-key}")
+    private String videoAccessKey;
+
+    @Value("${aws.s3.video.secret-key}")
+    private String videoSecretKey;
+
+    @Value("${aws.s3.file.access-key}")
+    private String fileAccessKey;
+
+    @Value("${aws.s3.file.secret-key}")
+    private String fileSecretKey;
+
     @Bean
     public S3Presigner s3Presigner() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(videoAccessKey, videoSecretKey);
 
         return S3Presigner.builder()
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
 
     @Bean
     public S3Client s3Client() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(fileAccessKey, fileSecretKey);
 
         return S3Client.builder()
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
 }
