@@ -11,6 +11,6 @@ public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> 
 
     Optional<VideoCourse> findByVideoUuid(UUID videoUuid);
 
-    @Query("SELECT vc.videoUuid FROM VideoCourse vc WHERE vc.courseId = :courseId AND vc.isDeleted = false")
+    @Query("SELECT vc.videoUuid FROM VideoCourse vc WHERE vc.course.id = :courseId AND vc.isDeleted = false")
     Optional<UUID> findVideoUuidByCourseId(@Param("courseId") Long courseId);
 }
