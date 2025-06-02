@@ -37,7 +37,7 @@ public class S3FileManager {
      */
     public String upload(MultipartFile file, String directory, String key) {
         String fileName = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
-        String path = "file" + directory + "/" + key + "/" + fileName;
+        String path = "file/" + directory + "/" + key + "/" + fileName;
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucket)
