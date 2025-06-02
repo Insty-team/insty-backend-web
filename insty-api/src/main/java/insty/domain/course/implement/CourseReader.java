@@ -3,6 +3,7 @@ package insty.domain.course.implement;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
+import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
@@ -72,5 +73,13 @@ public class CourseReader {
 
     public PaginationRes countSearchCourse(PaginationReq paginationReq, CourseSearchFilter filter) {
         return courseQueryRepository.countSearchCourses(paginationReq, filter);
+    }
+
+    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq) {
+        return null;
+    }
+
+    public PaginationRes countSearchMyCourse(PaginationReq paginationReq) {
+        return null;
     }
 }
