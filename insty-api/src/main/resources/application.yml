@@ -34,18 +34,17 @@ spring:
 
 
 aws:
-  credentials:
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
   region:
     static: ${AWS_REGION}
-  s3-upload-bucket: ${AWS_S3_UPLOAD_BUCKET}
   s3:
     file:
       bucket: ${AWS_S3_FILE_BUCKET}
       access-key: ${AWS_S3_FILE_ACCESS_KEY}
       secret-key: ${AWS_S3_FILE_SECRET_KEY}
-
+    video:
+      upload-bucket: ${AWS_S3_VIDEO_UPLOAD_BUCKET}
+      access-key: ${AWS_S3_VIDEO_ACCESS_KEY}
+      secret-key: ${AWS_S3_VIDEO_SECRET_KEY}
   cloudfront:
     key-pair-id: ${AWS_CLOUDFRONT_KEY_PAIR_ID}
     private-key-path: ${AWS_CLOUDFRONT_PRIVATE_KEY_PATH}

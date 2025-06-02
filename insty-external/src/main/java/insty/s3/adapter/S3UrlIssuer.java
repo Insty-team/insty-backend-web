@@ -18,7 +18,7 @@ public class S3UrlIssuer {
 
     public S3UrlIssuer(
             S3Presigner s3Presigner,
-            @Value("${aws.s3-upload-bucket}") String bucket
+            @Value("${aws.s3.video.upload-bucket}") String bucket
     ) {
         this.s3Presigner = s3Presigner;
         this.bucket = bucket;

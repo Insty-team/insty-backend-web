@@ -17,11 +17,11 @@ public class AwsS3Config {
     @Value("${aws.region.static}")
     private String region;
 
-    @Value("${aws.credentials.access-key}")
-    private String accessKey;
+    @Value("${aws.s3.video.access-key}")
+    private String videoAccessKey;
 
-    @Value("${aws.credentials.secret-key}")
-    private String secretKey;
+    @Value("${aws.s3.video.secret-key}")
+    private String videoSecretKey;
 
     @Value("${aws.s3.file.access-key}")
     private String fileAccessKey;
@@ -31,7 +31,7 @@ public class AwsS3Config {
 
     @Bean
     public S3Presigner s3Presigner() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(videoAccessKey, videoSecretKey);
 
         return S3Presigner.builder()
                 .region(Region.of(region))
