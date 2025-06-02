@@ -64,22 +64,31 @@ public class CourseReader {
                 .map(CourseSearchInfo::courseId)
                 .toList();
         Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
-        List<CourseSearchInfo> mergedRes = courses.stream()
+
+        return courses.stream()
                 .map(dto -> CourseSearchInfo.withTags(dto, courseTags.get(dto.courseId())))
                 .toList();
-
-        return mergedRes;
     }
 
     public PaginationRes countSearchCourse(PaginationReq paginationReq, CourseSearchFilter filter) {
         return courseQueryRepository.countSearchCourses(paginationReq, filter);
     }
 
-    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq) {
-        return null;
+    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId) {
+        // TODO - 썸네일 url, 댓글 개수 추가
+        List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId);
+
+        List<Long> courseIds = courses.stream()
+                .map(CourseMySearchInfo::courseId)
+                .toList();
+        Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
+
+        return courses.stream()
+                .map(dto -> CourseMySearchInfo.withTags(dto, courseTags.get(dto.courseId())))
+                .toList();
     }
 
-    public PaginationRes countSearchMyCourse(PaginationReq paginationReq) {
-        return null;
+    public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId) {
+        return courseQueryRepository.countSearchMyCourses(paginationReq, userId);
     }
 }

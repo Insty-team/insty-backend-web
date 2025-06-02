@@ -100,6 +100,7 @@ public class CourseController {
     public SuccessRes<SearchRes<CourseMySearchInfo>> courseMySearch(
             @ModelAttribute @Validated CourseMySearchReq req
     ) {
-        return SuccessRes.of(courseService.searchMyCourse(req));
+        Long userId = 1L; // TODO - 인증 정보로부터 추출
+        return SuccessRes.of(courseService.searchMyCourse(userId, req));
     }
 }

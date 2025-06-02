@@ -97,12 +97,12 @@ public class CourseService {
         return SearchRes.from(paginationRes, searchInfo);
     }
 
-    public SearchRes<CourseMySearchInfo> searchMyCourse(CourseMySearchReq req) {
+    public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
         // TODO - 유저 아이디 필터
 
-        List<CourseMySearchInfo> searchInfo = courseReader.searchMyCourse(paginationReq);
-        PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq);
+        List<CourseMySearchInfo> searchInfo = courseReader.searchMyCourse(paginationReq, userId);
+        PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq, userId);
 
         return SearchRes.from(paginationRes, searchInfo);
     }
