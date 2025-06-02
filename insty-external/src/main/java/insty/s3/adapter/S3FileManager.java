@@ -2,8 +2,8 @@ package insty.s3.adapter;
 
 import insty.exception.CustomException;
 import insty.s3.error.S3ErrorCode;
+import insty.uuid.UuidProvider;
 import java.io.IOException;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -18,13 +18,16 @@ public class S3FileManager {
 
     private final S3Client s3Client;
     private final String bucket;
+    private final UuidProvider uuidProvider;
 
     public S3FileManager(
             S3Client s3Client,
-            @Value("${aws.s3.file.bucket}") String bucket
+            @Value("${aws.s3.file.bucket}") String bucket,
+            UuidProvider uuidProvider
     ) {
         this.s3Client = s3Client;
         this.bucket = bucket;
+        this.uuidProvider = uuidProvider;
     }
 
     /**
@@ -36,12 +39,11 @@ public class S3FileManager {
      * @return {fileName} (uuid.png)
      */
     public String upload(MultipartFile file, String directory, String key) {
-        String fileName = UUID.randomUUID() + "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
-        String path = "file/" + directory + "/" + key + "/" + fileName;
+        String fileName = uuidProvider.generate() + "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucket)
-                .key(path)
+                .key(getFilePath(directory, key, fileName))
                 .contentType(file.getContentType())
                 .build();
 
@@ -53,12 +55,16 @@ public class S3FileManager {
         return fileName;
     }
 
-    public void delete(String key) {
+    public void delete(String directory, String key, String fileName) {
         DeleteObjectRequest request = DeleteObjectRequest.builder()
-                .bucket(bucket)
+                .bucket(getFilePath(directory, key, fileName))
                 .key(key)
                 .build();
 
         s3Client.deleteObject(request);
+    }
+
+    private String getFilePath(String directory, String key, String fileName) {
+        return "file/" + directory + "/" + key + "/" + fileName;
     }
 }
