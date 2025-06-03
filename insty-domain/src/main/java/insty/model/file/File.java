@@ -65,6 +65,6 @@ public class File extends BaseEntity {
     }
 
     public String getUrl(String domain) {
-        return "https://" + domain + "/file/" + contentType + "/" + containerId + "/" + name;
+        return "https://" + domain + "/file/" + containerType + "/" + containerId + "/" + name;
     }
 }

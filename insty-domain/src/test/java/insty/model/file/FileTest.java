@@ -30,4 +30,20 @@ class FileTest {
         assertThat(file.getContentType()).isEqualTo(contentType);
         assertThat(file.getSize()).isEqualTo(size);
     }
+
+    @Test
+    void getUrl_정상() {
+        // given
+        String domain = "insty.test.com";
+        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
+                "thumb.jpg", "image/jpeg", 10);
+
+        // when
+        String url = file.getUrl(domain);
+
+        // then
+        assertThat(url).isNotNull();
+        assertThat(url).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+    }
 }

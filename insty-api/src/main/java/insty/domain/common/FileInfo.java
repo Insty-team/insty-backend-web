@@ -11,7 +11,7 @@ public record FileInfo(
 ) {
 
     public static FileInfo from(File file, String domain) {
-        return new FileInfo(file.getId(), file.getName(), file.getContentType(), file.getSize(),
+        return new FileInfo(file.getId(), file.getOriginalName(), file.getContentType(), file.getSize(),
                 file.getUrl(domain));
     }
 }
