@@ -1,6 +1,5 @@
 package insty.domain.user.service;
 
-import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
@@ -113,8 +112,8 @@ public class UserService {
     /**
      * 사용자 상세 정보 조회
      */
-    public UserDetailRes getDetailUser(CurrentUserDto currentUser) {
-        User findUser = userReader.getUser(currentUser.id());
+    public UserDetailRes getDetailUser(Long userId) {
+        User findUser = userReader.getUser(userId);
         return UserDetailRes.from(findUser);
     }
 

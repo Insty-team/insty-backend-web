@@ -1,7 +1,6 @@
 package insty.domain.user.controller;
 
 
-import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
@@ -75,8 +74,8 @@ public class UserController {
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_DETAIL)
     @GetMapping("/profile")
-    public SuccessRes<UserDetailRes> getProfile(@CurrentUser CurrentUserDto currentUser) {
-        return SuccessRes.of(userService.getDetailUser(currentUser));
+    public SuccessRes<UserDetailRes> getProfile(@CurrentUser Long userId) {
+        return SuccessRes.of(userService.getDetailUser(userId));
     }
 
     @Operation(summary = "사용자 이메일 로그인", description = "이메일과 비밀번호로 로그인합니다.")
@@ -94,10 +93,10 @@ public class UserController {
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
-            @CurrentUser CurrentUserDto currentUser,
+            @CurrentUser Long userId,
             @Validated @ModelAttribute UserUpdateReq req,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
-        return SuccessRes.of(userService.updateUser(currentUser.id(), req, profileImage));
+        return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }
 
     @Operation(
@@ -108,9 +107,9 @@ public class UserController {
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     @PatchMapping("/profile/userType")
     public SuccessRes<UserDetailRes> updateUserType(
-            @CurrentUser CurrentUserDto currentUser,
+            @CurrentUser Long userId,
             @ParameterObject @Validated @ModelAttribute UserTypeUpdateReq req) {
-        return SuccessRes.of(userService.updateUserType(currentUser.id(), req));
+        return SuccessRes.of(userService.updateUserType(userId, req));
     }
 
     @Operation(
@@ -121,9 +120,9 @@ public class UserController {
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     @PatchMapping("/profile/email-agree")
     public SuccessRes<UserDetailRes> updateEmailAgreed(
-            @CurrentUser CurrentUserDto currentUser,
+            @CurrentUser Long userId,
             @ParameterObject @ModelAttribute UserAgreementUpdateReq req) {
-        return SuccessRes.of(userService.updateAgreement(currentUser.id(), req));
+        return SuccessRes.of(userService.updateAgreement(userId, req));
     }
 
     @Operation(
@@ -133,7 +132,7 @@ public class UserController {
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @PostMapping("/logout")
-    public SuccessRes<Void> logout(@CurrentUser CurrentUserDto currentUser) {
+    public SuccessRes<Void> logout(@CurrentUser Long userId) {
         return SuccessRes.of(null);
     }
 }
