@@ -55,17 +55,18 @@ public class CourseService {
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
-                                        MultipartFile[] practiceFile) {
-        // TODO - 파일들이 null이 아니면 기존 파일들 삭제하고 새 썸네일/실습자료 추가
+                                        List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
+                req.deletePracticeFileId(), course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
         List<CourseKeypoint> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         Set<Tags> tags = tagWriter.saveTags(req.tags());
         courseWriter.updateCourseTags(course, tags);
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos);
     }
 
     /**

@@ -183,10 +183,16 @@ class CourseServiceTest {
 
         CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, checklists, keypoints,
                 tags, null);
-        MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg", new byte[0]);
-        MockMultipartFile[] practiceFiles = new MockMultipartFile[]{
-                new MockMultipartFile("practiceFile", "practice1.txt", "text/plain", "내용".getBytes())
-        };
+        MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
+                "content".getBytes());
+        List<MultipartFile> practiceFiles = List.of(
+                new MockMultipartFile("practiceFile", "practice1.jpg", "image/jpeg", "내용".getBytes()));
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString()))
+                .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 
         // when
         CourseDetailRes res = courseService.updateCourse(courseId, req, thumbnail, practiceFiles);
@@ -202,6 +208,15 @@ class CourseServiceTest {
                 .containsExactlyInAnyOrderElementsOf(checklists);
         assertThat(res.keyPoints()).hasSameElementsAs(keypoints);
         assertThat(res.tags()).hasSameElementsAs(tags);
+        assertThat(res.videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/100/00000000-0000-0000-0000-000000000001.jpg");
+        assertThat(res.practiceFile().size()).isEqualTo(practiceFiles.size());
+        assertThat(res.practiceFile().get(0).name()).isEqualTo(practiceFiles.get(0).getOriginalFilename());
+        assertThat(res.practiceFile().get(0).contentType()).isEqualTo(practiceFiles.get(0).getContentType());
+        assertThat(res.practiceFile().get(0).size()).isGreaterThan(0);
+        assertThat(res.practiceFile().get(0).url()).isEqualTo(
+                "https://insty.test.com/file/COURSE_PRACTICE_FILE/100/00000000-0000-0000-0000-000000000001.jpg");
 
         assertThat(courseInstallEnvChecklistRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(courseKeypointRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨

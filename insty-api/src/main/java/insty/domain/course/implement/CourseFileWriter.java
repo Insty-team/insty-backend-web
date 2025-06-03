@@ -10,7 +10,9 @@ import insty.model.course.Course;
 import insty.model.course.CoursePracticeFile;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,10 +72,27 @@ public class CourseFileWriter {
         }
         File beforeThumbnail = course.getThumbnail();
         if (beforeThumbnail != null) {
-            coursePracticeFileRepository.deleteByCourseIdAndPracticeFileId(course.getId(), beforeThumbnail.getId());
+            course.updateThumbnail(null);
+            courseRepository.save(course);
             fileWriter.deleteFile(beforeThumbnail);
         }
 
         return saveThumbnailAndGetUrl(thumbnail, course);
+    }
+
+    public List<FileInfo> updatePracticeFilesAndGetInfo(List<MultipartFile> practiceFiles, List<Long> deleteFileIds,
+                                                        Course course) {
+        if (deleteFileIds != null && deleteFileIds.isEmpty()) {
+            coursePracticeFileRepository.deleteByCourseIdAndPracticeFileIdIn(course.getId(), deleteFileIds);
+        }
+        List<FileInfo> fileInfos = course.getPracticeFiles().stream()
+                .map(file -> FileInfo.from(file.getPracticeFile(), appProperties.getDomain()))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        if (practiceFiles == null || practiceFiles.isEmpty()) {
+            return fileInfos;
+        }
+        fileInfos.addAll(savePracticeFilesAndGetInfo(practiceFiles, course));
+        return fileInfos;
     }
 }
