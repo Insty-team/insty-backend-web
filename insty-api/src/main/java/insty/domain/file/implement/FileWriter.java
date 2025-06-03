@@ -35,6 +35,6 @@ public class FileWriter {
         String uploadName = s3FileManager.upload(req.file(), req.containerType().toString(),
                 req.containerId().toString());
         return File.create(req.containerType(), req.containerId(), uploadName, req.file().getOriginalFilename(),
-                req.file().getContentType());
+                req.file().getContentType(), req.file().getSize());
     }
 }
