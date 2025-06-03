@@ -48,15 +48,19 @@ public class File extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String contentType;
 
+    @Column(nullable = false)
+    private long size;
+
 
     public static File create(FileContainerType containerType, Long containerId, String name, String originalName,
-                              String contentType) {
+                              String contentType, long size) {
         return File.builder()
                 .containerType(containerType)
                 .containerId(containerId)
                 .name(name)
                 .originalName(originalName)
                 .contentType(contentType)
+                .size(size)
                 .build();
     }
 }

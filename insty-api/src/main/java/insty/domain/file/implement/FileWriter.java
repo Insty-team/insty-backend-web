@@ -3,6 +3,7 @@ package insty.domain.file.implement;
 import insty.domain.common.FileCreateReq;
 import insty.domain.file.repository.FileRepository;
 import insty.model.file.File;
+import insty.model.file.FileContainerType;
 import insty.s3.adapter.S3FileManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,15 @@ public class FileWriter {
         String uploadName = s3FileManager.upload(req.file(), req.containerType().toString(),
                 req.containerId().toString());
         return File.create(req.containerType(), req.containerId(), uploadName, req.file().getOriginalFilename(),
-                req.file().getContentType());
+                req.file().getContentType(), req.file().getSize());
+    }
+
+    public void deleteAllFile(FileContainerType containerType, Long containerId) {
+        List<File> files = fileRepository.findAllByContainerTypeAndContainerId(containerType,
+                containerId);
+
+        for (File file : files) {
+            s3FileManager.delete(containerType.toString(), containerId.toString(), file.getName());
+        }
     }
 }

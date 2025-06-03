@@ -16,9 +16,10 @@ class FileTest {
         String name = "00000000-0000-0000-0000-000000000001.jpg";
         String originalName = "fileName.jpg";
         String contentType = "image/jpeg";
+        long size = 1024L;
 
         // when
-        File file = File.create(containerType, containerId, name, originalName, contentType);
+        File file = File.create(containerType, containerId, name, originalName, contentType, size);
 
         // then
         assertThat(file).isNotNull();
@@ -27,5 +28,6 @@ class FileTest {
         assertThat(file.getName()).isEqualTo(name);
         assertThat(file.getOriginalName()).isEqualTo(originalName);
         assertThat(file.getContentType()).isEqualTo(contentType);
+        assertThat(file.getSize()).isEqualTo(size);
     }
 }
