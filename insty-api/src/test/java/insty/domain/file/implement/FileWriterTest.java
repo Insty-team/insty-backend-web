@@ -1,6 +1,7 @@
 package insty.domain.file.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -78,7 +79,7 @@ class FileWriterTest {
                 .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
         when(fileRepository.saveAll(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        
+
         // when
         List<File> files = fileWriter.saveFiles(req);
 
@@ -89,5 +90,22 @@ class FileWriterTest {
         assertThat(files.get(0).getContainerId()).isEqualTo(1L);
         assertThat(files.get(1).getContainerType()).isEqualTo(FileContainerType.ANSWER_THUMBNAIL);
         assertThat(files.get(1).getContainerId()).isEqualTo(2L);
+    }
+
+    @Test
+    void deleteAllFile_정상() {
+        // given
+        FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
+        Long containerId = 1L;
+
+        // mock
+        when(fileRepository.findAllByContainerTypeAndContainerId(containerType, containerId))
+                .thenReturn(List.of(mock(File.class)));
+
+        // when
+
+        // then
+        assertThatCode(() -> fileWriter.deleteAllFile(containerType, containerId))
+                .doesNotThrowAnyException();
     }
 }
