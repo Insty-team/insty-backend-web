@@ -56,4 +56,24 @@ public class CourseFileWriter {
                 .map(file -> FileInfo.from(file, appProperties.getDomain()))
                 .toList();
     }
+
+    /**
+     * 기존에 썸네일이 있었다면 지우고 새로 썸네일을 생성한다.<br> 요청이 null 또는 빈값으로 들어오면 교체하지 않는다.
+     *
+     * @param thumbnail 새로운 썸네일
+     * @param course
+     * @return 썸네일 url
+     */
+    public String updateThumbnailAndGetUrl(MultipartFile thumbnail, Course course) {
+        if (thumbnail == null || thumbnail.isEmpty()) {
+            return null;
+        }
+        File beforeThumbnail = course.getThumbnail();
+        if (beforeThumbnail != null) {
+            coursePracticeFileRepository.deleteByCourseIdAndPracticeFileId(course.getId(), beforeThumbnail.getId());
+            fileWriter.deleteFile(beforeThumbnail);
+        }
+
+        return saveThumbnailAndGetUrl(thumbnail, course);
+    }
 }

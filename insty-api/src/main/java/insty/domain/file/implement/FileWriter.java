@@ -47,4 +47,9 @@ public class FileWriter {
             s3FileManager.delete(containerType.toString(), containerId.toString(), file.getName());
         }
     }
+
+    public void deleteFile(File file) {
+        s3FileManager.delete(file.getContainerType().toString(), file.getContainerId().toString(), file.getName());
+        fileRepository.delete(file);
+    }
 }
