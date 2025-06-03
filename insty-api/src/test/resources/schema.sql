@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS web_service.files
     name            VARCHAR(255) NOT NULL,
     original_name   VARCHAR(255) NOT NULL,
     content_type    VARCHAR(100) NOT NULL,
-    content_type    BIGINT       NOT NULL,
+    size            BIGINT       NOT NULL,
     created_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL
 );
