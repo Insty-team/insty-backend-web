@@ -1,5 +1,6 @@
 package insty.domain.course.service;
 
+import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
@@ -13,6 +14,7 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
+import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
@@ -36,33 +38,35 @@ public class CourseService {
     private final CourseReader courseReader;
     private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
+    private final CourseFileWriter courseFileWriter;
 
-    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
-        // TODO - 썸네일 저장
-        // TODO - 실습자료 저장
-        Course course = courseWriter.saveCourse(req, null);
+    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
+                                        List<MultipartFile> practiceFile) {
+        Course course = courseWriter.saveCourse(req);
+        String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
+        List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
         List<CourseKeypoint> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
         Set<Tags> tags = tagWriter.saveTags(req.tags());
         courseWriter.saveCourseTags(course, tags);
 
-        // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tags, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos);
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
-                                        MultipartFile[] practiceFile) {
-        // TODO - 파일들이 null이 아니면 기존 파일들 삭제하고 새 썸네일/실습자료 추가
+                                        List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
+        String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
+                req.deletePracticeFileId(), course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
         List<CourseKeypoint> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         Set<Tags> tags = tagWriter.saveTags(req.tags());
         courseWriter.updateCourseTags(course, tags);
 
-        // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tags, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos);
     }
 
     /**
@@ -84,7 +88,7 @@ public class CourseService {
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
 
         // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null, null);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {

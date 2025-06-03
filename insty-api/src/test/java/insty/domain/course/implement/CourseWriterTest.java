@@ -57,14 +57,13 @@ class CourseWriterTest {
         int price = 10000;
         boolean isShow = true;
         CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, null, null, null);
-        Long thumbnailId = null;
 
         // mock
         when(courseRepository.save(any(Course.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        Course course = courseWriter.saveCourse(req, thumbnailId);
+        Course course = courseWriter.saveCourse(req);
 
         // then
         assertThat(course).isNotNull();
@@ -75,7 +74,6 @@ class CourseWriterTest {
         assertThat(course.getViewCount()).isEqualTo(0);
         assertThat(course.getLikeCount()).isEqualTo(0);
         assertThat(course.getTargetAudience()).isEqualTo(targetAudience);
-        assertThat(course.getThumbnailId()).isEqualTo(thumbnailId);
         assertThat(course.isShow()).isEqualTo(isShow);
     }
 
@@ -148,10 +146,10 @@ class CourseWriterTest {
         String description = "설명";
         String targetAudience = "강의 대상자";
         int price = 10000;
-        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null);
+        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null, null);
 
         // mock
-        Course beforeCourse = Course.create("이전 제목", "이전 설명", 0, "이전 대상자", null, false);
+        Course beforeCourse = Course.create("이전 제목", "이전 설명", 0, "이전 대상자", false);
         when(courseRepository.findById(courseId))
                 .thenReturn(Optional.of(beforeCourse));
         when(courseRepository.save(any(Course.class)))
@@ -176,7 +174,7 @@ class CourseWriterTest {
         String description = "설명";
         String targetAudience = "강의 대상자";
         int price = 10000;
-        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null);
+        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null, null);
 
         // mock
         when(courseRepository.findById(courseId))
@@ -271,7 +269,7 @@ class CourseWriterTest {
     @Test
     void deleteCourse_정상_논리적으로_삭제된다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", null, true);
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
 
         // when
         courseWriter.deleteCourse(course);

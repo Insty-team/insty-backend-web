@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -47,7 +48,7 @@ public class CourseController {
             @Parameter(description = "썸네일", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
             @Parameter(description = "실습자료(최대 2개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "practiceFile", required = false) @Size(max = 2) MultipartFile[] practiceFile
+            @RequestPart(value = "practiceFile", required = false) @Size(max = 2) List<MultipartFile> practiceFile
     ) {
         return SuccessRes.of(courseService.createCourse(req, thumbnail, practiceFile));
     }
@@ -61,7 +62,7 @@ public class CourseController {
             @Parameter(description = "썸네일", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
             @Parameter(description = "실습자료(최대 2개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "practiceFile", required = false) @Size(max = 2) MultipartFile[] practiceFile
+            @RequestPart(value = "practiceFile", required = false) @Size(max = 2) List<MultipartFile> practiceFile
     ) {
         return SuccessRes.of(courseService.updateCourse(courseId, req, thumbnail, practiceFile));
     }
