@@ -1,6 +1,7 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -8,8 +9,11 @@ import insty.domain.common.FileInfo;
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.file.implement.FileWriter;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
+import insty.model.course.CoursePracticeFile;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import java.util.List;
@@ -143,5 +147,84 @@ class CourseFileWriterTest {
 
         // then
         assertThat(uploadName).isNull();
+    }
+
+    @Test
+    void updatePracticeFilesAndGetInfo_정상() {
+        // given
+        MockMultipartFile practiceFile1 = new MockMultipartFile("practiceFile1", "practice1.jpg", "image/jpeg",
+                "content".getBytes());
+        MockMultipartFile practiceFile2 = new MockMultipartFile("practiceFile2", "practice2.jpg", "image/jpeg",
+                "content".getBytes());
+        List<MultipartFile> practiceFiles = List.of(practiceFile1, practiceFile2);
+        List<Long> deleteFileIds = List.of(1L);
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        ReflectionTestUtils.setField(course, "id", 1L);
+        ReflectionTestUtils.setField(course, "practiceFiles", List.of());
+
+        // mock
+        File file1 = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
+                "practice1.jpg", "image/jpeg", 7);
+        File file2 = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
+                "practice2.jpg", "image/jpeg", 7);
+        when(fileWriter.saveFiles(any()))
+                .thenReturn(List.of(file1, file2));
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
+        // when
+        List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFiles, deleteFileIds, course);
+
+        // then
+        assertThat(fileInfos).isNotNull();
+        assertThat(fileInfos.size()).isEqualTo(2);
+    }
+
+    @Test
+    void updatePracticeFilesAndGetInfo_정상_추가되는_실습파일이_없다() {
+        // given
+        List<MultipartFile> practiceFiles = null;
+        List<Long> deleteFileIds = List.of(1L);
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        ReflectionTestUtils.setField(course, "id", 1L);
+        ReflectionTestUtils.setField(course, "practiceFiles", List.of());
+
+        // mock
+
+        // when
+        List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFiles, deleteFileIds, course);
+
+        // then
+        assertThat(fileInfos).isNotNull();
+        assertThat(fileInfos.size()).isEqualTo(0);
+    }
+
+    @Test
+    void updatePracticeFilesAndGetInfo_에러_허용되는_실습_파일_개수를_초과했다() {
+        // given
+        MockMultipartFile practiceFile1 = new MockMultipartFile("practiceFile1", "practice1.jpg", "image/jpeg",
+                "content".getBytes());
+        MockMultipartFile practiceFile2 = new MockMultipartFile("practiceFile2", "practice2.jpg", "image/jpeg",
+                "content".getBytes());
+        List<MultipartFile> practiceFiles = List.of(practiceFile1, practiceFile2);
+        List<Long> deleteFileIds = null;
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        ReflectionTestUtils.setField(course, "id", 1L);
+
+        File existFile = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L,
+                "00000000-0000-0000-0000-000000000001.jpg", "practice1.jpg", "image/jpeg", 7);
+        ReflectionTestUtils.setField(course, "practiceFiles", List.of(CoursePracticeFile.create(course, existFile)));
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> courseFileWriter.updatePracticeFilesAndGetInfo(practiceFiles, deleteFileIds, course))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_TOO_MANY_PRACTICE_FILE);
     }
 }
