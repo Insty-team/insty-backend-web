@@ -64,7 +64,7 @@ class CourseFileWriterTest {
     }
 
     @Test
-    void saveThumbnailAndGetUrl_정상_빈_썸네일() {
+    void saveThumbnailAndGetUrl_정상_빈_썸네일이면_저장_작업을_하지_않는다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 new byte[0]);
@@ -105,5 +105,43 @@ class CourseFileWriterTest {
         assertThat(fileInfos.get(0).size()).isGreaterThan(0);
         assertThat(fileInfos.get(0).url()).isEqualTo(
                 "https://insty.test.com/file/COURSE_PRACTICE_FILE/1/00000000-0000-0000-0000-000000000001.jpg");
+    }
+
+    @Test
+    void updateThumbnailAndGetUrl_정상() {
+        // given
+        MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
+                "content".getBytes());
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        ReflectionTestUtils.setField(course, "id", 1L);
+
+        // mock
+        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
+                "thumb.jpg", "image/jpeg", 10);
+        when(fileWriter.saveFile(any()))
+                .thenReturn(file);
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
+        // when
+        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+
+        // then
+        assertThat(uploadName).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+    }
+
+    @Test
+    void updateThumbnailAndGetUrl_정상_빈_썸네일이면_교체_작업을_하지_않는다() {
+        // given
+        MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
+                new byte[0]);
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+
+        // when
+        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+
+        // then
+        assertThat(uploadName).isNull();
     }
 }
