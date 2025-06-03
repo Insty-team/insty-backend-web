@@ -31,7 +31,7 @@ public class CourseWriter {
     private final CourseKeypointRepository courseKeypointRepository;
     private final CourseTagRepository courseTagRepository;
 
-    public Course saveCourse(CourseCreateReq req, Long thumbnailId) {
+    public Course saveCourse(CourseCreateReq req) {
         Course course = Course.create(req.title(), req.description(), req.price(), req.targetAudience(), req.isShow());
         return courseRepository.save(course);
     }

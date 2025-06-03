@@ -42,7 +42,7 @@ public class CourseService {
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
-        Course course = courseWriter.saveCourse(req, null);
+        Course course = courseWriter.saveCourse(req);
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,

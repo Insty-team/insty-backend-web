@@ -57,14 +57,13 @@ class CourseWriterTest {
         int price = 10000;
         boolean isShow = true;
         CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, null, null, null);
-        Long thumbnailId = null;
 
         // mock
         when(courseRepository.save(any(Course.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        Course course = courseWriter.saveCourse(req, thumbnailId);
+        Course course = courseWriter.saveCourse(req);
 
         // then
         assertThat(course).isNotNull();
@@ -75,7 +74,6 @@ class CourseWriterTest {
         assertThat(course.getViewCount()).isEqualTo(0);
         assertThat(course.getLikeCount()).isEqualTo(0);
         assertThat(course.getTargetAudience()).isEqualTo(targetAudience);
-//        assertThat(course.getThumbnailId()).isEqualTo(thumbnailId); // FIXME
         assertThat(course.isShow()).isEqualTo(isShow);
     }
 
