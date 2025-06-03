@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS web_service.tags (
 );
 
 CREATE TABLE IF NOT EXISTS web_service.course_tags (
-    tag_id      BIGINT NOT NULL,
     course_id   BIGINT NOT NULL,
+    tag_id      BIGINT NOT NULL,
     created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     PRIMARY KEY (course_id, tag_id)
@@ -121,4 +121,12 @@ CREATE TABLE IF NOT EXISTS web_service.files
     size            BIGINT       NOT NULL,
     created_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS web_service.course_practice_file (
+    course_id   BIGINT NOT NULL,
+    file_id     BIGINT NOT NULL,
+    created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    updated_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    PRIMARY KEY (course_id, file_id)
 );

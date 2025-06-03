@@ -1,5 +1,6 @@
 package insty.domain.course.dto;
 
+import insty.domain.common.FileInfo;
 import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
@@ -18,14 +19,15 @@ public record CourseDetailRes(
         List<CourseInstallEnvChecklistInfo> installEnvChecklist,
         List<String> keyPoints,
         List<String> tags,
-        String thumbnailUrl,
         VideoType videoType,
-        // 파일
+        String thumbnailUrl,
+        List<FileInfo> practiceFile,
         Instant createdAt
 ) {
 
     public static CourseDetailRes from(Course course, List<CourseInstallEnvChecklist> installEnvChecklist,
-                                       List<CourseKeypoint> keyPoints, Set<Tags> tags, String thumbnailUrl) {
+                                       List<CourseKeypoint> keyPoints, Set<Tags> tags, String thumbnailUrl,
+                                       List<FileInfo> practiceFile) {
         List<CourseInstallEnvChecklistInfo> checklistInfos = installEnvChecklist.stream()
                 .map(CourseInstallEnvChecklistInfo::from)
                 .toList();
@@ -45,14 +47,16 @@ public record CourseDetailRes(
                 checklistInfos,
                 keyPointContents,
                 tagNames,
-                thumbnailUrl,
                 VideoType.COURSE,
+                thumbnailUrl,
+                practiceFile,
                 course.getCreatedAt()
         );
     }
 
     public static CourseDetailRes from(Course course, List<CourseInstallEnvChecklistInfo> installEnvChecklist,
-                                       List<String> keyPoints, List<String> tags, String thumbnailUrl) {
+                                       List<String> keyPoints, List<String> tags, String thumbnailUrl,
+                                       List<FileInfo> practiceFile) {
         return new CourseDetailRes(
                 course.getId(),
                 course.getTitle(),
@@ -62,8 +66,9 @@ public record CourseDetailRes(
                 installEnvChecklist,
                 keyPoints,
                 tags,
-                thumbnailUrl,
                 VideoType.COURSE,
+                thumbnailUrl,
+                practiceFile,
                 course.getCreatedAt()
         );
     }

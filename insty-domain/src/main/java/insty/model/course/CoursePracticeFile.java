@@ -1,5 +1,6 @@
 package insty.model.course;
 
+import insty.model.BaseEntity;
 import insty.model.course.id.CoursePracticeFileId;
 import insty.model.file.File;
 import jakarta.persistence.EmbeddedId;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CoursePracticeFile {
+public class CoursePracticeFile extends BaseEntity {
 
     @EmbeddedId
     private CoursePracticeFileId coursePracticeFileId;
@@ -31,7 +32,7 @@ public class CoursePracticeFile {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("fileId")
     @JoinColumn(name = "file_id", nullable = false)
     private File practiceFile;

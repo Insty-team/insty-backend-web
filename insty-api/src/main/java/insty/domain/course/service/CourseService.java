@@ -1,5 +1,6 @@
 package insty.domain.course.service;
 
+import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
@@ -39,17 +40,18 @@ public class CourseService {
     private final CourseCounter courseCounter;
     private final CourseFileWriter courseFileWriter;
 
-    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
-        // TODO - 실습자료 저장
+    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
+                                        List<MultipartFile> practiceFile) {
         Course course = courseWriter.saveCourse(req, null);
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
+        List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
         List<CourseKeypoint> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
         Set<Tags> tags = tagWriter.saveTags(req.tags());
         courseWriter.saveCourseTags(course, tags);
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos);
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
@@ -63,7 +65,7 @@ public class CourseService {
         courseWriter.updateCourseTags(course, tags);
 
         // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tags, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, null, null);
     }
 
     /**
@@ -85,7 +87,7 @@ public class CourseService {
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
 
         // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null, null);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {

@@ -1,6 +1,9 @@
 package insty.domain.course.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
@@ -14,12 +17,16 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
+import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
+import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
+import insty.domain.file.implement.FileWriter;
+import insty.domain.file.repository.FileRepository;
 import insty.domain.tag.implement.TagWriter;
 import insty.domain.tag.repository.TagsRepository;
 import insty.global.property.AppProperties;
@@ -42,6 +49,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -61,6 +69,10 @@ class CourseServiceTest {
     @Autowired
     private CourseCounter courseCounter;
     @Autowired
+    private CourseFileWriter courseFileWriter;
+    @Autowired
+    private FileWriter fileWriter;
+    @Autowired
     private CourseRepository courseRepository;
     @Autowired
     private CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
@@ -70,6 +82,10 @@ class CourseServiceTest {
     private CourseTagRepository courseTagRepository;
     @Autowired
     private TagsRepository tagsRepository;
+    @Autowired
+    private CoursePracticeFileRepository coursePracticeFileRepository;
+    @Autowired
+    private FileRepository fileRepository;
 
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
@@ -98,9 +114,14 @@ class CourseServiceTest {
                 keypoints,
                 tags);
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg", new byte[0]);
-        MockMultipartFile[] practiceFiles = new MockMultipartFile[]{
-                new MockMultipartFile("practiceFile", "practice1.txt", "text/plain", "내용".getBytes())
-        };
+        List<MultipartFile> practiceFiles = List.of(
+                new MockMultipartFile("practiceFile", "practice1.txt", "text/plain", "내용".getBytes()));
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString()))
+                .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 
         // when
         CourseDetailRes res = courseService.createCourse(req, thumbnail, practiceFiles);
@@ -116,6 +137,7 @@ class CourseServiceTest {
                 .containsExactlyInAnyOrderElementsOf(checklists);
         assertThat(res.keyPoints()).hasSameElementsAs(keypoints);
         assertThat(res.tags()).hasSameElementsAs(tags);
+        assertThat(res.videoType()).isEqualTo(VideoType.COURSE);
     }
 
     @Sql(statements = {
