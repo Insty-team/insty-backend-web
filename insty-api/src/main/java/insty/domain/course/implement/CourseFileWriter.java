@@ -1,10 +1,14 @@
 package insty.domain.course.implement;
 
+import static insty.constants.CourseConstants.COURSE_PRACTICE_FILE_COUNT_LIMIT;
+
 import insty.domain.common.FileCreateReq;
 import insty.domain.common.FileInfo;
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.file.implement.FileWriter;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.course.CoursePracticeFile;
@@ -80,6 +84,14 @@ public class CourseFileWriter {
         return saveThumbnailAndGetUrl(thumbnail, course);
     }
 
+    /**
+     * 썸네일과 달리 요청된 실습파일만 삭제하고, 새로운 파일 요청이 있다면 추가 생성한다.<br> 파일 개수 제한을 넘기면 에러를 반환한다.
+     *
+     * @param practiceFiles 새로 추가되는 실습 파일
+     * @param deleteFileIds 삭제할 파일 id
+     * @param course
+     * @return 존재하는 모든 실습파일 정보
+     */
     public List<FileInfo> updatePracticeFilesAndGetInfo(List<MultipartFile> practiceFiles, List<Long> deleteFileIds,
                                                         Course course) {
         if (deleteFileIds != null && deleteFileIds.isEmpty()) {
@@ -91,6 +103,9 @@ public class CourseFileWriter {
 
         if (practiceFiles == null || practiceFiles.isEmpty()) {
             return fileInfos;
+        }
+        if (practiceFiles.size() + fileInfos.size() > COURSE_PRACTICE_FILE_COUNT_LIMIT) {
+            throw new CustomException(CourseErrorCode.COURSE_TOO_MANY_PRACTICE_FILE);
         }
         fileInfos.addAll(savePracticeFilesAndGetInfo(practiceFiles, course));
         return fileInfos;
