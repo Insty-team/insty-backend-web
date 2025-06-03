@@ -19,7 +19,7 @@ class CourseTest {
         boolean isShow = true;
 
         // when
-        Course course = Course.create(title, description, price, targetAudience, thumbnailId, isShow);
+        Course course = Course.create(title, description, price, targetAudience, isShow);
 
         // then
         assertThat(course).isNotNull();
@@ -29,7 +29,6 @@ class CourseTest {
         assertThat(course.getViewCount()).isEqualTo(0);
         assertThat(course.getLikeCount()).isEqualTo(0);
         assertThat(course.getTargetAudience()).isEqualTo(targetAudience);
-        assertThat(course.getThumbnailId()).isEqualTo(thumbnailId);
         assertThat(course.isShow()).isEqualTo(isShow);
     }
 }

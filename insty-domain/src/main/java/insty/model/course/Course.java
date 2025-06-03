@@ -1,6 +1,7 @@
 package insty.model.course;
 
 import insty.model.BaseEntity;
+import insty.model.file.File;
 import insty.model.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +11,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,7 +52,12 @@ public class Course extends BaseEntity {
     @Column(length = 100)
     private String targetAudience;
 
-    private Long thumbnailId; // TODO - file 객체로 바꾸기
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "thumbnail_id")
+    private File thumbnail;
+
+    @OneToMany(mappedBy = "course")
+    private List<CoursePracticeFile> practiceFiles;
 
     private boolean isShow;
 
@@ -56,8 +65,7 @@ public class Course extends BaseEntity {
 
 
     // TODO - 유저도 필수로 받기
-    public static Course create(String title, String description, int price, String targetAudience, Long thumbnailId,
-                                boolean isShow) {
+    public static Course create(String title, String description, int price, String targetAudience, boolean isShow) {
         return Course.builder()
                 .user(null)
                 .title(title)
@@ -66,7 +74,6 @@ public class Course extends BaseEntity {
                 .viewCount(0)
                 .likeCount(0)
                 .targetAudience(targetAudience)
-                .thumbnailId(thumbnailId)
                 .isShow(isShow)
                 .build();
     }
@@ -80,5 +87,9 @@ public class Course extends BaseEntity {
 
     public void deleteLogically() {
         this.isDeleted = true;
+    }
+
+    public void updateThumbnail(File thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }
