@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.domain.user.dto.CurrentUserDto;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
@@ -136,12 +135,11 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         User mockUser = User.create("email@example.com", "encodedPassword", "nickname");
-        CurrentUserDto currentUser = new CurrentUserDto(userId,  "email@example.com", "nickname");
 
         when(userReader.getUser(userId)).thenReturn(mockUser);
 
         // when
-        UserDetailRes result = userService.getDetailUser(currentUser);
+        UserDetailRes result = userService.getDetailUser(userId);
 
         // then
         verify(userReader).getUser(userId);

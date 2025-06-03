@@ -99,10 +99,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰에서 정보 획득
         Long userId = Long.parseLong(jwtUtils.extractSubject(token));
 
-        User user = getUser(userId);
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
-
-        JwtAuthenticationToken authToken = new JwtAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        JwtAuthenticationToken authToken = new JwtAuthenticationToken(userId, null, null);
 
         SecurityContextHolder.clearContext();
         SecurityContextHolder.getContext().setAuthentication(authToken);

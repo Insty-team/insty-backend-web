@@ -1,8 +1,6 @@
 package insty.global.security.resolver;
 
-import insty.domain.user.dto.CurrentUserDto;
 import insty.global.annotation.CurrentUser;
-import insty.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -21,8 +19,8 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterAnnotation(CurrentUser.class) != null && parameter.getParameterType()
-                .equals(CurrentUserDto.class);
+        return parameter.getParameterAnnotation(CurrentUser.class) != null
+                && parameter.getParameterType().equals(Long.class);
     }
 
     @Override
@@ -32,6 +30,6 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
         if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
-        return CurrentUserDto.from((CustomUserDetails) authentication.getPrincipal());
+        return Long.parseLong(String.valueOf(authentication.getPrincipal()));
     }
 }
