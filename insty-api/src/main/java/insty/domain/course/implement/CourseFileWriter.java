@@ -94,7 +94,7 @@ public class CourseFileWriter {
      */
     public List<FileInfo> updatePracticeFilesAndGetInfo(List<MultipartFile> practiceFiles, List<Long> deleteFileIds,
                                                         Course course) {
-        if (deleteFileIds != null && deleteFileIds.isEmpty()) {
+        if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
             coursePracticeFileRepository.deleteByCourseIdAndPracticeFileIdIn(course.getId(), deleteFileIds);
         }
         List<FileInfo> fileInfos = course.getPracticeFiles().stream()
