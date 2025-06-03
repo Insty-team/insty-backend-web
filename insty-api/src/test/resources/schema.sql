@@ -48,7 +48,9 @@ CREATE TABLE IF NOT EXISTS web_service.course_tags (
     tag_id      BIGINT NOT NULL,
     created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    PRIMARY KEY (course_id, tag_id)
+    PRIMARY KEY (course_id, tag_id),
+    FOREIGN KEY (course_id) REFERENCES web_service.courses(id),
+    FOREIGN KEY (tag_id) REFERENCES web_service.tags(id)
 );
 
 CREATE TABLE IF NOT EXISTS web_service.course_install_env_checklists (
@@ -123,10 +125,15 @@ CREATE TABLE IF NOT EXISTS web_service.files
     updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS container_index
+    ON web_service.files (container_type, container_id);
+
 CREATE TABLE IF NOT EXISTS web_service.course_practice_file (
     course_id   BIGINT NOT NULL,
     file_id     BIGINT NOT NULL,
     created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    PRIMARY KEY (course_id, file_id)
+    PRIMARY KEY (course_id, file_id),
+    FOREIGN KEY (course_id) REFERENCES web_service.courses(id),
+    FOREIGN KEY (file_id) REFERENCES web_service.files(id)
 );
