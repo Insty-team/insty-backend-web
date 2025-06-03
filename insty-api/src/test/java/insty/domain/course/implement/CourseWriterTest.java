@@ -146,7 +146,7 @@ class CourseWriterTest {
         String description = "설명";
         String targetAudience = "강의 대상자";
         int price = 10000;
-        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null);
+        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null, null);
 
         // mock
         Course beforeCourse = Course.create("이전 제목", "이전 설명", 0, "이전 대상자", false);
@@ -174,7 +174,7 @@ class CourseWriterTest {
         String description = "설명";
         String targetAudience = "강의 대상자";
         int price = 10000;
-        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null);
+        CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, null, null, null, null);
 
         // mock
         when(courseRepository.findById(courseId))

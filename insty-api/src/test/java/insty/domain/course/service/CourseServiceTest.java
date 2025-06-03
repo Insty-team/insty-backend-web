@@ -182,7 +182,7 @@ class CourseServiceTest {
         Set<String> tags = Set.of("존재하고 강의에 연결된 태그", "새로운 태그");
 
         CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, checklists, keypoints,
-                tags);
+                tags, null);
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg", new byte[0]);
         MockMultipartFile[] practiceFiles = new MockMultipartFile[]{
                 new MockMultipartFile("practiceFile", "practice1.txt", "text/plain", "내용".getBytes())

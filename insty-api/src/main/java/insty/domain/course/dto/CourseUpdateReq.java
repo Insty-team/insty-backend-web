@@ -20,6 +20,7 @@ public record CourseUpdateReq(
         @NotNull
         List<String> keyPoints,
         @NotNull
-        Set<String> tags
+        Set<String> tags,
+        List<Long> deletePracticeFileId
 ) {
 }
