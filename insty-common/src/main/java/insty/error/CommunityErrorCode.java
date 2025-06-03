@@ -2,7 +2,8 @@ package insty.error;
 
 public enum CommunityErrorCode implements ErrorCode {
 
-    COMMUNITY_QUESTION_NOT_FOUND("Community_001", "Community question not found", 404)
+    COMMUNITY_QUESTION_NOT_FOUND("Community_001", "Community question not found", 404),
+    COMMUNITY_ANSWER_NOT_FOUND("Community_002", "Community answer not found", 404)
     ;
 
     private final String code;

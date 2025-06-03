@@ -19,10 +19,7 @@ public class CommunityWriter {
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
 
-    public void saveAnswer(CommunityAnswerReq communityAnswerReq) {
-        CommunityQuestion communityQuestion = communityQuestionRepository
-                .findById(communityAnswerReq.questionId())
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+    public CommunityAnswer saveAnswer(CommunityQuestion communityQuestion, CommunityAnswerReq communityAnswerReq) {
 
         CommunityAnswer communityAnswer = CommunityAnswer
                 .create(
@@ -30,6 +27,6 @@ public class CommunityWriter {
                         communityAnswerReq.content()
                 );
 
-        communityAnswerRepository.save(communityAnswer);
+        return communityAnswerRepository.save(communityAnswer);
     }
 }

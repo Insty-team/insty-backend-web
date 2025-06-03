@@ -1,9 +1,12 @@
 package insty.domain.community.service;
 
 import insty.domain.community.dto.CommunityAnswerReq;
+import insty.domain.community.dto.CommunityAnswerRes;
+import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityWriter;
+import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +36,43 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public void saveAnswer(CommunityAnswerReq communityAnswerReq) {
+    public CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq) {
+        return null;
+    }
 
+    @Override
+    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq) {
+        CommunityQuestion communityQuestion = communityReader.getQuestionDetailsById(String.valueOf(communityAnswerReq.questionId()));
+        CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq);
+
+        return CommunityAnswerRes.create(
+                communityAnswer.getContent()
+        );
+
+    }
+
+    @Override
+    public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq) {
+        return null;
+    }
+
+    @Override
+    public CommunityAnswerRes deleteAnswer(CommunityAnswerReq communityAnswerReq) {
+        return null;
+    }
+
+    @Override
+    public CommunityAnswerRes getAIAnswerRecommendation(CommunityAnswerReq communityAnswerReq) {
+        return null;
+    }
+
+    @Override
+    public CommunityAnswerRes postAnswerImage(CommunityAnswerReq communityAnswerReq) {
+        return null;
+    }
+
+    @Override
+    public CommunityAnswerReq postAnswerVideo(CommunityAnswerReq communityAnswerReq) {
+        return null;
     }
 }
