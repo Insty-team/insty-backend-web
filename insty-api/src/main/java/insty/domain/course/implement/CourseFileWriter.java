@@ -24,6 +24,9 @@ public class CourseFileWriter {
     private final AppProperties appProperties;
 
     public String saveThumbnailAndGetUrl(MultipartFile thumbnail, Course course) {
+        if (thumbnail == null || thumbnail.isEmpty()) {
+            return null;
+        }
         FileCreateReq req = new FileCreateReq(thumbnail, FileContainerType.COURSE_THUMBNAIL, course.getId());
         File file = fileWriter.saveFile(req);
         course.updateThumbnail(file);
