@@ -1,8 +1,7 @@
 package insty.model.course;
 
-import insty.model.BaseEntity;
-import insty.model.course.id.CourseTagId;
-import insty.model.tag.Tags;
+import insty.model.course.id.CoursePracticeFileId;
+import insty.model.file.File;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,15 +16,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "course_tags", schema = "web_service")
+@Table(name = "course_practice_file", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CourseTag extends BaseEntity {
+public class CoursePracticeFile {
 
     @EmbeddedId
-    private CourseTagId courseTagId;
+    private CoursePracticeFileId coursePracticeFileId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("courseId")
@@ -33,16 +32,16 @@ public class CourseTag extends BaseEntity {
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("tagId")
-    @JoinColumn(name = "tag_id", nullable = false)
-    private Tags tags;
+    @MapsId("fileId")
+    @JoinColumn(name = "file_id", nullable = false)
+    private File practiceFile;
 
 
-    public static CourseTag create(Course course, Tags tags) {
-        return CourseTag.builder()
-                .courseTagId(CourseTagId.create(course.getId(), tags.getId()))
+    public static CoursePracticeFile create(Course course, File practiceFile) {
+        return CoursePracticeFile.builder()
+                .coursePracticeFileId(CoursePracticeFileId.create(course.getId(), practiceFile.getId()))
                 .course(course)
-                .tags(tags)
+                .practiceFile(practiceFile)
                 .build();
     }
 }
