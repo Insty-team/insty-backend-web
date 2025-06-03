@@ -13,6 +13,7 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
+import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
@@ -36,19 +37,19 @@ public class CourseService {
     private final CourseReader courseReader;
     private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
+    private final CourseFileWriter courseFileWriter;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail, MultipartFile[] practiceFile) {
-        // TODO - 썸네일 저장
         // TODO - 실습자료 저장
         Course course = courseWriter.saveCourse(req, null);
+        String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
         List<CourseKeypoint> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
         Set<Tags> tags = tagWriter.saveTags(req.tags());
         courseWriter.saveCourseTags(course, tags);
 
-        // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tags, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl);
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
