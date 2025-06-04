@@ -6,8 +6,10 @@ import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityWriter;
+import insty.domain.course.implement.CourseReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import insty.model.course.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     private final CommunityReader communityReader;
     private final CommunityWriter communityWriter;
+    private final CourseReader courseReader;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
@@ -37,7 +40,13 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq) {
-        return null;
+        Course course = courseReader.getCourseById(communityQuestionReq.courseId());
+        CommunityQuestion communityQuestion = communityWriter.saveQuestion(communityQuestionReq, course);
+
+        return CommunityQuestionRes.create(
+                communityQuestion.getTitle(),
+                communityQuestion.getContent()
+        );
     }
 
     @Override
@@ -63,6 +72,8 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public CommunityAnswerRes deleteAnswer(CommunityAnswerReq communityAnswerReq) {
+        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(String.valueOf(communityAnswerReq.answerId()));
+        //CommunityAnswer deletedAnswer = communityWriter.deleteAnswer(communityAnswer);
         return null;
     }
 

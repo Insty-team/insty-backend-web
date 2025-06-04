@@ -9,7 +9,6 @@ public interface CommunityService {
 
     CommunityQuestionRes getQuestionDetails(String questionId);
 
-    //TODO: 질문 작성 개발 여부
     CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq);
 
     CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq);

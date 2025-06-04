@@ -1,12 +1,14 @@
 package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityAnswerReq;
+import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import insty.model.course.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,19 @@ public class CommunityWriter {
 
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
+
+    public CommunityQuestion saveQuestion(CommunityQuestionReq communityQuestionReq, Course course) {
+
+
+        CommunityQuestion communityQuestion = CommunityQuestion
+                .create(
+                        course,
+                        communityQuestionReq.title(),
+                        communityQuestionReq.content()
+                );
+
+        return communityQuestionRepository.save(communityQuestion);
+    }
 
     public CommunityAnswer saveAnswer(CommunityQuestion communityQuestion, CommunityAnswerReq communityAnswerReq) {
 
@@ -34,4 +49,10 @@ public class CommunityWriter {
         prevCommunityAnswer.update(communityAnswerReq.content());
         return communityAnswerRepository.save(prevCommunityAnswer);
     }
+
+//    public CommunityAnswer deleteAnswer(CommunityAnswer communityAnswer) {
+//
+//        communityAnswerRepository.delete(communityAnswer);
+//        return communityAnswer;
+//    }
 }
