@@ -92,4 +92,8 @@ public class Course extends BaseEntity {
     public void updateThumbnail(File thumbnail) {
         this.thumbnail = thumbnail;
     }
+
+    public void deleteThumbnail() {
+        this.thumbnail = null;
+    }
 }

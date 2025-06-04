@@ -232,12 +232,12 @@ class CourseFileWriterTest {
     @Test
     void deleteAllFiles_정상() {
         // given
-        Long courseId = 1L;
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
 
         // when
 
         // then
-        assertThatCode(() -> courseFileWriter.deleteAllFiles(courseId))
+        assertThatCode(() -> courseFileWriter.deleteAllFiles(course))
                 .doesNotThrowAnyException();
     }
 }
