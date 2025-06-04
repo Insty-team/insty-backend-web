@@ -56,7 +56,8 @@ class CourseWriterTest {
         String targetAudience = "강의 대상자";
         int price = 10000;
         boolean isShow = true;
-        CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, null, null, null);
+        CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, null, null, null,
+                null);
 
         // mock
         when(courseRepository.save(any(Course.class)))
