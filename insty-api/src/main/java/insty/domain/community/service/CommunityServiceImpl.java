@@ -22,7 +22,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
-        CommunityQuestion communityQuestion = communityReader.getQuestionDetailsById(questionId);
+        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
 
         String title = communityQuestion.getTitle();
         String content = communityQuestion.getContent();
@@ -42,7 +42,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq) {
-        CommunityQuestion communityQuestion = communityReader.getQuestionDetailsById(String.valueOf(communityAnswerReq.questionId()));
+        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityAnswerReq.questionId()));
         CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq);
 
         return CommunityAnswerRes.create(
@@ -53,7 +53,12 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq) {
-        return null;
+        CommunityAnswer prevCommunityAnswer = communityReader.getCommunityAnswerById(String.valueOf(communityAnswerReq.answerId()));
+        CommunityAnswer updateAnswer = communityWriter.updateAnswer(prevCommunityAnswer, communityAnswerReq);
+
+        return CommunityAnswerRes.create(
+                updateAnswer.getContent()
+        );
     }
 
     @Override

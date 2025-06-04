@@ -53,4 +53,9 @@ public class CommunityAnswer {
                 .isDeleted(false)
                 .build();
     }
+
+    public void update(String content) {
+        this.content = content;
+        this.updatedAt = Instant.now();
+    }
 }

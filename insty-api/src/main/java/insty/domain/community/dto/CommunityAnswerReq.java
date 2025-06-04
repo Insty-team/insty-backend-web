@@ -3,7 +3,7 @@ package insty.domain.community.dto;
 import jakarta.validation.constraints.NotNull;
 
 public record CommunityAnswerReq(
-        Long AnswerId,
+        Long answerId,
         @NotNull
         Long questionId,
         @NotNull

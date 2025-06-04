@@ -29,4 +29,9 @@ public class CommunityWriter {
 
         return communityAnswerRepository.save(communityAnswer);
     }
+
+    public CommunityAnswer updateAnswer(CommunityAnswer prevCommunityAnswer, CommunityAnswerReq communityAnswerReq) {
+        prevCommunityAnswer.update(communityAnswerReq.content());
+        return communityAnswerRepository.save(prevCommunityAnswer);
+    }
 }

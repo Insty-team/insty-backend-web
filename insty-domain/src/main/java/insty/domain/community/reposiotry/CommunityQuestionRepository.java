@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface CommunityQuestionRepository extends JpaRepository<CommunityQuestion, Long> {
 
-    Optional<CommunityQuestion> findById(Long id);
+    Optional<CommunityQuestion> getCommunityQuestion(Long id);
 }
