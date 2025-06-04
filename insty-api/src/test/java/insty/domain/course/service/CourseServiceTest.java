@@ -34,6 +34,8 @@ import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
+import insty.model.course.CoursePracticeFile;
+import insty.model.file.File;
 import insty.model.tag.Tags;
 import insty.model.video.VideoType;
 import insty.s3.adapter.S3FileManager;
@@ -227,12 +229,18 @@ class CourseServiceTest {
     }
 
     @Sql(statements = {
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (2L, 'COURSE_PRACTICE_FILE', 1L, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
                     "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (1L, 1L, NOW(), NOW())"
+                    "VALUES (1L, 1L, NOW(), NOW())",
+            "INSERT INTO web_service.course_practice_files (course_id, file_id, created_at, updated_at) " +
+                    "VALUES (1L, 2L, NOW(), NOW())"
     })
     @Test
     void deleteCourse_정상() {
@@ -246,9 +254,16 @@ class CourseServiceTest {
         Optional<Course> course = courseRepository.findById(courseId);
         assertThat(course.isPresent()).isTrue();
         assertThat(course.get().isDeleted()).isTrue();
+        assertThat(course.get().getThumbnail()).isNull();
 
         List<Tags> allTagsByCourseId = courseTagRepository.findAllTagsByCourseId(courseId);
         assertThat(allTagsByCourseId.isEmpty()).isTrue();
+
+        List<CoursePracticeFile> coursePracticeFile = coursePracticeFileRepository.findAll();
+        assertThat(coursePracticeFile.isEmpty()).isTrue();
+
+        List<File> files = fileRepository.findAll();
+        assertThat(files.isEmpty()).isTrue();
     }
 
     @Sql(statements = {
