@@ -4,14 +4,12 @@ package insty.domain.user.controller;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
-import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
-import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.service.UserService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
@@ -78,12 +76,6 @@ public class UserController {
         return SuccessRes.of(userService.getDetailUser(userId));
     }
 
-    @Operation(summary = "사용자 이메일 로그인", description = "이메일과 비밀번호로 로그인합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PostMapping("/login")
-    public SuccessRes<UserLoginRes> login(@RequestBody UserLoginReq req) {
-        return SuccessRes.of(userService.loginByEmail(req));
-    }
 
     @Operation(
             summary = "내 사용자 정보 수정",
