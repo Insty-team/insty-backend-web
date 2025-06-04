@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS web_service.files
 CREATE INDEX IF NOT EXISTS container_index
     ON web_service.files (container_type, container_id);
 
-CREATE TABLE IF NOT EXISTS web_service.course_practice_file (
+CREATE TABLE IF NOT EXISTS web_service.course_practice_files (
     course_id   BIGINT NOT NULL,
     file_id     BIGINT NOT NULL,
     created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
