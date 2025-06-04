@@ -17,6 +17,7 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
 import insty.model.course.Course;
@@ -41,10 +42,12 @@ public class CourseService {
     private final CourseCounter courseCounter;
     private final CourseFileWriter courseFileWriter;
     private final CourseFileReader courseFileReader;
+    private final CourseVideoManager courseVideoManager;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.saveCourse(req);
+        courseVideoManager.attachmentCourse(course, req.videoUuid());
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
@@ -59,6 +62,7 @@ public class CourseService {
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
+        courseVideoManager.updateVideo(course, req.updateVideoUuid());
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public record CourseUpdateReq(
         @NotNull @Size(min = 1, max = 255)
@@ -21,6 +22,7 @@ public record CourseUpdateReq(
         List<String> keyPoints,
         @NotNull
         Set<String> tags,
-        List<Long> deletePracticeFileId
+        List<Long> deletePracticeFileId,
+        UUID updateVideoUuid
 ) {
 }

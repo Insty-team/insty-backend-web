@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public record CourseCreateReq(
         @NotNull @Size(min = 1, max = 255)
@@ -21,6 +22,7 @@ public record CourseCreateReq(
         @NotNull
         List<String> keyPoints,
         @NotNull
-        Set<String> tags
+        Set<String> tags,
+        UUID videoUuid
 ) {
 }
