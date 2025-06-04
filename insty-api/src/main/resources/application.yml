@@ -57,3 +57,7 @@ aws:
 app:
   domain: ${INSTY_DOMAIN}
   health-check-path: ${HEALTH_CHECK_PATH}
+
+logging:
+  level:
+    org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport: WARN
