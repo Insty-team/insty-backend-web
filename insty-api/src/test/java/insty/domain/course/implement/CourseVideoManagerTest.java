@@ -57,4 +57,34 @@ class CourseVideoManagerTest {
         assertThatCode(() -> courseVideoManager.attachmentCourse(course, videoUuid))
                 .doesNotThrowAnyException();
     }
+
+    @Test
+    void updateVideo_정상() {
+        // given
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        UUID updateVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+        // mock
+        when(videoCourseRepository.findByVideoUuid(updateVideoUuid))
+                .thenReturn(Optional.of(mock(VideoCourse.class)));
+
+        // when
+
+        // then
+        assertThatCode(() -> courseVideoManager.updateVideo(course, updateVideoUuid))
+                .doesNotThrowAnyException();
+    }
+    
+    @Test
+    void updateVideo_정상_영상을_교체하지_않는다() {
+        // given
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        UUID updateVideoUuid = null;
+
+        // when
+
+        // then
+        assertThatCode(() -> courseVideoManager.updateVideo(course, updateVideoUuid))
+                .doesNotThrowAnyException();
+    }
 }
