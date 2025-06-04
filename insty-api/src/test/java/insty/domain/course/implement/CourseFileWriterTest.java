@@ -1,6 +1,7 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
@@ -226,5 +227,17 @@ class CourseFileWriterTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseErrorCode.COURSE_TOO_MANY_PRACTICE_FILE);
+    }
+
+    @Test
+    void deleteAllFiles_정상() {
+        // given
+        Long courseId = 1L;
+
+        // when
+
+        // then
+        assertThatCode(() -> courseFileWriter.deleteAllFiles(courseId))
+                .doesNotThrowAnyException();
     }
 }
