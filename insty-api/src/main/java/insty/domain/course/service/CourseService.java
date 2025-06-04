@@ -14,6 +14,7 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
+import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
@@ -39,6 +40,7 @@ public class CourseService {
     private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
     private final CourseFileWriter courseFileWriter;
+    private final CourseFileReader courseFileReader;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -86,9 +88,10 @@ public class CourseService {
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
+        List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
 
-        // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {
