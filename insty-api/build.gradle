@@ -8,6 +8,7 @@ dependencies {
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JpaConfig 전용
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3' // JSON Mapper
 

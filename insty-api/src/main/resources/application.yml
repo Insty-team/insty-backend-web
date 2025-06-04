@@ -25,13 +25,18 @@ spring:
       hibernate:
         format_sql: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 5000
+
   security:
     jwt:
       secret: ${JWT_SECRET_KEY}
     cors:
       allowed-origins: ${CORS_ALLOWED_ORIGINS}
       allowed-methods: ${CORS_ALLOWED_METHODS}
-
 
 aws:
   region:
