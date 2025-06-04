@@ -4,6 +4,7 @@ import insty.model.video.VideoCourse;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,4 +14,8 @@ public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> 
 
     @Query("SELECT vc.videoUuid FROM VideoCourse vc WHERE vc.course.id = :courseId AND vc.isDeleted = false")
     Optional<UUID> findVideoUuidByCourseId(@Param("courseId") Long courseId);
+
+    @Modifying
+    @Query("UPDATE VideoCourse vc SET vc.isDeleted = true WHERE vc.course.id = :courseId")
+    void deleteLogicallyByCourseId(@Param("courseId") Long courseId);
 }

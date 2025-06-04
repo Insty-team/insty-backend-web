@@ -62,6 +62,7 @@ public class CourseService {
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
+        courseVideoManager.updateVideo(course, req.updateVideoUuid());
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
