@@ -20,12 +20,12 @@ public class CommunityReader {
 
     //id로 질문 상세 조회
     public CommunityQuestion getCommunityQuestionDetailsById(String questionId) {
-        return  communityQuestionRepository.getCommunityQuestion(Long.parseLong(questionId))
+        return  communityQuestionRepository.findById(Long.parseLong(questionId))
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
     }
 
     public CommunityAnswer getCommunityAnswerById(String answerId) {
-        return communityAnswerRepository.getCommunityAnswer(Long.parseLong(answerId))
+        return communityAnswerRepository.findById(Long.parseLong(answerId))
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
     }
 }
