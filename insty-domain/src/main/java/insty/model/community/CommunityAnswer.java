@@ -1,5 +1,6 @@
 package insty.model.community;
 
+import insty.model.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,9 @@ public class CommunityAnswer {
     @JoinColumn(name = "question_id", nullable = false)
     private CommunityQuestion question;
 
-    //TODO: user 테이블 생성 후 user id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    User user;
 
     @Column(nullable = false)
     private String content;
@@ -46,9 +49,10 @@ public class CommunityAnswer {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CommunityAnswer create(CommunityQuestion question, String content) {
+    public static CommunityAnswer create(CommunityQuestion question, User user, String content) {
         return CommunityAnswer.builder()
                 .question(question)
+                .user(user)
                 .content(content)
                 .isDeleted(false)
                 .build();

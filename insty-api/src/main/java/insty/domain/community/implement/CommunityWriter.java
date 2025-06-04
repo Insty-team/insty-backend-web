@@ -9,6 +9,7 @@ import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
+import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +22,13 @@ public class CommunityWriter {
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
 
-    public CommunityQuestion saveQuestion(CommunityQuestionReq communityQuestionReq, Course course) {
+    public CommunityQuestion saveQuestion(CommunityQuestionReq communityQuestionReq, Course course, User user) {
 
 
         CommunityQuestion communityQuestion = CommunityQuestion
                 .create(
                         course,
+                        user,
                         communityQuestionReq.title(),
                         communityQuestionReq.content()
                 );
@@ -34,11 +36,12 @@ public class CommunityWriter {
         return communityQuestionRepository.save(communityQuestion);
     }
 
-    public CommunityAnswer saveAnswer(CommunityQuestion communityQuestion, CommunityAnswerReq communityAnswerReq) {
+    public CommunityAnswer saveAnswer(CommunityQuestion communityQuestion, CommunityAnswerReq communityAnswerReq, User user) {
 
         CommunityAnswer communityAnswer = CommunityAnswer
                 .create(
                         communityQuestion,
+                        user,
                         communityAnswerReq.content()
                 );
 

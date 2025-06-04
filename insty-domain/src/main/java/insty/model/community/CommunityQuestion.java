@@ -2,6 +2,7 @@ package insty.model.community;
 
 import insty.model.BaseEntity;
 import insty.model.course.Course;
+import insty.model.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,8 +30,10 @@ public class CommunityQuestion extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
-    
-    //TODO: user객체 참조
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String title;
@@ -52,9 +55,10 @@ public class CommunityQuestion extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CommunityQuestion create(Course course, String title, String content) {
+    public static CommunityQuestion create(Course course, User user, String title, String content) {
         return CommunityQuestion.builder()
                 .course(course)
+                .user(user)
                 .title(title)
                 .content(content)
                 .isAnswered(false)

@@ -13,7 +13,7 @@ public interface CommunityService {
 
     CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq);
 
-    List<CommunityAnswerRes> getAllAnswers();
+    List<CommunityAnswerRes> getAllAnswers(String questionId);
 
     CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq);
 

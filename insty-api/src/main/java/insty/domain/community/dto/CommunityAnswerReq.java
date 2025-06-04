@@ -7,6 +7,8 @@ public record CommunityAnswerReq(
         @NotNull
         Long questionId,
         @NotNull
+        Long userId,
+        @NotNull
         String content
 ) {
 }

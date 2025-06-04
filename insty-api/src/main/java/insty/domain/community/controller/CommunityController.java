@@ -14,6 +14,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "커뮤니티 API")
 @RestController
 @RequestMapping("/api/v1/community/")
@@ -23,17 +25,24 @@ public class CommunityController {
     private final CommunityService communityService;
 
     @Operation(summary = "질문 상세 조회", description = "질문 상세 정보 조회")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
     @GetMapping("/questions/{question_id}")
     public SuccessRes<CommunityQuestionRes> retrieveQuestionDetails(@PathVariable @NotBlank String questionId) {
         return SuccessRes.of(communityService.getQuestionDetails(questionId));
     }
 
     @Operation(summary = "질문 작성", description = "새로운 질문 작성")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
     @PostMapping("/questions")
     public SuccessRes<CommunityQuestionRes> createQuestion(@RequestBody CommunityQuestionReq communityQuestionReq) {
         return SuccessRes.of(communityService.saveQuestion(communityQuestionReq));
+    }
+
+    @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
+    @GetMapping("/questions/{question_id}/answer")
+    public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank String questionId) {
+        return SuccessRes.of(communityService.getAllAnswers(questionId));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")

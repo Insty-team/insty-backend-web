@@ -7,9 +7,11 @@ import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
+import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityReader communityReader;
     private final CommunityWriter communityWriter;
     private final CourseReader courseReader;
+    private final UserReader userReader;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
@@ -43,7 +46,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq) {
         Course course = courseReader.getCourseById(communityQuestionReq.courseId());
-        CommunityQuestion communityQuestion = communityWriter.saveQuestion(communityQuestionReq, course);
+        User user = userReader.getUser(communityQuestionReq.userId());
+        CommunityQuestion communityQuestion = communityWriter.saveQuestion(communityQuestionReq, course, user);
 
         return CommunityQuestionRes.create(
                 communityQuestion.getTitle(),
@@ -52,8 +56,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<CommunityAnswerRes> getAllAnswers() {
-        List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers();
+    public List<CommunityAnswerRes> getAllAnswers(String questionId) {
+        List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers(questionId);
 
         return communityAnswers.stream()
                 .map(answer -> CommunityAnswerRes.create(
@@ -64,7 +68,8 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq) {
         CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityAnswerReq.questionId()));
-        CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq);
+        User user = userReader.getUser(communityAnswerReq.userId());
+        CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
 
         return CommunityAnswerRes.create(
                 communityAnswer.getContent()
