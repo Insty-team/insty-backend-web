@@ -17,6 +17,7 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
+import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseWriter;
@@ -29,17 +30,22 @@ import insty.domain.file.implement.FileWriter;
 import insty.domain.file.repository.FileRepository;
 import insty.domain.tag.implement.TagWriter;
 import insty.domain.tag.repository.TagsRepository;
+import insty.domain.video.repository.VideoCourseRepository;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
+import insty.model.course.CoursePracticeFile;
+import insty.model.file.File;
 import insty.model.tag.Tags;
+import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +79,8 @@ class CourseServiceTest {
     @Autowired
     private FileWriter fileWriter;
     @Autowired
+    private CourseFileReader courseFileReader;
+    @Autowired
     private CourseRepository courseRepository;
     @Autowired
     private CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
@@ -86,6 +94,8 @@ class CourseServiceTest {
     private CoursePracticeFileRepository coursePracticeFileRepository;
     @Autowired
     private FileRepository fileRepository;
+    @Autowired
+    private VideoCourseRepository videoCourseRepository;
 
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
@@ -96,6 +106,10 @@ class CourseServiceTest {
     @MockitoBean
     private AppProperties appProperties;
 
+    @Sql(statements = {
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', null, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
+    })
     @Test
     void createCourse_정상() {
         // given
@@ -109,10 +123,10 @@ class CourseServiceTest {
         List<CourseInstallEnvChecklistInfo> checklists = List.of(checklist1, checklist2);
         List<String> keypoints = List.of("핵심 내용1", "핵심 내용2");
         Set<String> tags = Set.of("태그1", "태그2");
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, checklists,
-                keypoints,
-                tags);
+                keypoints, tags, videoUuid);
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
         List<MultipartFile> practiceFiles = List.of(
@@ -147,6 +161,10 @@ class CourseServiceTest {
         assertThat(res.practiceFile().get(0).size()).isGreaterThan(0);
         assertThat(res.practiceFile().get(0).url()).isEqualTo(
                 "https://insty.test.com/file/COURSE_PRACTICE_FILE/1/00000000-0000-0000-0000-000000000001.jpg");
+
+        Optional<VideoCourse> videoCourse = videoCourseRepository.findById(1L);
+        assertThat(videoCourse.isPresent()).isTrue();
+        assertThat(videoCourse.get().getCourse().getId()).isNotNull();
     }
 
     @Sql(statements = {
@@ -165,7 +183,11 @@ class CourseServiceTest {
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
                     "VALUES (100L, 100L, '강의에 연결된 핵심포인트')",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
-                    "VALUES (200L, 100L, '강의에 연결되었지만 수정 후 없어질 핵심포인트')"
+                    "VALUES (200L, 100L, '강의에 연결되었지만 수정 후 없어질 핵심포인트')",
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 100L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', null, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (2L, '00000000-0000-0000-0000-000000000002', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', null, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
     void updateCourse_정상() {
@@ -180,9 +202,10 @@ class CourseServiceTest {
         List<CourseInstallEnvChecklistInfo> checklists = List.of(checklist1, checklist2);
         List<String> keypoints = List.of("강의에 연결된 핵심포인트", "새로운 핵심포인트");
         Set<String> tags = Set.of("존재하고 강의에 연결된 태그", "새로운 태그");
+        UUID updateVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
         CourseUpdateReq req = new CourseUpdateReq(title, description, targetAudience, price, checklists, keypoints,
-                tags, null);
+                tags, null, updateVideoUuid);
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
         List<MultipartFile> practiceFiles = List.of(
@@ -222,15 +245,26 @@ class CourseServiceTest {
         assertThat(courseKeypointRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(courseTagRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(tagsRepository.count()).isEqualTo(3); // 새로운 태그가 생성되어 3개가 됨
+
+        assertThat(videoCourseRepository.count()).isEqualTo(2); // 하나는 가상삭제, 하나는 새로 생성
+        Optional<UUID> videoUuid = videoCourseRepository.findVideoUuidByCourseId(100L);
+        assertThat(videoUuid.isPresent()).isTrue();
+        assertThat(videoUuid.get().toString()).isEqualTo("00000000-0000-0000-0000-000000000002");
     }
 
     @Sql(statements = {
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (2L, 'COURSE_PRACTICE_FILE', 1L, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
                     "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (1L, 1L, NOW(), NOW())"
+                    "VALUES (1L, 1L, NOW(), NOW())",
+            "INSERT INTO web_service.course_practice_files (course_id, file_id, created_at, updated_at) " +
+                    "VALUES (1L, 2L, NOW(), NOW())"
     })
     @Test
     void deleteCourse_정상() {
@@ -244,14 +278,25 @@ class CourseServiceTest {
         Optional<Course> course = courseRepository.findById(courseId);
         assertThat(course.isPresent()).isTrue();
         assertThat(course.get().isDeleted()).isTrue();
+        assertThat(course.get().getThumbnail()).isNull();
 
         List<Tags> allTagsByCourseId = courseTagRepository.findAllTagsByCourseId(courseId);
         assertThat(allTagsByCourseId.isEmpty()).isTrue();
+
+        List<CoursePracticeFile> coursePracticeFile = coursePracticeFileRepository.findAll();
+        assertThat(coursePracticeFile.isEmpty()).isTrue();
+
+        List<File> files = fileRepository.findAll();
+        assertThat(files.isEmpty()).isTrue();
     }
 
     @Sql(statements = {
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (2L, 'COURSE_PRACTICE_FILE', 1L, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1L, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
                     "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
@@ -259,12 +304,18 @@ class CourseServiceTest {
             "INSERT INTO web_service.course_install_env_checklists (id, course_id, content, is_supported) " +
                     "VALUES (1L, 1L, '강의에 연결된 체크리스트', true)",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
-                    "VALUES (1L, 1L, '강의에 연결된 핵심포인트')"
+                    "VALUES (1L, 1L, '강의에 연결된 핵심포인트')",
+            "INSERT INTO web_service.course_practice_files (course_id, file_id, created_at, updated_at) " +
+                    "VALUES (1L, 2L, NOW(), NOW())"
     })
     @Test
     void detailCourse_정상() {
         // given
         Long courseId = 1L;
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
 
         // when
         CourseDetailRes res = courseService.detailCourse(courseId);
@@ -294,6 +345,13 @@ class CourseServiceTest {
 
         assertThat(res.videoType()).isEqualTo(VideoType.COURSE);
         assertThat(res.createdAt()).isEqualTo(course.get().getCreatedAt());
+
+        assertThat(res.thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+        assertThat(res.practiceFile().size()).isEqualTo(1);
+        assertThat(res.practiceFile().get(0).url()).isEqualTo(
+                "https://insty.test.com/file/COURSE_PRACTICE_FILE/1/00000000-0000-0000-0000-000000000002.jpg");
+        assertThat(res.practiceFile().get(0).name()).isEqualTo("practice.jpg");
     }
 
     @Sql(statements = {

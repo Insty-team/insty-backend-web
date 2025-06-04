@@ -98,4 +98,8 @@ public class VideoCourse extends BaseEntity {
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         return "vod/" + VideoType.COURSE + "/" + extension + "/" + uuid + "/" + fileName;
     }
+
+    public void updateCourse(Course course) {
+        this.course = course;
+    }
 }

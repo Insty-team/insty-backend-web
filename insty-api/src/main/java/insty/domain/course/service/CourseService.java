@@ -14,8 +14,10 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.implement.CourseCounter;
+import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
 import insty.model.course.Course;
@@ -39,10 +41,13 @@ public class CourseService {
     private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
     private final CourseFileWriter courseFileWriter;
+    private final CourseFileReader courseFileReader;
+    private final CourseVideoManager courseVideoManager;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.saveCourse(req);
+        courseVideoManager.attachmentCourse(course, req.videoUuid());
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
@@ -57,6 +62,7 @@ public class CourseService {
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
+        courseVideoManager.updateVideo(course, req.updateVideoUuid());
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
@@ -70,7 +76,7 @@ public class CourseService {
     }
 
     /**
-     * CourseTag만 삭제하고, Course는 isDeleted=true만 설정하여 논리적 삭제한다.
+     * CourseTag만 삭제하고, Course는 isDeleted=true만 설정하여 논리적 삭제한다.<br> 관련 파일은 모두 삭제한다.
      *
      * @param courseId
      */
@@ -78,6 +84,7 @@ public class CourseService {
         // TODO - 게시자와 동일한 유저인지 검증
         Course course = courseReader.getCourseById(courseId);
         courseWriter.deleteAllCourseTags(course.getId());
+        courseFileWriter.deleteAllFiles(course);
         courseWriter.deleteCourse(course);
     }
 
@@ -86,9 +93,10 @@ public class CourseService {
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
+        List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
 
-        // TODO - 썸네일 url
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, null, null);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {

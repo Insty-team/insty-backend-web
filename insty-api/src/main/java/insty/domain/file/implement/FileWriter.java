@@ -46,6 +46,7 @@ public class FileWriter {
         for (File file : files) {
             s3FileManager.delete(containerType.toString(), containerId.toString(), file.getName());
         }
+        fileRepository.deleteAll(files);
     }
 
     public void deleteFile(File file) {

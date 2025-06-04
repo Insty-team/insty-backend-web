@@ -108,4 +108,17 @@ class FileWriterTest {
         assertThatCode(() -> fileWriter.deleteAllFile(containerType, containerId))
                 .doesNotThrowAnyException();
     }
+
+    @Test
+    void deleteFile_정상() {
+        // given
+        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
+                "thumb.jpg", "image/jpeg", 10);
+
+        // when
+
+        // then
+        assertThatCode(() -> fileWriter.deleteFile(file))
+                .doesNotThrowAnyException();
+    }
 }
