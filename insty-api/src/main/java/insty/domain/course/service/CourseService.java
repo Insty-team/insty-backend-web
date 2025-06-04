@@ -80,6 +80,7 @@ public class CourseService {
         // TODO - 게시자와 동일한 유저인지 검증
         Course course = courseReader.getCourseById(courseId);
         courseWriter.deleteAllCourseTags(course.getId());
+        courseFileWriter.deleteAllFiles(course.getId());
         courseWriter.deleteCourse(course);
     }
 

@@ -110,4 +110,16 @@ public class CourseFileWriter {
         fileInfos.addAll(savePracticeFilesAndGetInfo(practiceFiles, course));
         return fileInfos;
     }
+
+    /**
+     * 강의와 연관된 모든 썸네일/실습 파일을 s3 및 DB에서 삭제한다.
+     *
+     * @param courseId
+     */
+    public void deleteAllFiles(Long courseId) {
+        coursePracticeFileRepository.deleteAllByCourseId(courseId);
+
+        fileWriter.deleteAllFile(FileContainerType.COURSE_THUMBNAIL, courseId);
+        fileWriter.deleteAllFile(FileContainerType.COURSE_PRACTICE_FILE, courseId);
+    }
 }
