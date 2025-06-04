@@ -111,8 +111,7 @@ class CourseServiceTest {
         Set<String> tags = Set.of("태그1", "태그2");
 
         CourseCreateReq req = new CourseCreateReq(title, description, targetAudience, price, isShow, checklists,
-                keypoints,
-                tags);
+                keypoints, tags);
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
         List<MultipartFile> practiceFiles = List.of(
