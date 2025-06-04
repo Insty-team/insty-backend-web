@@ -1,4 +1,4 @@
-package insty.domain.health;
+package insty.global.health;
 
 import insty.global.response.SuccessRes;
 import io.swagger.v3.oas.annotations.Hidden;
