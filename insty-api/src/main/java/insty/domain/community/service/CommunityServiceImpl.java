@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -47,6 +49,16 @@ public class CommunityServiceImpl implements CommunityService {
                 communityQuestion.getTitle(),
                 communityQuestion.getContent()
         );
+    }
+
+    @Override
+    public List<CommunityAnswerRes> getAllAnswers() {
+        List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers();
+
+        return communityAnswers.stream()
+                .map(answer -> CommunityAnswerRes.create(
+                        answer.getContent()))
+                .toList();
     }
 
     @Override

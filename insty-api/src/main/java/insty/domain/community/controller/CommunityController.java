@@ -29,6 +29,13 @@ public class CommunityController {
         return SuccessRes.of(communityService.getQuestionDetails(questionId));
     }
 
+    @Operation(summary = "질문 작성", description = "새로운 질문 작성")
+    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
+    @PostMapping("/questions")
+    public SuccessRes<CommunityQuestionRes> createQuestion(@RequestBody CommunityQuestionReq communityQuestionReq) {
+        return SuccessRes.of(communityService.saveQuestion(communityQuestionReq));
+    }
+
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PostMapping("/questions/{question_id}/answer")
@@ -71,10 +78,4 @@ public class CommunityController {
         return SuccessRes.of(communityService.postAnswerVideo(communityAnswerReq));
     }
 
-    @Operation(summary = "질문 작성", description = "새로운 질문 작성")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
-    @PostMapping("/questions")
-    public SuccessRes<CommunityQuestionRes> createQuestion(@RequestBody CommunityQuestionReq communityQuestionReq) {
-        return SuccessRes.of(communityService.saveQuestion(communityQuestionReq));
-    }
 }

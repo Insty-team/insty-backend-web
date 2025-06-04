@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -27,5 +29,9 @@ public class CommunityReader {
     public CommunityAnswer getCommunityAnswerById(String answerId) {
         return communityAnswerRepository.findById(Long.parseLong(answerId))
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+    }
+
+    public List<CommunityAnswer> getAllCommunityAnswers() {
+        return communityAnswerRepository.findAll();
     }
 }
