@@ -13,4 +13,7 @@ public interface VideoAnswerRepository extends JpaRepository<VideoAnswer, Long> 
 
     @Query("SELECT va.videoUuid FROM VideoAnswer va WHERE va.communityQuestionId = :communityQuestionId AND va.isDeleted = false")
     Optional<UUID> findVideoUuidByCommunityQuestionId(@Param("communityQuestionId") Long communityQuestionId);
+
+    Optional<VideoAnswer> findByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
+
 }
