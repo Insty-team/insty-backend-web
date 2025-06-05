@@ -20,6 +20,7 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
@@ -80,6 +81,8 @@ class CourseServiceTest {
     private FileWriter fileWriter;
     @Autowired
     private CourseFileReader courseFileReader;
+    @Autowired
+    private CourseTagWriter courseTagWriter;
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
