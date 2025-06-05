@@ -19,7 +19,7 @@ public class CourseTagWriter {
     private final TagWriter tagWriter;
     private final CourseTagRepository courseTagRepository;
 
-    public Set<Tags> saveCourseTagsAndGetTags(Course course, Set<String> tagNames) {
+    public List<String> saveCourseTagsAndGetTagNames(Course course, Set<String> tagNames) {
         Set<Tags> tags = tagWriter.saveTags(tagNames);
 
         List<CourseTag> list = tags.stream()
@@ -27,6 +27,13 @@ public class CourseTagWriter {
                 .toList();
         courseTagRepository.saveAll(list);
 
-        return tags;
+        return tags.stream()
+                .map(Tags::getTagName)
+                .toList();
+    }
+
+    public List<String> updateCourseTags(Course course, Set<String> tagNames) {
+        courseTagRepository.deleteAllByCourseId(course.getId());
+        return saveCourseTagsAndGetTagNames(course, tagNames);
     }
 }

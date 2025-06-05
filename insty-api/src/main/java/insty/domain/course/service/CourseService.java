@@ -20,13 +20,8 @@ import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
-import insty.domain.tag.implement.TagWriter;
 import insty.model.course.Course;
-import insty.model.course.CourseInstallEnvChecklist;
-import insty.model.course.CourseKeypoint;
-import insty.model.tag.Tags;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +34,6 @@ public class CourseService {
 
     private final CourseWriter courseWriter;
     private final CourseReader courseReader;
-    private final TagWriter tagWriter;
     private final CourseCounter courseCounter;
     private final CourseFileWriter courseFileWriter;
     private final CourseFileReader courseFileReader;
@@ -52,10 +46,10 @@ public class CourseService {
         courseVideoManager.attachmentCourse(course, req.videoUuid());
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
-        List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
+        List<CourseInstallEnvChecklistInfo> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
-        List<CourseKeypoint> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
-        Set<Tags> tags = courseTagWriter.saveCourseTagsAndGetTags(course, req.tags());
+        List<String> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
+        List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, req.tags());
 
         return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos);
     }
@@ -67,11 +61,10 @@ public class CourseService {
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
-        List<CourseInstallEnvChecklist> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
+        List<CourseInstallEnvChecklistInfo> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
-        List<CourseKeypoint> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
-        Set<Tags> tags = tagWriter.saveTags(req.tags());
-        courseWriter.updateCourseTags(course, tags);
+        List<String> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
+        List<String> tags = courseTagWriter.updateCourseTags(course, req.tags());
 
         return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos);
     }
