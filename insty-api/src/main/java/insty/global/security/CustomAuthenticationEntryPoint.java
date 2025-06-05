@@ -3,9 +3,9 @@ package insty.global.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
-import insty.exception.CustomException;
 import insty.global.response.ErrorInfo;
 import insty.global.response.FailRes;
+import insty.global.security.exception.CustomAuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -29,17 +29,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          HttpServletResponse response,
                          AuthenticationException e) throws IOException {
 
-        log.warn("인증 실패 URI : {} >> {}", request.getRequestURI(), e.getMessage());
-
-        // 에러
+        // 기본 에러코드와 메시지
         ErrorCode errorCode = CommonErrorCode.UNAUTHORIZED;
         String message = errorCode.getMessage();
 
-
-        if (e.getCause() instanceof CustomException customEx) {
+        // e가 CustomAuthenticationException 타입인지 직접 체크
+        if (e instanceof CustomAuthenticationException customEx) {
             errorCode = customEx.getErrorCode();
             message = customEx.getMessage();
         }
+
+        log.warn("인증 실패 URI : {} >> {}", request.getRequestURI(), message);
 
         // 응답 상태값 작성
         response.setStatus(errorCode.getHttpCode());

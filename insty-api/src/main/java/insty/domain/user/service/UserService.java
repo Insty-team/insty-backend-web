@@ -1,29 +1,20 @@
 package insty.domain.user.service;
 
-import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
-import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
-import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.implement.UserReader;
-import insty.domain.user.implement.UserTokenIssuer;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
-import insty.exception.CustomException;
-import insty.global.security.CustomUserDetails;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,11 +29,9 @@ public class UserService {
     private final UserWriter userWriter;
     private final UserValidator userValidator;
     private final UserReader userReader;
-    private final UserTokenIssuer userTokenIssuer;
 
     // 스프링 시큐리티
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final AuthenticationManager authenticationManager;
 
     /**
      * 이메일 회원가입
@@ -80,34 +69,7 @@ public class UserService {
         return UserDuplicateCheckRes.from(isAvailable, reason);
     }
 
-    /**
-     * 이메일 로그인 스프링 시큐리티
-     */
-    public UserLoginRes loginByEmail(UserLoginReq req) {
-        // 인증 전 객체 생성
-        Authentication authenticationRequest =
-                UsernamePasswordAuthenticationToken.unauthenticated(req.email(), req.password());
-        // 인증 시도
-        Authentication authenticated = authenticationManager.authenticate(authenticationRequest);
 
-        if(!authenticated.isAuthenticated()) throw new CustomException(UserErrorCode.UNAUTHORIZED);
-
-        // 인증된 객체
-        CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
-        // 마지막 로그인 시간 변경
-        userWriter.updateLastLoginAt(user.getUserId());
-
-        // 토큰 발급
-        UserAuthTokenDto token = userTokenIssuer.generateUserTokens(user);
-
-        // 응답 객체 생성
-        return UserLoginRes.create(
-                user.getUserId(),
-                user.getNickname(),
-                user.getUserType(),
-                token
-        );
-    }
 
     /**
      * 사용자 상세 정보 조회

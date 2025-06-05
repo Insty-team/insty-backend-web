@@ -36,11 +36,10 @@ public class JwtUtils {
     /**
      * AccessToken 생성
      */
-    public String generateAccessToken(String subject, String role){
+    public String generateAccessToken(String subject){
         Instant now = Instant.now();
         return JWT.create()
                 .withSubject(subject)
-                .withClaim("role", role)
                 .withIssuedAt(Date.from(now))           // 토큰 발급 시간
                 .withExpiresAt(Date.from(now.plusMillis(ACCESS_TOKEN_VALIDITY)))        // 토큰 만료시간
                 .sign(Algorithm.HMAC512(secretKey.getBytes(StandardCharsets.UTF_8)));   // 명시적으로 UTF-8을 지정하면 어떤 환경에서도 동일한 결과가 보장
@@ -108,13 +107,5 @@ public class JwtUtils {
                 .toInstant(); // 정확하게 Instant 타입으로 변환
     }
 
-    /**
-     * 토큰에서 권한 및 역할 추출
-     */
-    public String extractRole(String token){
-        return JWT.decode(token)
-                .getClaim("role")
-                .asString();
-    }
 
 }
