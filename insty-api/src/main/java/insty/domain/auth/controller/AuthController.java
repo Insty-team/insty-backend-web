@@ -2,7 +2,7 @@ package insty.domain.auth.controller;
 
 import insty.domain.auth.service.AuthService;
 import insty.domain.user.dto.request.UserLoginReq;
-import insty.domain.user.dto.response.AuthUserRes;
+import insty.domain.auth.dto.response.AuthUserRes;
 import insty.error.TokenErrorCode;
 import insty.exception.CustomException;
 import insty.global.annotation.CustomExceptionDescription;

@@ -3,7 +3,7 @@ package insty.domain.auth.service;
 import insty.domain.auth.implement.AuthTokenValidator;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserLoginReq;
-import insty.domain.user.dto.response.AuthUserRes;
+import insty.domain.auth.dto.response.AuthUserRes;
 import insty.domain.auth.implement.AuthTokenIssuer;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserWriter;

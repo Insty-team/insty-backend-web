@@ -1,4 +1,4 @@
-package insty.domain.user.dto.response;
+package insty.domain.auth.dto.response;
 
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.model.user.UserType;
