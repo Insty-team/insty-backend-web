@@ -17,6 +17,7 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.tag.implement.TagWriter;
@@ -42,6 +43,7 @@ public class CourseService {
     private final CourseCounter courseCounter;
     private final CourseFileWriter courseFileWriter;
     private final CourseFileReader courseFileReader;
+    private final CourseTagWriter courseTagWriter;
     private final CourseVideoManager courseVideoManager;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
@@ -53,8 +55,7 @@ public class CourseService {
         List<CourseInstallEnvChecklist> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
         List<CourseKeypoint> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
-        Set<Tags> tags = tagWriter.saveTags(req.tags());
-        courseWriter.saveCourseTags(course, tags);
+        Set<Tags> tags = courseTagWriter.saveCourseTagsAndGetTags(course, req.tags());
 
         return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos);
     }
