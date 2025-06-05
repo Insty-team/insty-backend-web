@@ -1,13 +1,22 @@
 package insty.domain.video.implement;
 
+import insty.domain.video.repository.VideoAnswerRepository;
+import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.video.EncodingStatus;
+import insty.model.video.VideoAnswer;
+import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
 import insty.util.FileUtils;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class VideoValidator {
 
     private static final Map<String, String> EXTENSION_TO_CONTENT_TYPE = Map.of(
@@ -15,6 +24,9 @@ public class VideoValidator {
             "mov", "video/quicktime",
             "webm", "video/webm"
     );
+
+    private final VideoCourseRepository videoCourseRepository;
+    private final VideoAnswerRepository videoAnswerRepository;
 
     /**
      * 처리할 수 있는 영상 타입인지 확인하고, 영상 타입이 파일명과 일치하는지 확인한다.<br> mp4 = video/mp4<br> mov = video/quicktime<br> webm =
@@ -45,5 +57,31 @@ public class VideoValidator {
 
     public void validateReadable(VideoType videoType, Long id) {
         // TODO - 해당 유저가 영상을 조회할 수 있는지 검증
+    }
+
+    /**
+     * 인코딩이 완료된 영상만 조회할 수 있다.<br> 가상 삭제에 주의한다.
+     *
+     * @param videoType
+     * @param courseId
+     */
+    public void verifyEncodingCompleted(VideoType videoType, Long courseId) {
+        if (videoType.equals(VideoType.COURSE)) {
+            VideoCourse videoCourse = videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false)
+                    .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+            if (videoCourse.getEncodingStatus() != EncodingStatus.COMPLETED) {
+                throw new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+            }
+            return;
+        }
+        if (videoType.equals(VideoType.ANSWER)) {
+            VideoAnswer videoAnswer = videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(courseId, false)
+                    .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+            if (videoAnswer.getEncodingStatus() != EncodingStatus.COMPLETED) {
+                throw new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+            }
+            return;
+        }
+        throw new CustomException(VideoErrorCode.VIDEO_NOT_FOUND);
     }
 }
