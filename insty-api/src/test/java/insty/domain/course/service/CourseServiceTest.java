@@ -20,6 +20,7 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
@@ -80,6 +81,8 @@ class CourseServiceTest {
     private FileWriter fileWriter;
     @Autowired
     private CourseFileReader courseFileReader;
+    @Autowired
+    private CourseTagWriter courseTagWriter;
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
@@ -243,7 +246,7 @@ class CourseServiceTest {
 
         assertThat(courseInstallEnvChecklistRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(courseKeypointRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
-        assertThat(courseTagRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
+        assertThat(courseTagRepository.count()).isEqualTo(2); // 1개 삭제되고 2개 생성됨
         assertThat(tagsRepository.count()).isEqualTo(3); // 새로운 태그가 생성되어 3개가 됨
 
         assertThat(videoCourseRepository.count()).isEqualTo(2); // 하나는 가상삭제, 하나는 새로 생성
