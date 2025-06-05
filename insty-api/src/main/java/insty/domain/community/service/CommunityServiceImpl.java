@@ -34,6 +34,9 @@ public class CommunityServiceImpl implements CommunityService {
 
         String title = communityQuestion.getTitle();
         String content = communityQuestion.getContent();
+        Long userId = communityQuestion.getUser().getId();
+
+        User user = userReader.getUser(userId);
         
         //ToDo : user table 추가 후 user_id 정보 포함
 
@@ -88,10 +91,9 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityAnswerRes deleteAnswer(CommunityAnswerReq communityAnswerReq) {
+    public void deleteAnswer(CommunityAnswerReq communityAnswerReq) {
         CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(String.valueOf(communityAnswerReq.answerId()));
-        //CommunityAnswer deletedAnswer = communityWriter.deleteAnswer(communityAnswer);
-        return null;
+        communityWriter.deleteAnswer(communityAnswer);
     }
 
     @Override

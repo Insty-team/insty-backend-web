@@ -55,8 +55,8 @@ public class CommunityController {
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
     @PatchMapping("/questions/{question_id}/answer")
-    public SuccessRes<?> updateAnswer( @RequestBody CommunityAnswerReq communityQuestionReq) {
-        return SuccessRes.of(null);
+    public SuccessRes<CommunityAnswerRes> updateAnswer( @RequestBody CommunityAnswerReq communityQuestionReq) {
+        return SuccessRes.of(communityService.updateAnswer(communityQuestionReq));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")

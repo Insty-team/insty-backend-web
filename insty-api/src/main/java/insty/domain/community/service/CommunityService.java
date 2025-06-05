@@ -19,7 +19,7 @@ public interface CommunityService {
 
     CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq);
 
-    CommunityAnswerRes deleteAnswer(CommunityAnswerReq communityAnswerReq);
+    void deleteAnswer(CommunityAnswerReq communityAnswerReq);
 
     CommunityAnswerRes getAIAnswerRecommendation(CommunityAnswerReq communityAnswerReq);
 

@@ -53,9 +53,8 @@ public class CommunityWriter {
         return communityAnswerRepository.save(prevCommunityAnswer);
     }
 
-//    public CommunityAnswer deleteAnswer(CommunityAnswer communityAnswer) {
-//
-//        communityAnswerRepository.delete(communityAnswer);
-//        return communityAnswer;
-//    }
+    public void deleteAnswer(CommunityAnswer communityAnswer) {
+
+        communityAnswerRepository.delete(communityAnswer);
+    }
 }
