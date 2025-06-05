@@ -10,6 +10,7 @@ import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.video.EncodingStatus;
+import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
 import java.util.Optional;
@@ -113,7 +114,7 @@ class VideoValidatorTest {
     }
 
     @Test
-    void verifyEncodingCompleted_정상() {
+    void verifyEncodingCompleted_정상_강의영상() {
         // given
         VideoType videoType = VideoType.COURSE;
         Long id = 1L;
@@ -124,6 +125,26 @@ class VideoValidatorTest {
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.COMPLETED);
         when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoCourse));
+
+        // when
+
+        // then
+        assertThatCode(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void verifyEncodingCompleted_정상_답변영상() {
+        // given
+        VideoType videoType = VideoType.ANSWER;
+        Long id = 1L;
+
+        // mock
+        VideoAnswer videoAnswer = VideoAnswer.create("fileName.mp4",
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.COMPLETED);
+        when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoAnswer));
 
         // when
 
