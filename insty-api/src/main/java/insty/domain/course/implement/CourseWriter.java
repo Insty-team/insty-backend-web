@@ -6,7 +6,6 @@ import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
 import insty.domain.course.repository.CourseRepository;
-import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
@@ -25,7 +24,6 @@ public class CourseWriter {
     private final CourseRepository courseRepository;
     private final CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
     private final CourseKeypointRepository courseKeypointRepository;
-    private final CourseTagRepository courseTagRepository;
 
     public Course saveCourse(CourseCreateReq req) {
         Course course = Course.create(req.title(), req.description(), req.price(), req.targetAudience(), req.isShow());
@@ -68,10 +66,6 @@ public class CourseWriter {
     public List<String> updateCourseKeypoints(Course course, List<String> keypointContents) {
         courseKeypointRepository.deleteAllByCourseId(course.getId());
         return saveCourseKeypoints(course, keypointContents);
-    }
-
-    public void deleteAllCourseTags(Long courseId) {
-        courseTagRepository.deleteAllByCourseId(courseId);
     }
 
     public void deleteCourse(Course course) {

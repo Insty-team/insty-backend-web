@@ -1,7 +1,6 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -208,18 +207,6 @@ class CourseWriterTest {
         // then
         assertThat(result.size()).isEqualTo(2);
         assertThat(result).containsExactlyInAnyOrder("내용1", "내용2");
-    }
-
-    @Test
-    void deleteAllCourseTags_정상() {
-        // given
-        Long courseId = 1L;
-
-        // when
-
-        // then
-        assertThatCode(() -> courseWriter.deleteAllCourseTags(courseId))
-                .doesNotThrowAnyException();
     }
 
     @Test

@@ -1,6 +1,7 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,7 @@ class CourseTagWriterTest {
         assertThat(tags).hasSize(2);
         assertThat(tags).containsExactlyInAnyOrder("태그1", "태그2");
     }
-    
+
     @Test
     void updateCourseTags_정상() {
         // given
@@ -58,10 +59,22 @@ class CourseTagWriterTest {
                 .thenReturn(Set.of(Tags.create("태그1"), Tags.create("태그2")));
 
         // when
-        List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, tagNames);
+        List<String> tags = courseTagWriter.updateCourseTags(course, tagNames);
 
         // then
         assertThat(tags).hasSize(2);
         assertThat(tags).containsExactlyInAnyOrder("태그1", "태그2");
+    }
+
+    @Test
+    void deleteAllCourseTags_정상() {
+        // given
+        Long courseId = 1L;
+
+        // when
+
+        // then
+        assertThatCode(() -> courseTagWriter.deleteAllCourseTags(courseId))
+                .doesNotThrowAnyException();
     }
 }

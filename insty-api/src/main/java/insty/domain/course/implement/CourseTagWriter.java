@@ -36,4 +36,8 @@ public class CourseTagWriter {
         courseTagRepository.deleteAllByCourseId(course.getId());
         return saveCourseTagsAndGetTagNames(course, tagNames);
     }
+
+    public void deleteAllCourseTags(Long courseId) {
+        courseTagRepository.deleteAllByCourseId(courseId);
+    }
 }
