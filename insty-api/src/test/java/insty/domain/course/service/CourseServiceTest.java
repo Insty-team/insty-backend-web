@@ -246,7 +246,7 @@ class CourseServiceTest {
 
         assertThat(courseInstallEnvChecklistRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
         assertThat(courseKeypointRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
-        assertThat(courseTagRepository.count()).isEqualTo(2); // 하나 삭제되고 하나 생성됨
+        assertThat(courseTagRepository.count()).isEqualTo(2); // 1개 삭제되고 2개 생성됨
         assertThat(tagsRepository.count()).isEqualTo(3); // 새로운 태그가 생성되어 3개가 됨
 
         assertThat(videoCourseRepository.count()).isEqualTo(2); // 하나는 가상삭제, 하나는 새로 생성

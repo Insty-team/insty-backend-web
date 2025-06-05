@@ -30,7 +30,7 @@ class CourseTagWriterTest {
     private CourseTagRepository courseTagRepository;
 
     @Test
-    void saveCourseTagsAndGetTags_정상() {
+    void saveCourseTagsAndGetTagNames_정상() {
         // given
         Course course = mock(Course.class);
         Set<String> tagNames = Set.of("태그1", "태그2");
@@ -40,13 +40,28 @@ class CourseTagWriterTest {
                 .thenReturn(Set.of(Tags.create("태그1"), Tags.create("태그2")));
 
         // when
-        Set<Tags> tags = courseTagWriter.saveCourseTagsAndGetTags(course, tagNames);
+        List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, tagNames);
 
         // then
         assertThat(tags).hasSize(2);
-        List<String> savedTagNames = tags.stream()
-                .map(Tags::getTagName)
-                .toList();
-        assertThat(savedTagNames).containsExactlyInAnyOrder("태그1", "태그2");
+        assertThat(tags).containsExactlyInAnyOrder("태그1", "태그2");
+    }
+    
+    @Test
+    void updateCourseTags_정상() {
+        // given
+        Course course = mock(Course.class);
+        Set<String> tagNames = Set.of("태그1", "태그2");
+
+        // mock
+        when(tagWriter.saveTags(tagNames))
+                .thenReturn(Set.of(Tags.create("태그1"), Tags.create("태그2")));
+
+        // when
+        List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, tagNames);
+
+        // then
+        assertThat(tags).hasSize(2);
+        assertThat(tags).containsExactlyInAnyOrder("태그1", "태그2");
     }
 }
