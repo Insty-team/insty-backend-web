@@ -175,7 +175,7 @@ class VideoServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', NULL, 'PROCESSING', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', NULL, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
             "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
                     "VALUES (1L, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })
