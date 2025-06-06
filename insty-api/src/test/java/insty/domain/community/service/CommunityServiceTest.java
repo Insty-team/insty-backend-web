@@ -1,5 +1,6 @@
 package insty.domain.community.service;
 
+import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
@@ -7,6 +8,7 @@ import insty.domain.community.implement.CommunityWriter;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
+import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,6 +119,57 @@ public class CommunityServiceTest {
         assertThat(communityQuestionRes).isNotNull();
         assertThat(communityQuestionRes.title()).isEqualTo(title);
         assertThat(communityQuestionRes.content()).isEqualTo(content);
+
+    }
+
+    @Test
+    void getAllAnswers() {
+        String questionId = "1";
+
+        User user = User.create("email", "nickname", "password");
+        Course course = Course.create("title", "description", 100, "targetAudience", true);
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                "질문 제목",
+                "질문 내용"
+        );
+
+        String content1 = "답변 내용1";
+        String content2 = "답변 내용2";
+        String content3 = "답변 내용3";
+
+
+        CommunityAnswer communityAnswer1 = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content1
+        );
+        CommunityAnswer communityAnswer2 = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content2
+        );
+        CommunityAnswer communityAnswer3 = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content3
+        );
+
+        when(communityReader.getAllCommunityAnswers(questionId))
+                .thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
+
+        //when
+        List<CommunityAnswerRes> communityAnswerResList = communityService.getAllAnswers(questionId);
+
+        //then
+        assertThat(communityAnswerResList).isNotNull();
+        assertThat(communityAnswerResList.size()).isEqualTo(3);
+        assertThat(communityAnswerResList.get(0).content()).isEqualTo(content1);
+        assertThat(communityAnswerResList.get(1).content()).isEqualTo(content2);
+        assertThat(communityAnswerResList.get(2).content()).isEqualTo(content3);
+
 
     }
 }

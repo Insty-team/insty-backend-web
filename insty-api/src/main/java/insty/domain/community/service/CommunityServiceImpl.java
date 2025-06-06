@@ -37,8 +37,6 @@ public class CommunityServiceImpl implements CommunityService {
         Long userId = communityQuestion.getUser().getId();
 
         User user = userReader.getUser(userId);
-        
-        //ToDo : user table 추가 후 user_id 정보 포함
 
         return CommunityQuestionRes.create(
                 title,
