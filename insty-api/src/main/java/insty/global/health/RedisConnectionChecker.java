@@ -21,7 +21,7 @@ public class RedisConnectionChecker {
             redisTemplate.getConnectionFactory().getConnection().ping();
             log.info("레디스 연결 완료");
         } catch (Exception e) {
-            log.warn("레디스 연결 실패");
+            log.error("레디스 연결 실패", e);
         }
     }
 }

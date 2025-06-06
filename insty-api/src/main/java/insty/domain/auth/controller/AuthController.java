@@ -5,6 +5,7 @@ import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.auth.dto.response.AuthUserRes;
 import insty.error.TokenErrorCode;
 import insty.exception.CustomException;
+import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -52,5 +53,17 @@ public class AuthController {
 
         String refreshToken = authorization.substring(7); // "Bearer " 제거
         return SuccessRes.of(authService.reissueByRefreshToken(refreshToken));
+    }
+
+    @Operation(
+            summary = "사용자 로그아웃",
+            description = "로그아웃을 요청합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @PostMapping("/logout")
+    public SuccessRes<Void> logout(@CurrentUser Long userId) {
+        authService.logout(userId);
+        return SuccessRes.of();
     }
 }

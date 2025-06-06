@@ -1,5 +1,6 @@
 package insty.domain.auth.service;
 
+import insty.domain.auth.implement.AuthTokenRedisWriter;
 import insty.domain.auth.implement.AuthTokenValidator;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserLoginReq;
@@ -29,8 +30,9 @@ public class AuthService {
     private final UserReader userReader;
 
     // 인증 및 토큰 모듈 서비스
-    private final AuthTokenIssuer userTokenIssuer;
+    private final AuthTokenIssuer authTokenIssuer;
     private final AuthTokenValidator authTokenValidator;
+    private final AuthTokenRedisWriter authTokenRedisWriter;
 
     // 스프링 시큐리티
     private final AuthenticationManager authenticationManager;
@@ -53,10 +55,9 @@ public class AuthService {
         // 마지막 로그인 시간 변경
         userWriter.updateLastLoginAt(user.getUserId());
 
-        // TODO Redis에 RefreshToken 넣고 관리
-
         // 토큰 발급
-        UserAuthTokenDto token = userTokenIssuer.generateUserTokens(user.getUserId());
+        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getUserId());
+        authTokenRedisWriter.saveRefreshToken(user.getUserId(), token.refreshToken());  // redis에 저장
 
         // 응답 객체 생성
         return AuthUserRes.create(
@@ -71,15 +72,13 @@ public class AuthService {
      * RefreshToken으로 토큰 재발급
      */
     public AuthUserRes reissueByRefreshToken(String refreshToken) {
-        authTokenValidator.validateToken(refreshToken);
+        authTokenValidator.validateRefreshToken(refreshToken);  // token 자체 검증
 
-        Long userId = Long.parseLong(jwtUtils.extractSubject(refreshToken));
+        Long userId = Long.parseLong(jwtUtils.extractSubject(refreshToken));    // userId 추출
         User user = userReader.getUser(userId);
 
-        // TODO Redis에 있는 값과 비교하여 일치하면 재발급
-
         // 토큰 발급
-        UserAuthTokenDto token = userTokenIssuer.generateUserTokens(user.getId());
+        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId());
 
         // 응답 객체 생성
         return AuthUserRes.create(
@@ -88,5 +87,12 @@ public class AuthService {
                 user.getUserType(),
                 token
         );
+    }
+
+    /**
+     * 로그아웃
+     */
+    public void logout(Long userId) {
+        authTokenRedisWriter.deleteRefreshToken(userId);
     }
 }
