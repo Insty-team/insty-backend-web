@@ -117,16 +117,6 @@ public class UserController {
         return SuccessRes.of(userService.updateAgreement(userId, req));
     }
 
-    @Operation(
-            summary = "사용자 로그아웃",
-            description = "로그아웃을 요청합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PostMapping("/logout")
-    public SuccessRes<Void> logout(@CurrentUser Long userId) {
-        return SuccessRes.of(null);
-    }
 }
 
 

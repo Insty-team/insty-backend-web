@@ -107,5 +107,13 @@ public class JwtUtils {
                 .toInstant(); // 정확하게 Instant 타입으로 변환
     }
 
+    /**
+     * JWT 토큰에서 JWT ID (jti) 추출
+     */
+    public UUID extractTokenId(String refreshToken) {
+        String tokenId = JWT.decode(refreshToken).getId();
+        return UUID.fromString(tokenId);
+    }
+
 
 }

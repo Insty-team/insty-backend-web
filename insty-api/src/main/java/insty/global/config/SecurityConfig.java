@@ -62,13 +62,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // 허용 URL
-        final String[] WHITE_LIST_URL = new String[]{"/api/v1/**", "/api/v1/users/login", HEALTH_CHECK_PATH};
+        // 허용 URL // TODO /api/v1/**은 삭제 예정
+        final String[] WHITE_LIST_URL = {
+                "/api/v1/**",
+                "/api/v1/auth/login",
+                "/api/v1/users",
+                "/api/v1/users/nickname/check",
+                "/api/v1/users/email/check",
+                "/api/v1/course",
+                HEALTH_CHECK_PATH
+        };
         // 스웨거 허용 URL
-        final String[] SWAGGER_LIST_URL = new String[]{"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
-                "/webjars/**"};
+        final String[] SWAGGER_LIST_URL = {
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger-resources/**",
+                "/webjars/**"
+        };
         // 인증 필수 URL
-        final String[] AUTH_REQUIRED_URL = new String[]{"/api/v1/users/profile/**", "/api/v1/users/logout"};
+        final String[] AUTH_REQUIRED_URL = {
+                "/api/v1/users/profile/**",
+                "/api/v1/users/logout"
+        };
 
 
         // CORS 설정

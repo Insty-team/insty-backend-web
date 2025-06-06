@@ -1,4 +1,4 @@
-package insty.global.config;
+package insty.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +10,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 
 @Configuration
 @Profile("!test")
-@EnableRedisRepositories(basePackages = "insty.domain.user.repository.redis")
+@EnableRedisRepositories(basePackages = "insty.redis.repository")
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
