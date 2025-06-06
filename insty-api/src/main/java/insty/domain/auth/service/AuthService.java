@@ -79,6 +79,7 @@ public class AuthService {
 
         // 토큰 발급
         UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId());
+        authTokenRedisWriter.saveRefreshToken(user.getId(), token.refreshToken());  // redis에 저장
 
         // 응답 객체 생성
         return AuthUserRes.create(
