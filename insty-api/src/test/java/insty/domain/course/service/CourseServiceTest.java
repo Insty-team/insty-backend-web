@@ -110,8 +110,8 @@ class CourseServiceTest {
     private AppProperties appProperties;
 
     @Sql(statements = {
-            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', null, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
     void createCourse_정상() {
@@ -187,10 +187,10 @@ class CourseServiceTest {
                     "VALUES (100L, 100L, '강의에 연결된 핵심포인트')",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
                     "VALUES (200L, 100L, '강의에 연결되었지만 수정 후 없어질 핵심포인트')",
-            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 100L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', null, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
-            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, thumbnail_url, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (2L, '00000000-0000-0000-0000-000000000002', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', null, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 100L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
+            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (2L, '00000000-0000-0000-0000-000000000002', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
     void updateCourse_정상() {
