@@ -4,20 +4,20 @@ package insty.domain.user.controller;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
-import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
-import insty.domain.user.dto.response.UserLoginRes;
 import insty.domain.user.service.UserService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -78,12 +78,6 @@ public class UserController {
         return SuccessRes.of(userService.getDetailUser(userId));
     }
 
-    @Operation(summary = "사용자 이메일 로그인", description = "이메일과 비밀번호로 로그인합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PostMapping("/login")
-    public SuccessRes<UserLoginRes> login(@RequestBody UserLoginReq req) {
-        return SuccessRes.of(userService.loginByEmail(req));
-    }
 
     @Operation(
             summary = "내 사용자 정보 수정",
@@ -94,7 +88,8 @@ public class UserController {
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
             @CurrentUser Long userId,
-            @Validated @ModelAttribute UserUpdateReq req,
+            @RequestPart("userUpdateReq") @Validated UserUpdateReq req,
+            @Parameter(description = "프로필 이미지", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }
@@ -125,16 +120,6 @@ public class UserController {
         return SuccessRes.of(userService.updateAgreement(userId, req));
     }
 
-    @Operation(
-            summary = "사용자 로그아웃",
-            description = "로그아웃을 요청합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @PostMapping("/logout")
-    public SuccessRes<Void> logout(@CurrentUser Long userId) {
-        return SuccessRes.of(null);
-    }
 }
 
 

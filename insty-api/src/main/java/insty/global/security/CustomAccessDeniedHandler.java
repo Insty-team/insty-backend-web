@@ -28,10 +28,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        HttpServletResponse response,
                        AccessDeniedException e) throws IOException {
 
-        log.warn("인가 실패: {} -> {}", request.getRequestURI(), e.getMessage());
-
         // 에러 조회
         ErrorCode errorCode = CommonErrorCode.FORBIDDEN;
+
+        log.warn("인가 실패: {} -> {}", request.getRequestURI(), e.getMessage());
 
         // 응답 상태값 작성
         response.setStatus(errorCode.getHttpCode());

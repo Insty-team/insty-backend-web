@@ -1,13 +1,17 @@
 package insty.model.user;
 
 import insty.model.BaseEntity;
+import insty.model.file.File;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.AccessLevel;
@@ -47,9 +51,9 @@ public class User extends BaseEntity {
     @Column(length = 15)
     private UserType userType;      // 사용자 타입
 
-    // TODO 프로필 이미지 생성
-//    @Column(nullable = false)
-//    private Files profileImage
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profileimage_id")
+    private File profileImage;
 
     @Column(nullable = false)
     private boolean isDeleted;      // 탈퇴 여부
@@ -66,6 +70,7 @@ public class User extends BaseEntity {
                 .email(email)
                 .password(password)
                 .nickname(nickname)
+                .introduce("")
                 .isEmailAgreed(false) // 기본 false 설정
                 .userType(UserType.NONE)  // 기본 사용자 타입 지정
                 .isDeleted(false)      // 기본 false
@@ -87,5 +92,8 @@ public class User extends BaseEntity {
     }
     public void updateLastLoginAt() {
         this.lastLoginAt = Instant.now();
+    }
+    public void updateProfileImage(File profileImage) {
+        this.profileImage = profileImage;
     }
 }

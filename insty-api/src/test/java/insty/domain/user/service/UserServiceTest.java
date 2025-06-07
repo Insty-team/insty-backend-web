@@ -15,12 +15,15 @@ import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
+import insty.domain.user.implement.UserFileReader;
+import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
 import insty.model.user.User;
 import insty.model.user.UserType;
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,9 +40,16 @@ class UserServiceTest {
 
     @Mock
     private UserWriter userWriter;
-    @Mock private UserValidator userValidator;
-    @Mock private UserReader userReader;
-    @Mock private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Mock
+    private UserValidator userValidator;
+    @Mock
+    private UserReader userReader;
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Mock
+    private UserFileWriter userFileWriter;
+    @Mock
+    private UserFileReader userFileReader;
 
     @InjectMocks
     private UserService userService;
@@ -135,15 +145,18 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         User mockUser = User.create("email@example.com", "encodedPassword", "nickname");
+        String imageUrl = "https://cdn.com/profile.png";
 
         when(userReader.getUser(userId)).thenReturn(mockUser);
+        when(userFileReader.getProfileImageUrl(mockUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.getDetailUser(userId);
 
         // then
         verify(userReader).getUser(userId);
-        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(mockUser));
+        verify(userFileReader).getProfileImageUrl(mockUser);
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(mockUser, imageUrl));
     }
 
     @Test
@@ -153,26 +166,25 @@ class UserServiceTest {
         UserUpdateReq req = new UserUpdateReq("new@example.com", "rawPassword1!", "newnick", "introduce");
         MultipartFile profileImage = mock(MultipartFile.class);
         String encodedPassword = "encodedPassword";
+        String imageUrl = "https://cdn.com/new.png";
 
-        User updatedUser = User.create("old@example.com", "mockUser", "oldnick");
+        User updatedUser = User.create("new@example.com", encodedPassword, "newnick");
 
         when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
-        when(userWriter.updateUser(
-                userId,
-                req.email(),
-                encodedPassword,
-                req.nickname(),
-                req.introduce(),
-                profileImage
-        )).thenReturn(updatedUser);
+        when(userWriter.updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce()))
+                .thenReturn(updatedUser);
+        when(userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage)).thenReturn(Optional.of(imageUrl));
 
         // when
         UserDetailRes result = userService.updateUser(userId, req, profileImage);
 
         // then
+        verify(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
+        verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
         verify(bCryptPasswordEncoder).encode(req.password());
-        verify(userWriter).updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce(), profileImage);
-        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser));
+        verify(userWriter).updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce());
+        verify(userFileWriter).saveProfileImageGetUrl(updatedUser, profileImage);
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
 
     @Test
@@ -180,16 +192,19 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         UserTypeUpdateReq req = new UserTypeUpdateReq(UserType.LEARNER);
-        User updatedUser = User.create("old@example.com", "mockUser", "oldnick");
+        User updatedUser = User.create("email@example.com", "pass", "nick");
+        String imageUrl = "https://cdn.com/profile.png";
 
         when(userWriter.updateUserByUserType(userId, req.userType())).thenReturn(updatedUser);
+        when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.updateUserType(userId, req);
 
         // then
         verify(userWriter).updateUserByUserType(userId, req.userType());
-        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser));
+        verify(userFileReader).getProfileImageUrl(updatedUser);
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
 
     @Test
@@ -197,15 +212,18 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         UserAgreementUpdateReq req = new UserAgreementUpdateReq(true);
-        User updatedUser = User.create("old@example.com", "mockUser", "oldnick");
+        User updatedUser = User.create("email@example.com", "pass", "nick");
+        String imageUrl = "https://cdn.com/profile.png";
 
         when(userWriter.updateUserByAgreement(userId, req.isEmailAgree())).thenReturn(updatedUser);
+        when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.updateAgreement(userId, req);
 
         // then
         verify(userWriter).updateUserByAgreement(userId, req.isEmailAgree());
-        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser));
+        verify(userFileReader).getProfileImageUrl(updatedUser);
+        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
 }

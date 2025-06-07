@@ -20,5 +20,10 @@ spring:
       allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
       allowed-methods: ${CORS_ALLOWED_METHODS:OPTIONS,GET,POST,PUT,DELETE}
 
+  data:
+    redis:
+      host: test
+      port: 1234
+
 app:
   health-check-path: /tmp

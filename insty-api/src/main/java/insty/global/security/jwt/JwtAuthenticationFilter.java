@@ -1,12 +1,11 @@
 package insty.global.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.constants.JwtValidationType;
-import insty.domain.user.implement.UserReader;
 import insty.error.CommonErrorCode;
 import insty.error.TokenErrorCode;
-import insty.exception.CustomException;
-import insty.global.security.CustomUserDetails;
-import insty.model.user.User;
+import insty.global.security.CustomAuthenticationEntryPoint;
+import insty.global.security.exception.CustomAuthenticationException;
 import insty.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,7 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final UserReader userReader;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -35,48 +35,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 없으면 넘기기
         if(accessToken.isEmpty()){
-            log.debug("token이 header에 존재하지 않습니다.");
+            log.debug("Token이 Header에 존재하지 않습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 토큰 검증
-        JwtValidationType tokenValidStatus = jwtUtils.validateToken(accessToken);
-        switch (tokenValidStatus) {
-            case VALID:     // 정상
-                break;
+        try {
+            // 토큰 검증
+            JwtValidationType tokenValidStatus = jwtUtils.validateToken(accessToken);
+            validateTokenStatus(tokenValidStatus);  // 상태값에 따라 예외 던지기
 
-            case EXPIRED:           // 만료
-                throw new CustomException(TokenErrorCode.ACCESS_TOKEN_EXPIRED);
+            // 토큰에 있는 정보로 스프링 시큐리티 컨텍스트에 유저정보 저장
+            setSecurityContextAuthentication(accessToken);
 
-            case CLAIMS_INVALID:    // 내부 클레임 검증 실패
-                throw new CustomException(TokenErrorCode.TOKEN_CLAIMS_INVALID);
+            // 다음 필터 실행
+            filterChain.doFilter(request, response);
+        } catch (CustomAuthenticationException ex) {
 
-            case INVALID_SIGNATURE: // 서명 검증 실패
-                throw new CustomException(TokenErrorCode.ACCESS_TOKEN_SIGNATURE_INVALID);
+            // 예외 발생 시 즉시 AuthenticationEntryPoint 호출
+            SecurityContextHolder.clearContext(); // 컨텍스트 정리
 
-            case MALFORMED:         // 토큰 형식이 올바르지 않음
-                throw new CustomException(TokenErrorCode.TOKEN_MALFORMED);
-
-            case UNSUPPORTED:       // 지원하지 않음
-                throw new CustomException(TokenErrorCode.TOKEN_UNSUPPORTED);
-
-            default:
-                throw new CustomException(CommonErrorCode.INTERNAL_ERROR); // 500
+            AuthenticationEntryPoint entryPoint = new CustomAuthenticationEntryPoint(objectMapper);
+            entryPoint.commence(request, response, ex);  // 직접 호출
         }
 
-        // 토큰에 있는 정보로 스프링 시큐리티 컨텍스트에 유저정보 저장
-        setSecurityContextAuthentication(accessToken);
 
-        // 다음 필터 실행
-        filterChain.doFilter(request, response);
+
     }
 
     /**
-     * 사용자 정보 조회
+     * 토큰 상태에 따라 예외 발생
      */
-    private User getUser(Long userId) {
-        return userReader.getUser(userId);
+    private void validateTokenStatus(JwtValidationType tokenValidStatus) {
+        switch (tokenValidStatus) {
+            case VALID -> {} // 정상
+            case EXPIRED -> throw new CustomAuthenticationException(TokenErrorCode.ACCESS_TOKEN_EXPIRED); // 만료
+            case CLAIMS_INVALID -> throw new CustomAuthenticationException(TokenErrorCode.TOKEN_CLAIMS_INVALID); // 내부 클레임 검증 실패
+            case INVALID_SIGNATURE -> throw new CustomAuthenticationException(TokenErrorCode.ACCESS_TOKEN_SIGNATURE_INVALID); // 서명 검증 실패
+            case MALFORMED -> throw new CustomAuthenticationException(TokenErrorCode.TOKEN_MALFORMED); // 토큰 형식이 올바르지 않음
+            case UNSUPPORTED -> throw new CustomAuthenticationException(TokenErrorCode.TOKEN_UNSUPPORTED); // 지원하지 않음
+            default -> throw new CustomAuthenticationException(CommonErrorCode.INTERNAL_ERROR); // 알 수 없는 오류
+        }
     }
 
     /**
