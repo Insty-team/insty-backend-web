@@ -165,3 +165,15 @@ CREATE TABLE IF NOT EXISTS web_service.community_answers (
 
 );
 
+CREATE TABLE IF NOT EXISTS web_service.community_attachments (
+    question_id  INTEGER NOT NULL,
+    file_id      INTEGER NOT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (question_id, file_id),
+    FOREIGN KEY (question_id) REFERENCES web_service.community_questions(id) ON DELETE CASCADE,
+    FOREIGN KEY (file_id) REFERENCES web_service.files(id) ON DELETE CASCADE
+);
+
+

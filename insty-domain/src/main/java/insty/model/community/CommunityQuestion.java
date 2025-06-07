@@ -38,9 +38,11 @@ public class CommunityQuestion extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CommunityAttactments> attachments = new ArrayList<>();
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CommunityAnswer> answers = new ArrayList<>();
 
     @Column(nullable = false)
