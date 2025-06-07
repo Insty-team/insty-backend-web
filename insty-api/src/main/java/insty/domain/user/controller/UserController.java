@@ -16,6 +16,8 @@ import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +88,8 @@ public class UserController {
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
             @CurrentUser Long userId,
-            @Validated @ModelAttribute UserUpdateReq req,
+            @RequestPart("userUpdateReq") @Validated UserUpdateReq req,
+            @Parameter(description = "프로필 이미지", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }

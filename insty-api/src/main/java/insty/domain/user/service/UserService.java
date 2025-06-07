@@ -9,11 +9,14 @@ import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.dto.response.UserDuplicateCheckRes;
+import insty.domain.user.implement.UserFileReader;
+import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
 import insty.model.user.User;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,10 @@ public class UserService {
 
     // 스프링 시큐리티
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    // 유저파일
+    private final UserFileWriter userFileWriter;
+    private final UserFileReader userFileReader;
 
     /**
      * 이메일 회원가입
@@ -70,29 +77,35 @@ public class UserService {
     }
 
 
-
     /**
      * 사용자 상세 정보 조회
      */
     public UserDetailRes getDetailUser(Long userId) {
         User findUser = userReader.getUser(userId);
-        return UserDetailRes.from(findUser);
+        String profileImageUrl = userFileReader.getProfileImageUrl(findUser);
+        return UserDetailRes.from(findUser, profileImageUrl);
     }
 
     /**
      * 사용자 정보 수정
      */
     public UserDetailRes updateUser(Long userId, UserUpdateReq req, MultipartFile profileImage) {
+        // 내껏을 제회한 유효성 체크
+        userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
+        userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+
         String encodedPassword = bCryptPasswordEncoder.encode(req.password());
         User updatedUser = userWriter.updateUser(
                 userId,
                 req.email(),
                 encodedPassword,
                 req.nickname(),
-                req.introduce(),
-                profileImage
+                req.introduce()
         );
-        return UserDetailRes.from(updatedUser);
+        Optional<String> savedUrl = userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage);
+        String profileImageUrl = savedUrl.orElseGet(() -> userFileReader.getProfileImageUrl(updatedUser));
+
+        return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 
     /**
@@ -100,7 +113,8 @@ public class UserService {
      */
     public UserDetailRes updateUserType(Long userId, UserTypeUpdateReq req) {
         User updatedUser = userWriter.updateUserByUserType(userId, req.userType());
-        return UserDetailRes.from(updatedUser);
+        String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+        return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 
     /**
@@ -108,6 +122,7 @@ public class UserService {
      */
     public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
         User updatedUser = userWriter.updateUserByAgreement(userId, req.isEmailAgree());
-        return UserDetailRes.from(updatedUser);
+        String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+        return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 }

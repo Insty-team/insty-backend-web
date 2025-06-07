@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS shared.users
     introduce          VARCHAR(4000),
     user_type          VARCHAR(15)   CHECK (user_type IN ('NONE', 'LEARNER', 'CREATOR')),
     is_deleted         BOOLEAN       NOT NULL,
+    profileimage_id    BIGINT,
     deleted_at         TIMESTAMP(6) WITH TIME ZONE,
     is_email_agreed    BOOLEAN       NOT NULL,
     last_login_at      TIMESTAMP(6) WITH TIME ZONE,
