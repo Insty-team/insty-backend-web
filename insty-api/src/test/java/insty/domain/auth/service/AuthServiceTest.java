@@ -51,7 +51,7 @@ class AuthServiceTest {
         // Given
         String email = "test@example.com";
         String password = "password";
-        UserLoginReq req = new UserLoginReq(email, password);
+        UserLoginReq req = new UserLoginReq(email, password, UserType.LEARNER);
 
         Long userId = 1L;
 
@@ -89,7 +89,7 @@ class AuthServiceTest {
     @Test
     void 이메일_로그인_실패() {
         // Given
-        UserLoginReq req = new UserLoginReq("test@example.com", "wrong");
+        UserLoginReq req = new UserLoginReq("test@example.com", "wrong", UserType.LEARNER);
 
         Authentication unauthenticated = mock(Authentication.class);
         when(unauthenticated.isAuthenticated()).thenReturn(false);
