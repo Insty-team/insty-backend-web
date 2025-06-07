@@ -82,7 +82,7 @@ public class CourseService {
         courseWriter.deleteCourse(course);
     }
 
-    public CourseDetailRes detailCourse(Long courseId) {
+    public CourseDetailRes  detailCourse(Long courseId) {
         Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
