@@ -20,7 +20,7 @@ public class CommunityAttactments extends BaseEntity {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
-    CommunityQuestion communityQuestion;
+    private CommunityQuestion communityQuestion;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
