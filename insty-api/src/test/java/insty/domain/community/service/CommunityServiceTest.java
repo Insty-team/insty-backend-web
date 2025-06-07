@@ -85,6 +85,7 @@ public class CommunityServiceTest {
         Long courseId = 2L;
 
         CommunityQuestionReq communityQuestionReq = CommunityQuestionReq.create(
+                null,
                 courseId,
                 userId,
                 title,
