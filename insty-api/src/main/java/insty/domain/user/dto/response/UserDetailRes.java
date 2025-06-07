@@ -14,13 +14,13 @@ public record UserDetailRes(
         UserType userType,
         Instant createdAt
 ) {
-    public static UserDetailRes from(User user) {
+    public static UserDetailRes from(User user, String thumbnailUrl) {
         return new UserDetailRes(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
                 user.isEmailAgreed(),
-                null,       // TODO 프로필 이미지 생성 예정
+                thumbnailUrl,
                 user.getIntroduce(),
                 user.getUserType(),
                 user.getCreatedAt()

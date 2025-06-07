@@ -8,7 +8,6 @@ import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -28,7 +27,7 @@ public class UserWriter {
     /**
      * 사용자 정보 수정
      */
-    public User updateUser(Long userId, String email, String password, String nickname, String introduce, MultipartFile profileImage) {
+    public User updateUser(Long userId, String email, String password, String nickname, String introduce) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         user.update(email, password, nickname, introduce);
