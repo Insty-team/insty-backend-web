@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.Instant;
 
 @Entity
-@Table(name = "community_attactments", schema = "web_service")
+@Table(name = "community_attachments", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

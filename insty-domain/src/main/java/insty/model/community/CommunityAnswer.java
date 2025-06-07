@@ -27,7 +27,7 @@ public class CommunityAnswer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
-    private CommunityQuestion question;
+    private CommunityQuestion communityQuestion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -49,9 +49,9 @@ public class CommunityAnswer {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CommunityAnswer create(CommunityQuestion question, User user, String content) {
+    public static CommunityAnswer create(CommunityQuestion communityQuestion, User user, String content) {
         return CommunityAnswer.builder()
-                .question(question)
+                .communityQuestion(communityQuestion)
                 .user(user)
                 .content(content)
                 .isDeleted(false)
