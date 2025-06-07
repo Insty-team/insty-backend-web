@@ -52,8 +52,9 @@ public class VideoCourse extends BaseEntity {
     @Column(nullable = false)
     private String originalFileName;
 
-    @Column(length = 1000)
-    private String thumbnailUrl;
+    @Builder.Default
+    @Column(nullable = false)
+    private int duration = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
