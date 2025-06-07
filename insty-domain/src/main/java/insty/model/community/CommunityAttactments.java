@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.Instant;
 
 @Entity
-@Table(name = "community_attactments", schema = "web_service")
+@Table(name = "community_attachments", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,7 +20,7 @@ public class CommunityAttactments extends BaseEntity {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
-    CommunityQuestion communityQuestion;
+    private CommunityQuestion communityQuestion;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)

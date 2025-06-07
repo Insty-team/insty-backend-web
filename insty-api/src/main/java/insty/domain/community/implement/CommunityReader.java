@@ -40,7 +40,7 @@ public class CommunityReader {
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
     }
 
-    public List<CommunityAnswer> getAllCommunityAnswers(String questionId) {
-        return communityAnswerRepository.findAllByQuestionId(Long.parseLong(questionId));
-    }
+//    public List<CommunityAnswer> getAllCommunityAnswers(String questionId) {
+//        return communityAnswerRepository.findAllByQuestionId(Long.parseLong(questionId));
+//    }
 }

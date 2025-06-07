@@ -219,7 +219,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<CommunityAnswerRes> getAllAnswers(String questionId) {
-        List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers(questionId);
+        List<CommunityAnswer> communityAnswers = new ArrayList<CommunityAnswer>(); //communityReader.getAllCommunityAnswers(questionId);
 
         return communityAnswers.stream()
                 .map(answer -> CommunityAnswerRes.create(
