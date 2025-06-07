@@ -36,6 +36,16 @@ public class CommunityWriter {
         return communityQuestionRepository.save(communityQuestion);
     }
 
+    public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq) {
+        prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content());
+        return communityQuestionRepository.save(prevCommunityQuestion);
+    }
+
+    public void deleteQuestion(CommunityQuestion communityQuestion) {
+
+        communityQuestionRepository.delete(communityQuestion);
+    }
+
     public CommunityAnswer saveAnswer(CommunityQuestion communityQuestion, CommunityAnswerReq communityAnswerReq, User user) {
 
         CommunityAnswer communityAnswer = CommunityAnswer

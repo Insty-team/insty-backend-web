@@ -7,6 +7,7 @@ public record CommunityQuestionReq(
         Long courseId,
         @NotNull
         Long userId,
+        Long questionId,
         @NotNull
         String title,
         @NotNull

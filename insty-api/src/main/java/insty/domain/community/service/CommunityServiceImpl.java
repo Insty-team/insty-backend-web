@@ -45,6 +45,28 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public List<CommunityQuestionRes> getAllQuestions() {
+        List<CommunityQuestion> communityQuestions = communityReader.getAllCommunityQuestions();
+
+        return communityQuestions.stream()
+                .map(question -> CommunityQuestionRes.create(
+                        question.getTitle(),
+                        question.getContent()
+                )).toList();
+    }
+
+    @Override
+    public List<CommunityQuestionRes> getQuestionsByCourseId(String courseId) {
+        List<CommunityQuestion> communityQuestions = communityReader.getAllCommunityQuestionsByCourseId(courseId);
+
+        return communityQuestions.stream()
+                .map(question -> CommunityQuestionRes.create(
+                        question.getTitle(),
+                        question.getContent()
+                )).toList();
+    }
+
+    @Override
     public CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq) {
         Course course = courseReader.getCourseById(communityQuestionReq.courseId());
         User user = userReader.getUser(communityQuestionReq.userId());
@@ -54,6 +76,23 @@ public class CommunityServiceImpl implements CommunityService {
                 communityQuestion.getTitle(),
                 communityQuestion.getContent()
         );
+    }
+
+    @Override
+    public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq) {
+        CommunityQuestion prevCommunityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityQuestionReq.questionId()));
+        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq);
+
+        return CommunityQuestionRes.create(
+                updatedQuestion.getTitle(),
+                updatedQuestion.getContent()
+        );
+    }
+
+    @Override
+    public void deleteQuestion(String questionId) {
+        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(questionId));
+        communityWriter.deleteQuestion(communityQuestion);
     }
 
     @Override

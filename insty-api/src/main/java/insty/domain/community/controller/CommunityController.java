@@ -31,11 +31,42 @@ public class CommunityController {
         return SuccessRes.of(communityService.getQuestionDetails(questionId));
     }
 
+    @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
+    @GetMapping("/questions/courses/{course_id}")
+    public SuccessRes<List<CommunityQuestionRes>> retrieveQuestionsByCourseId(
+            @PathVariable @NotBlank String courseId) {
+        return SuccessRes.of(communityService.getQuestionsByCourseId(courseId));
+    }
+
+    @Operation(summary = "모든 질문 검색", description = "강의 커뮤니티에서 모든 질문 리스트 조회")
+    @GetMapping("/questions/search")
+    public SuccessRes<List<CommunityQuestionRes>> retrieveAllQuestions() {
+        return SuccessRes.of(communityService.getAllQuestions());
+    }
+
     @Operation(summary = "질문 작성", description = "새로운 질문 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
     @PostMapping("/questions")
     public SuccessRes<CommunityQuestionRes> createQuestion(@RequestBody CommunityQuestionReq communityQuestionReq) {
         return SuccessRes.of(communityService.saveQuestion(communityQuestionReq));
+    }
+
+    @Operation(summary = "질문 수정", description = "질문 수정")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
+    @PatchMapping("/questions/{question_id}")
+    public SuccessRes<CommunityQuestionRes> updateQuestion(
+            @PathVariable @NotBlank String questionId,
+            @RequestBody CommunityQuestionReq communityQuestionReq) {
+        //communityQuestionReq.setId(questionId);
+        return SuccessRes.of(communityService.updateQuestion(communityQuestionReq));
+    }
+
+    @Operation(summary = "질문 삭제", description = "질문 삭제")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
+    @DeleteMapping("/questions/{question_id}")
+    public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank String questionId) {
+        communityService.deleteQuestion(questionId);
+        return SuccessRes.of(null);
     }
 
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")

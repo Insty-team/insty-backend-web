@@ -11,7 +11,15 @@ public interface CommunityService {
 
     CommunityQuestionRes getQuestionDetails(String questionId);
 
+    List<CommunityQuestionRes> getQuestionsByCourseId(String courseId);
+
+    List<CommunityQuestionRes> getAllQuestions();
+
     CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq);
+
+    CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq);
+
+    void deleteQuestion(String questionId);
 
     List<CommunityAnswerRes> getAllAnswers(String questionId);
 

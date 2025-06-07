@@ -66,4 +66,10 @@ public class CommunityQuestion extends BaseEntity {
                 .build();
     }
 
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.updatedAt = Instant.now();
+    }
+
 }
