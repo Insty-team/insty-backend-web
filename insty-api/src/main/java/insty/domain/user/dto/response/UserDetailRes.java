@@ -10,6 +10,7 @@ public record UserDetailRes(
         String nickname,
         boolean isEmailAgreed,
         String thumbnailUrl,
+        String introduce,
         UserType userType,
         Instant createdAt
 ) {
@@ -20,6 +21,7 @@ public record UserDetailRes(
                 user.getNickname(),
                 user.isEmailAgreed(),
                 null,       // TODO 프로필 이미지 생성 예정
+                user.getIntroduce(),
                 user.getUserType(),
                 user.getCreatedAt()
         );

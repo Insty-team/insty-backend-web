@@ -1,8 +1,10 @@
 package insty.domain.user.dto.request;
 
+import insty.model.user.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record UserLoginReq (
@@ -23,7 +25,11 @@ public record UserLoginReq (
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
                 message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
         )
-        String password
+        String password,
+
+        @NotNull(message = "회원 유형은 필수입니다.")
+        @Schema(description = "회원 타입", example = "LEARNER")
+        UserType userType
 ) {
 
 }
