@@ -2,6 +2,7 @@ package insty.domain.community.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+
 public record CommunityQuestionReq(
         Long questionId,
         @NotNull
@@ -12,6 +13,7 @@ public record CommunityQuestionReq(
         String title,
         @NotNull
         String content
+        //List<CommunityAttachmentReq> attachments
 ) {
 
         public static CommunityQuestionReq create(
@@ -20,6 +22,7 @@ public record CommunityQuestionReq(
                 Long userId,
                 String title,
                 String content
+                //List<CommunityAttachmentReq> attachments
         ) {
             return new CommunityQuestionReq(questionId, courseId, userId, title, content);
         }

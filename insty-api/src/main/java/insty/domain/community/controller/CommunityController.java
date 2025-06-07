@@ -12,7 +12,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -46,9 +48,12 @@ public class CommunityController {
 
     @Operation(summary = "질문 작성", description = "새로운 질문 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
-    @PostMapping("/questions")
-    public SuccessRes<CommunityQuestionRes> createQuestion(@RequestBody CommunityQuestionReq communityQuestionReq) {
-        return SuccessRes.of(communityService.saveQuestion(communityQuestionReq));
+    @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SuccessRes<CommunityQuestionRes> createQuestion(
+            @RequestBody CommunityQuestionReq communityQuestionReq,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+    ) {
+        return SuccessRes.of(communityService.saveQuestion(communityQuestionReq, attachments));
     }
 
     @Operation(summary = "질문 수정", description = "질문 수정")

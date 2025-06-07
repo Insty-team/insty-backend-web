@@ -4,6 +4,7 @@ import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface CommunityService {
 
     List<CommunityQuestionRes> getAllQuestions();
 
-    CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq);
+    CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments);
 
     CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq);
 

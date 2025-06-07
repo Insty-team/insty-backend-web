@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,8 +66,6 @@ public class CommunityServiceTest {
         when(communityReader.getCommunityQuestionDetailsById(questionId))
                 .thenReturn(communityQuestion);
 
-        when(userReader.getUser(nullable(Long.class)))
-                .thenReturn(user);
 
         //when
         CommunityQuestionRes communityQuestionRes = communityService.getQuestionDetails(questionId);
@@ -93,8 +92,13 @@ public class CommunityServiceTest {
         );
 
         CommunityQuestionRes res = CommunityQuestionRes.create(
+                userId,
+                courseId,
                 title,
-                content
+                content,
+                Instant.now(),
+                Instant.now(),
+                null
         );
 
         User user = User.create("email", "nickname", "password");
@@ -111,15 +115,20 @@ public class CommunityServiceTest {
                 .thenReturn(course);
         when(userReader.getUser(userId))
                 .thenReturn(user);
-        when(communityWriter.saveQuestion(communityQuestionReq, course, user))
+        when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
                 .thenReturn(communityQuestion);
 
         //when
-        CommunityQuestionRes communityQuestionRes = communityService.saveQuestion(communityQuestionReq);
+        CommunityQuestionRes communityQuestionRes = communityService.saveQuestion(communityQuestionReq, null);
         //then
         assertThat(communityQuestionRes).isNotNull();
         assertThat(communityQuestionRes.title()).isEqualTo(title);
         assertThat(communityQuestionRes.content()).isEqualTo(content);
+
+    }
+
+    @Test
+    void saveQustionWithFiles() {
 
     }
 

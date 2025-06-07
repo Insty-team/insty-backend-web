@@ -14,6 +14,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "community_questions", schema = "web_service")
@@ -34,6 +36,12 @@ public class CommunityQuestion extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommunityAttactments> attachments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommunityAnswer> answers = new ArrayList<>();
 
     @Column(nullable = false)
     private String title;
@@ -64,6 +72,10 @@ public class CommunityQuestion extends BaseEntity {
                 .isAnswered(false)
                 .isDeleted(false)
                 .build();
+    }
+
+    public void addAttachments(List<CommunityAttactments> attachments) {
+        this.attachments.addAll(attachments);
     }
 
     public void update(String title, String content) {

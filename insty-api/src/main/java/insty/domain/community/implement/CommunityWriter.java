@@ -7,12 +7,16 @@ import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
+import insty.model.community.CommunityAttactments;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -22,16 +26,8 @@ public class CommunityWriter {
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
 
-    public CommunityQuestion saveQuestion(CommunityQuestionReq communityQuestionReq, Course course, User user) {
-
-
-        CommunityQuestion communityQuestion = CommunityQuestion
-                .create(
-                        course,
-                        user,
-                        communityQuestionReq.title(),
-                        communityQuestionReq.content()
-                );
+    // TODO: 첨부파일
+    public CommunityQuestion saveQuestion(CommunityQuestion communityQuestion, Course course, User user) {
 
         return communityQuestionRepository.save(communityQuestion);
     }
