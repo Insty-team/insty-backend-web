@@ -57,7 +57,7 @@ public class CloudFrontSigner {
             return cookieMap;
         } catch (Exception e) {
             log.error("CloudFront 에러\n", e);
-            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL);
+            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL);
         }
     }
 
