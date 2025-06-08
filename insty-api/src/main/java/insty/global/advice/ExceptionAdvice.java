@@ -13,6 +13,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,6 +44,24 @@ public class ExceptionAdvice {
         FailRes<?> body = FailRes.of(ErrorInfo.of(errorCode));
         HttpStatus httpStatus = HttpStatus.valueOf(errorCode.getHttpCode());
         return new ResponseEntity<>(body, httpStatus);
+    }
+
+    /**
+     * 사용자 인증이 되질 않음 - 401
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public FailRes<?> handleInvalidPathExceptions(AuthenticationException e) {
+        return FailRes.of(ErrorInfo.of(CommonErrorCode.UNAUTHORIZED));
+    }
+
+    /**
+     * 작업을 수행할 권한이 없음 - 403
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public FailRes<?> handleInvalidPathExceptions(AuthorizationDeniedException e) {
+        return FailRes.of(ErrorInfo.of(CommonErrorCode.FORBIDDEN));
     }
 
     /**

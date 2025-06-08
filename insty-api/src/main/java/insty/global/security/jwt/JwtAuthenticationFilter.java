@@ -2,18 +2,23 @@ package insty.global.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.constants.JwtValidationType;
+import insty.constants.TokenType;
 import insty.error.CommonErrorCode;
 import insty.error.TokenErrorCode;
 import insty.global.security.CustomAuthenticationEntryPoint;
 import insty.global.security.exception.CustomAuthenticationException;
+import insty.model.user.UserType;
 import insty.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -31,10 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 사용자 토큰 조회
-        final String accessToken = extractAccessToken(request);
+        final String token = extractAccessToken(request);
 
         // 토큰이 없으면 넘기기
-        if(accessToken.isEmpty()){
+        if(token.isEmpty()){
             log.debug("Token이 Header에 존재하지 않습니다.");
             filterChain.doFilter(request, response);
             return;
@@ -42,11 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // 토큰 검증
-            JwtValidationType tokenValidStatus = jwtUtils.validateToken(accessToken);
+            JwtValidationType tokenValidStatus = jwtUtils.validateToken(token);
             validateTokenStatus(tokenValidStatus);  // 상태값에 따라 예외 던지기
 
             // 토큰에 있는 정보로 스프링 시큐리티 컨텍스트에 유저정보 저장
-            setSecurityContextAuthentication(accessToken);
+            setSecurityContextAuthentication(token);
 
             // 다음 필터 실행
             filterChain.doFilter(request, response);
@@ -97,10 +102,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void setSecurityContextAuthentication(String token) {
         // 토큰에서 정보 획득
         Long userId = Long.parseLong(jwtUtils.extractSubject(token));
+        TokenType tokenType = extractTokenType(token);
 
-        JwtAuthenticationToken authToken = new JwtAuthenticationToken(userId, null, null);
+        JwtAuthenticationToken authToken = createAuthenticationToken(tokenType, token, userId);
 
         SecurityContextHolder.clearContext();
         SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+
+    /**
+     *  스프링 시큐리티 사용자 권한 넣기 위한 메서드
+     */
+    private GrantedAuthority toGrantedAuthority(UserType userType) {
+        return new SimpleGrantedAuthority("ROLE_" + userType.name());
+    }
+
+    /**
+     *  토큰 타입 추출
+     */
+    private TokenType extractTokenType(String token) {
+        return TokenType.valueOf(jwtUtils.extractClaim(token, "tokenType"));
+    }
+
+    /**
+     *  인증 객체 생성
+     */
+    private JwtAuthenticationToken createAuthenticationToken(TokenType tokenType, String token, Long userId) {
+        if (tokenType == TokenType.ACCESS) {
+            UserType userType = UserType.valueOf(jwtUtils.extractUserType(token));
+            GrantedAuthority authority = toGrantedAuthority(userType);
+            return new JwtAuthenticationToken(userId, null, List.of(authority));
+        }
+
+        return new JwtAuthenticationToken(userId, null, null); // refreshToken은 권한 없음
     }
 }

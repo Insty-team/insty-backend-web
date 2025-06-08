@@ -1,6 +1,7 @@
 package insty.domain.auth.implement;
 
 import insty.domain.user.dto.UserAuthTokenDto;
+import insty.model.user.UserType;
 import insty.util.JwtUtils;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,9 @@ public class AuthTokenIssuer {
     /**
      * 토큰 발급
      */
-    public UserAuthTokenDto generateUserTokens(Long userId){
+    public UserAuthTokenDto generateUserTokens(Long userId, UserType userType){
         // 토큰 생성
-        String accessToken = jwtUtils.generateAccessToken(String.valueOf(userId));
+        String accessToken = jwtUtils.generateAccessToken(String.valueOf(userId), userType.name());
         String refreshToken = jwtUtils.generateRefreshToken(String.valueOf(userId));
 
         // 만료 시간 추출

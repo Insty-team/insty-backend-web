@@ -57,7 +57,7 @@ public class AuthService {
         userWriter.updateUserByUserType(user.getUserId(), req.userType());
 
         // 토큰 발급
-        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getUserId());
+        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getUserId(), user.getUserType());
         authTokenRedisWriter.saveRefreshToken(user.getUserId(), token.refreshToken());  // redis에 저장
 
         // 응답 객체 생성
@@ -79,7 +79,7 @@ public class AuthService {
         User user = userReader.getUser(userId);
 
         // 토큰 발급
-        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId());
+        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId(), user.getUserType());
         authTokenRedisWriter.saveRefreshToken(user.getId(), token.refreshToken());  // redis에 저장
 
         // 응답 객체 생성
