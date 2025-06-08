@@ -4,6 +4,7 @@ import insty.error.ErrorCode;
 
 public enum CloudFrontErrorCode implements ErrorCode {
     CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL("CLOUD_FRONT_001", "CloudFront의 서명 쿠키 생성에 실패했습니다.", 500),
+    CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL("CLOUD_FRONT_002", "CloudFront의 서명 url 생성에 실패했습니다.", 500),
 
     ;
 
