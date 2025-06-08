@@ -2,6 +2,7 @@ package insty.cloudfront.adapter;
 
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner.CookiesForCustomPolicy;
+import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import com.amazonaws.services.cloudfront.util.SignerUtils.Protocol;
 import insty.cloudfront.constant.CloudFrontConstants;
@@ -57,7 +58,24 @@ public class CloudFrontSigner {
             return cookieMap;
         } catch (Exception e) {
             log.error("CloudFront 에러\n", e);
-            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL);
+            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL);
+        }
+    }
+
+    public String generatePresignedUrlForVideo(String domain, String objectPath) {
+        try {
+            String resourcePath = generateResourcePath(domain, objectPath);
+            PrivateKey privateKey = SignerUtils.loadPrivateKey(privateKeyPath);
+            Instant expiredAt = Instant.now()
+                    .plus(Duration.ofMinutes(CloudFrontConstants.GET_PREVIEW_VIDEO_URL_EXPIRATION_MINUTES));
+            Date expiration = Date.from(expiredAt);
+
+            return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
+                    resourcePath, keyPairId, privateKey, expiration
+            );
+        } catch (Exception e) {
+            log.error("CloudFront 에러\n", e);
+            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL);
         }
     }
 

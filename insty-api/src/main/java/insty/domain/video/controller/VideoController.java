@@ -96,4 +96,13 @@ public class VideoController {
                 .header(HttpHeaders.SET_COOKIE, cookie3.toString())
                 .body(SuccessRes.of(new VideoHlsPlaylistRes(signedUrl)));
     }
+
+    @Operation(summary = "영상 미리보기", description = "1분 미리보기 영상 url을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_PREVIEW)
+    @PostMapping("/preview")
+    public SuccessRes<VideoHlsPlaylistRes> getPreviewVideo(
+            @RequestBody @Validated VideoHlsPlaylistReq req
+    ) {
+        return SuccessRes.of(videoService.getPreviewVideo(req));
+    }
 }

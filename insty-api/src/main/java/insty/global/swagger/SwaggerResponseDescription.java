@@ -1,6 +1,7 @@
 package insty.global.swagger;
 
-import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL;
+import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL;
+import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND;
 import static insty.error.CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND;
 import static insty.error.CourseErrorCode.COURSE_NOT_FOUND;
@@ -43,7 +44,11 @@ public enum SwaggerResponseDescription {
     ))),
     VIDEO_GET(new LinkedHashSet<>(Set.of(
             VIDEO_NOT_FOUND,
-            CLOUD_FRONT_GENERATE_SIGNED_URL_FAIL
+            CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL
+    ))),
+    VIDEO_PREVIEW(new LinkedHashSet<>(Set.of(
+            VIDEO_NOT_FOUND,
+            CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL
     ))),
     // course
     COURSE_CREATE(new LinkedHashSet<>(Set.of())),
@@ -78,8 +83,7 @@ public enum SwaggerResponseDescription {
     ))),
     COMMUNITY_ANSWER_DELETE(new LinkedHashSet<>(Set.of(
             COMMUNITY_ANSWER_NOT_FOUND
-    )))
-    ;
+    )));
 
     private Set<ErrorCode> errorCodeList;
 

@@ -1,6 +1,7 @@
 package insty.domain.video.implement;
 
 import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_MASTER_M3U8_URL;
+import static insty.cloudfront.constant.CloudFrontConstants.ENCODING_VIDEO_PREVIEW_SUFFIX;
 import static insty.constants.VideoConstants.DOMAIN;
 import static insty.constants.VideoConstants.PATH;
 
@@ -41,5 +42,16 @@ public class VideoAccessManager {
                 cloudFrontSigner.generateResourcePath(appProperties.getDomain(), hlsMasterFileKey));
         signedCookieMap.put(DOMAIN, appProperties.getDomain());
         return signedCookieMap;
+    }
+
+    /**
+     * CloudFront Pre-Signed URL을 반환한다.
+     *
+     * @param encodingVideoKey vod/{type}/hls/{uuid}/fileName_{preview_suffix}
+     * @return
+     */
+    public String getPresignedUrl(String encodingVideoKey) {
+        return cloudFrontSigner.generatePresignedUrlForVideo(appProperties.getDomain(),
+                encodingVideoKey + ENCODING_VIDEO_PREVIEW_SUFFIX);
     }
 }

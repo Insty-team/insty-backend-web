@@ -1,6 +1,7 @@
 package insty.domain.video.service;
 
 import insty.domain.video.dto.VideoHlsPlaylistReq;
+import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoAccessManager;
@@ -54,5 +55,15 @@ public class VideoService {
 
         return videoAccessManager.getSignedCookieMap(videoEncoding.getEncodingVideoDirectoryPath(),
                 videoEncoding.getHlsMasterFileKey());
+    }
+
+    public VideoHlsPlaylistRes getPreviewVideo(VideoHlsPlaylistReq req) {
+        videoValidator.verifyEncodingCompleted(req.type(), req.id());
+
+        UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
+        VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
+
+        String presignedUrl = videoAccessManager.getPresignedUrl(videoEncoding.getEncodingS3Key());
+        return new VideoHlsPlaylistRes(presignedUrl);
     }
 }
