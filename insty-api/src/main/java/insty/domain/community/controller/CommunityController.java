@@ -74,6 +74,7 @@ public class CommunityController {
         return SuccessRes.of(null);
     }
 
+    //삭제하고 질문 상세보기와 통합
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
     @GetMapping("/questions/{question_id}/answer")

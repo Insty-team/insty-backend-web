@@ -27,7 +27,6 @@ public class CommunityAttactments extends BaseEntity {
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
-
     @CreatedDate
     @Column(nullable = false, name = "created_at", updatable = false)
     private Instant createdAt;

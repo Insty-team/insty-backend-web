@@ -49,7 +49,7 @@ public class CommunityServiceImpl implements CommunityService {
                     .toList();
         }
         //TODO: 수정필요
-        //List<CommunityAttachmentRes> attachments = getCommunityAttachments(communityAttactments);
+        List<CommunityAttachmentRes> attachments = getCommunityAttachments(communityAttactments);
 
         String title = communityQuestion.getTitle();
         String content = communityQuestion.getContent();
@@ -79,29 +79,27 @@ public class CommunityServiceImpl implements CommunityService {
         );
     }
 
-    //TODO: 수정필요
-    /*
+
     List<CommunityAttachmentRes> getCommunityAttachments(List<CommunityAttactments> communityAttactments) {
         List<CommunityAttachmentRes> attacments = new ArrayList<>();
 
         for (CommunityAttactments attachment : communityAttactments) {
             File communityFile = attachment.getFile();
-            FileContainerType fileContainerType = communityFile.getContainerType();
-            String contentType = communityFile.getContentType();
-            String fileContent = attachment.getFileContent();
+//            FileContainerType fileContainerType = communityFile.getContainerType();
+//            String contentType = communityFile.getContentType();
+//            String fileContent = attachment.getFileContent();
+//
+//            CommunityAttachmentRes communityAttachmentRes = CommunityAttachmentRes.create(
+//                    fileContainerType,
+//                    contentType,
+//                    fileContent
+//            );
 
-            CommunityAttachmentRes communityAttachmentRes = CommunityAttachmentRes.create(
-                    fileContainerType,
-                    contentType,
-                    fileContent
-            );
-
-            attacments.add(communityAttachmentRes);
+//            attacments.add(communityAttachmentRes);
         }
 
         return attacments;
     }
-    */
 
     @Override
     public List<CommunityQuestionRes> getAllQuestions() {
