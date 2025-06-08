@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(schema = "shared", name = "users")
+@Table(schema = "web_service", name = "users")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -84,15 +84,19 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.introduce = introduce;
     }
+
     public void update(UserType userType) {
         this.userType = userType;
     }
+
     public void update(boolean isEmailAgreed) {
         this.isEmailAgreed = isEmailAgreed;
     }
+
     public void updateLastLoginAt() {
         this.lastLoginAt = Instant.now();
     }
+
     public void updateProfileImage(File profileImage) {
         this.profileImage = profileImage;
     }
