@@ -110,7 +110,7 @@ class CourseServiceTest {
     private AppProperties appProperties;
 
     @Sql(statements = {
-            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, '00000000-0000-0000-0000-000000000001', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
@@ -187,9 +187,9 @@ class CourseServiceTest {
                     "VALUES (100L, 100L, '강의에 연결된 핵심포인트')",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
                     "VALUES (200L, 100L, '강의에 연결되었지만 수정 후 없어질 핵심포인트')",
-            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 100L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
-            "INSERT INTO shared.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
                     + "VALUES (2L, '00000000-0000-0000-0000-000000000002', null, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
@@ -397,9 +397,9 @@ class CourseServiceTest {
     }
 
     @Sql(statements = {
-            "INSERT INTO shared.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO shared.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (2L, 'example2@example.com', 'example2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
