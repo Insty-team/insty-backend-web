@@ -44,6 +44,12 @@ public class VideoAccessManager {
         return signedCookieMap;
     }
 
+    /**
+     * CloudFront Pre-Signed URL을 반환한다.
+     *
+     * @param encodingVideoKey vod/{type}/hls/{uuid}/fileName_{preview_suffix}
+     * @return
+     */
     public String getPresignedUrl(String encodingVideoKey) {
         return cloudFrontSigner.generatePresignedUrlForVideo(appProperties.getDomain(),
                 encodingVideoKey + ENCODING_VIDEO_PREVIEW_SUFFIX);
