@@ -2,6 +2,7 @@ package insty.domain.auth.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -70,7 +71,7 @@ class AuthServiceTest {
         Instant refreshTokenExpiresAt = Instant.now().plusSeconds(86400);
         UserAuthTokenDto tokenDto = new UserAuthTokenDto("accessToken", "refreshToken", accessTokenExpiresAt, refreshTokenExpiresAt, "Bearer");
 
-        when(authTokenIssuer.generateUserTokens(userId)).thenReturn(tokenDto);
+        when(authTokenIssuer.generateUserTokens(userId, UserType.LEARNER)).thenReturn(tokenDto);
 
         // When
         AuthUserRes result = authService.loginByEmail(req);
@@ -107,13 +108,14 @@ class AuthServiceTest {
 
         User user = User.create("test@example.com", "nickname", "email");
         ReflectionTestUtils.setField(user, "id", userId); // Spring의 ReflectionTestUtils 사용
+        ReflectionTestUtils.setField(user, "userType", UserType.LEARNER); // Spring의 ReflectionTestUtils 사용
         when(jwtUtils.extractSubject(refreshToken)).thenReturn(userId.toString());
         when(userReader.getUser(userId)).thenReturn(user);
 
         Instant accessTokenExpiresAt = Instant.now().plusSeconds(3600);
         Instant refreshTokenExpiresAt = Instant.now().plusSeconds(86400);
         UserAuthTokenDto tokenDto = new UserAuthTokenDto("accessToken", "refreshToken", accessTokenExpiresAt, refreshTokenExpiresAt, "Bearer");
-        when(authTokenIssuer.generateUserTokens(userId)).thenReturn(tokenDto);
+        when(authTokenIssuer.generateUserTokens(userId, UserType.LEARNER)).thenReturn(tokenDto);
 
         // When
         AuthUserRes res = authService.reissueByRefreshToken(refreshToken);
@@ -139,7 +141,7 @@ class AuthServiceTest {
         // 이후 로직은 절대 호출되면 안 됨
         verify(jwtUtils, never()).extractSubject(any());
         verify(userReader, never()).getUser(any());
-        verify(authTokenIssuer, never()).generateUserTokens(any());
+        verify(authTokenIssuer, never()).generateUserTokens(any(), eq(UserType.LEARNER));
         verify(authTokenRedisWriter, never()).saveRefreshToken(any(), any());
     }
 
