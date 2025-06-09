@@ -5,6 +5,7 @@ import static insty.model.course.QCourse.course;
 import static insty.model.course.QCourseTag.courseTag;
 import static insty.model.tag.QTags.tags;
 import static insty.model.user.QUser.user;
+import static insty.model.video.QVideoCourse.videoCourse;
 
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
@@ -39,10 +40,11 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.description,
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
-                        Expressions.nullExpression(String.class)
+                        videoCourse.duration
                 )
         )
                 .from(course)
+                .leftJoin(videoCourse).on(videoCourse.course.id.eq(course.id))
                 .where(searchCourseConditions(filter))
                 .orderBy(createOrderSpecifier(null))
                 .offset(paginationReq.getOffset())

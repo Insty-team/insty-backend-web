@@ -8,11 +8,11 @@ public record CourseSearchInfo(
         String description,
         List<String> tags,
         String thumbnailUrl,
-        String duration // TODO - 영상 길이 추가
+        Integer durationSecond
 ) {
 
     public static CourseSearchInfo assembly(CourseSearchInfo origin, List<String> tags, String thumbnailUrl) {
         return new CourseSearchInfo(origin.courseId(), origin.title(), origin.description(), tags,
-                thumbnailUrl, origin.duration());
+                thumbnailUrl, origin.durationSecond());
     }
 }
