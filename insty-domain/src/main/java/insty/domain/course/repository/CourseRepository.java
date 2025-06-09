@@ -1,6 +1,7 @@
 package insty.domain.course.repository;
 
 import insty.model.course.Course;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +14,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     void incrementViewCount(@Param("courseId") Long courseId);
 
     boolean existsByIdAndUserId(Long courseId, Long userId);
+
+    @Query("SELECT c FROM Course c JOIN FETCH c.thumbnail WHERE c.id IN :courseIds")
+    List<Course> findWithThumbnailByCourseIdIn(@Param("courseIds") List<Long> courseIds);
 }

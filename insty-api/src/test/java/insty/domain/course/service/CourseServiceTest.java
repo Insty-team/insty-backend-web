@@ -16,6 +16,7 @@ import insty.domain.course.dto.CourseMySearchReq;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
+import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
@@ -69,6 +70,8 @@ class CourseServiceTest {
 
     @Autowired
     private CourseReader courseReader;
+    @Autowired
+    private CourseComplexReader courseComplexReader;
     @Autowired
     private CourseWriter courseWriter;
     @Autowired
@@ -361,8 +364,10 @@ class CourseServiceTest {
     }
 
     @Sql(statements = {
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, null, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1L, null, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1L, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (2L, null, '자바 설치 강의', '설명', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
@@ -379,6 +384,10 @@ class CourseServiceTest {
         int pageSize = 10;
         String search = "파이썬";
         CourseSearchReq req = new CourseSearchReq(page, pageSize, search);
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
 
         // when
         SearchRes<CourseSearchInfo> res = courseService.searchCourse(req);
@@ -397,15 +406,20 @@ class CourseServiceTest {
         assertThat(items.size()).isEqualTo(1);
         assertThat(items.get(0).title()).contains(search);
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
+        assertThat(items.get(0).thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
     }
 
+    // TODO - 질문 개수(commentCount) 검증 추가
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (2L, 'example2@example.com', 'example2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1L, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (2L, 2L, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
@@ -423,6 +437,10 @@ class CourseServiceTest {
         int pageSize = 10;
         CourseMySearchReq req = new CourseMySearchReq(page, pageSize);
 
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
         // when
         SearchRes<CourseMySearchInfo> res = courseService.searchMyCourse(userId, req);
 
@@ -439,5 +457,7 @@ class CourseServiceTest {
         assertThat(items).isNotNull();
         assertThat(items.size()).isEqualTo(1);
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
+        assertThat(items.get(0).thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
     }
 }

@@ -1,0 +1,79 @@
+package insty.domain.course.implement;
+
+import insty.domain.common.dto.PaginationReq;
+import insty.domain.common.dto.PaginationRes;
+import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseSearchFilter;
+import insty.domain.course.dto.CourseSearchInfo;
+import insty.domain.course.repository.CourseQueryRepository;
+import insty.domain.course.repository.CourseRepository;
+import insty.global.property.AppProperties;
+import insty.model.course.Course;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class CourseComplexReader {
+
+    private final CourseRepository courseRepository;
+    private final CourseQueryRepository courseQueryRepository;
+
+    private final AppProperties appProperties;
+
+    public List<CourseSearchInfo> searchCourse(PaginationReq paginationReq, CourseSearchFilter filter) {
+        List<CourseSearchInfo> courses = courseQueryRepository.searchCourses(paginationReq, filter);
+
+        List<Long> courseIds = courses.stream()
+                .map(CourseSearchInfo::courseId)
+                .toList();
+        Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
+        Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
+
+        return courses.stream()
+                .map(dto -> CourseSearchInfo.assembly(
+                        dto,
+                        courseTags.get(dto.courseId()),
+                        thumbnailUrls.get(dto.courseId())))
+                .toList();
+    }
+
+    public PaginationRes countSearchCourse(PaginationReq paginationReq, CourseSearchFilter filter) {
+        return courseQueryRepository.countSearchCourses(paginationReq, filter);
+    }
+
+    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId) {
+        List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId);
+
+        List<Long> courseIds = courses.stream()
+                .map(CourseMySearchInfo::courseId)
+                .toList();
+        Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
+        Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
+
+        return courses.stream()
+                .map(dto -> CourseMySearchInfo.assembly(
+                        dto,
+                        courseTags.get(dto.courseId()),
+                        thumbnailUrls.get(dto.courseId())
+                ))
+                .toList();
+    }
+
+    public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId) {
+        return courseQueryRepository.countSearchMyCourses(paginationReq, userId);
+    }
+
+    private Map<Long, String> getCourseThumbnailUrlMap(List<Long> courseIds) {
+        return courseRepository.findWithThumbnailByCourseIdIn(courseIds).stream()
+                .collect(Collectors.toMap(
+                        Course::getId,
+                        course -> course.getThumbnail().getUrl(appProperties.getDomain())
+                ));
+    }
+}
