@@ -13,11 +13,13 @@ import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
+import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,8 @@ public class CourseReader {
     private final CourseKeypointRepository courseKeypointRepository;
     private final CourseTagRepository courseTagRepository;
     private final CourseQueryRepository courseQueryRepository;
+
+    private final AppProperties appProperties;
 
     public List<CourseInstallEnvChecklistInfo> getChecklistsByCourseId(Long courseId) {
         return courseInstallEnvChecklistRepository.findAllByCourseId(courseId).stream()
@@ -57,16 +61,19 @@ public class CourseReader {
     }
 
     public List<CourseSearchInfo> searchCourse(PaginationReq paginationReq, CourseSearchFilter filter) {
-        // TODO - 썸네일 url 추가
         List<CourseSearchInfo> courses = courseQueryRepository.searchCourses(paginationReq, filter);
 
         List<Long> courseIds = courses.stream()
                 .map(CourseSearchInfo::courseId)
                 .toList();
         Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
+        Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
 
         return courses.stream()
-                .map(dto -> CourseSearchInfo.withTags(dto, courseTags.get(dto.courseId())))
+                .map(dto -> CourseSearchInfo.assembly(
+                        dto,
+                        courseTags.get(dto.courseId()),
+                        thumbnailUrls.get(dto.courseId())))
                 .toList();
     }
 
@@ -90,5 +97,13 @@ public class CourseReader {
 
     public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId) {
         return courseQueryRepository.countSearchMyCourses(paginationReq, userId);
+    }
+
+    private Map<Long, String> getCourseThumbnailUrlMap(List<Long> courseIds) {
+        return courseRepository.findWithThumbnailByCourseIdIn(courseIds).stream()
+                .collect(Collectors.toMap(
+                        Course::getId,
+                        course -> course.getThumbnail().getUrl(appProperties.getDomain())
+                ));
     }
 }

@@ -11,8 +11,8 @@ public record CourseSearchInfo(
         String duration // TODO - 영상 길이 추가
 ) {
 
-    public static CourseSearchInfo withTags(CourseSearchInfo origin, List<String> tags) {
+    public static CourseSearchInfo assembly(CourseSearchInfo origin, List<String> tags, String thumbnailUrl) {
         return new CourseSearchInfo(origin.courseId(), origin.title(), origin.description(), tags,
-                origin.thumbnailUrl(), origin.duration());
+                thumbnailUrl, origin.duration());
     }
 }
