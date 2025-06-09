@@ -1,5 +1,6 @@
 package insty.domain.course.persistence;
 
+import static insty.model.community.QCommunityQuestion.communityQuestion;
 import static insty.model.course.QCourse.course;
 import static insty.model.course.QCourseTag.courseTag;
 import static insty.model.tag.QTags.tags;
@@ -84,7 +85,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.title,
                         course.price,
                         course.viewCount,
-                        Expressions.nullExpression(Long.class),
+                        communityQuestion.count(),
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
                         course.isShow,
@@ -94,7 +95,9 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .from(course)
                 .join(user).on(user.id.eq(course.user.id)
                         .and(user.id.eq(userId)))
+                .leftJoin(communityQuestion).on(communityQuestion.course.id.eq(course.id))
                 .where(searchMyCourseConditions())
+                .groupBy(course.id)
                 .orderBy(createOrderSpecifier(null))
                 .offset(paginationReq.getOffset())
                 .limit(paginationReq.pageSize())

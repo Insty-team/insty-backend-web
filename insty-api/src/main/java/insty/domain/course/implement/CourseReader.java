@@ -82,7 +82,6 @@ public class CourseReader {
     }
 
     public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId) {
-        // TODO - 댓글 개수 추가
         List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId);
 
         List<Long> courseIds = courses.stream()
