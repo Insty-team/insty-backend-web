@@ -101,7 +101,7 @@ class CourseComplexReaderTest {
         Long userId = 1L;
 
         // mock
-        CourseMySearchInfo searchInfo = new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, null, null, null, true,
+        CourseMySearchInfo searchInfo = new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, null, null, true,
                 Instant.now());
         when(courseQueryRepository.searchMyCourses(paginationReq, userId))
                 .thenReturn(List.of(searchInfo));

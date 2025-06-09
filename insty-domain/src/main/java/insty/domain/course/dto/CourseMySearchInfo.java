@@ -8,7 +8,7 @@ public record CourseMySearchInfo(
         String title,
         int price,
         int viewCount,
-        Long commentCount,
+        long commentCount,
         List<String> tags,
         String thumbnailUrl,
         boolean isShow,
