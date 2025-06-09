@@ -107,7 +107,6 @@ public class CourseService {
 
     public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
-        // TODO - 유저 아이디 필터
 
         List<CourseMySearchInfo> searchInfo = courseReader.searchMyCourse(paginationReq, userId);
         PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq, userId);

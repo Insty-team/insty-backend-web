@@ -108,9 +108,9 @@ public class CourseController {
     @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/my")
     public SuccessRes<SearchRes<CourseMySearchInfo>> courseMySearch(
+            @CurrentUser Long userId,
             @ModelAttribute @Validated CourseMySearchReq req
     ) {
-        Long userId = 1L; // TODO - 인증 정보로부터 추출
         return SuccessRes.of(courseService.searchMyCourse(userId, req));
     }
 }
