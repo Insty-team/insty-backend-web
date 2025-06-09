@@ -13,6 +13,7 @@ import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
+import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
@@ -41,6 +42,7 @@ public class CourseService {
     private final CourseTagWriter courseTagWriter;
     private final CourseVideoManager courseVideoManager;
     private final CourseValidator courseValidator;
+    private final CourseComplexReader courseComplexReader;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -99,8 +101,8 @@ public class CourseService {
         PaginationReq paginationReq = req.toPaginationReq();
         CourseSearchFilter filter = req.toSearchFilter();
 
-        List<CourseSearchInfo> searchInfo = courseReader.searchCourse(paginationReq, filter);
-        PaginationRes paginationRes = courseReader.countSearchCourse(paginationReq, filter);
+        List<CourseSearchInfo> searchInfo = courseComplexReader.searchCourse(paginationReq, filter);
+        PaginationRes paginationRes = courseComplexReader.countSearchCourse(paginationReq, filter);
 
         return SearchRes.from(paginationRes, searchInfo);
     }
@@ -108,8 +110,8 @@ public class CourseService {
     public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
 
-        List<CourseMySearchInfo> searchInfo = courseReader.searchMyCourse(paginationReq, userId);
-        PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq, userId);
+        List<CourseMySearchInfo> searchInfo = courseComplexReader.searchMyCourse(paginationReq, userId);
+        PaginationRes paginationRes = courseComplexReader.countSearchMyCourse(paginationReq, userId);
 
         return SearchRes.from(paginationRes, searchInfo);
     }
