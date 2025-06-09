@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.course.Course;
+import insty.model.course.fixture.CourseFixtureBuilder;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -49,5 +51,19 @@ class VideoCourseTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_INVALID_FILE_NAME);
+    }
+
+    @Test
+    void updateCourse_정상() {
+        // given
+        VideoCourse videoCourse = VideoCourse.create("fileName.mp4",
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        Course course = CourseFixtureBuilder.getCourse();
+
+        // when
+        videoCourse.updateCourse(course);
+
+        // then
+        assertThat(videoCourse.getCourse()).isEqualTo(course);
     }
 }
