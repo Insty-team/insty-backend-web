@@ -220,6 +220,16 @@ class CourseReaderTest {
         Map<Long, List<String>> courseTag = Map.of(1L, List.of("태그1", "태그2"));
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
+        // getCourseThumbnailUrlMap 테스트 세팅
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        ReflectionTestUtils.setField(course, "id", 1L);
+        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
+                "thumb.jpg", "image/jpeg", 10);
+        ReflectionTestUtils.setField(course, "thumbnail", file);
+        when(courseRepository.findWithThumbnailByCourseIdIn(any()))
+                .thenReturn(List.of(course));
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
 
         // when
         List<CourseMySearchInfo> res = courseReader.searchMyCourse(paginationReq, userId);
@@ -229,6 +239,8 @@ class CourseReaderTest {
         assertThat(res).hasSize(1);
         assertThat(res.get(0).title()).isEqualTo("파이썬 강의");
         assertThat(res.get(0).tags()).containsExactlyInAnyOrder("태그1", "태그2");
+        assertThat(res.get(0).thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
     }
 
     @Test

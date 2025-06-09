@@ -82,16 +82,21 @@ public class CourseReader {
     }
 
     public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId) {
-        // TODO - 썸네일 url, 댓글 개수 추가
+        // TODO - 댓글 개수 추가
         List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId);
 
         List<Long> courseIds = courses.stream()
                 .map(CourseMySearchInfo::courseId)
                 .toList();
         Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
+        Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
 
         return courses.stream()
-                .map(dto -> CourseMySearchInfo.withTags(dto, courseTags.get(dto.courseId())))
+                .map(dto -> CourseMySearchInfo.assembly(
+                        dto,
+                        courseTags.get(dto.courseId()),
+                        thumbnailUrls.get(dto.courseId())
+                ))
                 .toList();
     }
 
