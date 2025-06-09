@@ -9,6 +9,7 @@ import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
 import insty.domain.course.service.CourseService;
+import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -75,9 +76,10 @@ public class CourseController {
     @PreAuthorize("hasRole('CREATOR')")
     @DeleteMapping("/{courseId}")
     public SuccessRes<?> courseDelete(
+            @CurrentUser Long userId,
             @PathVariable("courseId") Long courseId
     ) {
-        courseService.deleteCourse(courseId);
+        courseService.deleteCourse(userId, courseId);
         return SuccessRes.of(null);
     }
 

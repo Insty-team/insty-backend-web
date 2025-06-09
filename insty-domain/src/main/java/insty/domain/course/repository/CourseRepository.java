@@ -11,4 +11,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Modifying
     @Query("UPDATE Course c SET c.viewCount = c.viewCount + 1 WHERE c.id = :courseId")
     void incrementViewCount(@Param("courseId") Long courseId);
+
+    boolean existsByIdAndUserId(Long courseId, Long userId);
 }
