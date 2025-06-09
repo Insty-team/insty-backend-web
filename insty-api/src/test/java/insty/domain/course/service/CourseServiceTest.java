@@ -256,12 +256,14 @@ class CourseServiceTest {
     }
 
     @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
                     + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
                     + "VALUES (2L, 'COURSE_PRACTICE_FILE', 1L, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1L, 1L, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
                     "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
@@ -272,10 +274,11 @@ class CourseServiceTest {
     @Test
     void deleteCourse_정상() {
         // given
+        Long userId = 1L;
         Long courseId = 1L;
 
         // when
-        courseService.deleteCourse(courseId);
+        courseService.deleteCourse(userId, courseId);
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);

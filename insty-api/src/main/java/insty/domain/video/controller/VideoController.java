@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +39,7 @@ public class VideoController {
 
     @Operation(summary = "강의 영상 업로드", description = "강의 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
+    @PreAuthorize("hasRole('CREATOR')")
     @PostMapping("/upload/course")
     public SuccessRes<VideoUploadRes> uploadCourse(
             @RequestBody @Validated VideoUploadReq req
@@ -47,6 +49,7 @@ public class VideoController {
 
     @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
+    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/upload/answer")
     public SuccessRes<VideoUploadRes> uploadAnswer(
             @RequestBody @Validated VideoUploadReq req
@@ -56,6 +59,7 @@ public class VideoController {
 
     @Operation(summary = "영상 조회", description = "HLS 영상 url을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_GET)
+    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/playlist")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylist(
             @RequestBody @Validated VideoHlsPlaylistReq req

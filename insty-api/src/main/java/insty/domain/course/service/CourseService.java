@@ -18,6 +18,7 @@ import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseTagWriter;
+import insty.domain.course.implement.CourseValidator;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.model.course.Course;
@@ -39,6 +40,7 @@ public class CourseService {
     private final CourseFileReader courseFileReader;
     private final CourseTagWriter courseTagWriter;
     private final CourseVideoManager courseVideoManager;
+    private final CourseValidator courseValidator;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -74,15 +76,15 @@ public class CourseService {
      *
      * @param courseId
      */
-    public void deleteCourse(Long courseId) {
-        // TODO - 게시자와 동일한 유저인지 검증
+    public void deleteCourse(Long userId, Long courseId) {
+        courseValidator.validateCourseOwner(courseId, userId);
         Course course = courseReader.getCourseById(courseId);
         courseTagWriter.deleteAllCourseTags(course.getId());
         courseFileWriter.deleteAllFiles(course);
         courseWriter.deleteCourse(course);
     }
 
-    public CourseDetailRes  detailCourse(Long courseId) {
+    public CourseDetailRes detailCourse(Long courseId) {
         Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
@@ -105,7 +107,6 @@ public class CourseService {
 
     public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
-        // TODO - 유저 아이디 필터
 
         List<CourseMySearchInfo> searchInfo = courseReader.searchMyCourse(paginationReq, userId);
         PaginationRes paginationRes = courseReader.countSearchMyCourse(paginationReq, userId);
