@@ -20,6 +20,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,7 @@ public class CourseController {
 
     @Operation(summary = "강의 게시", description = "새로운 강의를 게시한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_CREATE)
+    @PreAuthorize("hasRole('CREATOR')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseCreate(
             @RequestPart("coursePostReq") @Validated CourseCreateReq req,
@@ -55,6 +57,7 @@ public class CourseController {
 
     @Operation(summary = "강의 수정", description = "강의를 수정한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_UPDATE)
+    @PreAuthorize("hasRole('CREATOR')")
     @PutMapping(path = "/{courseId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseUpdate(
             @PathVariable("courseId") Long courseId,
@@ -69,6 +72,7 @@ public class CourseController {
 
     @Operation(summary = "강의 삭제", description = "강의를 삭제한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DELETE)
+    @PreAuthorize("hasRole('CREATOR')")
     @DeleteMapping("/{courseId}")
     public SuccessRes<?> courseDelete(
             @PathVariable("courseId") Long courseId
@@ -79,6 +83,7 @@ public class CourseController {
 
     @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetail(
             @PathVariable("courseId") Long courseId
@@ -88,6 +93,7 @@ public class CourseController {
 
     @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_SEARCH)
+    @PreAuthorize("hasRole('LEARNER')")
     @GetMapping
     public SuccessRes<SearchRes<CourseSearchInfo>> courseSearch(
             @ModelAttribute @Validated CourseSearchReq req
@@ -97,6 +103,7 @@ public class CourseController {
 
     @Operation(summary = "내가 업로드한 강의 목록조회", description = "해당 크리에이터가 업로드한 강의 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_MY_SEARCH)
+    @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/my")
     public SuccessRes<SearchRes<CourseMySearchInfo>> courseMySearch(
             @ModelAttribute @Validated CourseMySearchReq req
