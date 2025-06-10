@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +51,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionRes> createQuestion(
-            @RequestBody CommunityQuestionReq communityQuestionReq,
+            @RequestPart("communityQuestionReq") @Validated CommunityQuestionReq communityQuestionReq,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityService.saveQuestion(communityQuestionReq, attachments));
