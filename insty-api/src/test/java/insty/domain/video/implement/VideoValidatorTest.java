@@ -204,4 +204,26 @@ class VideoValidatorTest {
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
     }
+
+    @Test
+    void verifyEncodingCompleted_에러_답변영상_아직_인코딩이_완료되지_않은_영상() {
+        // given
+        VideoType videoType = VideoType.ANSWER;
+        Long id = 1L;
+
+        // mock
+        VideoAnswer videoAnswer = VideoAnswer.create("fileName.mp4",
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.PROCESSING);
+        when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoAnswer));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+    }
 }

@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -85,6 +86,7 @@ public class UserController {
             security = @SecurityRequirement(name = "JWT")
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
             @CurrentUser Long userId,
@@ -103,7 +105,7 @@ public class UserController {
     @PatchMapping("/profile/userType")
     public SuccessRes<UserDetailRes> updateUserType(
             @CurrentUser Long userId,
-            @ParameterObject @Validated @ModelAttribute UserTypeUpdateReq req) {
+            @Validated @RequestBody UserTypeUpdateReq req) {
         return SuccessRes.of(userService.updateUserType(userId, req));
     }
 
@@ -116,7 +118,7 @@ public class UserController {
     @PatchMapping("/profile/email-agree")
     public SuccessRes<UserDetailRes> updateEmailAgreed(
             @CurrentUser Long userId,
-            @ParameterObject @ModelAttribute UserAgreementUpdateReq req) {
+            @RequestBody UserAgreementUpdateReq req) {
         return SuccessRes.of(userService.updateAgreement(userId, req));
     }
 

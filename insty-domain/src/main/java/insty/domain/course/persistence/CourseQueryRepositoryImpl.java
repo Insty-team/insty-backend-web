@@ -1,9 +1,11 @@
 package insty.domain.course.persistence;
 
+import static insty.model.community.QCommunityQuestion.communityQuestion;
 import static insty.model.course.QCourse.course;
 import static insty.model.course.QCourseTag.courseTag;
 import static insty.model.tag.QTags.tags;
 import static insty.model.user.QUser.user;
+import static insty.model.video.QVideoCourse.videoCourse;
 
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
@@ -38,10 +40,11 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.description,
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
-                        Expressions.nullExpression(String.class)
+                        videoCourse.duration
                 )
         )
                 .from(course)
+                .leftJoin(videoCourse).on(videoCourse.course.id.eq(course.id))
                 .where(searchCourseConditions(filter))
                 .orderBy(createOrderSpecifier(null))
                 .offset(paginationReq.getOffset())
@@ -84,7 +87,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.title,
                         course.price,
                         course.viewCount,
-                        Expressions.nullExpression(Long.class),
+                        communityQuestion.count(),
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
                         course.isShow,
@@ -94,7 +97,9 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .from(course)
                 .join(user).on(user.id.eq(course.user.id)
                         .and(user.id.eq(userId)))
+                .leftJoin(communityQuestion).on(communityQuestion.course.id.eq(course.id))
                 .where(searchMyCourseConditions())
+                .groupBy(course.id)
                 .orderBy(createOrderSpecifier(null))
                 .offset(paginationReq.getOffset())
                 .limit(paginationReq.pageSize())

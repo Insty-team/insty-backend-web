@@ -8,16 +8,15 @@ public record CourseMySearchInfo(
         String title,
         int price,
         int viewCount,
-        Long commentCount,
+        long commentCount,
         List<String> tags,
         String thumbnailUrl,
         boolean isShow,
         Instant createdAt
 ) {
 
-    public static CourseMySearchInfo withTags(CourseMySearchInfo origin, List<String> tags) {
+    public static CourseMySearchInfo assembly(CourseMySearchInfo origin, List<String> tags, String thumbnailUrl) {
         return new CourseMySearchInfo(origin.courseId(), origin.title(), origin.price(), origin.viewCount(),
-                origin.commentCount(), tags,
-                origin.thumbnailUrl(), origin.isShow(), origin.createdAt());
+                origin.commentCount(), tags, thumbnailUrl, origin.isShow(), origin.createdAt());
     }
 }

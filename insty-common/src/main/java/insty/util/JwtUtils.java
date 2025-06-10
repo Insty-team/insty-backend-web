@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import insty.constants.JwtValidationType;
+import insty.constants.TokenType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +37,12 @@ public class JwtUtils {
     /**
      * AccessToken 생성
      */
-    public String generateAccessToken(String subject){
+    public String generateAccessToken(String subject, String userType){
         Instant now = Instant.now();
         return JWT.create()
                 .withSubject(subject)
+                .withClaim("userType", userType)
+                .withClaim("tokenType", TokenType.ACCESS.name())
                 .withIssuedAt(Date.from(now))           // 토큰 발급 시간
                 .withExpiresAt(Date.from(now.plusMillis(ACCESS_TOKEN_VALIDITY)))        // 토큰 만료시간
                 .sign(Algorithm.HMAC512(secretKey.getBytes(StandardCharsets.UTF_8)));   // 명시적으로 UTF-8을 지정하면 어떤 환경에서도 동일한 결과가 보장
@@ -55,6 +58,7 @@ public class JwtUtils {
         return JWT.create()
                 .withSubject(subject)
                 .withJWTId(String.valueOf(tokenId))
+                .withClaim("tokenType", TokenType.REFRESH.name())
                 .withIssuedAt(Date.from(now))           // 토큰 발급 시간
                 .withExpiresAt(Date.from(now.plusMillis(REFRESH_TOKEN_VALIDITY)))       // 토큰 만료시간
                 .sign(Algorithm.HMAC512(secretKey.getBytes(StandardCharsets.UTF_8)));   // 명시적으로 UTF-8을 지정하면 어떤 환경에서도 동일한 결과가 보장
@@ -108,6 +112,15 @@ public class JwtUtils {
     }
 
     /**
+     * 토큰에서 권한 추출
+     */
+    public String extractUserType(String token){
+        return JWT.decode(token)
+                .getClaim("userType")
+                .asString();
+    }
+
+    /**
      * JWT 토큰에서 JWT ID (jti) 추출
      */
     public UUID extractTokenId(String refreshToken) {
@@ -115,5 +128,13 @@ public class JwtUtils {
         return UUID.fromString(tokenId);
     }
 
+    /**
+     *  동적으로 claimKey로 JWT 토큰에 있는 값 추출
+     */
+    public String extractClaim(String token, String claimKey) {
+        return JWT.decode(token)
+                .getClaim(claimKey)
+                .asString();
+    }
 
 }

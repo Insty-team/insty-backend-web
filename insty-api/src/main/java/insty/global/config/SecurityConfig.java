@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -49,7 +51,8 @@ public class SecurityConfig {
     // 인증 관리자
     @Bean
     public AuthenticationManager authenticationManager() {
-        LoginAuthenticationProvider authenticationProvider = new LoginAuthenticationProvider(userDetailsService, bCryptPasswordEncoder());
+        LoginAuthenticationProvider authenticationProvider = new LoginAuthenticationProvider(userDetailsService,
+                bCryptPasswordEncoder());
 
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
         providerManager.setEraseCredentialsAfterAuthentication(false);
@@ -69,7 +72,8 @@ public class SecurityConfig {
                 "/api/v1/users",
                 "/api/v1/users/nickname/check",
                 "/api/v1/users/email/check",
-                "/api/v1/course",
+                "/api/v1/courses/**",
+                "/api/v1/videos/**",
                 HEALTH_CHECK_PATH
         };
         // 스웨거 허용 URL
@@ -84,7 +88,6 @@ public class SecurityConfig {
                 "/api/v1/users/profile/**",
                 "/api/v1/users/logout"
         };
-
 
         // CORS 설정
         http.cors((cors -> cors.configurationSource(new CorsConfigurationSource() {
@@ -105,10 +108,9 @@ public class SecurityConfig {
 
         // Form 형식이 아니기 때문에 disabled 처리
         http
-            .csrf((csrf) -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable());
-
+                .csrf((csrf) -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable());
 
         // 인증 커스텀 (hasRole : 역할, hasAuthority : 권한)
         http.authorizeHttpRequests((auth) -> auth
@@ -120,11 +122,11 @@ public class SecurityConfig {
 
         // 필터 등록
         http
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling((ex) -> {
-                ex.authenticationEntryPoint(customEntryPoint);        // 인증 실패
-                 ex.accessDeniedHandler(customAccessDeniedHandler);     // 인가 실패
-            })
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling((ex) -> {
+                    ex.authenticationEntryPoint(customEntryPoint);        // 인증 실패
+                    ex.accessDeniedHandler(customAccessDeniedHandler);     // 인가 실패
+                })
         ;
 
         return http.build();
