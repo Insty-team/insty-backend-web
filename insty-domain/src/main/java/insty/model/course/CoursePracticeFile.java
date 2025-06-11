@@ -53,11 +53,11 @@ public class CoursePracticeFile extends BaseEntity {
 
     private static void validateCreate(Course course, File practiceFile) {
         if (course == null) {
-            log.error("CoursePracticeFile 생성 오류 - course : null");
+            log.error("생성 오류 - course : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (practiceFile == null) {
-            log.error("CoursePracticeFile 생성 오류 - practiceFile : null");
+            log.error("생성 오류 - practiceFile : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

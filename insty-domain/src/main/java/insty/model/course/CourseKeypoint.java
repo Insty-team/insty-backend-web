@@ -49,11 +49,11 @@ public class CourseKeypoint {
 
     private static void validateCreate(Course course, String content) {
         if (course == null) {
-            log.error("CourseKeypoint 생성 오류 - course : null");
+            log.error("생성 오류 - course : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (content == null || content.trim().isEmpty()) {
-            log.error("CourseKeypoint 생성 오류 - content : 비었음");
+            log.error("생성 오류 - content : 비었음");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

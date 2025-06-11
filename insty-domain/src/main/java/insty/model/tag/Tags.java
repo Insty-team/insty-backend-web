@@ -42,7 +42,7 @@ public class Tags extends BaseEntity { // 테스트에 @Tag와 겹치므로 Tags
 
     private static void validateCreate(String tagName) {
         if (tagName == null || tagName.trim().isEmpty()) {
-            log.error("Tags 생성 오류 - tagName : 비었음");
+            log.error("생성 오류 - tagName : 비었음");
             throw new CustomException(TagErrorCode.TAG_CREATE_ERROR);
         }
     }

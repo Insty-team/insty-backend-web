@@ -92,11 +92,11 @@ public class Course extends BaseEntity {
     private static void validateCreate(String title, String description, int price, String targetAudience,
                                        boolean isShow) {
         if (title == null || title.trim().isEmpty()) {
-            log.error("Course 생성 오류 - title : 비었음");
+            log.error("생성 오류 - title : 비었음");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (price < 0) {
-            log.error("Course 생성 오류 - price : {}", price);
+            log.error("생성 오류 - price : {}", price);
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

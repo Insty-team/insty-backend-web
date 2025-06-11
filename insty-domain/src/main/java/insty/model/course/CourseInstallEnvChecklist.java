@@ -53,11 +53,11 @@ public class CourseInstallEnvChecklist {
 
     private static void validateCreate(Course course, String content, boolean isSupported) {
         if (course == null) {
-            log.error("CourseInstallEnvChecklist 생성 오류 - course : null");
+            log.error("생성 오류 - course : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (content == null || content.trim().isEmpty()) {
-            log.error("CourseInstallEnvChecklist 생성 오류 - content : 비었음");
+            log.error("생성 오류 - content : 비었음");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

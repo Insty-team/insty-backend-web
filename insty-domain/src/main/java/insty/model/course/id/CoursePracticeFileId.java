@@ -51,11 +51,11 @@ public class CoursePracticeFileId implements Serializable {
 
     private static void validateCreate(Long courseId, Long fileId) {
         if (courseId == null) {
-            log.error("CoursePracticeFileId 생성 오류 - courseId : null");
+            log.error("생성 오류 - courseId : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (fileId == null) {
-            log.error("CoursePracticeFileId 생성 오류 - fileId : null");
+            log.error("생성 오류 - fileId : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

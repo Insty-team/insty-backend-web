@@ -53,11 +53,11 @@ public class CourseTag extends BaseEntity {
 
     private static void validateCreate(Course course, Tags tags) {
         if (course == null) {
-            log.error("CourseTag 생성 오류 - course : null");
+            log.error("생성 오류 - course : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (tags == null) {
-            log.error("CourseTag 생성 오류 - tags : null");
+            log.error("생성 오류 - tags : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

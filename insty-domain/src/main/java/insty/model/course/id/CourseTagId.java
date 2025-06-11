@@ -51,11 +51,11 @@ public class CourseTagId implements Serializable {
 
     private static void validateCreate(Long courseId, Long tagId) {
         if (courseId == null) {
-            log.error("CourseTagId 생성 오류 - courseId : null");
+            log.error("생성 오류 - courseId : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
         if (tagId == null) {
-            log.error("CourseTagId 생성 오류 - tagId : null");
+            log.error("생성 오류 - tagId : null");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }

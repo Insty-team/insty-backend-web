@@ -91,15 +91,15 @@ public class VideoAnswer extends BaseEntity {
 
     private static void validateCreate(String fileName, UUID uuid, User user) {
         if (fileName == null || fileName.trim().isEmpty()) {
-            log.error("VideoAnswer 생성 오류 - fileName : 비었음");
+            log.error("생성 오류 - fileName : 비었음");
             throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
         }
         if (uuid == null) {
-            log.error("VideoAnswer 생성 오류 - uuid : null");
+            log.error("생성 오류 - uuid : null");
             throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
         }
         if (user == null) {
-            log.error("VideoAnswer 생성 오류 - user : null");
+            log.error("생성 오류 - user : null");
             throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
         }
     }
