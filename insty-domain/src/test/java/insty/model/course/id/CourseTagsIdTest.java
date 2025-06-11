@@ -44,7 +44,7 @@ class CourseTagsIdTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CoursePracticeFileId.create(courseId, tagId))
+        assertThatThrownBy(() -> CourseTagId.create(courseId, tagId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseErrorCode.COURSE_CREATE_ERROR);
@@ -59,7 +59,7 @@ class CourseTagsIdTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CoursePracticeFileId.create(courseId, tagId))
+        assertThatThrownBy(() -> CourseTagId.create(courseId, tagId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseErrorCode.COURSE_CREATE_ERROR);
