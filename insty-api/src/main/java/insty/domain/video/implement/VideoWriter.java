@@ -26,7 +26,7 @@ public class VideoWriter {
     }
 
     public VideoAnswer saveVideoAnswer(VideoUploadReq req, User user) {
-        VideoAnswer videoCourse = VideoAnswer.create(req.fileName(), uuidProvider.generate(), user);
-        return videoAnswerRepository.save(videoCourse);
+        VideoAnswer videoAnswer = VideoAnswer.create(req.fileName(), uuidProvider.generate(), user);
+        return videoAnswerRepository.save(videoAnswer);
     }
 }

@@ -53,7 +53,7 @@ public class VideoService {
 
     public Map<String, String> getSignedCookieMap(Long userId, VideoHlsPlaylistReq req) {
 //        videoValidator.validateReadable(userId, req.type(), req.id()); TODO - 개발 편의를 위해 비활성화
-        videoValidator.verifyEncodingCompleted(req.type(), req.id());
+        videoValidator.verifyEncodingCompletedAndDeleted(req.type(), req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
@@ -63,7 +63,7 @@ public class VideoService {
     }
 
     public VideoHlsPlaylistRes getPreviewVideo(VideoHlsPlaylistReq req) {
-        videoValidator.verifyEncodingCompleted(req.type(), req.id());
+        videoValidator.verifyEncodingCompletedAndDeleted(req.type(), req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);

@@ -172,7 +172,7 @@ class VideoValidatorTest {
         Long videoId = 1L;
 
         // mock
-        when(videoCourseRepository.existsVideoCourseByIdAndUserId(videoId, userId))
+        when(videoCourseRepository.existsByIdAndUserId(videoId, userId))
                 .thenReturn(true);
 
         // when
@@ -190,7 +190,7 @@ class VideoValidatorTest {
         Long videoId = 1L;
 
         // mock
-        when(videoCourseRepository.existsVideoCourseByIdAndUserId(videoId, userId))
+        when(videoCourseRepository.existsByIdAndUserId(videoId, userId))
                 .thenReturn(false);
 
         // when
@@ -203,7 +203,7 @@ class VideoValidatorTest {
     }
 
     @Test
-    void verifyEncodingCompleted_정상_강의영상() {
+    void verifyEncodingCompletedAndDeleted_정상_강의영상() {
         // given
         VideoType videoType = VideoType.COURSE;
         Long id = 1L;
@@ -219,12 +219,12 @@ class VideoValidatorTest {
         // when
 
         // then
-        assertThatCode(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+        assertThatCode(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    void verifyEncodingCompleted_정상_답변영상() {
+    void verifyEncodingCompletedAndDeleted_정상_답변영상() {
         // given
         VideoType videoType = VideoType.ANSWER;
         Long id = 1L;
@@ -240,12 +240,12 @@ class VideoValidatorTest {
         // when
 
         // then
-        assertThatCode(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+        assertThatCode(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    void verifyEncodingCompleted_에러_영상이_조회되지_않음() {
+    void verifyEncodingCompletedAndDeleted_에러_영상이_조회되지_않음() {
         // given
         VideoType videoType = VideoType.COURSE;
         Long id = 1L;
@@ -253,14 +253,14 @@ class VideoValidatorTest {
         // when
 
         // then
-        assertThatThrownBy(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FOUND);
     }
 
     @Test
-    void verifyEncodingCompleted_에러_처리되지_않은_영상_타입() {
+    void verifyEncodingCompletedAndDeleted_에러_처리되지_않은_영상_타입() {
         // given
         VideoType videoType = mock(VideoType.class);
         Long id = 1L;
@@ -268,14 +268,14 @@ class VideoValidatorTest {
         // when
 
         // then
-        assertThatThrownBy(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FOUND);
     }
 
     @Test
-    void verifyEncodingCompleted_에러_아직_인코딩이_완료되지_않은_영상() {
+    void verifyEncodingCompletedAndDeleted_에러_아직_인코딩이_완료되지_않은_영상() {
         // given
         VideoType videoType = VideoType.COURSE;
         Long id = 1L;
@@ -291,14 +291,14 @@ class VideoValidatorTest {
         // when
 
         // then
-        assertThatThrownBy(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
     }
 
     @Test
-    void verifyEncodingCompleted_에러_답변영상_아직_인코딩이_완료되지_않은_영상() {
+    void verifyEncodingCompletedAndDeleted_에러_답변영상_아직_인코딩이_완료되지_않은_영상() {
         // given
         VideoType videoType = VideoType.ANSWER;
         Long id = 1L;
@@ -314,7 +314,7 @@ class VideoValidatorTest {
         // when
 
         // then
-        assertThatThrownBy(() -> videoValidator.verifyEncodingCompleted(videoType, id))
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);

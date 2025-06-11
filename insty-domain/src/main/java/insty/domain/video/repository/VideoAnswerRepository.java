@@ -23,5 +23,5 @@ public interface VideoAnswerRepository extends JpaRepository<VideoAnswer, Long> 
     List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
                                                                        @Param("encodingAt") Instant encodingAt);
 
-    boolean existsVideoAnswerByIdAndUserId(Long id, Long userId);
+    boolean existsByIdAndUserId(Long id, Long userId);
 }
