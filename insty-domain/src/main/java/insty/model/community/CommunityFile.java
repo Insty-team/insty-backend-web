@@ -15,7 +15,7 @@ import java.time.Instant;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityAttactments extends BaseEntity {
+public class CommunityFile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +38,8 @@ public class CommunityAttactments extends BaseEntity {
     private Instant updatedAt;
 
 
-    public static CommunityAttactments create(CommunityQuestion communityQuestion, File file) {
-        return CommunityAttactments.builder()
+    public static CommunityFile create(CommunityQuestion communityQuestion, File file) {
+        return CommunityFile.builder()
                 .communityQuestion(communityQuestion)
                 .file(file)
                 .build();

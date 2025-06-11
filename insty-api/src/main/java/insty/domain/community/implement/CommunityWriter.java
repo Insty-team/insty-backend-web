@@ -1,19 +1,20 @@
 package insty.domain.community.implement;
 
+import insty.domain.common.FileInfo;
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.reposiotry.CommunityAnswerRepository;
+import insty.domain.community.reposiotry.CommunityFileRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
-import insty.error.CommunityErrorCode;
-import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAttactments;
+import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,11 +26,18 @@ public class CommunityWriter {
 
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
+    private final CommunityFileRepository communityFileRepository;
 
     // TODO: 첨부파일
     public CommunityQuestion saveQuestion(CommunityQuestion communityQuestion, Course course, User user) {
 
         return communityQuestionRepository.save(communityQuestion);
+    }
+
+    public List<CommunityFile> saveCommunityFiles(List<CommunityFile> communityFiles) {
+
+        return communityFileRepository.saveAll(communityFiles);
+
     }
 
     public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq) {

@@ -1,14 +1,16 @@
 package insty.domain.community.service;
 
 import insty.domain.common.FileCreateReq;
+import insty.domain.common.FileInfo;
 import insty.domain.community.dto.*;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.file.implement.FileWriter;
 import insty.domain.user.implement.UserReader;
+import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAttactments;
+import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.file.File;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileReader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +35,13 @@ public class CommunityServiceImpl implements CommunityService {
     private final CourseReader courseReader;
     private final UserReader userReader;
     private final FileWriter fileWriter;
+    private final AppProperties appProperties;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
         CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
         List<CommunityAnswer> communityAnswers = communityQuestion.getAnswers();
-        List<CommunityAttactments> communityAttactments = communityQuestion.getAttachments();
+        List<CommunityFile> communityAttactments = communityQuestion.getAttachments();
 
         List<CommunityAnswerRes> answers = new ArrayList<>();
 
@@ -80,10 +82,10 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
 
-    List<CommunityAttachmentRes> getCommunityAttachments(List<CommunityAttactments> communityAttactments) {
+    List<CommunityAttachmentRes> getCommunityAttachments(List<CommunityFile> communityAttactments) {
         List<CommunityAttachmentRes> attacments = new ArrayList<>();
 
-        for (CommunityAttactments attachment : communityAttactments) {
+        for (CommunityFile attachment : communityAttactments) {
             File communityFile = attachment.getFile();
 //            FileContainerType fileContainerType = communityFile.getContainerType();
 //            String contentType = communityFile.getContentType();
@@ -146,12 +148,8 @@ public class CommunityServiceImpl implements CommunityService {
                         communityQuestionReq.content()
                 );
 
-
-        List<CommunityAttactments> communityAttactments = createCommunityAttachments(attachments, communityQuestion);
-        //TODO: 첨부파일 추가
-        //communityQuestion.addAttachments(communityAttactments);
-
-        communityQuestion = communityWriter.saveQuestion(communityQuestion, course, user);//, communityAttactments);
+        communityQuestion = communityWriter.saveQuestion(communityQuestion, course, user);
+        List<FileInfo> fileInfos = saveCommunityFiles(communityQuestion, attachments); //첨부파일 리스트
 
         return CommunityQuestionRes.create(
                 user.getId(),
@@ -164,7 +162,32 @@ public class CommunityServiceImpl implements CommunityService {
         );
     }
 
-    public List<CommunityAttactments> createCommunityAttachments(List<MultipartFile> attachments, CommunityQuestion communityQuestion) {
+    public List<FileInfo> saveCommunityFiles(CommunityQuestion communityQuestion, List<MultipartFile> attachments) {
+        if (attachments == null || attachments.isEmpty()) {
+            return null;
+        }
+        List<FileCreateReq> fileCreateReqs = attachments.stream()
+                .map(file -> new FileCreateReq(
+                        file,
+                        FileContainerType.QUESTION_IMAGE,
+                        communityQuestion.getId()
+                )).toList();
+
+        List<File> files = fileWriter.saveFiles(fileCreateReqs);
+//        List<CommunityFile> communityFiles = createCommunityAttachments(attachments, communityQuestion);
+        List<CommunityFile> communityFiles = files.stream()
+                .map(file -> CommunityFile.create(communityQuestion, file))
+                .toList();
+
+        communityWriter.saveCommunityFiles(communityFiles);
+
+        return files.stream()
+                .map(file -> FileInfo.from(file, appProperties.getDomain()))
+                .toList();
+
+    }
+
+    public List<CommunityFile> createCommunityAttachments(List<MultipartFile> attachments, CommunityQuestion communityQuestion) {
         if (attachments == null || attachments.isEmpty()) {
             return new ArrayList<>();
         }
@@ -181,10 +204,10 @@ public class CommunityServiceImpl implements CommunityService {
 
         List<File> files = fileWriter.saveFiles(fileCreateReqs);
 
-        List<CommunityAttactments> communityAttachments = files
+        List<CommunityFile> communityAttachments = files
                 .stream()
                 .map(
-                        file -> CommunityAttactments.create(
+                        file -> CommunityFile.create(
                                 communityQuestion,
                                 file
                         )
