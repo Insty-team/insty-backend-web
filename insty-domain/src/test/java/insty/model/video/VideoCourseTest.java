@@ -7,6 +7,7 @@ import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
 import insty.model.course.fixture.CourseFixtureBuilder;
+import insty.model.user.User;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,9 +20,10 @@ class VideoCourseTest {
         // given
         String fileName = "fileName.mp4";
         UUID uuid = UUID.randomUUID();
+        User user = User.create("test@test.com", "test12!@", "test");
 
         // when
-        VideoCourse videoCourse = VideoCourse.create(fileName, uuid);
+        VideoCourse videoCourse = VideoCourse.create(fileName, uuid, user);
 
         // then
         assertThat(videoCourse).isNotNull();
@@ -43,11 +45,12 @@ class VideoCourseTest {
         // given
         String fileName = "fileName";
         UUID uuid = UUID.randomUUID();
+        User user = User.create("test@test.com", "test12!@", "test");
 
         // when
 
         // then
-        assertThatThrownBy(() -> VideoCourse.create(fileName, uuid))
+        assertThatThrownBy(() -> VideoCourse.create(fileName, uuid, user))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_INVALID_FILE_NAME);
@@ -56,8 +59,9 @@ class VideoCourseTest {
     @Test
     void updateCourse_정상() {
         // given
+        User user = User.create("test@test.com", "test12!@", "test");
         VideoCourse videoCourse = VideoCourse.create("fileName.mp4",
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+                UUID.fromString("00000000-0000-0000-0000-000000000001"), user);
         Course course = CourseFixtureBuilder.getCourse();
 
         // when

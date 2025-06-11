@@ -11,6 +11,8 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
+import insty.domain.user.implement.UserReader;
+import insty.domain.user.repository.UserRepository;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
 import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
@@ -22,6 +24,7 @@ import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.domain.video.repository.VideoEncodingRepository;
 import insty.global.property.AppProperties;
+import insty.model.user.User;
 import insty.model.video.AnalysisStatus;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
@@ -63,11 +66,15 @@ class VideoServiceTest {
     @Autowired
     private VideoAccessManager videoAccessManager;
     @Autowired
+    private UserReader userReader;
+    @Autowired
     private VideoCourseRepository videoCourseRepository;
     @Autowired
     private VideoAnswerRepository videoAnswerRepository;
     @Autowired
     private VideoEncodingRepository videoEncodingRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @MockitoBean
     private UuidProvider uuidProvider;
@@ -86,6 +93,8 @@ class VideoServiceTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
+        User user = User.create("test@test.com", "test12!@", "test");
+        user = userRepository.save(user);
 
         // mock
         UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -102,7 +111,7 @@ class VideoServiceTest {
                 ));
 
         // when
-        VideoUploadRes res = videoService.getPreSignedURLForCourseVideoUpload(req);
+        VideoUploadRes res = videoService.getPreSignedURLForCourseVideoUpload(user.getId(), req);
 
         // then
         assertThat(res).isNotNull();
@@ -131,6 +140,8 @@ class VideoServiceTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
+        User user = User.create("test@test.com", "test12!@", "test");
+        user = userRepository.save(user);
 
         // mock
         UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -147,7 +158,7 @@ class VideoServiceTest {
                 ));
 
         // when
-        VideoUploadRes res = videoService.getPreSignedURLForAnswerVideoUpload(req);
+        VideoUploadRes res = videoService.getPreSignedURLForAnswerVideoUpload(user.getId(), req);
 
         // then
         assertThat(res).isNotNull();
@@ -173,8 +184,8 @@ class VideoServiceTest {
                     + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
+            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
             "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
                     "VALUES (1L, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })
@@ -223,8 +234,8 @@ class VideoServiceTest {
                     + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
+            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
             "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
                     "VALUES (1L, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })

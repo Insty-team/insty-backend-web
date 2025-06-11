@@ -9,6 +9,7 @@ import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.user.User;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
@@ -120,8 +121,9 @@ class VideoValidatorTest {
         Long id = 1L;
 
         // mock
+        User user = User.create("test@test.com", "test12!@", "test");
         VideoCourse videoCourse = VideoCourse.create("fileName.mp4",
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+                UUID.fromString("00000000-0000-0000-0000-000000000001"), user);
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.COMPLETED);
         when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoCourse));
@@ -140,8 +142,9 @@ class VideoValidatorTest {
         Long id = 1L;
 
         // mock
+        User user = User.create("test@test.com", "test12!@", "test");
         VideoAnswer videoAnswer = VideoAnswer.create("fileName.mp4",
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+                UUID.fromString("00000000-0000-0000-0000-000000000001"), user);
         ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.COMPLETED);
         when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoAnswer));
@@ -190,8 +193,9 @@ class VideoValidatorTest {
         Long id = 1L;
 
         // mock
+        User user = User.create("test@test.com", "test12!@", "test");
         VideoCourse videoCourse = VideoCourse.create("fileName.mp4",
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+                UUID.fromString("00000000-0000-0000-0000-000000000001"), user);
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.PROCESSING);
         when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoCourse));
@@ -212,8 +216,9 @@ class VideoValidatorTest {
         Long id = 1L;
 
         // mock
+        User user = User.create("test@test.com", "test12!@", "test");
         VideoAnswer videoAnswer = VideoAnswer.create("fileName.mp4",
-                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+                UUID.fromString("00000000-0000-0000-0000-000000000001"), user);
         ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.PROCESSING);
         when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoAnswer));
