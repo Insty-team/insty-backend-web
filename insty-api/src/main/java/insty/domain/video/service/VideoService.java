@@ -33,7 +33,7 @@ public class VideoService {
 
     public VideoUploadRes getPreSignedURLForCourseVideoUpload(Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
-        videoValidator.validateUploadable(); // TODO - 메서드 구현
+//        videoValidator.validateVideoCourseUploadable(userId); TODO - 개발 편의를 위해 비활성화
 
         User user = userReader.getUser(userId);
         VideoCourse videoCourse = videoWriter.saveVideoCourse(req, user);

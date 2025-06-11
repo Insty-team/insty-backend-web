@@ -1,5 +1,7 @@
 package insty.domain.video.implement;
 
+import static insty.constants.VideoConstants.VIDEO_COURSE_UPLOAD_MINUTES_LIMIT;
+
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
@@ -9,6 +11,9 @@ import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
 import insty.util.FileUtils;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,6 +59,20 @@ public class VideoValidator {
     public void validateUploadable() {
         // TODO - 해당 유저가 업로드할 수 있는지 검증(하루 업로드 제한 등)
         // 강의 영상 - 20분, 답변 영상 - 5분
+    }
+
+    public void validateVideoCourseUploadable(Long userId) {
+        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
+        Instant todayInKorea = LocalDate.now(koreaZone).atStartOfDay(koreaZone).toInstant();
+
+        int durationSum = videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
+                        todayInKorea)
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+        if (durationSum >= VIDEO_COURSE_UPLOAD_MINUTES_LIMIT * 60) {
+            throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+        }
     }
 
     public void validateReadable(VideoType videoType, Long id) {

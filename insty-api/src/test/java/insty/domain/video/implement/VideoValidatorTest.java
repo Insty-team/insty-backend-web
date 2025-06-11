@@ -2,6 +2,7 @@ package insty.domain.video.implement;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -101,6 +103,40 @@ class VideoValidatorTest {
         // when
 
         // then
+    }
+
+    @Test
+    void validateVideoCourseUploadable_정상_오늘_생성한_영상_총_길이가_20분_이하다() {
+        // given
+        Long userId = 1L;
+
+        // mock
+        when(videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+                .thenReturn(List.of(60, 1000, 139));
+
+        // when
+
+        // then
+        assertThatCode(() -> videoValidator.validateVideoCourseUploadable(userId))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateVideoCourseUploadable_에러_오늘_생성한_영상_총_길이가_20분_이상이다() {
+        // given
+        Long userId = 1L;
+
+        // mock
+        when(videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+                .thenReturn(List.of(60, 1000, 140));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.validateVideoCourseUploadable(userId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
     }
 
     @Test
