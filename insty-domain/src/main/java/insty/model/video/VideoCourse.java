@@ -73,7 +73,9 @@ public class VideoCourse extends BaseEntity {
 
     private Instant analysisAt;
 
-    private boolean isDeleted;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
 
     public static VideoCourse create(String fileName, UUID uuid, User user) {

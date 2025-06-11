@@ -65,7 +65,9 @@ public class VideoAnswer extends BaseEntity {
 
     private Instant encodingAt;
 
-    private boolean isDeleted;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
 
     public static VideoAnswer create(String fileName, UUID uuid, User user) {

@@ -34,6 +34,7 @@ public class CourseInstallEnvChecklist {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
     private boolean isSupported;
 
 

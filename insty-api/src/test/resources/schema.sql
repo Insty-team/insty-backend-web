@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS web_service.files
     content_type    VARCHAR(100) NOT NULL,
     size            BIGINT       NOT NULL,
     created_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-                                     updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL
-                                     );
+    updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL
+);
 
 CREATE INDEX IF NOT EXISTS container_index
     ON web_service.files (container_type, container_id);
@@ -42,14 +42,14 @@ CREATE TABLE IF NOT EXISTS web_service.courses (
     title            VARCHAR(255) NOT NULL,
     description      TEXT,
     price            INTEGER NOT NULL,
-    view_count       INTEGER NOT NULL,
-    like_count       INTEGER NOT NULL,
+    view_count       INTEGER NOT NULL DEFAULT 0,
+    like_count       INTEGER NOT NULL DEFAULT 0,
     target_audience  VARCHAR(100),
     thumbnail_id     BIGINT,
     is_show          BOOLEAN NOT NULL,
     created_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    is_deleted       BOOLEAN NOT NULL,
+    is_deleted       BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES web_service.users(id),
     FOREIGN KEY (thumbnail_id) REFERENCES web_service.files(id)
 );
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS web_service.video_courses
     analysis_at        TIMESTAMP,
     created_at         TIMESTAMP    NOT NULL,
     updated_at         TIMESTAMP    NOT NULL,
-    is_deleted         BOOLEAN      NOT NULL,
+    is_deleted         BOOLEAN      NOT NULL DEFAULT false,
     FOREIGN KEY (course_id) REFERENCES web_service.courses(id),
     FOREIGN KEY (user_id) REFERENCES web_service.users(id)
 );
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS web_service.video_answers
     encoding_at             TIMESTAMP,
     created_at              TIMESTAMP    NOT NULL,
     updated_at              TIMESTAMP    NOT NULL,
-    is_deleted              BOOLEAN      NOT NULL,
+    is_deleted              BOOLEAN      NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES web_service.users(id)
 );
 

@@ -43,11 +43,16 @@ public class Course extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(nullable = false)
     private int price;
 
-    private int viewCount;
+    @Builder.Default
+    @Column(nullable = false)
+    private int viewCount = 0;
 
-    private int likeCount;
+    @Builder.Default
+    @Column(nullable = false)
+    private int likeCount = 0;
 
     @Column(length = 100)
     private String targetAudience;
@@ -59,9 +64,12 @@ public class Course extends BaseEntity {
     @OneToMany(mappedBy = "course")
     private List<CoursePracticeFile> practiceFiles;
 
+    @Column(nullable = false)
     private boolean isShow;
 
-    private boolean isDeleted;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
 
     // TODO - 유저도 필수로 받기
@@ -71,8 +79,6 @@ public class Course extends BaseEntity {
                 .title(title)
                 .description(description)
                 .price(price)
-                .viewCount(0)
-                .likeCount(0)
                 .targetAudience(targetAudience)
                 .isShow(isShow)
                 .build();
