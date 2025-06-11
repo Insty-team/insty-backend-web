@@ -95,6 +95,7 @@ class CourseFileWriterTest {
         // mock
         File file = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
                 "practice.jpg", "image/jpeg", 7);
+        ReflectionTestUtils.setField(file, "id", 1L);
         when(fileWriter.saveFiles(any()))
                 .thenReturn(List.of(file));
         when(appProperties.getDomain())
@@ -208,8 +209,10 @@ class CourseFileWriterTest {
         // mock
         File file1 = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
                 "practice1.jpg", "image/jpeg", 7);
+        ReflectionTestUtils.setField(file1, "id", 1L);
         File file2 = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
                 "practice2.jpg", "image/jpeg", 7);
+        ReflectionTestUtils.setField(file2, "id", 1L);
         when(fileWriter.saveFiles(any()))
                 .thenReturn(List.of(file1, file2));
         when(appProperties.getDomain())
@@ -256,6 +259,7 @@ class CourseFileWriterTest {
 
         File existFile = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L,
                 "00000000-0000-0000-0000-000000000001.jpg", "practice1.jpg", "image/jpeg", 7);
+        ReflectionTestUtils.setField(existFile, "id", 1L);
         ReflectionTestUtils.setField(course, "practiceFiles", List.of(CoursePracticeFile.create(course, existFile)));
 
         // mock

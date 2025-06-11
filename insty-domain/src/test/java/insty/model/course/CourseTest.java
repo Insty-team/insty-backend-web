@@ -1,7 +1,10 @@
 package insty.model.course;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.model.course.fixture.CourseFixtureBuilder;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
@@ -18,7 +21,6 @@ class CourseTest {
         String description = "설명";
         int price = 10000;
         String targetAudience = "강의 추천 대상자";
-        Long thumbnailId = null;
         boolean isShow = true;
 
         // when
@@ -33,6 +35,60 @@ class CourseTest {
         assertThat(course.getLikeCount()).isEqualTo(0);
         assertThat(course.getTargetAudience()).isEqualTo(targetAudience);
         assertThat(course.isShow()).isEqualTo(isShow);
+    }
+
+    @Test
+    void create_에러_title이_null이다() {
+        // given
+        String title = null;
+        String description = null;
+        int price = 10000;
+        String targetAudience = null;
+        boolean isShow = true;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> Course.create(title, description, price, targetAudience, isShow))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_title에_공백만_있다() {
+        // given
+        String title = "     ";
+        String description = null;
+        int price = 10000;
+        String targetAudience = null;
+        boolean isShow = true;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> Course.create(title, description, price, targetAudience, isShow))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_price가_0_미만이다() {
+        // given
+        String title = "제목";
+        String description = null;
+        int price = -1;
+        String targetAudience = null;
+        boolean isShow = true;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> Course.create(title, description, price, targetAudience, isShow))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test

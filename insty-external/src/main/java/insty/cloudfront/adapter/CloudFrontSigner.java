@@ -34,7 +34,7 @@ public class CloudFrontSigner {
     }
 
     /**
-     * CloudFront 유틸 클래스를 이용해 리소스에 접근할 수 있는 쿠키를 발급한다.
+     * CloudFront 유틸 클래스를 이용해 리소스에 접근할 수 있는 쿠키를 발급한다.<br> 영상 조회에 사용한다.
      *
      * @param domain     {도메인}
      * @param objectPath /vod/{type}/hls/{uuid}/*
@@ -62,6 +62,13 @@ public class CloudFrontSigner {
         }
     }
 
+    /**
+     * CloudFront 유틸 클래스를 이용해 리소스에 접근할 수 있는 서명된 url을 발급한다.<br> 미리보기에 사용한다.
+     *
+     * @param domain
+     * @param objectPath
+     * @return
+     */
     public String generatePresignedUrlForVideo(String domain, String objectPath) {
         try {
             String resourcePath = generateResourcePath(domain, objectPath);

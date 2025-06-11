@@ -37,6 +37,70 @@ class VideoAnswerTest {
     }
 
     @Test
+    void create_에러_fileName이_null이다() {
+        // given
+        String fileName = null;
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        User user = User.create("test@test.com", "test12!@", "test");
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> VideoAnswer.create(fileName, uuid, user))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_fileName이_비었다() {
+        // given
+        String content = "  \n\t\r";
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        User user = User.create("test@test.com", "test12!@", "test");
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> VideoAnswer.create(content, uuid, user))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_uuid가_null이다() {
+        // given
+        String fileName = "fileName.mp4";
+        UUID uuid = null;
+        User user = User.create("test@test.com", "test12!@", "test");
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> VideoAnswer.create(fileName, uuid, user))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_user가_null이다() {
+        // given
+        String fileName = "fileName.mp4";
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        User user = null;
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> VideoAnswer.create(fileName, uuid, user))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
+    }
+
+    @Test
     void create_에러_확장자명이_없다() {
         // given
         String fileName = "fileName";

@@ -9,6 +9,7 @@ public enum VideoErrorCode implements ErrorCode {
     VIDEO_NOT_FOUND("VIDEO_006", "존재하지 않는 영상입니다.", 404),
     VIDEO_NOT_FINISHED_ENCODING("VIDEO_007", "인코딩이 완료되지 않았습니다.", 409),
     VIDEO_INVALID_ENCODING_KEY("VIDEO_008", "인코딩 키의 값이 유효하지 않습니다.", 500),
+    VIDEO_CREATE_ERROR("VIDEO_009", "생성 메서드 검증에 실패했습니다.", 500),
 
     ;
 

@@ -1,5 +1,7 @@
 package insty.model.tag;
 
+import insty.error.TagErrorCode;
+import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +14,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "tags", schema = "web_service")
 @Getter
@@ -30,8 +34,16 @@ public class Tags extends BaseEntity { // 테스트에 @Tag와 겹치므로 Tags
 
 
     public static Tags create(String tagName) {
+        validateCreate(tagName);
         return Tags.builder()
                 .tagName(tagName)
                 .build();
+    }
+
+    private static void validateCreate(String tagName) {
+        if (tagName == null || tagName.trim().isEmpty()) {
+            log.error("생성 오류 - tagName : 비었음");
+            throw new CustomException(TagErrorCode.TAG_CREATE_ERROR);
+        }
     }
 }

@@ -114,9 +114,9 @@ class CourseServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', null, 1L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', null, 1, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
     void createCourse_정상() {
@@ -177,27 +177,27 @@ class CourseServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (100L, 1L, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (100, 1, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (100L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+                    "VALUES (100, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (200L, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
+                    "VALUES (200, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (100L, 100L, NOW(), NOW())",
+                    "VALUES (100, 100, NOW(), NOW())",
             "INSERT INTO web_service.course_install_env_checklists (id, course_id, content, is_supported) " +
-                    "VALUES (100L, 100L, '강의에 연결된 체크리스트', true)",
+                    "VALUES (100, 100, '강의에 연결된 체크리스트', true)",
             "INSERT INTO web_service.course_install_env_checklists (id, course_id, content, is_supported) " +
-                    "VALUES (200L, 100L, '강의에 연결되었지만 수정 후 없어질 체크리스트', false)",
+                    "VALUES (200, 100, '강의에 연결되었지만 수정 후 없어질 체크리스트', false)",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
-                    "VALUES (100L, 100L, '강의에 연결된 핵심포인트')",
+                    "VALUES (100, 100, '강의에 연결된 핵심포인트')",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
-                    "VALUES (200L, 100L, '강의에 연결되었지만 수정 후 없어질 핵심포인트')",
+                    "VALUES (200, 100, '강의에 연결되었지만 수정 후 없어질 핵심포인트')",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 100L, 1L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 100, 1, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (2L, '00000000-0000-0000-0000-000000000002', null, 1L, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
+                    + "VALUES (2, '00000000-0000-0000-0000-000000000002', null, 1, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
     @Test
     void updateCourse_정상() {
@@ -264,19 +264,19 @@ class CourseServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
-                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+                    + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
-                    + "VALUES (2L, 'COURSE_PRACTICE_FILE', 1L, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
+                    + "VALUES (2, 'COURSE_PRACTICE_FILE', 1, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, 1L, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 1, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+                    "VALUES (1, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (1L, 1L, NOW(), NOW())",
+                    "VALUES (1, 1, NOW(), NOW())",
             "INSERT INTO web_service.course_practice_files (course_id, file_id, created_at, updated_at) " +
-                    "VALUES (1L, 2L, NOW(), NOW())"
+                    "VALUES (1, 2, NOW(), NOW())"
     })
     @Test
     void deleteCourse_정상() {
@@ -305,21 +305,21 @@ class CourseServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
-                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+                    + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
-                    + "VALUES (2L, 'COURSE_PRACTICE_FILE', 1L, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
+                    + "VALUES (2, 'COURSE_PRACTICE_FILE', 1, '00000000-0000-0000-0000-000000000002.jpg', 'practice.jpg', 'image/jpeg', 30, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1L, true, NOW(), NOW(), false);",
+                    + "VALUES (1, null, '이전 강의 제목', '이전 강의 설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+                    "VALUES (1, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (1L, 1L, NOW(), NOW())",
+                    "VALUES (1, 1, NOW(), NOW())",
             "INSERT INTO web_service.course_install_env_checklists (id, course_id, content, is_supported) " +
-                    "VALUES (1L, 1L, '강의에 연결된 체크리스트', true)",
+                    "VALUES (1, 1, '강의에 연결된 체크리스트', true)",
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
-                    "VALUES (1L, 1L, '강의에 연결된 핵심포인트')",
+                    "VALUES (1, 1, '강의에 연결된 핵심포인트')",
             "INSERT INTO web_service.course_practice_files (course_id, file_id, created_at, updated_at) " +
-                    "VALUES (1L, 2L, NOW(), NOW())"
+                    "VALUES (1, 2, NOW(), NOW())"
     })
     @Test
     void detailCourse_정상() {
@@ -369,17 +369,17 @@ class CourseServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
-                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+                    + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, null, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1L, true, NOW(), NOW(), false);",
+                    + "VALUES (1, null, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (2L, null, '자바 설치 강의', '설명', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (2, null, '자바 설치 강의', '설명', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+                    "VALUES (1, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (2L, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
+                    "VALUES (2, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (1L, 1L, NOW(), NOW())"
+                    "VALUES (1, 1, NOW(), NOW())"
     })
     @Test
     void searchCourse_정상() {
@@ -417,21 +417,21 @@ class CourseServiceTest {
     // TODO - 질문 개수(commentCount) 검증 추가
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (2L, 'example2@example.com', 'example2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (2, 'example2@example.com', 'example2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
-                    + "VALUES (1L, 'COURSE_THUMBNAIL', 1L, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+                    + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1L, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (2L, 2L, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (2, 2, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (1L, '존재하고 강의에 연결된 태그', NOW(), NOW())",
+                    "VALUES (1, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
-                    "VALUES (2L, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
+                    "VALUES (2, '존재하지만 강의에는 연결되지 않은 태그', NOW(), NOW())",
             "INSERT INTO web_service.course_tags (tag_id, course_id, created_at, updated_at) " +
-                    "VALUES (1L, 1L, NOW(), NOW())"
+                    "VALUES (1, 1, NOW(), NOW())"
     })
     @Test
     void searchMyCourse_정상() {
