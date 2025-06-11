@@ -1,5 +1,7 @@
 package insty.model.course;
 
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.file.File;
 import insty.model.user.User;
@@ -20,7 +22,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "courses", schema = "web_service")
 @Getter
@@ -74,6 +78,7 @@ public class Course extends BaseEntity {
 
     // TODO - 유저도 필수로 받기
     public static Course create(String title, String description, int price, String targetAudience, boolean isShow) {
+        validateCreate(title, description, price, targetAudience, isShow);
         return Course.builder()
                 .user(null)
                 .title(title)
@@ -82,6 +87,26 @@ public class Course extends BaseEntity {
                 .targetAudience(targetAudience)
                 .isShow(isShow)
                 .build();
+    }
+
+    private static void validateCreate(String title, String description, int price, String targetAudience,
+                                       boolean isShow) {
+        if (title == null || title.trim().isEmpty()) {
+            log.error("Course 생성 오류 - title : 비었음");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
+        if (description == null || description.trim().isEmpty()) {
+            log.error("Course 생성 오류 - description : 비었음");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
+        if (price < 0) {
+            log.error("Course 생성 오류 - price : {}", price);
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
+        if (targetAudience == null || targetAudience.trim().isEmpty()) {
+            log.error("Course 생성 오류 - targetAudience : 비었음");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
     }
 
     public void update(String title, String description, int price, String targetAudience) {

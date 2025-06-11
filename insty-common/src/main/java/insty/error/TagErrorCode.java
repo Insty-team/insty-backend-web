@@ -1,8 +1,7 @@
 package insty.error;
 
-public enum FileErrorCode implements ErrorCode {
-    FILE_NOT_FOUND("FILE_001", "존재하지 않는 파일입니다.", 404),
-    FILE_CREATE_ERROR("FILE_002", "생성 메서드 검증에 실패했습니다.", 500),
+public enum TagErrorCode implements ErrorCode {
+    TAG_CREATE_ERROR("TAG_001", "생성 메서드 검증에 실패했습니다.", 500),
 
     ;
 
@@ -10,7 +9,7 @@ public enum FileErrorCode implements ErrorCode {
     private final String message;
     private final int httpCode;
 
-    FileErrorCode(String code, String message, int httpCode) {
+    TagErrorCode(String code, String message, int httpCode) {
         this.code = code;
         this.message = message;
         this.httpCode = httpCode;

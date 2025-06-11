@@ -23,7 +23,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "video_answers", schema = "web_service")
 @Getter
@@ -71,6 +73,7 @@ public class VideoAnswer extends BaseEntity {
 
 
     public static VideoAnswer create(String fileName, UUID uuid, User user) {
+        validateCreate(fileName, uuid, user);
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         String s3BucketKey = getS3BucketKey(fileName, uuid);
@@ -84,6 +87,21 @@ public class VideoAnswer extends BaseEntity {
                 .encodingStatus(EncodingStatus.PROCESSING)
                 .encodingAt(Instant.now()) // 비용 문제로 영상 삽입 시 인코딩 시작했다고 가정
                 .build();
+    }
+
+    private static void validateCreate(String fileName, UUID uuid, User user) {
+        if (fileName == null || fileName.trim().isEmpty()) {
+            log.error("VideoAnswer 생성 오류 - fileName : 비었음");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
+        if (uuid == null) {
+            log.error("VideoAnswer 생성 오류 - uuid : null");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
+        if (user == null) {
+            log.error("VideoAnswer 생성 오류 - user : null");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
     }
 
     /**

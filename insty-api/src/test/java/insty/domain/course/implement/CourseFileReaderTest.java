@@ -64,8 +64,10 @@ class CourseFileReaderTest {
     void getPracticeFiles_정상() {
         // given
         Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        ReflectionTestUtils.setField(course, "id", 1L);
         File existFile = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L,
                 "00000000-0000-0000-0000-000000000001.jpg", "practice1.jpg", "image/jpeg", 7);
+        ReflectionTestUtils.setField(existFile, "id", 1L);
         ReflectionTestUtils.setField(course, "practiceFiles", List.of(CoursePracticeFile.create(course, existFile)));
 
         // mock

@@ -1,5 +1,7 @@
 package insty.model.course.id;
 
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
@@ -8,7 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Embeddable
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
@@ -38,9 +42,21 @@ public class CourseTagId implements Serializable {
     }
 
     public static CourseTagId create(Long courseId, Long tagId) {
+        validateCreate(courseId, tagId);
         return CourseTagId.builder()
                 .courseId(courseId)
                 .tagId(tagId)
                 .build();
+    }
+
+    private static void validateCreate(Long courseId, Long tagId) {
+        if (courseId == null) {
+            log.error("CourseTagId 생성 오류 - courseId : null");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
+        if (tagId == null) {
+            log.error("CourseTagId 생성 오류 - tagId : null");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
     }
 }

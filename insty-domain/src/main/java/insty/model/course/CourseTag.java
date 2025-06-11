@@ -1,5 +1,7 @@
 package insty.model.course;
 
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.course.id.CourseTagId;
 import insty.model.tag.Tags;
@@ -15,7 +17,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "course_tags", schema = "web_service")
 @Getter
@@ -39,10 +43,22 @@ public class CourseTag extends BaseEntity {
 
 
     public static CourseTag create(Course course, Tags tags) {
+        validateCreate(course, tags);
         return CourseTag.builder()
                 .courseTagId(CourseTagId.create(course.getId(), tags.getId()))
                 .course(course)
                 .tags(tags)
                 .build();
+    }
+
+    private static void validateCreate(Course course, Tags tags) {
+        if (course == null) {
+            log.error("CourseTag 생성 오류 - course : null");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
+        if (tags == null) {
+            log.error("CourseTag 생성 오류 - tags : null");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
     }
 }
