@@ -95,16 +95,8 @@ public class Course extends BaseEntity {
             log.error("Course 생성 오류 - title : 비었음");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
-        if (description == null || description.trim().isEmpty()) {
-            log.error("Course 생성 오류 - description : 비었음");
-            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
-        }
         if (price < 0) {
             log.error("Course 생성 오류 - price : {}", price);
-            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
-        }
-        if (targetAudience == null || targetAudience.trim().isEmpty()) {
-            log.error("Course 생성 오류 - targetAudience : 비었음");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
         }
     }
