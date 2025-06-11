@@ -40,7 +40,7 @@ class FileTest {
         // given
         FileContainerType containerType = null;
         Long containerId = 1L;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = "fileName.jpg";
         String contentType = "image/jpeg";
         long size = 10L;
@@ -59,7 +59,7 @@ class FileTest {
         // given
         FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
         Long containerId = null;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = "fileName.jpg";
         String contentType = "image/jpeg";
         long size = 10L;
@@ -116,7 +116,7 @@ class FileTest {
         // given
         FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
         Long containerId = 1L;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = null;
         String contentType = "image/jpeg";
         long size = 10L;
@@ -135,7 +135,7 @@ class FileTest {
         // given
         FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
         Long containerId = 1L;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = "  \n\t\r";
         String contentType = "image/jpeg";
         long size = 10L;
@@ -154,7 +154,7 @@ class FileTest {
         // given
         FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
         Long containerId = 1L;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = "fileName.jpg";
         String contentType = null;
         long size = 10L;
@@ -173,7 +173,7 @@ class FileTest {
         // given
         FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
         Long containerId = 1L;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = "fileName.jpg";
         String contentType = "  \n\t\r";
         long size = 10L;
@@ -192,7 +192,7 @@ class FileTest {
         // given
         FileContainerType containerType = FileContainerType.COURSE_THUMBNAIL;
         Long containerId = 1L;
-        String name = UUID.fromString("00000000-0000-0000-0000-000000000001").toString() + ".jpg";
+        String name = UUID.fromString("00000000-0000-0000-0000-000000000001") + ".jpg";
         String originalName = "fileName.jpg";
         String contentType = "image/jpeg";
         long size = -1L;

@@ -49,7 +49,7 @@ class CloudFrontSignerTest {
         Map.Entry<String, String> policy = Map.entry("CloudFront-Policy", "policy-value");
 
         try (MockedStatic<SignerUtils> signerUtilsMock = mockStatic(SignerUtils.class);
-             MockedStatic<CloudFrontCookieSigner> cookieSignerMock = mockStatic(CloudFrontCookieSigner.class);
+             MockedStatic<CloudFrontCookieSigner> cookieSignerMock = mockStatic(CloudFrontCookieSigner.class)
         ) {
             signerUtilsMock.when(() -> SignerUtils.loadPrivateKey(anyString()))
                     .thenReturn(fakePrivateKey);
@@ -83,7 +83,7 @@ class CloudFrontSignerTest {
         PrivateKey fakePrivateKey = mock(PrivateKey.class);
 
         try (MockedStatic<SignerUtils> signerUtilsMock = mockStatic(SignerUtils.class);
-             MockedStatic<CloudFrontUrlSigner> urlSignerMock = mockStatic(CloudFrontUrlSigner.class);
+             MockedStatic<CloudFrontUrlSigner> urlSignerMock = mockStatic(CloudFrontUrlSigner.class)
         ) {
             signerUtilsMock.when(() -> SignerUtils.loadPrivateKey(anyString()))
                     .thenReturn(fakePrivateKey);

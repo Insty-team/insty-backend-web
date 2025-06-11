@@ -21,7 +21,6 @@ class CourseTest {
         String description = "설명";
         int price = 10000;
         String targetAudience = "강의 추천 대상자";
-        Long thumbnailId = null;
         boolean isShow = true;
 
         // when
