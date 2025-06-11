@@ -11,10 +11,9 @@ import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
+import insty.util.DateUtils;
 import insty.util.FileUtils;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,17 +56,11 @@ public class VideoValidator {
         }
     }
 
-    public void validateUploadable() {
-        // TODO - 해당 유저가 업로드할 수 있는지 검증(하루 업로드 제한 등)
-        // 강의 영상 - 20분, 답변 영상 - 5분
-    }
-
     public void validateVideoCourseUploadable(Long userId) {
-        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
-        Instant todayInKorea = LocalDate.now(koreaZone).atStartOfDay(koreaZone).toInstant();
+        Instant startOfToday = DateUtils.getStartOfTodayInKorea();
 
         int durationSum = videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
-                        todayInKorea)
+                        startOfToday)
                 .stream()
                 .mapToInt(Integer::intValue)
                 .sum();
@@ -77,11 +70,10 @@ public class VideoValidator {
     }
 
     public void validateVideoAnswerUploadable(Long userId) {
-        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
-        Instant todayInKorea = LocalDate.now(koreaZone).atStartOfDay(koreaZone).toInstant();
+        Instant startOfToday = DateUtils.getStartOfTodayInKorea();
 
         int durationSum = videoAnswerRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
-                        todayInKorea)
+                        startOfToday)
                 .stream()
                 .mapToInt(Integer::intValue)
                 .sum();

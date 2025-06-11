@@ -97,15 +97,6 @@ class VideoValidatorTest {
     }
 
     @Test
-    void validateUploadable_메서드_미완성() {
-        // given
-
-        // when
-
-        // then
-    }
-
-    @Test
     void validateVideoCourseUploadable_정상_오늘_생성한_영상_총_길이가_20분_미만이다() {
         // given
         Long userId = 1L;
