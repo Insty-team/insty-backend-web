@@ -53,10 +53,11 @@ public class VideoValidator {
 
     public void validateUploadable() {
         // TODO - 해당 유저가 업로드할 수 있는지 검증(하루 업로드 제한 등)
+        // 강의 영상 - 20분, 답변 영상 - 5분
     }
 
     public void validateReadable(VideoType videoType, Long id) {
-        // TODO - 해당 유저가 영상을 조회할 수 있는지 검증
+        // TODO - 해당 유저가 영상을 조회할 수 있는지 검증(영상을 업로드한 사람인지 또는 구매한 사람인지)
     }
 
     /**

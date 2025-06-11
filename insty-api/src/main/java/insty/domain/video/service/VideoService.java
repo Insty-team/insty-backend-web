@@ -1,5 +1,6 @@
 package insty.domain.video.service;
 
+import insty.domain.user.implement.UserReader;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
 import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
@@ -8,6 +9,7 @@ import insty.domain.video.implement.VideoAccessManager;
 import insty.domain.video.implement.VideoReader;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
+import insty.model.user.User;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoEncoding;
@@ -27,21 +29,24 @@ public class VideoService {
     private final VideoWriter videoWriter;
     private final VideoReader videoReader;
     private final VideoAccessManager videoAccessManager;
+    private final UserReader userReader;
 
-    public VideoUploadRes getPreSignedURLForCourseVideoUpload(VideoUploadReq req) {
+    public VideoUploadRes getPreSignedURLForCourseVideoUpload(Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
         videoValidator.validateUploadable(); // TODO - 메서드 구현
 
-        VideoCourse videoCourse = videoWriter.saveVideoCourse(req);
+        User user = userReader.getUser(userId);
+        VideoCourse videoCourse = videoWriter.saveVideoCourse(req, user);
         PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(videoCourse.getS3Key(), req.contentType());
         return VideoUploadRes.from(videoCourse.getVideoUuid(), presignedUrlDto);
     }
 
-    public VideoUploadRes getPreSignedURLForAnswerVideoUpload(VideoUploadReq req) {
+    public VideoUploadRes getPreSignedURLForAnswerVideoUpload(Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
         videoValidator.validateUploadable(); // TODO - 메서드 구현(강의 영상과 다름)
 
-        VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req);
+        User user = userReader.getUser(userId);
+        VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req, user);
         PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(videoAnswer.getS3Key(), req.contentType());
         return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
     }

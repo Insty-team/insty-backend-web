@@ -4,6 +4,7 @@ import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.course.Course;
+import insty.model.user.User;
 import insty.util.FileUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,6 +44,10 @@ public class VideoCourse extends BaseEntity {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Column(nullable = false, length = 100)
     private String s3Key;
 
@@ -71,13 +76,14 @@ public class VideoCourse extends BaseEntity {
     private boolean isDeleted;
 
 
-    public static VideoCourse create(String fileName, UUID uuid) {
+    public static VideoCourse create(String fileName, UUID uuid, User user) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         String s3BucketKey = getS3BucketKey(fileName, uuid);
 
         return VideoCourse.builder()
                 .videoUuid(uuid)
+                .user(user)
                 .s3Key(s3BucketKey)
                 .extension(extension)
                 .originalFileName(fileName)
