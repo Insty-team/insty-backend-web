@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.model.user.User;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,10 @@ class VideoAnswerTest {
         // given
         String fileName = "fileName.mp4";
         UUID uuid = UUID.randomUUID();
+        User user = User.create("test@test.com", "test12!@", "test");
 
         // when
-        VideoAnswer videoAnswer = VideoAnswer.create(fileName, uuid);
+        VideoAnswer videoAnswer = VideoAnswer.create(fileName, uuid, user);
 
         // then
         assertThat(videoAnswer).isNotNull();
@@ -39,11 +41,12 @@ class VideoAnswerTest {
         // given
         String fileName = "fileName";
         UUID uuid = UUID.randomUUID();
+        User user = User.create("test@test.com", "test12!@", "test");
 
         // when
 
         // then
-        assertThatThrownBy(() -> VideoCourse.create(fileName, uuid))
+        assertThatThrownBy(() -> VideoAnswer.create(fileName, uuid, user))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_INVALID_FILE_NAME);

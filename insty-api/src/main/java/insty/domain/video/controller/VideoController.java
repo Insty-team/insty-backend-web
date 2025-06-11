@@ -12,6 +12,7 @@ import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.service.VideoService;
+import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -42,9 +43,10 @@ public class VideoController {
     @PreAuthorize("hasRole('CREATOR')")
     @PostMapping("/upload/course")
     public SuccessRes<VideoUploadRes> uploadCourse(
+            @CurrentUser Long userId,
             @RequestBody @Validated VideoUploadReq req
     ) {
-        return SuccessRes.of(videoService.getPreSignedURLForCourseVideoUpload(req));
+        return SuccessRes.of(videoService.getPreSignedURLForCourseVideoUpload(userId, req));
     }
 
     @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
@@ -52,9 +54,10 @@ public class VideoController {
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/upload/answer")
     public SuccessRes<VideoUploadRes> uploadAnswer(
+            @CurrentUser Long userId,
             @RequestBody @Validated VideoUploadReq req
     ) {
-        return SuccessRes.of(videoService.getPreSignedURLForAnswerVideoUpload(req));
+        return SuccessRes.of(videoService.getPreSignedURLForAnswerVideoUpload(userId, req));
     }
 
     @Operation(summary = "영상 조회", description = "HLS 영상 url을 제공받는다.")
@@ -62,9 +65,10 @@ public class VideoController {
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/playlist")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylist(
+            @CurrentUser Long userId,
             @RequestBody @Validated VideoHlsPlaylistReq req
     ) {
-        Map<String, String> signedCookieMap = videoService.getSignedCookieMap(req);
+        Map<String, String> signedCookieMap = videoService.getSignedCookieMap(userId, req);
         String domain = signedCookieMap.get(DOMAIN);
         String path = signedCookieMap.get(PATH);
         String signedUrl = signedCookieMap.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL);

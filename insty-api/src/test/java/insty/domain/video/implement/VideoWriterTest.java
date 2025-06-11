@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
+import insty.model.user.User;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.uuid.UuidProvider;
@@ -38,6 +39,7 @@ class VideoWriterTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
+        User user = User.create("test@test.com", "test12!@", "test");
 
         // mock
         when(uuidProvider.generate())
@@ -46,7 +48,7 @@ class VideoWriterTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        VideoCourse videoCourse = videoWriter.saveVideoCourse(req);
+        VideoCourse videoCourse = videoWriter.saveVideoCourse(req, user);
 
         // then
         assertThat(videoCourse).isNotNull();
@@ -60,6 +62,7 @@ class VideoWriterTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
+        User user = User.create("test@test.com", "test12!@", "test");
 
         // mock
         when(uuidProvider.generate())
@@ -68,7 +71,7 @@ class VideoWriterTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req);
+        VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req, user);
 
         // then
         assertThat(videoAnswer).isNotNull();

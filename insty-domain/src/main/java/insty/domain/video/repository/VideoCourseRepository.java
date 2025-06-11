@@ -1,6 +1,8 @@
 package insty.domain.video.repository;
 
 import insty.model.video.VideoCourse;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +22,11 @@ public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> 
     @Modifying
     @Query("UPDATE VideoCourse vc SET vc.isDeleted = true WHERE vc.course.id = :courseId")
     void deleteLogicallyByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT vc.duration FROM VideoCourse vc "
+            + "WHERE vc.encodingStatus != 'FAILED' AND vc.user.id = :userId AND vc.encodingAt >= :encodingAt")
+    List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
+                                                                       @Param("encodingAt") Instant encodingAt);
+
+    boolean existsByIdAndUserId(Long id, Long userId);
 }

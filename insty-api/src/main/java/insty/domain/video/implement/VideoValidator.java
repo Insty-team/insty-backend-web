@@ -1,5 +1,8 @@
 package insty.domain.video.implement;
 
+import static insty.constants.VideoConstants.VIDEO_ANSWER_UPLOAD_MINUTES_LIMIT;
+import static insty.constants.VideoConstants.VIDEO_COURSE_UPLOAD_MINUTES_LIMIT;
+
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
@@ -8,7 +11,9 @@ import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
+import insty.util.DateUtils;
 import insty.util.FileUtils;
+import java.time.Instant;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,12 +56,49 @@ public class VideoValidator {
         }
     }
 
-    public void validateUploadable() {
-        // TODO - 해당 유저가 업로드할 수 있는지 검증(하루 업로드 제한 등)
+    public void validateVideoCourseUploadable(Long userId) {
+        Instant startOfToday = DateUtils.getStartOfTodayInKorea();
+
+        int durationSum = videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
+                        startOfToday)
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+        if (durationSum >= VIDEO_COURSE_UPLOAD_MINUTES_LIMIT * 60) {
+            throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+        }
     }
 
-    public void validateReadable(VideoType videoType, Long id) {
-        // TODO - 해당 유저가 영상을 조회할 수 있는지 검증
+    public void validateVideoAnswerUploadable(Long userId) {
+        Instant startOfToday = DateUtils.getStartOfTodayInKorea();
+
+        int durationSum = videoAnswerRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
+                        startOfToday)
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+        if (durationSum >= VIDEO_ANSWER_UPLOAD_MINUTES_LIMIT * 60) {
+            throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+        }
+    }
+
+    public void validateReadable(Long userId, VideoType videoType, Long videoId) {
+        // TODO - 구매한 사람인지 추가 검증
+        if (videoType == VideoType.COURSE) {
+            if (videoCourseRepository.existsByIdAndUserId(videoId, userId)) {
+                return;
+            }
+            // 추가 검증
+            throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        }
+        if (videoType == VideoType.ANSWER) {
+            if (videoAnswerRepository.existsByIdAndUserId(videoId, userId)) {
+                return;
+            }
+            // 추가 검증
+            throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        }
+        throw new CustomException(VideoErrorCode.VIDEO_NOT_FOUND);
     }
 
     /**
@@ -65,8 +107,8 @@ public class VideoValidator {
      * @param videoType
      * @param courseId
      */
-    public void verifyEncodingCompleted(VideoType videoType, Long courseId) {
-        if (videoType.equals(VideoType.COURSE)) {
+    public void verifyEncodingCompletedAndDeleted(VideoType videoType, Long courseId) {
+        if (videoType == VideoType.COURSE) {
             VideoCourse videoCourse = videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false)
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
             if (videoCourse.getEncodingStatus() != EncodingStatus.COMPLETED) {
@@ -74,7 +116,7 @@ public class VideoValidator {
             }
             return;
         }
-        if (videoType.equals(VideoType.ANSWER)) {
+        if (videoType == VideoType.ANSWER) {
             VideoAnswer videoAnswer = videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(courseId, false)
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
             if (videoAnswer.getEncodingStatus() != EncodingStatus.COMPLETED) {
