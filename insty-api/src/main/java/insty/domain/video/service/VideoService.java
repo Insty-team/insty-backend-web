@@ -43,7 +43,7 @@ public class VideoService {
 
     public VideoUploadRes getPreSignedURLForAnswerVideoUpload(Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
-        videoValidator.validateUploadable(); // TODO - 메서드 구현(강의 영상과 다름)
+//        videoValidator.validateVideoAnswerUploadable(userId); TODO - 개발 편의를 위해 비활성화
 
         User user = userReader.getUser(userId);
         VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req, user);

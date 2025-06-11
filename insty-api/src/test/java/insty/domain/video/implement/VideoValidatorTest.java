@@ -106,7 +106,7 @@ class VideoValidatorTest {
     }
 
     @Test
-    void validateVideoCourseUploadable_정상_오늘_생성한_영상_총_길이가_20분_이하다() {
+    void validateVideoCourseUploadable_정상_오늘_생성한_영상_총_길이가_20분_미만이다() {
         // given
         Long userId = 1L;
 
@@ -134,6 +134,40 @@ class VideoValidatorTest {
 
         // then
         assertThatThrownBy(() -> videoValidator.validateVideoCourseUploadable(userId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+    }
+
+    @Test
+    void validateVideoAnswerUploadable_정상_오늘_생성한_영상_총_길이가_5분_미만이다() {
+        // given
+        Long userId = 1L;
+
+        // mock
+        when(videoAnswerRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+                .thenReturn(List.of(60, 239));
+
+        // when
+
+        // then
+        assertThatCode(() -> videoValidator.validateVideoAnswerUploadable(userId))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateVideoAnswerUploadable_에러_오늘_생성한_영상_총_길이가_5분_이상이다() {
+        // given
+        Long userId = 1L;
+
+        // mock
+        when(videoAnswerRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+                .thenReturn(List.of(60, 240));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.validateVideoAnswerUploadable(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);

@@ -1,5 +1,6 @@
 package insty.domain.video.implement;
 
+import static insty.constants.VideoConstants.VIDEO_ANSWER_UPLOAD_MINUTES_LIMIT;
 import static insty.constants.VideoConstants.VIDEO_COURSE_UPLOAD_MINUTES_LIMIT;
 
 import insty.domain.video.repository.VideoAnswerRepository;
@@ -71,6 +72,20 @@ public class VideoValidator {
                 .mapToInt(Integer::intValue)
                 .sum();
         if (durationSum >= VIDEO_COURSE_UPLOAD_MINUTES_LIMIT * 60) {
+            throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+        }
+    }
+
+    public void validateVideoAnswerUploadable(Long userId) {
+        ZoneId koreaZone = ZoneId.of("Asia/Seoul");
+        Instant todayInKorea = LocalDate.now(koreaZone).atStartOfDay(koreaZone).toInstant();
+
+        int durationSum = videoAnswerRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
+                        todayInKorea)
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+        if (durationSum >= VIDEO_ANSWER_UPLOAD_MINUTES_LIMIT * 60) {
             throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
         }
     }
