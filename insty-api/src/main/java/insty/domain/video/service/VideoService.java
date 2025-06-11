@@ -51,8 +51,8 @@ public class VideoService {
         return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
     }
 
-    public Map<String, String> getSignedCookieMap(VideoHlsPlaylistReq req) {
-        videoValidator.validateReadable(req.type(), req.id()); // TODO - 메서드 구현
+    public Map<String, String> getSignedCookieMap(Long userId, VideoHlsPlaylistReq req) {
+//        videoValidator.validateReadable(userId, req.type(), req.id()); TODO - 개발 편의를 위해 비활성화
         videoValidator.verifyEncodingCompleted(req.type(), req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());

@@ -192,6 +192,7 @@ class VideoServiceTest {
     @Test
     void getSignedCookieMap_정상() {
         // given
+        Long userId = 1L;
         VideoType videoType = VideoType.COURSE;
         Long id = 1L;
         VideoHlsPlaylistReq req = new VideoHlsPlaylistReq(videoType, id);
@@ -215,7 +216,7 @@ class VideoServiceTest {
                 .thenReturn("insty.test.com");
 
         // when
-        Map<String, String> res = videoService.getSignedCookieMap(req);
+        Map<String, String> res = videoService.getSignedCookieMap(userId, req);
 
         // then
         assertThat(res).isNotNull();

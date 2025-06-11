@@ -82,8 +82,23 @@ public class VideoValidator {
         }
     }
 
-    public void validateReadable(VideoType videoType, Long id) {
-        // TODO - 해당 유저가 영상을 조회할 수 있는지 검증(영상을 업로드한 사람인지 또는 구매한 사람인지)
+    public void validateReadable(Long userId, VideoType videoType, Long videoId) {
+        // TODO - 구매한 사람인지 추가 검증
+        if (videoType.equals(VideoType.COURSE)) {
+            if (videoCourseRepository.existsVideoCourseByIdAndUserId(videoId, userId)) {
+                return;
+            }
+            // 추가 검증
+            throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        }
+        if (videoType.equals(VideoType.ANSWER)) {
+            if (videoAnswerRepository.existsVideoAnswerByIdAndUserId(videoId, userId)) {
+                return;
+            }
+            // 추가 검증
+            throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        }
+        throw new CustomException(VideoErrorCode.VIDEO_NOT_FOUND);
     }
 
     /**

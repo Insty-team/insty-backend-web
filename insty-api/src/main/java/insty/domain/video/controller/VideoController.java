@@ -65,9 +65,10 @@ public class VideoController {
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/playlist")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylist(
+            @CurrentUser Long userId,
             @RequestBody @Validated VideoHlsPlaylistReq req
     ) {
-        Map<String, String> signedCookieMap = videoService.getSignedCookieMap(req);
+        Map<String, String> signedCookieMap = videoService.getSignedCookieMap(userId, req);
         String domain = signedCookieMap.get(DOMAIN);
         String path = signedCookieMap.get(PATH);
         String signedUrl = signedCookieMap.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL);

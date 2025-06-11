@@ -165,14 +165,41 @@ class VideoValidatorTest {
     }
 
     @Test
-    void validateReadable_메서드_미완성() {
+    void validateReadable_정상() {
         // given
+        Long userId = 1L;
         VideoType videoType = VideoType.COURSE;
-        Long id = 1L;
+        Long videoId = 1L;
+
+        // mock
+        when(videoCourseRepository.existsVideoCourseByIdAndUserId(videoId, userId))
+                .thenReturn(true);
 
         // when
 
         // then
+        assertThatCode(() -> videoValidator.validateReadable(userId, videoType, videoId))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateReadable_에러_영상을_생성한_사람이_아니다() {
+        // given
+        Long userId = 1L;
+        VideoType videoType = VideoType.COURSE;
+        Long videoId = 1L;
+
+        // mock
+        when(videoCourseRepository.existsVideoCourseByIdAndUserId(videoId, userId))
+                .thenReturn(false);
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.validateReadable(userId, videoType, videoId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CANT_READ);
     }
 
     @Test

@@ -22,4 +22,6 @@ public interface VideoAnswerRepository extends JpaRepository<VideoAnswer, Long> 
             + "WHERE va.encodingStatus != 'FAILED' AND va.user.id = :userId AND va.encodingAt >= :encodingAt")
     List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
                                                                        @Param("encodingAt") Instant encodingAt);
+
+    boolean existsVideoAnswerByIdAndUserId(Long id, Long userId);
 }
