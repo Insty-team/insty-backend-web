@@ -181,13 +181,13 @@ class VideoServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
             "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
-                    "VALUES (1L, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })
     @Test
     void getSignedCookieMap_정상() {
@@ -232,13 +232,13 @@ class VideoServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1L, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, 1L, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1L, '00000000-0000-0000-0000-000000000001', 1L, 1L, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4', 'mp4', 'fileName.mp4', 10, 'COMPLETED', NOW(), 'WAITING', NULL, NOW(), NOW(), FALSE);",
             "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
-                    "VALUES (1L, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })
     @Test
     void getPreviewVideo_정상() {
