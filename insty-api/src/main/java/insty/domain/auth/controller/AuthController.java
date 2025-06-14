@@ -44,7 +44,7 @@ public class AuthController {
     }
 
 
-    @Operation(summary = "사용자 소셜 로그인(카카오, 네이버, 구글)", description = "소셜 인증으로 로그인합니다.")
+    @Operation(summary = "사용자 소셜 로그인(현재는 카카오만 가능)", description = "소셜 인증으로 로그인합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @PostMapping("/login/{socialName}")
     public SuccessRes<AuthUserRes> loginWithSocial(
