@@ -2,17 +2,22 @@ package insty.domain.auth.service;
 
 import insty.domain.auth.implement.AuthTokenRedisWriter;
 import insty.domain.auth.implement.AuthTokenValidator;
+import insty.domain.auth.strategy.SocialStrategy;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.auth.dto.response.AuthUserRes;
 import insty.domain.auth.implement.AuthTokenIssuer;
+import insty.domain.user.dto.request.UserSocialLoginReq;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserWriter;
+import insty.error.SocialErrorCode;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.global.security.CustomUserDetails;
+import insty.model.user.SocialType;
 import insty.model.user.User;
 import insty.util.JwtUtils;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +42,10 @@ public class AuthService {
     // 스프링 시큐리티
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+
+    // 전략 패턴
+    private final List<SocialStrategy> strategies;
+
 
     /**
      * 이메일 로그인 스프링 시큐리티
@@ -96,5 +105,35 @@ public class AuthService {
      */
     public void logout(Long userId) {
         authTokenRedisWriter.deleteRefreshToken(userId);
+    }
+
+    /**
+     *  소셜 로그인
+     */
+    public AuthUserRes loginBySocial(SocialType socialName, UserSocialLoginReq req) {
+        // 전략 가져오기
+        SocialStrategy socialLoginStrategy = strategies.stream()
+                .filter(s -> s.supports(socialName))        // supports() 로 판별
+                .findFirst()
+                .orElseThrow(() -> new CustomException(SocialErrorCode.SOCIAL_UNSUPPORTED_TYPE));
+
+        // 각 전략에 맞춰 유저 정보 조회
+        User user = socialLoginStrategy.loginBySocial(req.code(), req.state(), req.userType());
+
+        // 마지막 로그인 시간 변경 및 유저타입 변경
+        userWriter.updateLastLoginAt(user.getId());
+        userWriter.updateUserByUserType(user.getId(), req.userType());
+
+        // 토큰 발급
+        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId(), user.getUserType());
+        authTokenRedisWriter.saveRefreshToken(user.getId(), token.refreshToken());  // redis에 저장
+
+        // 응답 객체 생성
+        return AuthUserRes.create(
+                user.getId(),
+                user.getNickname(),
+                user.getUserType(),
+                token
+        );
     }
 }

@@ -38,6 +38,18 @@ spring:
       allowed-origins: ${CORS_ALLOWED_ORIGINS}
       allowed-methods: ${CORS_ALLOWED_METHODS}
 
+
+oauth:
+  providers:
+    kakao:
+      endpoints:
+        redirect-url: ${KAKAO_REDIRECT_URL}
+        token-url: https://kauth.kakao.com/oauth/token
+        user-info-url: https://kapi.kakao.com/v2/user/me
+      client-id: ${KAKAO_CLIENT_ID}
+
+
+
 aws:
   region:
     static: ${AWS_REGION}

@@ -3,12 +3,14 @@ package insty.domain.auth.controller;
 import insty.domain.auth.service.AuthService;
 import insty.domain.user.dto.request.UserLoginReq;
 import insty.domain.auth.dto.response.AuthUserRes;
+import insty.domain.user.dto.request.UserSocialLoginReq;
 import insty.error.TokenErrorCode;
 import insty.exception.CustomException;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
+import insty.model.user.SocialType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,9 +18,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -36,6 +41,17 @@ public class AuthController {
     @PostMapping("/login")
     public SuccessRes<AuthUserRes> login(@RequestBody UserLoginReq req) {
         return SuccessRes.of(authService.loginByEmail(req));
+    }
+
+
+    @Operation(summary = "사용자 소셜 로그인(카카오, 네이버, 구글)", description = "소셜 인증으로 로그인합니다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
+    @PostMapping("/login/{socialName}")
+    public SuccessRes<AuthUserRes> loginWithSocial(
+            @PathVariable SocialType socialName,
+            @RequestBody UserSocialLoginReq req
+    ) {
+        return SuccessRes.of(authService.loginBySocial(socialName, req));
     }
 
     @Operation(

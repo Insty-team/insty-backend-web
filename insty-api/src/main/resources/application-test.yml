@@ -25,5 +25,16 @@ spring:
       host: test
       port: 1234
 
+# TODO detault 제거 개선
+oauth:
+  providers:
+    kakao:
+      endpoints:
+        redirect-url: test
+        token-url: https://kauth.kakao.com/oauth/token
+        user-info-url: https://kapi.kakao.com/v2/user/me
+      client-id: test
+
+
 app:
   health-check-path: /tmp

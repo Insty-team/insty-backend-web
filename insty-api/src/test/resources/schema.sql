@@ -32,7 +32,9 @@ CREATE TABLE IF NOT EXISTS web_service.users
     is_email_agreed    BOOLEAN       NOT NULL,
     last_login_at      TIMESTAMP(6) WITH TIME ZONE,
     created_at         TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    updated_at         TIMESTAMP(6) WITH TIME ZONE NOT NULL
+    updated_at         TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    social_id          VARCHAR(150),
+    social_type        VARCHAR(15)   CHECK (social_type IN ('KAKAO', 'NAVER', 'GOOGLE', 'GITHUB', 'APPLE', 'LINKEDIN'))
 );
 
 -- 강의 관련
