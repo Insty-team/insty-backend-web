@@ -1,5 +1,6 @@
 package insty.domain.user.repository;
 
+import insty.model.user.SocialType;
 import insty.model.user.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByNickname(String nickname);
 
+    Optional<User> findBySocialIdAndSocialType(String s, SocialType socialType);
 }
