@@ -48,6 +48,13 @@ oauth:
         auth-url: https://kauth.kakao.com/oauth/authorize
         user-info-url: https://kapi.kakao.com/v2/user/me
       client-id: ${KAKAO_CLIENT_ID}
+    naver:
+      endpoints:
+        redirect-url: ${NAVER_REDIRECT_URL}
+        token-url: https://nid.naver.com/oauth2.0/token
+        auth-url: https://nid.naver.com/oauth2.0/authorize
+        user-info-url: https://openapi.naver.com/v1/nid/me
+      client-id: ${NAVER_CLIENT_ID}
 
 
 
