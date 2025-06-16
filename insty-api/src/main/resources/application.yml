@@ -45,6 +45,7 @@ oauth:
       endpoints:
         redirect-url: ${KAKAO_REDIRECT_URL}
         token-url: https://kauth.kakao.com/oauth/token
+        auth-url: https://kauth.kakao.com/oauth/authorize
         user-info-url: https://kapi.kakao.com/v2/user/me
       client-id: ${KAKAO_CLIENT_ID}
 

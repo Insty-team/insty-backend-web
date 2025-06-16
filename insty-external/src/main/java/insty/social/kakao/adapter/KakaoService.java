@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,9 @@ public class KakaoService {
     @Value("${oauth.providers.kakao.endpoints.redirect-url}")
     private String KAKAO_REDIRECT_URL;
 
+    @Value("${oauth.providers.kakao.endpoints.auth-url}")
+    private String KAKAO_AUTH_URL;
+
     @Value("${oauth.providers.kakao.endpoints.token-url}")
     private String KAKAO_TOKEN_URL;
 
@@ -34,6 +38,18 @@ public class KakaoService {
     private String KAKAO_USERINFO_URL;
 
     private final RestClient restClient;
+
+    /**
+     *   인가 코드 받는 URL
+     */
+    public String getAuthUrl() {
+        return UriComponentsBuilder.fromUriString(KAKAO_AUTH_URL)
+                .queryParam("client_id", KAKAO_CLIENT_ID)
+                .queryParam("redirect_uri", KAKAO_REDIRECT_URL)
+                .queryParam("response_type", "code")
+                .build()
+                .toUriString();
+    }
 
     /**
      * 카카오 토큰 받기
@@ -73,9 +89,9 @@ public class KakaoService {
         try {
             return restClient.get()
                     .uri(KAKAO_USERINFO_URL)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                     .headers((header) -> {
                         header.setBearerAuth(kakaoToken);
+                        header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
                     })
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
