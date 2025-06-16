@@ -42,10 +42,8 @@ public class AuthController {
         return SuccessRes.of(authService.loginByEmail(req));
     }
 
-    /**
-     * 소셜 로그인 하기전 인가 코드 요청 URL
-     * @return
-     */
+    @Operation(summary = "사용자 소셜 로그인 인가코드 얻기", description = "소셜 로그인을 하기위해 인가코드를 얻습니다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/login/authorize/{socialName}")
     public SuccessRes<String> loginRequestWithSocial(@PathVariable SocialType socialName) {
         return SuccessRes.of(authService.getAuthUrl(socialName));
