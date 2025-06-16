@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -43,6 +42,15 @@ public class AuthController {
         return SuccessRes.of(authService.loginByEmail(req));
     }
 
+    /**
+     * 소셜 로그인 하기전 인가 코드 요청 URL
+     * @return
+     */
+    @GetMapping("/login/authorize/{socialName}")
+    public SuccessRes<String> loginRequestWithSocial(@PathVariable SocialType socialName) {
+        return SuccessRes.of(authService.getAuthUrl(socialName));
+
+    }
 
     @Operation(summary = "사용자 소셜 로그인(현재는 카카오만 가능 )", description = "소셜 인증으로 로그인합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)

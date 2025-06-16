@@ -28,6 +28,14 @@ public class KakaoStrategy implements SocialStrategy {
     }
 
     /**
+     *  인증 URL 조회
+     */
+    @Override
+    public String getAuthUrl() {
+        return kakaoService.getAuthUrl();
+    }
+
+    /**
      *  로그인 구현
      */
     @Override
