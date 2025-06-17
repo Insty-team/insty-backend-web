@@ -32,16 +32,14 @@ public class CourseFileWriter {
     private final CoursePracticeFileRepository coursePracticeFileRepository;
     private final AppProperties appProperties;
 
-    public String saveThumbnailAndGetUrl(MultipartFile thumbnail, Course course) {
+    public void saveThumbnail(MultipartFile thumbnail, Course course) {
         if (thumbnail == null || thumbnail.isEmpty()) {
-            return null;
+            return;
         }
         FileCreateReq req = new FileCreateReq(thumbnail, FileContainerType.COURSE_THUMBNAIL, course.getId());
         File file = fileWriter.saveFile(req);
         course.updateThumbnail(file);
         courseRepository.save(course);
-
-        return file.getUrl(appProperties.getDomain());
     }
 
     public List<FileInfo> savePracticeFilesAndGetInfo(List<MultipartFile> practiceFiles, Course course) {
@@ -70,9 +68,9 @@ public class CourseFileWriter {
      * @param course
      * @return 썸네일 url
      */
-    public String updateThumbnailAndGetUrl(MultipartFile thumbnail, Course course) {
+    public void updateThumbnail(MultipartFile thumbnail, Course course) {
         if (thumbnail == null || thumbnail.isEmpty()) {
-            return null;
+            return;
         }
         File beforeThumbnail = course.getThumbnail();
         if (beforeThumbnail != null) {
@@ -81,7 +79,7 @@ public class CourseFileWriter {
             fileWriter.deleteFile(beforeThumbnail);
         }
 
-        return saveThumbnailAndGetUrl(thumbnail, course);
+        saveThumbnail(thumbnail, course);
     }
 
     /**

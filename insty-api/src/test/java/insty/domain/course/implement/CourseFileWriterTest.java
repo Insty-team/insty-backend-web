@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,7 @@ class CourseFileWriterTest {
     private AppProperties appProperties;
 
     @Test
-    void saveThumbnailAndGetUrl_정상() {
+    void saveThumbnail_정상() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
@@ -58,29 +59,26 @@ class CourseFileWriterTest {
                 "thumb.jpg", "image/jpeg", 10);
         when(fileWriter.saveFile(any()))
                 .thenReturn(file);
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
 
         // when
-        String uploadName = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
 
         // then
-        assertThat(uploadName).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+        assertThatCode(() -> courseFileWriter.saveThumbnail(thumbnail, course))
+                .doesNotThrowAnyException();
     }
 
     @Test
-    void saveThumbnailAndGetUrl_정상_빈_썸네일이면_저장_작업을_하지_않는다() {
+    void saveThumbnail_정상_빈_썸네일이면_저장_작업을_하지_않는다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 new byte[0]);
         Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
 
         // when
-        String uploadName = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.saveThumbnail(thumbnail, course);
 
         // then
-        assertThat(uploadName).isNull();
+        verify(fileWriter, never()).saveFile(any());
     }
 
     @Test
@@ -128,7 +126,7 @@ class CourseFileWriterTest {
     }
 
     @Test
-    void updateThumbnailAndGetUrl_정상() {
+    void updateThumbnail_정상() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
@@ -140,33 +138,30 @@ class CourseFileWriterTest {
                 "thumb.jpg", "image/jpeg", 10);
         when(fileWriter.saveFile(any()))
                 .thenReturn(file);
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
 
         // when
-        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
 
         // then
-        assertThat(uploadName).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+        assertThatCode(() -> courseFileWriter.updateThumbnail(thumbnail, course))
+                .doesNotThrowAnyException();
     }
 
     @Test
-    void updateThumbnailAndGetUrl_정상_빈_썸네일이면_교체_작업을_하지_않는다() {
+    void updateThumbnail_정상_빈_썸네일이면_교체_작업을_하지_않는다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 new byte[0]);
         Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
 
         // when
-        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.updateThumbnail(thumbnail, course);
 
         // then
-        assertThat(uploadName).isNull();
+        verify(fileWriter, never()).saveFile(any());
     }
 
     @Test
-    void updateThumbnailAndGetUrl_정상_기존_썸네일이_있다면_지우고_작업한다() {
+    void updateThumbnail_정상_기존_썸네일이_있다면_지우고_작업한다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
@@ -181,16 +176,13 @@ class CourseFileWriterTest {
                 "new_thumbnail.jpg", "image/jpeg", 10);
         when(fileWriter.saveFile(any()))
                 .thenReturn(newFile);
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
 
         // when
-        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.updateThumbnail(thumbnail, course);
 
         // then
-        assertThat(uploadName).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000002.jpg");
         verify(fileWriter).deleteFile(any());
+        verify(fileWriter).saveFile(any());
     }
 
     @Test
