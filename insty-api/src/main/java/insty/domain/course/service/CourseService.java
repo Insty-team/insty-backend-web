@@ -49,7 +49,8 @@ public class CourseService {
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.saveCourse(req);
         UUID videoUuid = courseVideoManager.attachmentCourse(course, req.videoUuid());
-        String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.saveThumbnail(thumbnail, course);
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklistInfo> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
@@ -64,7 +65,8 @@ public class CourseService {
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
         UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
-        String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.updateThumbnail(thumbnail, course);
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
         List<CourseInstallEnvChecklistInfo> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
@@ -93,9 +95,9 @@ public class CourseService {
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
-        List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
         UUID videoUuid = courseVideoManager.getAttachVideoUuid(course.getId());
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
+        List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
 
         return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles, videoUuid);
     }

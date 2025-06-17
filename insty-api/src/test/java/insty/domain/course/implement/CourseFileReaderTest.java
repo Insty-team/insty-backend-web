@@ -10,6 +10,7 @@ import insty.model.course.CoursePracticeFile;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,13 +36,14 @@ class CourseFileReaderTest {
         File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
                 "thumb.jpg", "image/jpeg", 10);
         ReflectionTestUtils.setField(course, "thumbnail", file);
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
 
         // when
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
 
         // then
         assertThat(thumbnailUrl).isEqualTo(
@@ -49,15 +51,21 @@ class CourseFileReaderTest {
     }
 
     @Test
-    void getThumbnailUrl_정상_썸네일이_없으면_null을_반환한다() {
+    void getThumbnailUrl_정상_썸네일이_없으면_기본_썸네일을_반환한다() {
         // given
         Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
 
         // when
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
 
         // then
-        assertThat(thumbnailUrl).isNull();
+        assertThat(thumbnailUrl).isEqualTo(
+                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.0000000.jpg");
     }
 
     @Test
