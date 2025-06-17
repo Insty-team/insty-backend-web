@@ -17,14 +17,15 @@ public class CourseVideoManager {
 
     private final VideoCourseRepository videoCourseRepository;
 
-    public void attachmentCourse(Course course, UUID videoUuid) {
+    public UUID attachmentCourse(Course course, UUID videoUuid) {
         if (videoUuid == null) {
-            return;
+            return null;
         }
         VideoCourse videoCourse = videoCourseRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         videoCourse.updateCourse(course);
         videoCourseRepository.save(videoCourse);
+        return videoCourse.getVideoUuid();
     }
 
     /**
@@ -33,12 +34,12 @@ public class CourseVideoManager {
      * @param course
      * @param videoUuid
      */
-    public void updateVideo(Course course, UUID videoUuid) {
+    public UUID updateVideo(Course course, UUID videoUuid) {
         if (videoUuid == null) {
-            return;
+            return null;
         }
         videoCourseRepository.deleteLogicallyByCourseId(course.getId());
-        attachmentCourse(course, videoUuid);
+        return attachmentCourse(course, videoUuid);
     }
 
     /**
@@ -47,6 +48,7 @@ public class CourseVideoManager {
      * @param courseId
      * @return
      */
+    @Transactional(readOnly = true)
     public UUID getAttachVideoUuid(Long courseId) {
         return videoCourseRepository.findVideoUuidByCourseId(courseId)
                 .orElse(null);

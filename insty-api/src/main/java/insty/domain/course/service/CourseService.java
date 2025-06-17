@@ -48,7 +48,7 @@ public class CourseService {
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.saveCourse(req);
-        courseVideoManager.attachmentCourse(course, req.videoUuid());
+        UUID videoUuid = courseVideoManager.attachmentCourse(course, req.videoUuid());
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklistInfo> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
@@ -57,13 +57,13 @@ public class CourseService {
         List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, req.tags());
 
         return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos,
-                req.videoUuid());
+                videoUuid);
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
-        courseVideoManager.updateVideo(course, req.updateVideoUuid());
+        UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
@@ -71,7 +71,6 @@ public class CourseService {
                 req.installEnvChecklist());
         List<String> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.updateCourseTags(course, req.tags());
-        UUID videoUuid = courseVideoManager.getAttachVideoUuid(course.getId());
 
         return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoUuid);
     }

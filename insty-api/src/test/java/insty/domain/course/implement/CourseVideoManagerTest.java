@@ -1,12 +1,12 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.model.course.Course;
+import insty.model.user.User;
 import insty.model.video.VideoCourse;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,14 +34,15 @@ class CourseVideoManagerTest {
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
+        VideoCourse videoCourse = VideoCourse.create("fileName.mp4", videoUuid, mock(User.class));
         when(videoCourseRepository.findByVideoUuid(videoUuid))
-                .thenReturn(Optional.of(mock(VideoCourse.class)));
+                .thenReturn(Optional.of(videoCourse));
 
         // when
+        UUID uuid = courseVideoManager.attachmentCourse(course, videoUuid);
 
         // then
-        assertThatCode(() -> courseVideoManager.attachmentCourse(course, videoUuid))
-                .doesNotThrowAnyException();
+        assertThat(uuid).isEqualTo(videoUuid);
     }
 
     @Test
@@ -53,10 +54,10 @@ class CourseVideoManagerTest {
         // mock
 
         // when
+        UUID uuid = courseVideoManager.attachmentCourse(course, videoUuid);
 
         // then
-        assertThatCode(() -> courseVideoManager.attachmentCourse(course, videoUuid))
-                .doesNotThrowAnyException();
+        assertThat(uuid).isNull();
     }
 
     @Test
@@ -66,14 +67,15 @@ class CourseVideoManagerTest {
         UUID updateVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
+        VideoCourse videoCourse = VideoCourse.create("fileName.mp4", updateVideoUuid, mock(User.class));
         when(videoCourseRepository.findByVideoUuid(updateVideoUuid))
-                .thenReturn(Optional.of(mock(VideoCourse.class)));
+                .thenReturn(Optional.of(videoCourse));
 
         // when
+        UUID uuid = courseVideoManager.attachmentCourse(course, updateVideoUuid);
 
         // then
-        assertThatCode(() -> courseVideoManager.updateVideo(course, updateVideoUuid))
-                .doesNotThrowAnyException();
+        assertThat(uuid).isEqualTo(updateVideoUuid);
     }
 
     @Test
@@ -83,10 +85,10 @@ class CourseVideoManagerTest {
         UUID updateVideoUuid = null;
 
         // when
+        UUID uuid = courseVideoManager.updateVideo(course, updateVideoUuid);
 
         // then
-        assertThatCode(() -> courseVideoManager.updateVideo(course, updateVideoUuid))
-                .doesNotThrowAnyException();
+        assertThat(uuid).isNull();
     }
 
     @Test
