@@ -69,6 +69,19 @@ class CourseFileReaderTest {
     }
 
     @Test
+    void getThumbnailUrl_정상_썸네일이_없고_video_uuid도_null이면_null을_반환한다() {
+        // given
+        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        UUID videoUuid = null;
+
+        // when
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
+
+        // then
+        assertThat(thumbnailUrl).isNull();
+    }
+
+    @Test
     void getPracticeFiles_정상() {
         // given
         Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
