@@ -160,7 +160,8 @@ class CourseServiceTest {
                 .containsExactlyInAnyOrderElementsOf(checklists);
         assertThat(res.keyPoints()).hasSameElementsAs(keypoints);
         assertThat(res.tags()).hasSameElementsAs(tags);
-        assertThat(res.videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.videoInfo().videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.videoInfo().videoUuid().toString()).isEqualTo("00000000-0000-0000-0000-000000000001");
         assertThat(res.thumbnailUrl()).isEqualTo(
                 "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
         assertThat(res.practiceFile().size()).isEqualTo(practiceFiles.size());
@@ -241,7 +242,8 @@ class CourseServiceTest {
                 .containsExactlyInAnyOrderElementsOf(checklists);
         assertThat(res.keyPoints()).hasSameElementsAs(keypoints);
         assertThat(res.tags()).hasSameElementsAs(tags);
-        assertThat(res.videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.videoInfo().videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.videoInfo().videoUuid().toString()).isEqualTo("00000000-0000-0000-0000-000000000002");
         assertThat(res.thumbnailUrl()).isEqualTo(
                 "https://insty.test.com/file/COURSE_THUMBNAIL/100/00000000-0000-0000-0000-000000000001.jpg");
         assertThat(res.practiceFile().size()).isEqualTo(practiceFiles.size());
@@ -304,6 +306,8 @@ class CourseServiceTest {
     }
 
     @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
                     + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
@@ -319,7 +323,9 @@ class CourseServiceTest {
             "INSERT INTO web_service.course_keypoints (id, course_id, content) " +
                     "VALUES (1, 1, '강의에 연결된 핵심포인트')",
             "INSERT INTO web_service.course_practice_files (course_id, file_id, created_at, updated_at) " +
-                    "VALUES (1, 2, NOW(), NOW())"
+                    "VALUES (1, 2, NOW(), NOW())",
+            "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)"
     })
     @Test
     void detailCourse_정상() {
@@ -356,7 +362,8 @@ class CourseServiceTest {
         assertThat(res.tags().size()).isEqualTo(1);
         assertThat(res.tags().get(0)).isEqualTo(tags.get(0).getTagName());
 
-        assertThat(res.videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.videoInfo().videoType()).isEqualTo(VideoType.COURSE);
+        assertThat(res.videoInfo().videoUuid().toString()).isEqualTo("00000000-0000-0000-0000-000000000001");
         assertThat(res.createdAt()).isEqualTo(course.get().getCreatedAt());
 
         assertThat(res.thumbnailUrl()).isEqualTo(

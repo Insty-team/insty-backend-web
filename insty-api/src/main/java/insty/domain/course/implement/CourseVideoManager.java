@@ -40,4 +40,15 @@ public class CourseVideoManager {
         videoCourseRepository.deleteLogicallyByCourseId(course.getId());
         attachmentCourse(course, videoUuid);
     }
+
+    /**
+     * 해당 강의에 연결되어 있는 영상 uuid를 반환한다.<br> 연결된 영상은 is_deleted가 false이다.<br> 연결된 영상이 없으면 null이 반환됨에 주의한다.
+     *
+     * @param courseId
+     * @return
+     */
+    public UUID getAttachVideoUuid(Long courseId) {
+        return videoCourseRepository.findVideoUuidByCourseId(courseId)
+                .orElse(null);
+    }
 }

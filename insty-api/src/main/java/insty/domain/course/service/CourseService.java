@@ -24,6 +24,7 @@ import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.model.course.Course;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +56,8 @@ public class CourseService {
         List<String> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, req.tags());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos,
+                req.videoUuid());
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
@@ -69,8 +71,9 @@ public class CourseService {
                 req.installEnvChecklist());
         List<String> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.updateCourseTags(course, req.tags());
+        UUID videoUuid = courseVideoManager.getAttachVideoUuid(course.getId());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoUuid);
     }
 
     /**
@@ -93,8 +96,9 @@ public class CourseService {
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
         List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
+        UUID videoUuid = courseVideoManager.getAttachVideoUuid(course.getId());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles, videoUuid);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {
