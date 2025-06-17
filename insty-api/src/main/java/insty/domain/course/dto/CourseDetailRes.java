@@ -1,10 +1,12 @@
 package insty.domain.course.dto;
 
 import insty.domain.common.FileInfo;
+import insty.domain.common.VideoInfo;
 import insty.model.course.Course;
 import insty.model.video.VideoType;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public record CourseDetailRes(
         Long courseId,
@@ -12,31 +14,31 @@ public record CourseDetailRes(
         String description,
         String targetAudience,
         int price,
+        Instant createdAt,
         List<CourseInstallEnvChecklistInfo> installEnvChecklist,
         List<String> keyPoints,
         List<String> tags,
-        VideoType videoType,
         String thumbnailUrl,
         List<FileInfo> practiceFile,
-        Instant createdAt
+        VideoInfo videoInfo
 ) {
 
     public static CourseDetailRes from(Course course, List<CourseInstallEnvChecklistInfo> installEnvChecklist,
                                        List<String> keyPoints, List<String> tags, String thumbnailUrl,
-                                       List<FileInfo> practiceFile) {
+                                       List<FileInfo> practiceFile, UUID videoUuid) {
         return new CourseDetailRes(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
                 course.getTargetAudience(),
                 course.getPrice(),
+                course.getCreatedAt(),
                 installEnvChecklist,
                 keyPoints,
                 tags,
-                VideoType.COURSE,
                 thumbnailUrl,
                 practiceFile,
-                course.getCreatedAt()
+                VideoInfo.of(VideoType.COURSE, videoUuid)
         );
     }
 }

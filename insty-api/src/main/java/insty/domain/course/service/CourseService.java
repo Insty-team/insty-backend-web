@@ -24,6 +24,7 @@ import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.model.course.Course;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,7 @@ public class CourseService {
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.saveCourse(req);
-        courseVideoManager.attachmentCourse(course, req.videoUuid());
+        UUID videoUuid = courseVideoManager.attachmentCourse(course, req.videoUuid());
         String thumbnailUrl = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklistInfo> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
@@ -55,13 +56,14 @@ public class CourseService {
         List<String> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, req.tags());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos,
+                videoUuid);
     }
 
     public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         Course course = courseWriter.updateCourse(courseId, req);
-        courseVideoManager.updateVideo(course, req.updateVideoUuid());
+        UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
         String thumbnailUrl = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
@@ -70,7 +72,7 @@ public class CourseService {
         List<String> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.updateCourseTags(course, req.tags());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos);
+        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoUuid);
     }
 
     /**
@@ -93,8 +95,9 @@ public class CourseService {
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course);
         List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
+        UUID videoUuid = courseVideoManager.getAttachVideoUuid(course.getId());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles);
+        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles, videoUuid);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {
