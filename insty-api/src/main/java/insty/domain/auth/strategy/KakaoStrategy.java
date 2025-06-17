@@ -32,6 +32,7 @@ public class KakaoStrategy implements SocialStrategy {
      */
     @Override
     public String getAuthUrl() {
+        log.info("카카오 로그인 : 인가코드 받는 URL 요청");
         return kakaoService.getAuthUrl();
     }
 
@@ -43,6 +44,7 @@ public class KakaoStrategy implements SocialStrategy {
     public User loginBySocial(String code, String state, UserType userType) {
         // 카카오 토큰 조회
         KakaoTokenRes token = kakaoService.getTokenFromKakao(code);
+        log.info("카카오 로그인 : 토큰 조회 완료");
 
         // 사용자 정보 조회
         KakaoUserInfoRes userProfile = kakaoService.getUserProfile(token.accessToken());
@@ -50,6 +52,8 @@ public class KakaoStrategy implements SocialStrategy {
         Long socialId = userProfile.id();       // 소셜 회원 ID
         String email = userProfile.kakaoAccount().email();      // 이메일
         String nickname = userProfile.kakaoAccount().profile().nickname();      // 닉네임
+
+        log.info("카카오 로그인 : 사용자 정보 조회 완료 , 소셜 ID : {}", socialId);
 
         return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.KAKAO)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
