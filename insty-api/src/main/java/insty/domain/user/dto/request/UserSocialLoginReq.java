@@ -4,7 +4,6 @@ import insty.model.user.UserType;
 
 public record UserSocialLoginReq(
         String code,
-        String state,
         UserType userType
 ) {
 }

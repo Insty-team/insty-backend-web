@@ -118,7 +118,7 @@ public class AuthService {
                 .orElseThrow(() -> new CustomException(SocialErrorCode.SOCIAL_UNSUPPORTED_TYPE));
 
         // 각 전략에 맞춰 유저 정보 조회
-        User user = socialLoginStrategy.loginBySocial(req.code(), req.state(), req.userType());
+        User user = socialLoginStrategy.loginBySocial(req.code(), req.userType());
 
         // 마지막 로그인 시간 변경 및 유저타입 변경
         userWriter.updateLastLoginAt(user.getId());
@@ -140,7 +140,7 @@ public class AuthService {
     /**
      *  인가코드 받기
      */
-    public String getAuthUrl(SocialType socialName) {
+    public String getAuthUrl(SocialType socialName, String state) {
 
         // 전략 가져오기
         SocialStrategy socialLoginStrategy = strategies.stream()
@@ -149,6 +149,6 @@ public class AuthService {
                 .orElseThrow(() -> new CustomException(SocialErrorCode.SOCIAL_UNSUPPORTED_TYPE));
 
         // 각 전략에 맞춰 유저 정보 조회
-        return socialLoginStrategy.getAuthUrl();
+        return socialLoginStrategy.getAuthUrl(state);
     }
 }

@@ -83,7 +83,7 @@ public class User extends BaseEntity {
     }
 
     // 소셜 로그인 회원가입 엔티티 객체 생성
-    public static User createByKakao(String socialId, SocialType socialType, String email, String nickname, UserType userType) {
+    public static User createBySocial(String socialId, SocialType socialType, String email, String nickname, UserType userType) {
         return User.builder()
                 .socialId(String.valueOf(socialId))
                 .socialType(socialType)
