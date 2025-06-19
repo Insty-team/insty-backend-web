@@ -45,12 +45,12 @@ public class NaverService {
     /**
      *   인가 코드 받는 URL
      */
-    public String getAuthUrl() {
+    public String getAuthUrl(String state) {
         return UriComponentsBuilder.fromUriString(NAVER_AUTH_URL)
                 .queryParam("client_id", NAVER_CLIENT_ID)
                 .queryParam("redirect_uri", NAVER_REDIRECT_URL)
                 .queryParam("response_type", "code")
-                .queryParam("state", "INSTY")
+                .queryParam("state", state)
                 .build()
                 .toUriString();
     }

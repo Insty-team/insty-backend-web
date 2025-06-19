@@ -6,6 +6,6 @@ import insty.model.user.UserType;
 
 public interface SocialStrategy {
     boolean supports(SocialType provider);
-    String getAuthUrl();
-    User loginBySocial(String code, String state, UserType userType);
+    String getAuthUrl(String state);
+    User loginBySocial(String code, UserType userType);
 }

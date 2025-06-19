@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -45,8 +46,11 @@ public class AuthController {
     @Operation(summary = "사용자 소셜 로그인 인가코드 얻기", description = "소셜 로그인을 하기위해 인가코드를 얻습니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/login/authorize/{socialName}")
-    public SuccessRes<String> loginRequestWithSocial(@PathVariable SocialType socialName) {
-        return SuccessRes.of(authService.getAuthUrl(socialName));
+    public SuccessRes<String> loginRequestWithSocial(
+            @PathVariable SocialType socialName,
+            @RequestParam(required = false) String state
+    ) {
+        return SuccessRes.of(authService.getAuthUrl(socialName, state));
 
     }
 

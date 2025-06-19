@@ -42,11 +42,12 @@ public class KakaoService {
     /**
      *   인가 코드 받는 URL
      */
-    public String getAuthUrl() {
+    public String getAuthUrl(String state) {
         return UriComponentsBuilder.fromUriString(KAKAO_AUTH_URL)
                 .queryParam("client_id", KAKAO_CLIENT_ID)
                 .queryParam("redirect_uri", KAKAO_REDIRECT_URL)
                 .queryParam("response_type", "code")
+                .queryParam("state", state)
                 .build()
                 .toUriString();
     }

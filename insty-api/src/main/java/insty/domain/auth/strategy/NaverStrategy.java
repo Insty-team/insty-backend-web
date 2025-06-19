@@ -24,13 +24,13 @@ public class NaverStrategy implements SocialStrategy {
     }
 
     @Override
-    public String getAuthUrl() {
+    public String getAuthUrl(String state) {
         log.info("네이버 로그인 : 인가코드 받는 URL 요청");
-        return naverService.getAuthUrl();
+        return naverService.getAuthUrl(state);
     }
 
     @Override
-    public User loginBySocial(String code, String state, UserType userType) {
+    public User loginBySocial(String code, UserType userType) {
         // 네이버 토큰 조회
         NaverTokenRes token = naverService.getTokenFromNaver(code);
         log.info("네이버 로그인 : 토큰 조회 완료");
@@ -46,7 +46,7 @@ public class NaverStrategy implements SocialStrategy {
 
         return userRepository.findBySocialIdAndSocialType(socialId, SocialType.NAVER)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
-                    User newUser = User.createByKakao(socialId, SocialType.NAVER, email, nickname, userType);
+                    User newUser = User.createBySocial(socialId, SocialType.NAVER, email, nickname, userType);
                     return userRepository.save(newUser);
                 });
     }
