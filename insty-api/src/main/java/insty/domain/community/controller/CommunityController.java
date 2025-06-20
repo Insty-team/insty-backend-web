@@ -62,9 +62,11 @@ public class CommunityController {
     @PatchMapping("/questions/{question_id}")
     public SuccessRes<CommunityQuestionRes> updateQuestion(
             @PathVariable @NotBlank String questionId,
-            @RequestBody CommunityQuestionReq communityQuestionReq) {
+            @RequestPart CommunityQuestionReq communityQuestionReq,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+    ) {
         //communityQuestionReq.setId(questionId);
-        return SuccessRes.of(communityService.updateQuestion(communityQuestionReq));
+        return SuccessRes.of(communityService.updateQuestion(communityQuestionReq, attachments));
     }
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")

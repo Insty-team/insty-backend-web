@@ -75,13 +75,10 @@ public class CommunityQuestion extends BaseEntity {
                 .build();
     }
 
-    public void addAttachments(List<CommunityFile> attachments) {
-        this.attachments.addAll(attachments);
-    }
-
-    public void update(String title, String content) {
+    public void update(String title, String content, List<CommunityFile> attachments) {
         this.title = title;
         this.content = content;
+        this.attachments = attachments;
         this.updatedAt = Instant.now();
     }
 

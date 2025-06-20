@@ -40,8 +40,8 @@ public class CommunityWriter {
 
     }
 
-    public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq) {
-        prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content());
+    public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
+        prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), attachments);
         return communityQuestionRepository.save(prevCommunityQuestion);
     }
 

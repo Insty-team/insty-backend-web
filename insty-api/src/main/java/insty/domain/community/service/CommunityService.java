@@ -18,7 +18,7 @@ public interface CommunityService {
 
     CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments);
 
-    CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq);
+    CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments);
 
     void deleteQuestion(String questionId);
 

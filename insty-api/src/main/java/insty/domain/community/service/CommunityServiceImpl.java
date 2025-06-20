@@ -217,9 +217,13 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq) {
+    public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
         CommunityQuestion prevCommunityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityQuestionReq.questionId()));
-        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq);
+
+        //새 첨푸파일과 기존 첨부파일 비교
+        List<CommunityFile> existingAttachments = prevCommunityQuestion.getAttachments();
+
+        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq, attachments);
         //TODO: 첨부파일 추가
         return CommunityQuestionRes.create(
                 null,
