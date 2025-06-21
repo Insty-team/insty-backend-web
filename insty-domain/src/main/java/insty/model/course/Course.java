@@ -38,7 +38,7 @@ public class Course extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") // TODO - nullable=false 설정하기
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false)
@@ -76,11 +76,11 @@ public class Course extends BaseEntity {
     private boolean isDeleted = false;
 
 
-    // TODO - 유저도 필수로 받기
-    public static Course create(String title, String description, int price, String targetAudience, boolean isShow) {
+    public static Course create(User user, String title, String description, int price, String targetAudience,
+                                boolean isShow) {
         validateCreate(title, description, price, targetAudience, isShow);
         return Course.builder()
-                .user(null)
+                .user(user)
                 .title(title)
                 .description(description)
                 .price(price)

@@ -22,7 +22,9 @@ import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseValidator;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
+import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
+import insty.model.user.User;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +46,12 @@ public class CourseService {
     private final CourseVideoManager courseVideoManager;
     private final CourseValidator courseValidator;
     private final CourseComplexReader courseComplexReader;
+    private final UserReader userReader;
 
-    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
+    public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
-        Course course = courseWriter.saveCourse(req);
+        User user = userReader.getUser(userId);
+        Course course = courseWriter.saveCourse(user, req);
         UUID videoUuid = courseVideoManager.attachmentCourse(course, req.videoUuid());
         courseFileWriter.saveThumbnail(thumbnail, course);
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
