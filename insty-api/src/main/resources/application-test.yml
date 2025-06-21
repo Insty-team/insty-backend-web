@@ -43,6 +43,15 @@ oauth:
         user-info-url: https://openapi.naver.com/v1/nid/me
       client-id: test
       client-secret: test
+    google:
+      endpoints:
+        redirect-url: test
+        token-url: https://oauth2.googleapis.com/token
+        auth-url: https://accounts.google.com/o/oauth2/v2/auth
+        user-info-url: test
+      client_id: test
+      client-secret: test
+
 
 
 app:
