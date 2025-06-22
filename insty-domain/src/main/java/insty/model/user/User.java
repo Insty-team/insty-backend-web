@@ -105,6 +105,7 @@ public class User extends BaseEntity {
         this.introduce = introduce;
     }
 
+    // 사용자 전환
     public void update(UserType userType) {
         this.userType = userType;
     }

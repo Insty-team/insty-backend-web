@@ -65,7 +65,7 @@ public class NaverService {
             form.add("client_id",    NAVER_CLIENT_ID);
             form.add("client_secret", NAVER_CLIENT_SECRET);
             form.add("code", code);
-            form.add("state", "INSTY");
+            form.add("state", "INSTY");     // 필수여서 대문자로 박아둠
 
             return restClient.post()
                     .uri(NAVER_TOKEN_URL)

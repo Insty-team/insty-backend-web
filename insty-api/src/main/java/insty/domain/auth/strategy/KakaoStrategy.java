@@ -37,7 +37,7 @@ public class KakaoStrategy implements SocialStrategy {
     }
 
     /**
-     *  로그인 구현
+     *  소셜로그인 진행 및 토큰 발급
      */
     @Override
     @Transactional

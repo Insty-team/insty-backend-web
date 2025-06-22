@@ -18,17 +18,26 @@ public class NaverStrategy implements SocialStrategy {
     private final NaverService naverService;
     private final UserRepository userRepository;
 
+    /**
+     *  전략 사용 지원 여부
+     */
     @Override
     public boolean supports(SocialType provider) {
         return provider == SocialType.NAVER;
     }
 
+    /**
+     *  인증 URL 조회
+     */
     @Override
     public String getAuthUrl(String state) {
         log.info("네이버 로그인 : 인가코드 받는 URL 요청");
         return naverService.getAuthUrl(state);
     }
 
+    /**
+     *  소셜로그인 진행 및 토큰 발급
+     */
     @Override
     public User loginBySocial(String code, UserType userType) {
         // 네이버 토큰 조회

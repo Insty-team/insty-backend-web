@@ -36,6 +36,9 @@ public class GoogleStrategy implements SocialStrategy {
         return googleService.getAuthUrl(state);
     }
 
+    /**
+     *  소셜로그인 진행 및 토큰 발급
+     */
     @Override
     public User loginBySocial(String code, UserType userType) {
 
