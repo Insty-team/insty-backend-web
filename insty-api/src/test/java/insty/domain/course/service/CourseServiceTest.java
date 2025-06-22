@@ -121,6 +121,7 @@ class CourseServiceTest {
     @Test
     void createCourse_정상() {
         // given
+        Long userId = 1L;
         String title = "강의 제목";
         String description = "내용 설명";
         String targetAudience = "대상자";
@@ -147,7 +148,7 @@ class CourseServiceTest {
                 .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 
         // when
-        CourseDetailRes res = courseService.createCourse(req, thumbnail, practiceFiles);
+        CourseDetailRes res = courseService.createCourse(userId, req, thumbnail, practiceFiles);
 
         // then
         assertThat(res).isNotNull();

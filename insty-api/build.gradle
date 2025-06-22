@@ -19,6 +19,7 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation(testFixtures(project(':insty-domain')))
     testImplementation 'com.h2database:h2'
     runtimeOnly 'com.h2database:h2'
 }

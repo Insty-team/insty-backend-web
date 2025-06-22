@@ -22,6 +22,7 @@ import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
 import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
 import insty.model.user.UserType;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
@@ -31,7 +32,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag("unit")
@@ -60,9 +60,7 @@ class UserServiceTest {
         UserCreateReq req = new UserCreateReq("test@example.com", "plainPassword", "nickname");
         String encodedPassword = "encodedPassword";
 
-
-        User savedUser = User.create(req.email(), encodedPassword, req.nickname());
-        ReflectionTestUtils.setField(savedUser, "id", 1L); // ID 수동 주입 (테스트 편의)
+        User savedUser = UserFixtureBuilder.getUserWithId(1L, req.email(), encodedPassword, req.nickname());
 
         when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
         when(userWriter.save(req.email(), encodedPassword, req.nickname())).thenReturn(savedUser);
@@ -144,7 +142,7 @@ class UserServiceTest {
     void 사용자_상세정보_조회에_성공한다() {
         // given
         Long userId = 1L;
-        User mockUser = User.create("email@example.com", "encodedPassword", "nickname");
+        User mockUser = UserFixtureBuilder.getUserWithId(userId);
         String imageUrl = "https://cdn.com/profile.png";
 
         when(userReader.getUser(userId)).thenReturn(mockUser);
@@ -168,7 +166,7 @@ class UserServiceTest {
         String encodedPassword = "encodedPassword";
         String imageUrl = "https://cdn.com/new.png";
 
-        User updatedUser = User.create("new@example.com", encodedPassword, "newnick");
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId, "new@example.com", encodedPassword, "newnick");
 
         when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
         when(userWriter.updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce()))
@@ -192,7 +190,7 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         UserTypeUpdateReq req = new UserTypeUpdateReq(UserType.LEARNER);
-        User updatedUser = User.create("email@example.com", "pass", "nick");
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId);
         String imageUrl = "https://cdn.com/profile.png";
 
         when(userWriter.updateUserByUserType(userId, req.userType())).thenReturn(updatedUser);
@@ -212,7 +210,7 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         UserAgreementUpdateReq req = new UserAgreementUpdateReq(true);
-        User updatedUser = User.create("email@example.com", "pass", "nick");
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId);
         String imageUrl = "https://cdn.com/profile.png";
 
         when(userWriter.updateUserByAgreement(userId, req.isEmailAgree())).thenReturn(updatedUser);

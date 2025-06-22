@@ -11,6 +11,7 @@ import insty.exception.CustomException;
 import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
+import insty.model.user.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,9 @@ public class CourseWriter {
     private final CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
     private final CourseKeypointRepository courseKeypointRepository;
 
-    public Course saveCourse(CourseCreateReq req) {
-        Course course = Course.create(req.title(), req.description(), req.price(), req.targetAudience(), req.isShow());
+    public Course saveCourse(User user, CourseCreateReq req) {
+        Course course = Course.create(user, req.title(), req.description(), req.price(), req.targetAudience(),
+                req.isShow());
         return courseRepository.save(course);
     }
 

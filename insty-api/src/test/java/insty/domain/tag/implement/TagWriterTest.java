@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.tag.repository.TagsRepository;
 import insty.model.tag.Tags;
+import insty.model.tag.TagsFixtureBuilder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,8 +36,9 @@ class TagWriterTest {
         Set<String> tagNames = Set.of(tag1, tag2);
 
         // mock
+        Tags tags1 = TagsFixtureBuilder.getTagsWithId(1L, tag1);
         when(tagsRepository.findByTagNameIn(tagNames))
-                .thenReturn(new HashSet<>(List.of(Tags.create(tag1))));
+                .thenReturn(new HashSet<>(List.of(tags1)));
         when(tagsRepository.saveAll(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 

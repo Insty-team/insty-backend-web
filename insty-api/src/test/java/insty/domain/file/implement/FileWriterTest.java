@@ -11,6 +11,7 @@ import insty.domain.common.FileCreateReq;
 import insty.domain.file.repository.FileRepository;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
+import insty.model.file.FileFixtureBuilder;
 import insty.s3.adapter.S3FileManager;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -112,8 +113,7 @@ class FileWriterTest {
     @Test
     void deleteFile_정상() {
         // given
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
 
         // when
 
