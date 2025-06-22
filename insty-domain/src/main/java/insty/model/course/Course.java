@@ -78,7 +78,7 @@ public class Course extends BaseEntity {
 
     public static Course create(User user, String title, String description, int price, String targetAudience,
                                 boolean isShow) {
-        validateCreate(title, description, price, targetAudience, isShow);
+        validateCreate(user, title, description, price, targetAudience, isShow);
         return Course.builder()
                 .user(user)
                 .title(title)
@@ -89,8 +89,12 @@ public class Course extends BaseEntity {
                 .build();
     }
 
-    private static void validateCreate(String title, String description, int price, String targetAudience,
+    private static void validateCreate(User user, String title, String description, int price, String targetAudience,
                                        boolean isShow) {
+        if (user == null || user.getId() == null) {
+            log.error("생성 오류 - user : 유저 미지정 또는 유저 Id 미설정");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
         if (title == null || title.trim().isEmpty()) {
             log.error("생성 오류 - title : 비었음");
             throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
