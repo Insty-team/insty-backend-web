@@ -1,6 +1,7 @@
 package insty.domain.auth.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -21,6 +22,7 @@ import insty.error.TokenErrorCode;
 import insty.exception.CustomException;
 import insty.global.security.CustomUserDetails;
 import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
 import insty.model.user.UserType;
 import insty.util.JwtUtils;
 import java.time.Instant;
@@ -39,13 +41,20 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    @Mock private AuthenticationManager authenticationManager;
-    @Mock private UserWriter userWriter;
-    @Mock private UserReader userReader;
-    @Mock private AuthTokenIssuer authTokenIssuer;
-    @Mock private AuthTokenValidator authTokenValidator;
-    @Mock private AuthTokenRedisWriter authTokenRedisWriter;
-    @Mock private JwtUtils jwtUtils;
+    @Mock
+    private AuthenticationManager authenticationManager;
+    @Mock
+    private UserWriter userWriter;
+    @Mock
+    private UserReader userReader;
+    @Mock
+    private AuthTokenIssuer authTokenIssuer;
+    @Mock
+    private AuthTokenValidator authTokenValidator;
+    @Mock
+    private AuthTokenRedisWriter authTokenRedisWriter;
+    @Mock
+    private JwtUtils jwtUtils;
 
     @Test
     void 이메일_로그인_성공() {
@@ -69,7 +78,8 @@ class AuthServiceTest {
 
         Instant accessTokenExpiresAt = Instant.now().plusSeconds(3600);
         Instant refreshTokenExpiresAt = Instant.now().plusSeconds(86400);
-        UserAuthTokenDto tokenDto = new UserAuthTokenDto("accessToken", "refreshToken", accessTokenExpiresAt, refreshTokenExpiresAt, "Bearer");
+        UserAuthTokenDto tokenDto = new UserAuthTokenDto("accessToken", "refreshToken", accessTokenExpiresAt,
+                refreshTokenExpiresAt, "Bearer");
 
         when(authTokenIssuer.generateUserTokens(userId, UserType.LEARNER)).thenReturn(tokenDto);
 
@@ -106,15 +116,15 @@ class AuthServiceTest {
         String refreshToken = "valid.refresh.token";
         Long userId = 1L;
 
-        User user = User.create("test@example.com", "nickname", "email");
-        ReflectionTestUtils.setField(user, "id", userId); // Spring의 ReflectionTestUtils 사용
+        User user = UserFixtureBuilder.getUserWithId(userId);
         ReflectionTestUtils.setField(user, "userType", UserType.LEARNER); // Spring의 ReflectionTestUtils 사용
         when(jwtUtils.extractSubject(refreshToken)).thenReturn(userId.toString());
         when(userReader.getUser(userId)).thenReturn(user);
 
         Instant accessTokenExpiresAt = Instant.now().plusSeconds(3600);
         Instant refreshTokenExpiresAt = Instant.now().plusSeconds(86400);
-        UserAuthTokenDto tokenDto = new UserAuthTokenDto("accessToken", "refreshToken", accessTokenExpiresAt, refreshTokenExpiresAt, "Bearer");
+        UserAuthTokenDto tokenDto = new UserAuthTokenDto("accessToken", "refreshToken", accessTokenExpiresAt,
+                refreshTokenExpiresAt, "Bearer");
         when(authTokenIssuer.generateUserTokens(userId, UserType.LEARNER)).thenReturn(tokenDto);
 
         // When

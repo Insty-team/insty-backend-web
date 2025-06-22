@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.user.repository.UserRepository;
 import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +33,7 @@ class UserWriterTest {
         String password = "securePw123!";
         String nickname = "test";
 
-        User fakeUser = User.create(email, password, nickname);
+        User fakeUser = UserFixtureBuilder.getUserWithId(1L, email, password, nickname);
 
         // mock
         when(userRepository.save(any(User.class))).thenReturn(fakeUser);
