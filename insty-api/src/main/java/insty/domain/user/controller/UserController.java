@@ -102,6 +102,7 @@ public class UserController {
             security = @SecurityRequirement(name = "JWT")
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping("/profile/userType")
     public SuccessRes<UserDetailRes> updateUserType(
             @CurrentUser Long userId,
@@ -115,6 +116,7 @@ public class UserController {
             security = @SecurityRequirement(name = "JWT")
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping("/profile/email-agree")
     public SuccessRes<UserDetailRes> updateEmailAgreed(
             @CurrentUser Long userId,

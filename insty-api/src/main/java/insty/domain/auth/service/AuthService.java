@@ -19,12 +19,14 @@ import insty.model.user.User;
 import insty.util.JwtUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -116,6 +118,8 @@ public class AuthService {
                 .filter(s -> s.supports(socialName))        // supports() 로 판별
                 .findFirst()
                 .orElseThrow(() -> new CustomException(SocialErrorCode.SOCIAL_UNSUPPORTED_TYPE));
+
+        log.info("{} 로그인 전략 동작", socialName);
 
         // 각 전략에 맞춰 유저 정보 조회
         User user = socialLoginStrategy.loginBySocial(req.code(), req.userType());
