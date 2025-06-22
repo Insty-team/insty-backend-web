@@ -25,6 +25,7 @@ import insty.domain.video.repository.VideoCourseRepository;
 import insty.domain.video.repository.VideoEncodingRepository;
 import insty.global.property.AppProperties;
 import insty.model.user.User;
+import insty.model.user.UserFixture;
 import insty.model.video.AnalysisStatus;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
@@ -93,7 +94,7 @@ class VideoServiceTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixture.getUser();
         user = userRepository.save(user);
 
         // mock
@@ -140,7 +141,7 @@ class VideoServiceTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixture.getUser();
         user = userRepository.save(user);
 
         // mock

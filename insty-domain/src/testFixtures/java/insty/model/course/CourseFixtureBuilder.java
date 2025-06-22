@@ -12,4 +12,12 @@ public class CourseFixtureBuilder {
         ReflectionTestUtils.setField(course, "id", 1L);
         return course;
     }
+
+    public static Course getCourseWithIdAndUser(Long courseId, String title, String description, int price,
+                                                String targetAudience, boolean isShow) {
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixture.getCourse(user, title, description, price, targetAudience, isShow);
+        ReflectionTestUtils.setField(course, "id", courseId);
+        return course;
+    }
 }

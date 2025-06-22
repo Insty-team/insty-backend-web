@@ -124,7 +124,7 @@ class VideoCourseTest {
     @Test
     void updateCourse_정상() {
         // given
-        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithId();
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when

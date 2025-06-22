@@ -7,7 +7,9 @@ import static org.mockito.Mockito.when;
 import insty.domain.course.repository.CourseTagRepository;
 import insty.domain.tag.implement.TagWriter;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.tag.Tags;
+import insty.model.tag.TagsFixtureBuilder;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Tag;
@@ -33,15 +35,13 @@ class CourseTagWriterTest {
     @Test
     void saveCourseTagsAndGetTagNames_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         ReflectionTestUtils.setField(course, "id", 1L);
         Set<String> tagNames = Set.of("태그1", "태그2");
 
         // mock
-        Tags tag1 = Tags.create("태그1");
-        ReflectionTestUtils.setField(tag1, "id", 1L);
-        Tags tag2 = Tags.create("태그2");
-        ReflectionTestUtils.setField(tag2, "id", 1L);
+        Tags tag1 = TagsFixtureBuilder.getTagsWithId(1L, "태그1");
+        Tags tag2 = TagsFixtureBuilder.getTagsWithId(2L, "태그2");
         when(tagWriter.saveTags(tagNames))
                 .thenReturn(Set.of(tag1, tag2));
 
@@ -56,15 +56,12 @@ class CourseTagWriterTest {
     @Test
     void updateCourseTags_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         Set<String> tagNames = Set.of("태그1", "태그2");
 
         // mock
-        Tags tag1 = Tags.create("태그1");
-        ReflectionTestUtils.setField(tag1, "id", 1L);
-        Tags tag2 = Tags.create("태그2");
-        ReflectionTestUtils.setField(tag2, "id", 1L);
+        Tags tag1 = TagsFixtureBuilder.getTagsWithId(1L, "태그1");
+        Tags tag2 = TagsFixtureBuilder.getTagsWithId(2L, "태그2");
         when(tagWriter.saveTags(tagNames))
                 .thenReturn(Set.of(tag1, tag2));
 

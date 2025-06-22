@@ -7,4 +7,9 @@ public class CourseFixture {
     public static Course getCourse(User user) {
         return Course.create(user, "제목", "설명", 10000, "강의 추천 대상자", true);
     }
+
+    public static Course getCourse(User user, String title, String description, int price, String targetAudience,
+                                   boolean isShow) {
+        return Course.create(user, title, description, price, targetAudience, isShow);
+    }
 }
