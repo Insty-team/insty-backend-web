@@ -21,6 +21,7 @@ class TagsTest {
 
         // then
         assertThat(tags).isNotNull();
+        assertThat(tags.getId()).isNull();
         assertThat(tags.getTagName()).isEqualTo(tagName);
     }
 

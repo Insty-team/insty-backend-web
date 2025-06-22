@@ -16,7 +16,7 @@ public class CourseValidator {
 
     public void validateCourseOwner(Long courseId, Long userId) {
         if (!courseRepository.existsByIdAndUserId(courseId, userId)) {
-            throw new CustomException(CourseErrorCode.COURSE_CANT_DELETE);
+            throw new CustomException(CourseErrorCode.COURSE_CANT_CHANGE);
         }
     }
 }

@@ -13,8 +13,9 @@ import insty.domain.course.repository.CourseQueryRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.file.File;
-import insty.model.file.FileContainerType;
+import insty.model.file.FileFixtureBuilder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +55,9 @@ class CourseComplexReaderTest {
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
         // getCourseThumbnailUrlMap 테스트 세팅
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
-        ReflectionTestUtils.setField(course, "thumbnail", file);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
+        ReflectionTestUtils.setField(course, "thumbnail", thumbnail);
         when(courseRepository.findWithThumbnailByCourseIdIn(any()))
                 .thenReturn(List.of(course));
         when(appProperties.getDomain())
@@ -109,11 +108,9 @@ class CourseComplexReaderTest {
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
         // getCourseThumbnailUrlMap 테스트 세팅
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
-        ReflectionTestUtils.setField(course, "thumbnail", file);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
+        ReflectionTestUtils.setField(course, "thumbnail", thumbnail);
         when(courseRepository.findWithThumbnailByCourseIdIn(any()))
                 .thenReturn(List.of(course));
         when(appProperties.getDomain())

@@ -6,9 +6,10 @@ import static org.mockito.Mockito.when;
 import insty.domain.common.FileInfo;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.course.CoursePracticeFile;
 import insty.model.file.File;
-import insty.model.file.FileContainerType;
+import insty.model.file.FileFixtureBuilder;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -32,10 +33,9 @@ class CourseFileReaderTest {
     @Test
     void getThumbnailUrl_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
-        ReflectionTestUtils.setField(course, "thumbnail", file);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
+        ReflectionTestUtils.setField(course, "thumbnail", thumbnail);
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
@@ -53,7 +53,7 @@ class CourseFileReaderTest {
     @Test
     void getThumbnailUrl_정상_썸네일이_없으면_기본_썸네일을_반환한다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
@@ -71,7 +71,7 @@ class CourseFileReaderTest {
     @Test
     void getThumbnailUrl_정상_썸네일이_없고_video_uuid도_null이면_null을_반환한다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID videoUuid = null;
 
         // when
@@ -84,12 +84,9 @@ class CourseFileReaderTest {
     @Test
     void getPracticeFiles_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
-        File existFile = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L,
-                "00000000-0000-0000-0000-000000000001.jpg", "practice1.jpg", "image/jpeg", 7);
-        ReflectionTestUtils.setField(existFile, "id", 1L);
-        ReflectionTestUtils.setField(course, "practiceFiles", List.of(CoursePracticeFile.create(course, existFile)));
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File practiceFile = FileFixtureBuilder.getCoursePracticeFileWithId();
+        ReflectionTestUtils.setField(course, "practiceFiles", List.of(CoursePracticeFile.create(course, practiceFile)));
 
         // mock
         when(appProperties.getDomain())
@@ -101,7 +98,7 @@ class CourseFileReaderTest {
         // then
         assertThat(practiceFiles).isNotNull();
         assertThat(practiceFiles.size()).isEqualTo(1);
-        assertThat(practiceFiles.get(0).name()).isEqualTo("practice1.jpg");
+        assertThat(practiceFiles.get(0).name()).isEqualTo(practiceFile.getOriginalName());
         assertThat(practiceFiles.get(0).url()).isEqualTo(
                 "https://insty.test.com/file/COURSE_PRACTICE_FILE/1/00000000-0000-0000-0000-000000000001.jpg");
     }

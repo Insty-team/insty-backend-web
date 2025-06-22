@@ -1,13 +1,13 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.model.course.Course;
-import insty.model.user.User;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.video.VideoCourse;
+import insty.model.video.VideoFixtureBuilder;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -30,11 +30,11 @@ class CourseVideoManagerTest {
     @Test
     void attachmentCourse_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
-        VideoCourse videoCourse = VideoCourse.create("fileName.mp4", videoUuid, mock(User.class));
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         when(videoCourseRepository.findByVideoUuid(videoUuid))
                 .thenReturn(Optional.of(videoCourse));
 
@@ -48,7 +48,7 @@ class CourseVideoManagerTest {
     @Test
     void attachmentCourse_정상_영상을_업로드하지_않았다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID videoUuid = null;
 
         // mock
@@ -63,11 +63,11 @@ class CourseVideoManagerTest {
     @Test
     void updateVideo_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID updateVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // mock
-        VideoCourse videoCourse = VideoCourse.create("fileName.mp4", updateVideoUuid, mock(User.class));
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         when(videoCourseRepository.findByVideoUuid(updateVideoUuid))
                 .thenReturn(Optional.of(videoCourse));
 
@@ -81,7 +81,7 @@ class CourseVideoManagerTest {
     @Test
     void updateVideo_정상_영상을_교체하지_않는다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID updateVideoUuid = null;
 
         // when

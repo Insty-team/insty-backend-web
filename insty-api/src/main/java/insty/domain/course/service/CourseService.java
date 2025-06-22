@@ -55,9 +55,10 @@ public class CourseService {
     private final CourseComplexReader courseComplexReader;
     private final UserReader userReader;
 
-    public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
+    public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
-        Course course = courseWriter.saveCourse(req);
+        User user = userReader.getUser(userId);
+        Course course = courseWriter.saveCourse(user, req);
         UUID videoUuid = courseVideoManager.attachmentCourse(course, req.videoUuid());
         courseFileWriter.saveThumbnail(thumbnail, course);
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
@@ -71,8 +72,9 @@ public class CourseService {
                 videoUuid);
     }
 
-    public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
+    public CourseDetailRes updateCourse(Long userId, Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
+        courseValidator.validateCourseOwner(courseId, userId);
         Course course = courseWriter.updateCourse(courseId, req);
         UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
         courseFileWriter.updateThumbnail(thumbnail, course);

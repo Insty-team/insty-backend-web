@@ -8,6 +8,7 @@ import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.uuid.UuidProvider;
@@ -39,7 +40,7 @@ class VideoWriterTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // mock
         when(uuidProvider.generate())
@@ -62,7 +63,7 @@ class VideoWriterTest {
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // mock
         when(uuidProvider.generate())

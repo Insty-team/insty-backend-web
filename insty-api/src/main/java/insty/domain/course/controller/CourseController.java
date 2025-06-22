@@ -50,13 +50,14 @@ public class CourseController {
     @PreAuthorize("hasRole('CREATOR')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseCreate(
+            @CurrentUser Long userId,
             @RequestPart("coursePostReq") @Validated CourseCreateReq req,
             @Parameter(description = "썸네일", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "thumbnail", required = false) MultipartFile thumbnail,
             @Parameter(description = "실습자료(최대 2개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "practiceFile", required = false) @Size(max = 2) List<MultipartFile> practiceFile
     ) {
-        return SuccessRes.of(courseService.createCourse(req, thumbnail, practiceFile));
+        return SuccessRes.of(courseService.createCourse(userId, req, thumbnail, practiceFile));
     }
 
     @Operation(summary = "강의 수정", description = "강의를 수정한다.")
@@ -64,6 +65,7 @@ public class CourseController {
     @PreAuthorize("hasRole('CREATOR')")
     @PutMapping(path = "/{courseId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseUpdate(
+            @CurrentUser Long userId,
             @PathVariable("courseId") Long courseId,
             @RequestPart("courseUpdateReq") @Validated CourseUpdateReq req,
             @Parameter(description = "썸네일", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
@@ -71,7 +73,7 @@ public class CourseController {
             @Parameter(description = "실습자료(최대 2개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "practiceFile", required = false) @Size(max = 2) List<MultipartFile> practiceFile
     ) {
-        return SuccessRes.of(courseService.updateCourse(courseId, req, thumbnail, practiceFile));
+        return SuccessRes.of(courseService.updateCourse(userId, courseId, req, thumbnail, practiceFile));
     }
 
     @Operation(summary = "강의 삭제", description = "강의를 삭제한다.")

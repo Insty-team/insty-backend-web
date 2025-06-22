@@ -51,7 +51,7 @@ public class GoogleStrategy implements SocialStrategy {
 
         log.info("구글 로그인 : 사용자 정보 조회 완료 , 소셜 ID : {}", socialId);
 
-        return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.KAKAO)
+        return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.GOOGLE)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
                     User newUser = User.createBySocial(socialId, SocialType.GOOGLE, email, nickname, userType);
                     return userRepository.save(newUser);

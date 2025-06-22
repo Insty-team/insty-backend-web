@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
-import insty.model.course.fixture.CourseFixtureBuilder;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +14,7 @@ class CourseKeypointTest {
     @Test
     void create_정상() {
         // given
-        Course course = CourseFixtureBuilder.getCourse();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         String content = "핵심 포인트 설명";
 
         // when
@@ -23,6 +22,7 @@ class CourseKeypointTest {
 
         // then
         assertThat(keypoint).isNotNull();
+        assertThat(keypoint.getId()).isNull();
         assertThat(keypoint.getCourse()).isEqualTo(course);
         assertThat(keypoint.getContent()).isEqualTo(content);
     }
@@ -45,7 +45,7 @@ class CourseKeypointTest {
     @Test
     void create_에러_content가_null이다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         String content = null;
 
         // when
@@ -60,7 +60,7 @@ class CourseKeypointTest {
     @Test
     void create_에러_content에_공백만_있다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         String content = "  \n\t\r";
 
         // when

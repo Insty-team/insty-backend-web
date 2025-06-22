@@ -5,12 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
-import insty.model.course.fixture.CourseFixtureBuilder;
 import insty.model.course.id.CourseTagId;
 import insty.model.tag.Tags;
+import insty.model.tag.TagsFixtureBuilder;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @Tag("unit")
 class CourseTagsTest {
@@ -18,10 +17,8 @@ class CourseTagsTest {
     @Test
     void create_정상() {
         // given
-        Course course = CourseFixtureBuilder.getCourse();
-        ReflectionTestUtils.setField(course, "id", 1L);
-        Tags tags = Tags.create("태그 이름");
-        ReflectionTestUtils.setField(tags, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        Tags tags = TagsFixtureBuilder.getTagsWithId();
 
         // when
         CourseTag courseTag = CourseTag.create(course, tags);
@@ -37,7 +34,7 @@ class CourseTagsTest {
     void create_에러_course가_null이다() {
         // given
         Course course = null;
-        Tags tags = Tags.create("태그 이름");
+        Tags tags = TagsFixtureBuilder.getTagsWithId();
 
         // when
 
@@ -51,7 +48,7 @@ class CourseTagsTest {
     @Test
     void create_에러_tags가_null이다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         Tags tags = null;
 
         // when
