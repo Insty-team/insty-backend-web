@@ -33,7 +33,7 @@ class UserValidatorTest {
         // given
         String email = "test@example.com";
         User existingUser = mock(User.class);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByEmailAndSocialIdIsNull(email)).thenReturn(Optional.of(existingUser));
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> {
@@ -47,7 +47,7 @@ class UserValidatorTest {
     void 이메일이_존재하지_않으면_예외가_발생하지_않는다() {
         // given
         String email = "unique@example.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.findByEmailAndSocialIdIsNull(email)).thenReturn(Optional.empty());
 
         // when & then
         assertDoesNotThrow(() -> userValidator.validateDuplicateEmail(email));

@@ -18,7 +18,7 @@ public class UserValidator {
      * 사용자 이메일 중복 체크
      */
     public void validateDuplicateEmail(String email) {
-        userRepository.findByEmail(email).ifPresent((user) -> {
+        userRepository.findByEmailAndSocialIdIsNull(email).ifPresent((user) -> {
             throw new CustomException(UserErrorCode.USER_DUPLICATE_EMAIL);
         });
     }
@@ -36,7 +36,7 @@ public class UserValidator {
      * 사용자 이메일 중복 체크 (자신 것은 제외)
      */
     public void validateDuplicateEmailExcludingSelf(Long userId, String email) {
-        userRepository.findByEmail(email).ifPresent((user) -> {
+        userRepository.findByEmailAndSocialIdIsNull(email).ifPresent((user) -> {
             if (!user.getId().equals(userId)) {
                 throw new CustomException(UserErrorCode.USER_DUPLICATE_EMAIL);
             }
