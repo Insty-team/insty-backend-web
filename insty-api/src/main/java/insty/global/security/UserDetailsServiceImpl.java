@@ -23,7 +23,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        // TODO 이메일 인증 받으면 소셜로그인, 이메일 계정 통합계정으로 수정
+        User user = userRepository.findByEmailAndSocialIdIsNull(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         return new CustomUserDetails(user);
