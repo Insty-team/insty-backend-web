@@ -20,6 +20,7 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseRequestReader;
 import insty.domain.course.implement.CourseRequestWriter;
 import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseValidator;
@@ -48,6 +49,7 @@ public class CourseService {
     private final CourseFileReader courseFileReader;
     private final CourseTagWriter courseTagWriter;
     private final CourseRequestWriter courseRequestWriter;
+    private final CourseRequestReader courseRequestReader;
     private final CourseVideoManager courseVideoManager;
     private final CourseValidator courseValidator;
     private final CourseComplexReader courseComplexReader;
@@ -134,8 +136,14 @@ public class CourseService {
      */
     public CourseRequestRes createCourseRequest(Long userId, CourseRequestReq req) {
         CourseRequest saveCourseRequest = courseRequestWriter.saveCourseRequest(userId, req);
-        User recipientUser = userReader.getUser(req.creatorId());
-        return CourseRequestRes.from(saveCourseRequest, recipientUser);
+        return CourseRequestRes.from(saveCourseRequest);
     }
 
+    /**
+     *  크리에이터에 요청된 강의 목록 조회
+     */
+    public List<CourseRequestRes> searchCourseRequest(Long userId) {
+        List<CourseRequest> findMyCourseRequest = courseRequestReader.getListMyCourseRequest(userId);
+        return CourseRequestRes.from(findMyCourseRequest);
+    }
 }

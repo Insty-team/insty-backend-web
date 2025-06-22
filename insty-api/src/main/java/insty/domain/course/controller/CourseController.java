@@ -127,4 +127,14 @@ public class CourseController {
     ) {
         return SuccessRes.of(courseService.createCourseRequest(userId, req));
     }
+
+    @Operation(summary = "강의 요청된 리스트", description = "러너가 크리에이터에게 강의를 요청한 목록을 조회한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_REQUEST)
+    @PreAuthorize("hasRole('CREATOR')")
+    @GetMapping("/requests")
+    public SuccessRes<List<CourseRequestRes>> courseRequestSearch(
+            @CurrentUser Long userId
+    ) {
+        return SuccessRes.of(courseService.searchCourseRequest(userId));
+    }
 }
