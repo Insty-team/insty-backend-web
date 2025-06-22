@@ -1,5 +1,6 @@
 package insty.domain.community.service;
 
+import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
@@ -167,19 +168,71 @@ public class CommunityServiceTest {
                 content3
         );
 
-//        when(communityReader.getAllCommunityAnswers(questionId))
-//                .thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
-//
-//        //when
-//        List<CommunityAnswerRes> communityAnswerResList = communityService.getAllAnswers(questionId);
-//
-//        //then
-//        assertThat(communityAnswerResList).isNotNull();
-//        assertThat(communityAnswerResList.size()).isEqualTo(3);
-//        assertThat(communityAnswerResList.get(0).content()).isEqualTo(content1);
-//        assertThat(communityAnswerResList.get(1).content()).isEqualTo(content2);
-//        assertThat(communityAnswerResList.get(2).content()).isEqualTo(content3);
+        when(communityReader.getAllCommunityAnswers(questionId))
+                .thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
+
+        //when
+        List<CommunityAnswerRes> communityAnswerResList = communityService.getAllAnswers(questionId);
+
+        //then
+        assertThat(communityAnswerResList).isNotNull();
+        assertThat(communityAnswerResList.size()).isEqualTo(3);
+        assertThat(communityAnswerResList.get(0).content()).isEqualTo(content1);
+        assertThat(communityAnswerResList.get(1).content()).isEqualTo(content2);
+        assertThat(communityAnswerResList.get(2).content()).isEqualTo(content3);
 
 
     }
+
+    @Test
+    void saveAnswer() {
+        String questionId = "1";
+        String content = "답변 내용";
+        Long userId = 1L;
+
+        CommunityAnswerReq req = CommunityAnswerReq.create(
+                questionId,
+                userId,
+                content
+        );
+
+        CommunityAnswerRes res = CommunityAnswerRes.create(
+                userId,
+                questionId,
+                content,
+                Instant.now(),
+                Instant.now()
+        );
+
+        User user = User.create("email", "nickname", "password");
+        Course course = Course.create("title", "description", 100, "targetAudience", true);
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                "질문 제목",
+                "질문 내용"
+        );
+
+        CommunityAnswer communityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content
+        );
+
+        when(communityReader.getCommunityQuestionDetailsById(questionId))
+                .thenReturn(communityQuestion);
+        when(userReader.getUser(userId))
+                .thenReturn(user);
+        when(communityWriter.saveAnswer(any(CommunityQuestion.class), any(), any(User.class)))
+                .thenReturn(communityAnswer);
+
+        //when
+        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req);
+
+        //then
+        assertThat(communityAnswerRes).isNotNull();
+        assertThat(communityAnswerRes.content()).isEqualTo(content);
+    }
 }
+

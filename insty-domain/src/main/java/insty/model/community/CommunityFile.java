@@ -17,6 +17,7 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityFile extends BaseEntity {
 
+    // To be deleted
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,14 +26,16 @@ public class CommunityFile extends BaseEntity {
     @JoinColumn(name = "question_id", nullable = false)
     private CommunityQuestion communityQuestion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
+    // To be deleted
     @CreatedDate
     @Column(nullable = false, name = "created_at", updatable = false)
     private Instant createdAt;
 
+    // To be deleted
     @LastModifiedDate
     @Column(nullable = false, name = "updated_at", updatable = false)
     private Instant updatedAt;
