@@ -51,7 +51,6 @@ public class AuthController {
             @RequestParam(required = false) String state
     ) {
         return SuccessRes.of(authService.getAuthUrl(socialName, state));
-
     }
 
     @Operation(summary = "사용자 소셜 로그인", description = "소셜 인증으로 로그인합니다.")
