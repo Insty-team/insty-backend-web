@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +35,6 @@ class CourseTagWriterTest {
     void saveCourseTagsAndGetTagNames_정상() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
-        ReflectionTestUtils.setField(course, "id", 1L);
         Set<String> tagNames = Set.of("태그1", "태그2");
 
         // mock
