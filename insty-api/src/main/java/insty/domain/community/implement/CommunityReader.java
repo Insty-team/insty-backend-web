@@ -41,6 +41,6 @@ public class CommunityReader {
     }
 
     public List<CommunityAnswer> getAllCommunityAnswers(String questionId) {
-        return communityAnswerRepository.findAllByQuestionId(Long.parseLong(questionId));
+        return communityAnswerRepository.findAllByCommunityQuestionId(Long.parseLong(questionId));
     }
 }
