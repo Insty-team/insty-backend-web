@@ -9,6 +9,8 @@ import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseMySearchReq;
+import insty.domain.course.dto.CourseRequestReq;
+import insty.domain.course.dto.CourseRequestRes;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
@@ -18,11 +20,15 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.course.implement.CourseRequestWriter;
 import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseValidator;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
+import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
+import insty.model.course.CourseRequest;
+import insty.model.user.User;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +47,11 @@ public class CourseService {
     private final CourseFileWriter courseFileWriter;
     private final CourseFileReader courseFileReader;
     private final CourseTagWriter courseTagWriter;
+    private final CourseRequestWriter courseRequestWriter;
     private final CourseVideoManager courseVideoManager;
     private final CourseValidator courseValidator;
     private final CourseComplexReader courseComplexReader;
+    private final UserReader userReader;
 
     public CourseDetailRes createCourse(CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -120,4 +128,14 @@ public class CourseService {
 
         return SearchRes.from(paginationRes, searchInfo);
     }
+
+    /**
+     *  러너가 크리에이터에게 강의 요청
+     */
+    public CourseRequestRes createCourseRequest(Long userId, CourseRequestReq req) {
+        CourseRequest saveCourseRequest = courseRequestWriter.saveCourseRequest(userId, req);
+        User recipientUser = userReader.getUser(req.creatorId());
+        return CourseRequestRes.from(saveCourseRequest, recipientUser);
+    }
+
 }
