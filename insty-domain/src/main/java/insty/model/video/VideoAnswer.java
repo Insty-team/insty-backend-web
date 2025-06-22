@@ -98,8 +98,8 @@ public class VideoAnswer extends BaseEntity {
             log.error("생성 오류 - uuid : null");
             throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
         }
-        if (user == null) {
-            log.error("생성 오류 - user : null");
+        if (user == null || user.getId() == null) {
+            log.error("생성 오류 - user : 유저 미지정 또는 유저 Id 미설정");
             throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
         }
     }
