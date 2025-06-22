@@ -65,8 +65,9 @@ public class CourseService {
                 videoUuid);
     }
 
-    public CourseDetailRes updateCourse(Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
+    public CourseDetailRes updateCourse(Long userId, Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
+        courseValidator.validateCourseOwner(courseId, userId);
         Course course = courseWriter.updateCourse(courseId, req);
         UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
         courseFileWriter.updateThumbnail(thumbnail, course);
