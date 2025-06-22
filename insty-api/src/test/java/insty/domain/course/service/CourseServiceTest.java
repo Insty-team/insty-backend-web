@@ -204,6 +204,7 @@ class CourseServiceTest {
     @Test
     void updateCourse_정상() {
         // given
+        Long userId = 1L;
         Long courseId = 100L;
         String title = "새로운 강의 제목";
         String description = "새로운 강의 설명";
@@ -230,7 +231,7 @@ class CourseServiceTest {
                 .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 
         // when
-        CourseDetailRes res = courseService.updateCourse(courseId, req, thumbnail, practiceFiles);
+        CourseDetailRes res = courseService.updateCourse(userId, courseId, req, thumbnail, practiceFiles);
 
         // then
         assertThat(res).isNotNull();
