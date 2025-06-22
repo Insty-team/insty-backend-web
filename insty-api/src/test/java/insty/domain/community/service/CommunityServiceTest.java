@@ -6,6 +6,7 @@ import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityWriter;
+import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
@@ -22,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,6 +49,8 @@ public class CommunityServiceTest {
 
     @Mock
     CommunityQuestionRepository communityQuestionRepository;
+    @Mock
+    CommunityAnswerRepository communityAnswerRepository;
 
     @Test
     void getQuestionDetails() {
@@ -198,7 +202,6 @@ public class CommunityServiceTest {
 
         CommunityAnswerRes res = CommunityAnswerRes.create(
                 userId,
-                questionId,
                 content,
                 Instant.now(),
                 Instant.now()
@@ -234,5 +237,85 @@ public class CommunityServiceTest {
         assertThat(communityAnswerRes).isNotNull();
         assertThat(communityAnswerRes.content()).isEqualTo(content);
     }
+
+    @Test
+    void deleteAnswer() {
+        Long answerId = 1L;
+
+        User user = User.create("email", "nickname", "password");
+        Course course = Course.create("title", "description", 100, "targetAudience", true);
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                "질문 제목",
+                "질문 내용"
+        );
+
+        CommunityAnswer communityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                "답변 내용"
+        );
+
+        CommunityAnswerReq communityAnswerReq = CommunityAnswerReq.create(
+                String.valueOf(communityQuestion.getId()),
+                user.getId(),
+                communityAnswer.getContent()
+        );
+
+//        when(communityReader.getCommunityAnswerById(any(String.class)))
+//                .thenReturn(communityAnswer);
+
+        //when
+        communityService.deleteAnswer(communityAnswerReq);
+
+        //then
+        Optional<CommunityAnswer> deletedAnswer = communityAnswerRepository.findById(answerId);
+        assertThat(deletedAnswer.isPresent()).isFalse();
+    }
+    /*
+    @Test
+    void updateAnswer() {
+        String answerId = "1";
+        String content = "수정된 답변 내용";
+
+        CommunityAnswerReq req = CommunityAnswerReq.create(
+                null,
+                1L,
+                content
+        );
+
+        User user = User.create("email", "nickname", "password");
+        Course course = Course.create("title", "description", 100, "targetAudience", true);
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                "질문 제목",
+                "질문 내용"
+        );
+
+        CommunityAnswer communityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                "기존 답변 내용"
+        );
+
+        when(communityReader.getCommunityAnswerById(answerId))
+                .thenReturn(communityAnswer);
+        when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
+                .thenReturn(communityAnswer);
+
+        //when
+        CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req);
+
+        //then
+        assertThat(communityAnswerRes).isNotNull();
+        assertThat(communityAnswerRes.content()).isEqualTo(content);
+    }
+    */
 }
+
+
 

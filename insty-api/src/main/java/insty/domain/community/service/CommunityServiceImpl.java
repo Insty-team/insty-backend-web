@@ -56,7 +56,7 @@ public class CommunityServiceImpl implements CommunityService {
 
         if (communityAnswers != null) {
             answers = communityAnswers.stream()
-                    .map(answer -> CommunityAnswerRes.create(userId, questionId, answer.getContent(), answer.getCreatedAt(), answer.getUpdatedAt()))
+                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), answer.getCreatedAt(), answer.getUpdatedAt()))
                     .toList();
         }
         //TODO: 수정필요
@@ -220,6 +220,19 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public CommunityAnswerRes getAnswerDetails(String answerId) {
+        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
+        User user = communityAnswer.getUser();
+
+        return CommunityAnswerRes.create(
+                user.getId(),
+                communityAnswer.getContent(),
+                communityAnswer.getCreatedAt(),
+                communityAnswer.getUpdatedAt()
+        );
+    }
+
+    @Override
     public List<CommunityAnswerRes> getAllAnswers(String questionId) {
 
         List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers(questionId);
@@ -227,7 +240,6 @@ public class CommunityServiceImpl implements CommunityService {
         return communityAnswers.stream()
                 .map(answer -> CommunityAnswerRes.create(
                         answer.getUser().getId(),
-                        questionId,
                         answer.getContent(),
                         answer.getCreatedAt(),
                         answer.getUpdatedAt()))
@@ -245,7 +257,6 @@ public class CommunityServiceImpl implements CommunityService {
 
         return CommunityAnswerRes.create(
                 userId,
-                questionId,
                 communityAnswer.getContent(),
                 communityAnswer.getCreatedAt(),
                 communityAnswer.getUpdatedAt()
@@ -264,7 +275,6 @@ public class CommunityServiceImpl implements CommunityService {
 
         return CommunityAnswerRes.create(
                 userId,
-                questionId,
                 updateAnswer.getContent(),
                 updateAnswer.getCreatedAt(),
                 updateAnswer.getUpdatedAt()

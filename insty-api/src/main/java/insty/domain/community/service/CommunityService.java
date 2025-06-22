@@ -22,6 +22,8 @@ public interface CommunityService {
 
     void deleteQuestion(String questionId);
 
+    CommunityAnswerRes getAnswerDetails(String answerId);
+
     //불필요해보임
     List<CommunityAnswerRes> getAllAnswers(String questionId);
 
