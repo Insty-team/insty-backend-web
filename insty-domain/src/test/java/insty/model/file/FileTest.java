@@ -27,6 +27,7 @@ class FileTest {
 
         // then
         assertThat(file).isNotNull();
+        assertThat(file.getId()).isNull();
         assertThat(file.getContainerType()).isEqualTo(containerType);
         assertThat(file.getContainerId()).isEqualTo(containerId);
         assertThat(file.getName()).isEqualTo(name);

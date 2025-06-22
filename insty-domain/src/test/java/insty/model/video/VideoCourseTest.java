@@ -6,8 +6,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
-import insty.model.course.fixture.CourseFixtureBuilder;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class VideoCourseTest {
         // given
         String fileName = "fileName.mp4";
         UUID uuid = UUID.randomUUID();
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // when
         VideoCourse videoCourse = VideoCourse.create(fileName, uuid, user);
@@ -45,7 +46,7 @@ class VideoCourseTest {
         // given
         String fileName = null;
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // when
 
@@ -61,7 +62,7 @@ class VideoCourseTest {
         // given
         String content = "  \n\t\r";
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // when
 
@@ -77,7 +78,7 @@ class VideoCourseTest {
         // given
         String fileName = "fileName.mp4";
         UUID uuid = null;
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // when
 
@@ -109,7 +110,7 @@ class VideoCourseTest {
         // given
         String fileName = "fileName";
         UUID uuid = UUID.randomUUID();
-        User user = User.create("test@test.com", "test12!@", "test");
+        User user = UserFixtureBuilder.getUserWithId();
 
         // when
 
@@ -123,10 +124,8 @@ class VideoCourseTest {
     @Test
     void updateCourse_정상() {
         // given
-        User user = User.create("test@test.com", "test12!@", "test");
-        VideoCourse videoCourse = VideoCourse.create("fileName.mp4",
-                UUID.fromString("00000000-0000-0000-0000-000000000001"), user);
-        Course course = CourseFixtureBuilder.getCourse();
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
         videoCourse.updateCourse(course);
