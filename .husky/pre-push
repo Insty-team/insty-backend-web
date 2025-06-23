@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/husky.sh"
+
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ "$branch_name" == "main" || "$branch_name" == "dev" ]]; then
+  echo "🛠 (main/dev 브랜치 전용) 단위 테스트 실행 중..."
+  ./gradlew unitTest
+else
+  echo "🛠 모든 테스트 실행 중..."
+  ./gradlew test
+fi
+
+if [ $? -ne 0 ]; then
+  echo "❌ 테스트 실패, Push를 중단합니다."
+  exit 1
+fi
+
+echo "✅ 테스트 통과, Push를 진행합니다."
+exit 0

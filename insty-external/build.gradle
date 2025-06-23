@@ -1,6 +1,30 @@
+bootJar.enabled = false
+
+jar.enabled = true
+
 dependencies {
     implementation project(':insty-common')
 
+    implementation 'org.springframework:spring-webmvc' // MultipartFile 전용
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation platform("software.amazon.awssdk:bom:2.25.28")
+    implementation 'software.amazon.awssdk:s3'
+
+    implementation 'com.amazonaws:aws-java-sdk-cloudfront:1.12.681'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+}
+
+tasks.register('unitTest', Test) {
+    useJUnitPlatform {
+        includeTags 'unit'
+    }
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
 }
