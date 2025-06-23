@@ -76,7 +76,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: success
-          author_name: 백엔드-개발 파이프라인
+          author_name: 백엔드-운영 파이프라인
           fields: commit,author,ref,workflow
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -93,7 +93,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: failure
-          author_name: 백엔드-개발 파이프라인
+          author_name: 백엔드-운영 파이프라인
           fields: commit,author,ref,workflow
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
