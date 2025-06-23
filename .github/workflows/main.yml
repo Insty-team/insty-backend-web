@@ -1,13 +1,13 @@
-name: Insty 백엔드 CI/CD 파이프라인
+name: Insty(운영) 백엔드 CI/CD 파이프라인
 
 on:
   push:
     branches:
-      - dev
+      - main
 
 env:
   ACTOR: ajroot5685
-  DOCKER_IMAGE_NAME: ghcr.io/ajroot5685/insty-backend-web
+  DOCKER_IMAGE_NAME: ghcr.io/ajroot5685/insty-prod-backend-web
 
 permissions:
   contents: read
@@ -53,35 +53,16 @@ jobs:
 
       - name: Add Private Files
         run: |
-          echo "${{ secrets.DEV_APPLICATION_ENV }}" | base64 --decode > .env
-          echo "${{ secrets.DEV_DOCKER_COMPOSE }}" | base64 --decode > docker-compose.yml
+          echo "${{ secrets.PROD_APPLICATION_ENV }}" | base64 --decode > .env
+          echo "${{ secrets.PROD_DOCKER_COMPOSE }}" | base64 --decode > docker-compose.yml
 
-      - name: Pull latest image and restart via Docker Compose
-        run: |
-          docker-compose pull backend
-          docker-compose down backend
-          docker-compose up -d backend
+      - name: Run Deployment Script
+        run: ../deploy_backend.sh
 
       - name: Cleanup Docker and Cache
         run: |
           docker system prune -af --volumes
           rm -rf ~/.gradle/caches
-
-      - name: Check ping
-        run: |
-          for i in {1..20}; do
-            RESPONSE=$(curl -s localhost:8080${{ secrets.HEALTH_CHECK_PATH }} || true)
-          
-            if echo "$RESPONSE" | grep -q "true"; then
-              echo "✅ 애플리케이션 실행 완료"
-              exit 0
-            fi
-          
-            sleep 3
-          done
-          
-          echo "❌ 애플리케이션 실행 실패"
-          exit 1
 
   notify:
     needs:
