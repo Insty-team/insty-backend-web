@@ -111,6 +111,15 @@ public class VideoValidator {
         if (videoType == VideoType.COURSE) {
             VideoCourse videoCourse = videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false)
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+            if (videoCourse.getEncodingStatus() == EncodingStatus.FAILED) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED);
+            }
+            if (videoCourse.getEncodingStatus() == EncodingStatus.FAILED_INVALID_VIDEO_LENGTH) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH);
+            }
+            if (videoCourse.getEncodingStatus() == EncodingStatus.FAILED_NOT_FOUND_VOICE) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE);
+            }
             if (videoCourse.getEncodingStatus() != EncodingStatus.COMPLETED) {
                 throw new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
             }
@@ -119,6 +128,15 @@ public class VideoValidator {
         if (videoType == VideoType.ANSWER) {
             VideoAnswer videoAnswer = videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(courseId, false)
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+            if (videoAnswer.getEncodingStatus() == EncodingStatus.FAILED) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED);
+            }
+            if (videoAnswer.getEncodingStatus() == EncodingStatus.FAILED_INVALID_VIDEO_LENGTH) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH);
+            }
+            if (videoAnswer.getEncodingStatus() == EncodingStatus.FAILED_NOT_FOUND_VOICE) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE);
+            }
             if (videoAnswer.getEncodingStatus() != EncodingStatus.COMPLETED) {
                 throw new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
             }
