@@ -270,6 +270,69 @@ class VideoValidatorTest {
     }
 
     @Test
+    void verifyEncodingCompletedAndDeleted_에러_인코딩_실패된_영상() {
+        // given
+        VideoType videoType = VideoType.COURSE;
+        Long id = 1L;
+
+        // mock
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
+        ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED);
+        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoCourse));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_FAILED);
+    }
+
+    @Test
+    void verifyEncodingCompletedAndDeleted_에러_인코딩_실패_유효하지_않은_영상_길이() {
+        // given
+        VideoType videoType = VideoType.COURSE;
+        Long id = 1L;
+
+        // mock
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
+        ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED_INVALID_VIDEO_LENGTH);
+        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoCourse));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH);
+    }
+
+    @Test
+    void verifyEncodingCompletedAndDeleted_에러_인코딩_실패_음성이_존재하지_않음() {
+        // given
+        VideoType videoType = VideoType.COURSE;
+        Long id = 1L;
+
+        // mock
+        VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
+        ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED_NOT_FOUND_VOICE);
+        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoCourse));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE);
+    }
+
+    @Test
     void verifyEncodingCompletedAndDeleted_에러_아직_인코딩이_완료되지_않은_영상() {
         // given
         VideoType videoType = VideoType.COURSE;
@@ -288,6 +351,69 @@ class VideoValidatorTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+    }
+
+    @Test
+    void verifyEncodingCompletedAndDeleted_에러_답변영상_인코딩_실패된_영상() {
+        // given
+        VideoType videoType = VideoType.ANSWER;
+        Long id = 1L;
+
+        // mock
+        VideoAnswer videoAnswer = VideoFixtureBuilder.getVideoAnswerWithIdAndUser();
+        ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.FAILED);
+        when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoAnswer));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_FAILED);
+    }
+
+    @Test
+    void verifyEncodingCompletedAndDeleted_에러_답변영상_인코딩_실패_유효하지_않은_영상_길이() {
+        // given
+        VideoType videoType = VideoType.ANSWER;
+        Long id = 1L;
+
+        // mock
+        VideoAnswer videoAnswer = VideoFixtureBuilder.getVideoAnswerWithIdAndUser();
+        ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.FAILED_INVALID_VIDEO_LENGTH);
+        when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoAnswer));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH);
+    }
+
+    @Test
+    void verifyEncodingCompletedAndDeleted_에러_답변영상_인코딩_실패_음성이_존재하지_않음() {
+        // given
+        VideoType videoType = VideoType.ANSWER;
+        Long id = 1L;
+
+        // mock
+        VideoAnswer videoAnswer = VideoFixtureBuilder.getVideoAnswerWithIdAndUser();
+        ReflectionTestUtils.setField(videoAnswer, "encodingStatus", EncodingStatus.FAILED_NOT_FOUND_VOICE);
+        when(videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+                .thenReturn(Optional.of(videoAnswer));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.verifyEncodingCompletedAndDeleted(videoType, id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE);
     }
 
     @Test

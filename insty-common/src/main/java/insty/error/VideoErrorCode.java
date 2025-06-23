@@ -10,7 +10,9 @@ public enum VideoErrorCode implements ErrorCode {
     VIDEO_NOT_FINISHED_ENCODING("VIDEO_007", "인코딩이 완료되지 않았습니다.", 409),
     VIDEO_INVALID_ENCODING_KEY("VIDEO_008", "인코딩 키의 값이 유효하지 않습니다.", 500),
     VIDEO_CREATE_ERROR("VIDEO_009", "생성 메서드 검증에 실패했습니다.", 500),
-
+    VIDEO_ENCODING_FAILED("VIDEO_010", "인코딩에 실패했습니다.", 500),
+    VIDEO_ENCODING_FAILED_INVALID_LENGTH("VIDEO_011", "인코딩 실패 - 영상 길이는 3초 이상 30분 이하여야 합니다.", 422),
+    VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE("VIDEO_012", "인코딩 실패 - 음성 데이터가 없습니다.", 422),
     ;
 
     private final String code;
