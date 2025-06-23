@@ -57,7 +57,7 @@ jobs:
           echo "${{ secrets.PROD_DOCKER_COMPOSE }}" | base64 --decode > docker-compose.yml
 
       - name: Run Deployment Script
-        run: ../deploy_backend.sh
+        run: ../deploy.sh
 
       - name: Cleanup Docker and Cache
         run: |
