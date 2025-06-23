@@ -51,7 +51,7 @@ public class VideoController {
 
     @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/upload/answer")
     public SuccessRes<VideoUploadRes> uploadAnswer(
             @CurrentUser Long userId,
@@ -62,7 +62,7 @@ public class VideoController {
 
     @Operation(summary = "영상 조회", description = "HLS 영상 url을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_GET)
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/playlist")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylist(
             @CurrentUser Long userId,
