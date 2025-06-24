@@ -26,7 +26,7 @@ public class CommunityFile extends BaseEntity {
     @JoinColumn(name = "question_id", nullable = false)
     private CommunityQuestion communityQuestion;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 

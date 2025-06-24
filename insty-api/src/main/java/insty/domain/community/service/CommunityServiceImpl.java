@@ -156,11 +156,11 @@ public class CommunityServiceImpl implements CommunityService {
 
         List<File> files = fileWriter.saveFiles(fileCreateReqs);
 //        List<CommunityFile> communityFiles = createCommunityAttachments(attachments, communityQuestion);
-        List<CommunityFile> communityFiles = files.stream()
-                .map(file -> CommunityFile.create(communityQuestion, file))
-                .toList();
-
-        communityWriter.saveCommunityFiles(communityFiles);
+//        List<CommunityFile> communityFiles = files.stream()
+//                .map(file -> CommunityFile.create(communityQuestion, file))
+//                .toList();
+//
+//        communityWriter.saveCommunityFiles(communityFiles);
 
         return files.stream()
                 .map(file -> FileInfo.from(file, appProperties.getDomain()))
@@ -204,6 +204,7 @@ public class CommunityServiceImpl implements CommunityService {
         //새 첨푸파일과 기존 첨부파일 비교
         List<CommunityFile> existingAttachments = prevCommunityQuestion.getAttachments();
 
+        //TODO: 첨부파일
         CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq, attachments);
         //TODO: 첨부파일 추가
         return CommunityQuestionRes.create(
