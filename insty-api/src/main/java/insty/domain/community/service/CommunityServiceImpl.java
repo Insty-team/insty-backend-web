@@ -24,7 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -220,6 +223,40 @@ public class CommunityServiceImpl implements CommunityService {
 
         //새 첨푸파일과 기존 첨부파일 비교
         List<CommunityFile> existingAttachments = prevCommunityQuestion.getAttachments();
+
+        /*
+        // 기존 첨부파일 ID 목록
+        Set<Long> existingFileIds = existingAttachments.stream()
+                .map(CommunityFile::getId)
+                .collect(Collectors.toSet());
+
+        // DTO에서 전달된 첨부파일 ID 목록 (예: List<Long> attachmentIds)
+        Set<Long> newFileIds = new HashSet<>(dto.getAttachmentIds());
+
+        // 삭제 대상: 기존에는 있지만, 새 목록에는 없는 파일
+        Set<Long> toDelete = new HashSet<>(existingFileIds);
+        toDelete.removeAll(newFileIds);
+
+        // 추가 대상: 새 목록에는 있지만, 기존에는 없는 파일
+        Set<Long> toAdd = new HashSet<>(newFileIds);
+        toAdd.removeAll(existingFileIds);
+
+        // 삭제 처리
+        for (Long fileId : toDelete) {
+            fileWriter.deleteFileById(fileId);
+        }
+
+        // 추가 처리 (예: MultipartFile로 전달된 신규 파일들)
+        for (MultipartFile file : dto.getNewFiles()) {
+            // 파일 업로드 및 DB 저장
+            FileCreateReq req = new FileCreateReq(file, FileContainerType.QUESTION_IMAGE, questionId);
+            File savedFile = uploadAndCreateFile(req);
+            // CommunityFile로 매핑 및 저장
+            CommunityFile communityFile = CommunityFile.create(communityQuestion, savedFile);
+            communityWriter.saveCommunityFile(communityFile);
+        }
+        
+         */
 
         //TODO: 첨부파일
         CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq, attachments);
