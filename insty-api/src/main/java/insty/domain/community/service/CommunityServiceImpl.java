@@ -16,6 +16,7 @@ import insty.model.course.Course;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import insty.model.user.User;
+import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final UserReader userReader;
     private final FileWriter fileWriter;
     private final AppProperties appProperties;
+    private final S3FileManager s3FileManager;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
@@ -78,7 +80,8 @@ public class CommunityServiceImpl implements CommunityService {
                 content,
                 createdAt,
                 updatedAt,
-                answers
+                answers,
+                null
                 //attachments
         );
     }
@@ -96,6 +99,7 @@ public class CommunityServiceImpl implements CommunityService {
                         question.getContent(),
                         question.getCreatedAt(),
                         question.getUpdatedAt(),
+                        null,
                         null
                 )).toList();
     }
@@ -112,6 +116,7 @@ public class CommunityServiceImpl implements CommunityService {
                         question.getContent(),
                         question.getCreatedAt(),
                         question.getUpdatedAt(),
+                        null,
                         null
                 )).toList();
     }
@@ -139,12 +144,13 @@ public class CommunityServiceImpl implements CommunityService {
                 communityQuestion.getContent(),
                 Instant.now(),
                 Instant.now(),
+                null,
                 fileInfos
 
         );
     }
 
-    public List<FileInfo> saveCommunityFiles(CommunityQuestion communityQuestion, List<MultipartFile> attachments) {
+    private List<FileInfo> saveCommunityFiles(CommunityQuestion communityQuestion, List<MultipartFile> attachments) {
         if (attachments == null || attachments.isEmpty()) {
             return null;
         }
@@ -155,7 +161,11 @@ public class CommunityServiceImpl implements CommunityService {
                         communityQuestion.getId()
                 )).toList();
 
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
+        List<File> files = fileCreateReqs.stream()
+                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
+                .toList();
+
+
         List<CommunityFile> communityFiles = files.stream()
                 .map(file -> CommunityFile.create(communityQuestion, file))
                 .toList();
@@ -166,6 +176,13 @@ public class CommunityServiceImpl implements CommunityService {
                 .map(file -> FileInfo.from(file, appProperties.getDomain()))
                 .toList();
 
+    }
+
+    private File uploadAndCreateFile(FileCreateReq req) {
+        String uploadName = s3FileManager.upload(req.file(), req.containerType().toString(),
+                req.containerId().toString());
+        return File.create(req.containerType(), req.containerId(), uploadName, req.file().getOriginalFilename(),
+                req.file().getContentType(), req.file().getSize());
     }
 
     public List<CommunityFile> createCommunityAttachments(List<MultipartFile> attachments, CommunityQuestion communityQuestion) {
@@ -214,7 +231,8 @@ public class CommunityServiceImpl implements CommunityService {
                 updatedQuestion.getContent(),
                 null,
                 Instant.now(),
-                null //TODO: 답변 리스트 추가
+                null, //TODO: 답변 리스트 추가
+                null
         );
     }
 

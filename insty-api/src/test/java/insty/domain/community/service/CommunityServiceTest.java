@@ -103,6 +103,7 @@ public class CommunityServiceTest {
                 content,
                 Instant.now(),
                 Instant.now(),
+                null,
                 null
         );
 

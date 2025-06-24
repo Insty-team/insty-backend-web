@@ -25,6 +25,7 @@ public record CommunityQuestionRes(
             String content,
             Instant createdAt,
             Instant updatedAt,
+            List<CommunityAnswerRes> answers,
             List<FileInfo> attachments
     ) {
         return new CommunityQuestionRes(
