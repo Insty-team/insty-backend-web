@@ -274,17 +274,13 @@ public class CommunityServiceTest {
         Optional<CommunityAnswer> deletedAnswer = communityAnswerRepository.findById(answerId);
         assertThat(deletedAnswer.isPresent()).isFalse();
     }
-    /*
+
     @Test
     void updateAnswer() {
         String answerId = "1";
         String content = "수정된 답변 내용";
 
-        CommunityAnswerReq req = CommunityAnswerReq.create(
-                null,
-                1L,
-                content
-        );
+
 
         User user = User.create("email", "nickname", "password");
         Course course = Course.create("title", "description", 100, "targetAudience", true);
@@ -302,10 +298,25 @@ public class CommunityServiceTest {
                 "기존 답변 내용"
         );
 
+        CommunityAnswer updatedCommunityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content
+        );
+
+        CommunityAnswerReq req = new CommunityAnswerReq(
+                "1",
+                String.valueOf(communityQuestion.getId()),
+                1L,
+                content
+        );
+
+
+
         when(communityReader.getCommunityAnswerById(answerId))
                 .thenReturn(communityAnswer);
         when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
-                .thenReturn(communityAnswer);
+                .thenReturn(updatedCommunityAnswer);
 
         //when
         CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req);
@@ -314,7 +325,7 @@ public class CommunityServiceTest {
         assertThat(communityAnswerRes).isNotNull();
         assertThat(communityAnswerRes.content()).isEqualTo(content);
     }
-    */
+
 }
 
 
