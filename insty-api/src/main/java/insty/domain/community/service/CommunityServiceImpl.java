@@ -139,7 +139,8 @@ public class CommunityServiceImpl implements CommunityService {
                 communityQuestion.getContent(),
                 Instant.now(),
                 Instant.now(),
-                null //TODO: 답변 리스트 추가
+                fileInfos
+
         );
     }
 
@@ -155,12 +156,11 @@ public class CommunityServiceImpl implements CommunityService {
                 )).toList();
 
         List<File> files = fileWriter.saveFiles(fileCreateReqs);
-//        List<CommunityFile> communityFiles = createCommunityAttachments(attachments, communityQuestion);
-//        List<CommunityFile> communityFiles = files.stream()
-//                .map(file -> CommunityFile.create(communityQuestion, file))
-//                .toList();
-//
-//        communityWriter.saveCommunityFiles(communityFiles);
+        List<CommunityFile> communityFiles = files.stream()
+                .map(file -> CommunityFile.create(communityQuestion, file))
+                .toList();
+
+        communityWriter.saveCommunityFiles(communityFiles);
 
         return files.stream()
                 .map(file -> FileInfo.from(file, appProperties.getDomain()))

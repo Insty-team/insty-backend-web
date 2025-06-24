@@ -1,5 +1,6 @@
 package insty.domain.community.dto;
 
+import insty.domain.common.FileInfo;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
@@ -14,8 +15,8 @@ public record CommunityQuestionRes(
         String content,
         Instant createdAt,
         Instant updatedAt,
-        List<CommunityAnswerRes> answers
-        // TODO: List<CommunityAttachmentRes> attachments
+        List<CommunityAnswerRes> answers,
+        List<FileInfo> attachments
 ) {
     public static CommunityQuestionRes create(
             Long userId,
@@ -24,8 +25,7 @@ public record CommunityQuestionRes(
             String content,
             Instant createdAt,
             Instant updatedAt,
-            List<CommunityAnswerRes> answers
-            //List<CommunityAttachmentRes> attachments
+            List<FileInfo> attachments
     ) {
         return new CommunityQuestionRes(
                 userId,
@@ -34,8 +34,8 @@ public record CommunityQuestionRes(
                 content,
                 createdAt,
                 updatedAt,
-                answers
-                //attachments
+                null,
+                attachments
         );
     }
 }
