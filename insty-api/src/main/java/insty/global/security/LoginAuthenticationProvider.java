@@ -26,7 +26,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        log.debug("=========== Security Login 사용자 인증 검증 시작 ===========");
+        log.info("이메일 로그인 : Security 인증 시도");
         // 사용자 정보 조회
         UserDetails user = userDetailsService.loadUserByUsername(String.valueOf(authentication.getPrincipal()));
 
@@ -34,10 +34,11 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
         boolean isPasswordTrue = bCryptPasswordEncoder.matches(String.valueOf(authentication.getCredentials()), String.valueOf(user.getPassword()));
 
         if(isPasswordTrue) {
+            log.info("이메일 로그인 : Security 인증 완료");
             return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities()); // 인증 된 객체
 
         } else {
-            log.debug("=========== Security Login 사용자 비밀번호 불일치 ===========");
+            log.warn("이메일 로그인 : Security 비밀번호 불일치 , 유저 이메일 : {}", user.getUsername());
             throw new CustomException(UserErrorCode.USER_PASSWORD_MISMATCH);
         }
     }

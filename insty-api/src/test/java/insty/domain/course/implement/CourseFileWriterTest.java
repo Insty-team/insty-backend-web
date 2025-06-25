@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,9 +16,11 @@ import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.course.CoursePracticeFile;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
+import insty.model.file.FileFixtureBuilder;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -46,41 +49,36 @@ class CourseFileWriterTest {
     private AppProperties appProperties;
 
     @Test
-    void saveThumbnailAndGetUrl_정상() {
+    void saveThumbnail_정상() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // mock
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
         when(fileWriter.saveFile(any()))
                 .thenReturn(file);
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
 
         // when
-        String uploadName = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
 
         // then
-        assertThat(uploadName).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+        assertThatCode(() -> courseFileWriter.saveThumbnail(thumbnail, course))
+                .doesNotThrowAnyException();
     }
 
     @Test
-    void saveThumbnailAndGetUrl_정상_빈_썸네일이면_저장_작업을_하지_않는다() {
+    void saveThumbnail_정상_빈_썸네일이면_저장_작업을_하지_않는다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 new byte[0]);
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
-        String uploadName = courseFileWriter.saveThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.saveThumbnail(thumbnail, course);
 
         // then
-        assertThat(uploadName).isNull();
+        verify(fileWriter, never()).saveFile(any());
     }
 
     @Test
@@ -89,12 +87,10 @@ class CourseFileWriterTest {
         MockMultipartFile practiceFile = new MockMultipartFile("practiceFile", "practice.jpg", "image/jpeg",
                 "content".getBytes());
         List<MultipartFile> practiceFiles = List.of(practiceFile);
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // mock
-        File file = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "practice.jpg", "image/jpeg", 7);
+        File file = FileFixtureBuilder.getCoursePracticeFileWithId();
         when(fileWriter.saveFiles(any()))
                 .thenReturn(List.of(file));
         when(appProperties.getDomain())
@@ -117,7 +113,7 @@ class CourseFileWriterTest {
     void savePracticeFilesAndGetInfo_정상_빈_파일이면_저장_작업을_하지_않는다() {
         // given
         List<MultipartFile> practiceFiles = List.of();
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
         List<FileInfo> fileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFiles, course);
@@ -127,69 +123,59 @@ class CourseFileWriterTest {
     }
 
     @Test
-    void updateThumbnailAndGetUrl_정상() {
+    void updateThumbnail_정상() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // mock
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
         when(fileWriter.saveFile(any()))
                 .thenReturn(file);
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
 
         // when
-        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
 
         // then
-        assertThat(uploadName).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+        assertThatCode(() -> courseFileWriter.updateThumbnail(thumbnail, course))
+                .doesNotThrowAnyException();
     }
 
     @Test
-    void updateThumbnailAndGetUrl_정상_빈_썸네일이면_교체_작업을_하지_않는다() {
+    void updateThumbnail_정상_빈_썸네일이면_교체_작업을_하지_않는다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 new byte[0]);
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
-        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.updateThumbnail(thumbnail, course);
 
         // then
-        assertThat(uploadName).isNull();
+        verify(fileWriter, never()).saveFile(any());
     }
 
     @Test
-    void updateThumbnailAndGetUrl_정상_기존_썸네일이_있다면_지우고_작업한다() {
+    void updateThumbnail_정상_기존_썸네일이_있다면_지우고_작업한다() {
         // given
         MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumb.jpg", "image/jpeg",
                 "content".getBytes());
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "before_thumb.jpg", "image/jpeg", 10);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
         ReflectionTestUtils.setField(course, "thumbnail", file);
 
         // mock
-        File newFile = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000002.jpg",
-                "new_thumbnail.jpg", "image/jpeg", 10);
+        File newFile = FileFixtureBuilder.getFileWithId(2L, FileContainerType.COURSE_THUMBNAIL, 1L,
+                "00000000-0000-0000-0000-000000000002.jpg", "new_thumbnail.jpg", "image/jpeg", 10);
         when(fileWriter.saveFile(any()))
                 .thenReturn(newFile);
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
 
         // when
-        String uploadName = courseFileWriter.updateThumbnailAndGetUrl(thumbnail, course);
+        courseFileWriter.updateThumbnail(thumbnail, course);
 
         // then
-        assertThat(uploadName).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000002.jpg");
         verify(fileWriter).deleteFile(any());
+        verify(fileWriter).saveFile(any());
     }
 
     @Test
@@ -201,15 +187,13 @@ class CourseFileWriterTest {
                 "content".getBytes());
         List<MultipartFile> practiceFiles = List.of(practiceFile1, practiceFile2);
         List<Long> deleteFileIds = List.of(1L);
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         ReflectionTestUtils.setField(course, "practiceFiles", List.of());
 
         // mock
-        File file1 = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "practice1.jpg", "image/jpeg", 7);
-        File file2 = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "practice2.jpg", "image/jpeg", 7);
+        File file1 = FileFixtureBuilder.getCoursePracticeFileWithId();
+        File file2 = FileFixtureBuilder.getFileWithId(2L, FileContainerType.COURSE_PRACTICE_FILE, 1L,
+                "00000000-0000-0000-0000-000000000001.jpg", "practice2.jpg", "image/jpeg", 7);
         when(fileWriter.saveFiles(any()))
                 .thenReturn(List.of(file1, file2));
         when(appProperties.getDomain())
@@ -228,8 +212,7 @@ class CourseFileWriterTest {
         // given
         List<MultipartFile> practiceFiles = null;
         List<Long> deleteFileIds = List.of(1L);
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         ReflectionTestUtils.setField(course, "practiceFiles", List.of());
 
         // mock
@@ -251,11 +234,9 @@ class CourseFileWriterTest {
                 "content".getBytes());
         List<MultipartFile> practiceFiles = List.of(practiceFile1, practiceFile2);
         List<Long> deleteFileIds = null;
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
-        File existFile = File.create(FileContainerType.COURSE_PRACTICE_FILE, 1L,
-                "00000000-0000-0000-0000-000000000001.jpg", "practice1.jpg", "image/jpeg", 7);
+        File existFile = FileFixtureBuilder.getCoursePracticeFileWithId();
         ReflectionTestUtils.setField(course, "practiceFiles", List.of(CoursePracticeFile.create(course, existFile)));
 
         // mock
@@ -274,7 +255,7 @@ class CourseFileWriterTest {
     @Test
     void deleteAllFiles_정상() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
 

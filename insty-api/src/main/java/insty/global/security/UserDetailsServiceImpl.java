@@ -1,6 +1,8 @@
 package insty.global.security;
 
 import insty.domain.user.repository.UserRepository;
+import insty.error.UserErrorCode;
+import insty.exception.CustomException;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,8 +23,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다."));
+        // TODO 이메일 인증 받으면 소셜로그인, 이메일 계정 통합계정으로 수정
+        User user = userRepository.findByEmailAndSocialIdIsNull(email)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         return new CustomUserDetails(user);
     }

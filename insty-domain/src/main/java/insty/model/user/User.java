@@ -62,9 +62,14 @@ public class User extends BaseEntity {
 
     private Instant lastLoginAt;     // 마지막 로그인 시각
 
-    // TODO 소셜로그인
+    @Column(length = 150)
+    private String socialId;
 
-    // 회원가입 엔티티 객체 생성
+    @Enumerated(EnumType.STRING)
+    @Column(length = 15)
+    private SocialType socialType;
+
+    // 이메일 회원가입 엔티티 객체 생성
     public static User create(String email, String password, String nickname) {
         return User.builder()
                 .email(email)
@@ -77,6 +82,21 @@ public class User extends BaseEntity {
                 .build();
     }
 
+    // 소셜 로그인 회원가입 엔티티 객체 생성
+    public static User createBySocial(String socialId, SocialType socialType, String email, String nickname, UserType userType) {
+        return User.builder()
+                .socialId(String.valueOf(socialId))
+                .socialType(socialType)
+                .email(email)
+                .password("")
+                .nickname(nickname)
+                .introduce("")
+                .isEmailAgreed(false) // 기본 false 설정
+                .userType(userType)  // 기본 사용자 타입 지정
+                .isDeleted(false)      // 기본 false
+                .build();
+    }
+
     // 사용자 정보 수정 객체 생성
     public void update(String email, String password, String nickname, String introduce) {
         this.email = email;
@@ -85,6 +105,7 @@ public class User extends BaseEntity {
         this.introduce = introduce;
     }
 
+    // 사용자 전환
     public void update(UserType userType) {
         this.userType = userType;
     }

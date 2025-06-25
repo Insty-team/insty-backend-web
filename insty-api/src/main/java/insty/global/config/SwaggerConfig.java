@@ -21,6 +21,7 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.method.HandlerMethod;
 
 @OpenAPIDefinition(
@@ -68,10 +70,14 @@ public class SwaggerConfig {
         return (Operation operation, HandlerMethod handlerMethod) -> {
             CustomExceptionDescription customExceptionDescription = handlerMethod.getMethodAnnotation(
                     CustomExceptionDescription.class);
+            PreAuthorize preAuthorize = handlerMethod.getMethodAnnotation(PreAuthorize.class);
 
             // CustomExceptionDescription 어노테이션을 단 메소드에만 적용
             if (customExceptionDescription != null) {
                 generateErrorCodeResponseExample(operation, customExceptionDescription.value());
+            }
+            if (preAuthorize != null) {
+                operation.addSecurityItem(new SecurityRequirement().addList("JWT"));
             }
 
             return operation;

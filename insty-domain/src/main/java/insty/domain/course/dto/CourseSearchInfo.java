@@ -15,4 +15,9 @@ public record CourseSearchInfo(
         return new CourseSearchInfo(origin.courseId(), origin.title(), origin.description(), tags,
                 thumbnailUrl, origin.durationSecond());
     }
+
+    public static CourseSearchInfo setThumbnailUrl(CourseSearchInfo origin, String thumbnailUrl) {
+        return new CourseSearchInfo(origin.courseId(), origin.title(), origin.description(), origin.tags(),
+                thumbnailUrl, origin.durationSecond());
+    }
 }

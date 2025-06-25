@@ -44,7 +44,7 @@ public class UserService {
      * 이메일 회원가입
      */
     public UserCreateRes signup(UserCreateReq req) {
-        // 유효성 체크
+        // 중복 체크
         userValidator.validateDuplicateEmail(req.email());
         userValidator.validateDuplicateNickname(req.nickname());
 

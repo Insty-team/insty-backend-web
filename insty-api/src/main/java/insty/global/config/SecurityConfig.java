@@ -68,7 +68,7 @@ public class SecurityConfig {
         // 허용 URL // TODO /api/v1/**은 삭제 예정
         final String[] WHITE_LIST_URL = {
                 "/api/v1/**",
-                "/api/v1/auth/login",
+                "/api/v1/auth/login/**",
                 "/api/v1/users",
                 "/api/v1/users/nickname/check",
                 "/api/v1/users/email/check",

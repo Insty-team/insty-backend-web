@@ -1,5 +1,7 @@
 package insty.model.course;
 
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,7 +16,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "course_keypoints", schema = "web_service")
 @Getter
@@ -36,9 +40,21 @@ public class CourseKeypoint {
 
 
     public static CourseKeypoint create(Course course, String content) {
+        validateCreate(course, content);
         return CourseKeypoint.builder()
                 .course(course)
                 .content(content)
                 .build();
+    }
+
+    private static void validateCreate(Course course, String content) {
+        if (course == null) {
+            log.error("생성 오류 - course : null");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
+        if (content == null || content.trim().isEmpty()) {
+            log.error("생성 오류 - content : 비었음");
+            throw new CustomException(CourseErrorCode.COURSE_CREATE_ERROR);
+        }
     }
 }

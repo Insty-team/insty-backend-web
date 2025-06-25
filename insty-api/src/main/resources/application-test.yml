@@ -25,5 +25,34 @@ spring:
       host: test
       port: 1234
 
+# TODO detault 제거 개선
+oauth:
+  providers:
+    kakao:
+      endpoints:
+        redirect-url: test
+        token-url: https://kauth.kakao.com/oauth/token
+        auth-url: https://kauth.kakao.com/oauth/authorize
+        user-info-url: https://kapi.kakao.com/v2/user/me
+      client-id: test
+    naver:
+      endpoints:
+        redirect-url: test
+        token-url: https://nid.naver.com/oauth2.0/token
+        auth-url: https://nid.naver.com/oauth2.0/authorize
+        user-info-url: https://openapi.naver.com/v1/nid/me
+      client-id: test
+      client-secret: test
+    google:
+      endpoints:
+        redirect-url: test
+        token-url: https://oauth2.googleapis.com/token
+        auth-url: https://accounts.google.com/o/oauth2/v2/auth
+        user-info-url: test
+      client_id: test
+      client-secret: test
+
+
+
 app:
   health-check-path: /tmp

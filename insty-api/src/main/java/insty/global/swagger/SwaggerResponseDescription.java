@@ -65,6 +65,8 @@ public enum SwaggerResponseDescription {
     ))),
     COURSE_MY_SEARCH(new LinkedHashSet<>(Set.of(
     ))),
+    COURSE_REQUEST(new LinkedHashSet<>(Set.of(
+    ))),
     //community
     COMMUNITY_QUESTION_DETAIL(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_NOT_FOUND

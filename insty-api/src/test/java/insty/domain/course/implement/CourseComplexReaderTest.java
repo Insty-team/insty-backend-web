@@ -13,11 +13,13 @@ import insty.domain.course.repository.CourseQueryRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.file.File;
-import insty.model.file.FileContainerType;
+import insty.model.file.FileFixtureBuilder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,11 +56,9 @@ class CourseComplexReaderTest {
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
         // getCourseThumbnailUrlMap 테스트 세팅
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
-        ReflectionTestUtils.setField(course, "thumbnail", file);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
+        ReflectionTestUtils.setField(course, "thumbnail", thumbnail);
         when(courseRepository.findWithThumbnailByCourseIdIn(any()))
                 .thenReturn(List.of(course));
         when(appProperties.getDomain())
@@ -109,11 +109,9 @@ class CourseComplexReaderTest {
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
         // getCourseThumbnailUrlMap 테스트 세팅
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
-        ReflectionTestUtils.setField(course, "id", 1L);
-        File file = File.create(FileContainerType.COURSE_THUMBNAIL, 1L, "00000000-0000-0000-0000-000000000001.jpg",
-                "thumb.jpg", "image/jpeg", 10);
-        ReflectionTestUtils.setField(course, "thumbnail", file);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
+        ReflectionTestUtils.setField(course, "thumbnail", thumbnail);
         when(courseRepository.findWithThumbnailByCourseIdIn(any()))
                 .thenReturn(List.of(course));
         when(appProperties.getDomain())
@@ -148,5 +146,57 @@ class CourseComplexReaderTest {
         // then
         assertThat(res).isNotNull();
         assertThat(res).isEqualTo(paginationRes);
+    }
+
+    @Test
+    void setBasicThumbnailUrlForSearch_정상() {
+        // given
+        CourseSearchInfo searchInfo1 = new CourseSearchInfo(1L, "사용자가 썸네일을 업로드한 강의", "설명", null, "업로드된 썸네일 url", null);
+        CourseSearchInfo searchInfo2 = new CourseSearchInfo(2L, "사용자가 썸네일을 업로드하지 않아 기본썸네일이 제공되는 강의", "설명", null, null,
+                null);
+        CourseSearchInfo searchInfo3 = new CourseSearchInfo(3L, "연결된 영상이 없는 강의", "설명", null, null, null);
+        List<CourseSearchInfo> searchInfo = List.of(searchInfo1, searchInfo2, searchInfo3);
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+        when(courseQueryRepository.getCourseVideoUuids(any()))
+                .thenReturn(Map.of(2L, UUID.fromString("00000000-0000-0000-0000-000000000001")));
+
+        // when
+        List<CourseSearchInfo> result = courseComplexReader.setBasicThumbnailUrlForSearch(searchInfo);
+
+        // then
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0).thumbnailUrl()).isEqualTo("업로드된 썸네일 url");
+        assertThat(result.get(1).thumbnailUrl()).contains("00000000-0000-0000-0000-000000000001");
+        assertThat(result.get(2).thumbnailUrl()).isNull();
+    }
+
+    @Test
+    void setBasicThumbnailUrlForMy_정상() {
+        // given
+        CourseMySearchInfo searchInfo1 = new CourseMySearchInfo(1L, "사용자가 썸네일을 업로드한 강의", 1000, 1, 5L, null,
+                "업로드된 썸네일 url", true, Instant.now());
+        CourseMySearchInfo searchInfo2 = new CourseMySearchInfo(2L, "사용자가 썸네일을 업로드하지 않아 기본썸네일이 제공되는 강의", 1000, 1, 5L,
+                null, null, true, Instant.now());
+        CourseMySearchInfo searchInfo3 = new CourseMySearchInfo(3L, "연결된 영상이 없는 강의", 1000, 1, 5L, null, null, true,
+                Instant.now());
+        List<CourseMySearchInfo> searchInfo = List.of(searchInfo1, searchInfo2, searchInfo3);
+
+        // mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+        when(courseQueryRepository.getCourseVideoUuids(any()))
+                .thenReturn(Map.of(2L, UUID.fromString("00000000-0000-0000-0000-000000000001")));
+
+        // when
+        List<CourseMySearchInfo> result = courseComplexReader.setBasicThumbnailUrlForMy(searchInfo);
+
+        // then
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0).thumbnailUrl()).isEqualTo("업로드된 썸네일 url");
+        assertThat(result.get(1).thumbnailUrl()).contains("00000000-0000-0000-0000-000000000001");
+        assertThat(result.get(2).thumbnailUrl()).isNull();
     }
 }

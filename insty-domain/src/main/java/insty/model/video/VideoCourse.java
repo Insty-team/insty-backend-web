@@ -4,6 +4,7 @@ import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.course.Course;
+import insty.model.user.User;
 import insty.util.FileUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +24,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "video_courses", schema = "web_service")
 @Getter
@@ -42,6 +45,10 @@ public class VideoCourse extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false, length = 100)
     private String s3Key;
@@ -68,16 +75,20 @@ public class VideoCourse extends BaseEntity {
 
     private Instant analysisAt;
 
-    private boolean isDeleted;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
 
-    public static VideoCourse create(String fileName, UUID uuid) {
+    public static VideoCourse create(String fileName, UUID uuid, User user) {
+        validateCreate(fileName, uuid, user);
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         String s3BucketKey = getS3BucketKey(fileName, uuid);
 
         return VideoCourse.builder()
                 .videoUuid(uuid)
+                .user(user)
                 .s3Key(s3BucketKey)
                 .extension(extension)
                 .originalFileName(fileName)
@@ -85,6 +96,21 @@ public class VideoCourse extends BaseEntity {
                 .encodingAt(Instant.now()) // 비용 문제로 영상 삽입 시 인코딩 시작했다고 가정
                 .analysisStatus(AnalysisStatus.WAITING)
                 .build();
+    }
+
+    private static void validateCreate(String fileName, UUID uuid, User user) {
+        if (fileName == null || fileName.trim().isEmpty()) {
+            log.error("생성 오류 - fileName : 비었음");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
+        if (uuid == null) {
+            log.error("생성 오류 - uuid : null");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
+        if (user == null || user.getId() == null) {
+            log.error("생성 오류 - user : 유저 미지정 또는 유저 Id 미설정");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
     }
 
     /**

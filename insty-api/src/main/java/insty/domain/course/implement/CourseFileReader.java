@@ -4,7 +4,9 @@ import insty.domain.common.FileInfo;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.file.File;
+import insty.util.VideoUtils;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseFileReader {
     private final AppProperties appProperties;
 
-    public String getThumbnailUrl(Course course) {
+    public String getThumbnailUrl(Course course, UUID videoUuid) {
         File thumbnail = course.getThumbnail();
         if (thumbnail != null) {
             return thumbnail.getUrl(appProperties.getDomain());
+        }
+        if (videoUuid != null) {
+            return VideoUtils.getVideoBaseThumbnailUrl(appProperties.getDomain(), videoUuid);
         }
         return null;
     }

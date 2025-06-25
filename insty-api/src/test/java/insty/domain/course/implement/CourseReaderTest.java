@@ -12,6 +12,7 @@ import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.tag.Tags;
@@ -46,7 +47,7 @@ class CourseReaderTest {
         Long courseId = 1L;
 
         // mock
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         List<CourseInstallEnvChecklist> checklist = List.of(
                 CourseInstallEnvChecklist.create(course, "체크리스트", true),
                 CourseInstallEnvChecklist.create(course, "체크리스트2", false)
@@ -69,7 +70,7 @@ class CourseReaderTest {
         Long courseId = 1L;
 
         // mock
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         CourseKeypoint courseKeypoint = CourseKeypoint.create(course, "핵심포인트");
         when(courseKeypointRepository.findAllByCourseId(courseId))
                 .thenReturn(List.of(courseKeypoint));
@@ -106,7 +107,7 @@ class CourseReaderTest {
         Long courseId = 1L;
 
         // mock
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         when(courseRepository.findById(courseId))
                 .thenReturn(Optional.of(course));
 

@@ -57,6 +57,6 @@ class CourseValidatorTest {
         assertThatThrownBy(() -> courseValidator.validateCourseOwner(courseId, userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseErrorCode.COURSE_CANT_DELETE);
+                .isEqualTo(CourseErrorCode.COURSE_CANT_CHANGE);
     }
 }

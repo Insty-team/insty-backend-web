@@ -1,5 +1,9 @@
 package insty.domain.community.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
@@ -13,22 +17,19 @@ import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.when;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -58,8 +59,8 @@ public class CommunityServiceTest {
         String title = "제목";
         String content = "내용";
 
-        User user = User.create("email", "nickname", "password");
-        Course course = Course.create("title", "description", 100, "targetAudience", true);
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -71,7 +72,6 @@ public class CommunityServiceTest {
         when(communityReader.getCommunityQuestionDetailsById(questionId))
                 .thenReturn(communityQuestion);
 
-
         //when
         CommunityQuestionRes communityQuestionRes = communityService.getQuestionDetails(questionId);
         //then
@@ -82,7 +82,7 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void saveQuestion(){
+    void saveQuestion() {
         String title = "제목";
         String content = "내용";
         Long userId = 1L;
@@ -107,8 +107,8 @@ public class CommunityServiceTest {
                 null
         );
 
-        User user = User.create("email", "nickname", "password");
-        Course course = Course.create("title", "description", 100, "targetAudience", true);
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -142,8 +142,8 @@ public class CommunityServiceTest {
     void getAllAnswers() {
         String questionId = "1";
 
-        User user = User.create("email", "nickname", "password");
-        Course course = Course.create("title", "description", 100, "targetAudience", true);
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -155,7 +155,6 @@ public class CommunityServiceTest {
         String content1 = "답변 내용1";
         String content2 = "답변 내용2";
         String content3 = "답변 내용3";
-
 
         CommunityAnswer communityAnswer1 = CommunityAnswer.create(
                 communityQuestion,
@@ -186,7 +185,6 @@ public class CommunityServiceTest {
         assertThat(communityAnswerResList.get(1).content()).isEqualTo(content2);
         assertThat(communityAnswerResList.get(2).content()).isEqualTo(content3);
 
-
     }
 
     @Test
@@ -209,7 +207,7 @@ public class CommunityServiceTest {
         );
 
         User user = User.create("email", "nickname", "password");
-        Course course = Course.create("title", "description", 100, "targetAudience", true);
+        Course course = Course.create(user, "title", "description", 100, "targetAudience", true);
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -244,7 +242,7 @@ public class CommunityServiceTest {
         Long answerId = 1L;
 
         User user = User.create("email", "nickname", "password");
-        Course course = Course.create("title", "description", 100, "targetAudience", true);
+        Course course = Course.create(user, "title", "description", 100, "targetAudience", true);
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -284,7 +282,7 @@ public class CommunityServiceTest {
 
 
         User user = User.create("email", "nickname", "password");
-        Course course = Course.create("title", "description", 100, "targetAudience", true);
+        Course course = Course.create(user, "title", "description", 100, "targetAudience", true);
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,

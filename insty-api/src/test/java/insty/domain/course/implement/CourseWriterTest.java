@@ -3,7 +3,6 @@ package insty.domain.course.implement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import insty.domain.course.dto.CourseCreateReq;
@@ -16,6 +15,9 @@ import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
+import insty.model.user.User;
+import insty.model.user.UserFixtureBuilder;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
@@ -44,6 +46,7 @@ class CourseWriterTest {
     @Test
     void saveCourse_정상() {
         // given
+        User user = UserFixtureBuilder.getUserWithId();
         String title = "제목";
         String description = "설명";
         String targetAudience = "강의 대상자";
@@ -57,7 +60,7 @@ class CourseWriterTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        Course course = courseWriter.saveCourse(req);
+        Course course = courseWriter.saveCourse(user, req);
 
         // then
         assertThat(course).isNotNull();
@@ -74,7 +77,7 @@ class CourseWriterTest {
     @Test
     void saveCourseInstallEnvChecklist_정상() {
         // given
-        Course course = mock(Course.class);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         CourseInstallEnvChecklistInfo checklist1 = new CourseInstallEnvChecklistInfo("내용1", true);
         CourseInstallEnvChecklistInfo checklist2 = new CourseInstallEnvChecklistInfo("내용2", false);
         List<CourseInstallEnvChecklistInfo> checklistInfos = List.of(checklist1, checklist2);
@@ -97,7 +100,7 @@ class CourseWriterTest {
     @Test
     void saveCourseKeypoints_정상() {
         // given
-        Course course = mock(Course.class);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         List<String> keypointContents = List.of("내용1", "내용2");
 
         // mock
@@ -124,7 +127,7 @@ class CourseWriterTest {
                 null);
 
         // mock
-        Course beforeCourse = Course.create("이전 제목", "이전 설명", 0, "이전 대상자", false);
+        Course beforeCourse = CourseFixtureBuilder.getCourseWithIdAndUser(1L, "이전 제목", "이전 설명", 0, "이전 대상자", false);
         when(courseRepository.findById(courseId))
                 .thenReturn(Optional.of(beforeCourse));
         when(courseRepository.save(any(Course.class)))
@@ -168,7 +171,7 @@ class CourseWriterTest {
     @Test
     void updateCourseInstallEnvChecklist_정상() {
         // given
-        Course course = mock(Course.class);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         CourseInstallEnvChecklistInfo checklist1 = new CourseInstallEnvChecklistInfo("내용1", true);
         CourseInstallEnvChecklistInfo checklist2 = new CourseInstallEnvChecklistInfo("내용2", false);
         List<CourseInstallEnvChecklistInfo> checklistInfos = List.of(checklist1, checklist2);
@@ -193,7 +196,7 @@ class CourseWriterTest {
     @Test
     void updateCourseKeypoints_정상() {
         // given
-        Course course = mock(Course.class);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         List<String> keypointContents = List.of("내용1", "내용2");
 
         // mock
@@ -212,7 +215,7 @@ class CourseWriterTest {
     @Test
     void deleteCourse_정상_논리적으로_삭제된다() {
         // given
-        Course course = Course.create("제목", "설명", 10000, "강의 추천 대상자", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
         courseWriter.deleteCourse(course);
