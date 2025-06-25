@@ -22,10 +22,12 @@ public class CommunityFile extends BaseEntity {
     private CommunityFileId communityFileId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("questionId")
     @JoinColumn(name = "question_id", nullable = false)
     private CommunityQuestion communityQuestion;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @MapsId("fileId")
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
