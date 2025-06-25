@@ -255,7 +255,7 @@ public class CommunityServiceImpl implements CommunityService {
             CommunityFile communityFile = CommunityFile.create(communityQuestion, savedFile);
             communityWriter.saveCommunityFile(communityFile);
         }
-        
+
          */
 
         //TODO: 첨부파일
