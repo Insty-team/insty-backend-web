@@ -18,10 +18,13 @@ public interface CommunityService {
 
     CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments);
 
-    CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq);
+    CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments);
 
     void deleteQuestion(String questionId);
 
+    CommunityAnswerRes getAnswerDetails(String answerId);
+
+    //불필요해보임
     List<CommunityAnswerRes> getAllAnswers(String questionId);
 
     CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq);

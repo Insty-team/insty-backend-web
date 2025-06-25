@@ -1,6 +1,7 @@
 package insty.model.community;
 
 import insty.model.BaseEntity;
+import insty.model.community.id.CommunityFileId;
 import insty.model.file.File;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,30 +16,23 @@ import java.time.Instant;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityAttactments extends BaseEntity {
+public class CommunityFile extends BaseEntity {
 
-    @Id
+    @EmbeddedId
+    private CommunityFileId communityFileId;
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("questionId")
     @JoinColumn(name = "question_id", nullable = false)
     private CommunityQuestion communityQuestion;
 
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @MapsId("fileId")
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
-
-    @CreatedDate
-    @Column(nullable = false, name = "created_at", updatable = false)
-    private Instant createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false, name = "updated_at", updatable = false)
-    private Instant updatedAt;
-
-
-    public static CommunityAttactments create(CommunityQuestion communityQuestion, File file) {
-        return CommunityAttactments.builder()
+    public static CommunityFile create(CommunityQuestion communityQuestion, File file) {
+        return CommunityFile.builder()
                 .communityQuestion(communityQuestion)
                 .file(file)
                 .build();

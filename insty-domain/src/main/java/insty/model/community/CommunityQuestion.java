@@ -13,7 +13,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class CommunityQuestion extends BaseEntity {
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<CommunityAttactments> attachments = new ArrayList<>();
+    private List<CommunityFile> attachments = new ArrayList<>();
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -76,13 +75,10 @@ public class CommunityQuestion extends BaseEntity {
                 .build();
     }
 
-    public void addAttachments(List<CommunityAttactments> attachments) {
-        this.attachments.addAll(attachments);
-    }
-
-    public void update(String title, String content) {
+    public void update(String title, String content, List<CommunityFile> attachments) {
         this.title = title;
         this.content = content;
+        this.attachments = attachments;
         this.updatedAt = Instant.now();
     }
 
