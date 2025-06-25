@@ -206,8 +206,8 @@ public class CommunityServiceTest {
                 Instant.now()
         );
 
-        User user = User.create("email", "nickname", "password");
-        Course course = Course.create(user, "title", "description", 100, "targetAudience", true);
+        User user = User.create("email", "nickname", "nickname");
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -242,7 +242,7 @@ public class CommunityServiceTest {
         Long answerId = 1L;
 
         User user = User.create("email", "nickname", "password");
-        Course course = Course.create(user, "title", "description", 100, "targetAudience", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
@@ -282,7 +282,7 @@ public class CommunityServiceTest {
 
 
         User user = User.create("email", "nickname", "password");
-        Course course = Course.create(user, "title", "description", 100, "targetAudience", true);
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         CommunityQuestion communityQuestion = CommunityQuestion.create(
                 course,
