@@ -9,8 +9,12 @@ import insty.domain.course.repository.CourseQueryRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
+import insty.util.VideoUtils;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -75,5 +79,60 @@ public class CourseComplexReader {
                         Course::getId,
                         course -> course.getThumbnail().getUrl(appProperties.getDomain())
                 ));
+    }
+
+    public List<CourseSearchInfo> setBasicThumbnailUrlForSearch(List<CourseSearchInfo> searchInfo) {
+        return setBasicThumbnailUrl(
+                searchInfo,
+                CourseSearchInfo::courseId,
+                CourseSearchInfo::thumbnailUrl,
+                CourseSearchInfo::setThumbnailUrl
+        );
+    }
+
+    public List<CourseMySearchInfo> setBasicThumbnailUrlForMy(List<CourseMySearchInfo> searchInfo) {
+        return setBasicThumbnailUrl(
+                searchInfo,
+                CourseMySearchInfo::courseId,
+                CourseMySearchInfo::thumbnailUrl,
+                CourseMySearchInfo::setThumbnailUrl
+        );
+    }
+
+    /**
+     * CourseSearchInfo, CourseMySearchInfo 기본 썸네일 url 삽입 로직 공통화를 위한 메서드
+     *
+     * @param searchInfo      dto 리스트
+     * @param getCourseId     courseId 추출 함수
+     * @param getThumbnailUrl thumbnailUrl 추출 함수
+     * @param setThumbnailUrl 썸네일 세팅 함수
+     * @param <T>             CourseSearchInfo/CourseMySearchInfo
+     * @return 기본 썸네일이 들어간 새 리스트
+     */
+    private <T> List<T> setBasicThumbnailUrl(
+            List<T> searchInfo,
+            Function<T, Long> getCourseId,
+            Function<T, String> getThumbnailUrl,
+            BiFunction<T, String, T> setThumbnailUrl
+    ) {
+        List<Long> courseIds = searchInfo.stream()
+                .filter(info -> getThumbnailUrl.apply(info) == null)
+                .map(getCourseId)
+                .toList();
+
+        Map<Long, UUID> courseVideoUuids = courseQueryRepository.getCourseVideoUuids(courseIds);
+
+        return searchInfo.stream()
+                .map(info -> {
+                    if (getThumbnailUrl.apply(info) != null || !courseVideoUuids.containsKey(getCourseId.apply(info))) {
+                        return info;
+                    }
+                    String baseThumbnailUrl = VideoUtils.getVideoBaseThumbnailUrl(
+                            appProperties.getDomain(),
+                            courseVideoUuids.get(getCourseId.apply(info))
+                    );
+                    return setThumbnailUrl.apply(info, baseThumbnailUrl);
+                })
+                .toList();
     }
 }
