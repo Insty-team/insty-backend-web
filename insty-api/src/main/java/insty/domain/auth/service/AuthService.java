@@ -89,6 +89,8 @@ public class AuthService {
         Long userId = Long.parseLong(jwtUtils.extractSubject(refreshToken));    // userId 추출
         User user = userReader.getUser(userId);
 
+        log.info("회원ID : {}  토큰 재발급", userId);
+
         // 토큰 발급
         UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId(), user.getUserType());
         authTokenRedisWriter.saveRefreshToken(user.getId(), token.refreshToken());  // redis에 저장
