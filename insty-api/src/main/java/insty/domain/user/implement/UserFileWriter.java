@@ -29,6 +29,7 @@ public class UserFileWriter {
         if(profileImage == null || profileImage.isEmpty()) {
             return Optional.empty();
         }
+        // 파일 생성 객체 생성
         FileCreateReq req = new FileCreateReq(profileImage, FileContainerType.USER_PROFILEIMAGE, user.getId());
         File saveProfileImage = fileWriter.saveFile(req);
         user.updateProfileImage(saveProfileImage);
