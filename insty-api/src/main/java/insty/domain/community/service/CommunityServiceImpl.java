@@ -347,10 +347,6 @@ public class CommunityServiceImpl implements CommunityService {
         communityWriter.deleteAnswer(communityAnswer);
     }
 
-    @Override
-    public CommunityAnswerRes getAIAnswerRecommendation(CommunityAnswerReq communityAnswerReq) {
-        return null;
-    }
 
     @Override
     public CommunityAnswerRes postAnswerImage(CommunityAnswerReq communityAnswerReq) {

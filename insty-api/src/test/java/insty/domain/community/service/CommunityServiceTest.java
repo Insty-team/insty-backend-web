@@ -2,8 +2,10 @@ package insty.domain.community.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
@@ -14,6 +16,7 @@ import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
+import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
@@ -24,12 +27,21 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import insty.s3.adapter.S3FileManager;
+import insty.s3.adapter.S3UrlIssuer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +64,15 @@ public class CommunityServiceTest {
     CommunityQuestionRepository communityQuestionRepository;
     @Mock
     CommunityAnswerRepository communityAnswerRepository;
+
+    @Mock
+    S3UrlIssuer s3UrlIssuer;
+    @Mock
+    S3FileManager s3FileManager;
+    @Mock
+    CloudFrontSigner cloudFrontSigner;
+    @Mock
+    AppProperties appProperties;
 
     @Test
     void getQuestionDetails() {
@@ -82,7 +103,7 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void saveQuestion() {
+    void create_question_정상() {
         String title = "제목";
         String content = "내용";
         Long userId = 1L;
@@ -135,7 +156,64 @@ public class CommunityServiceTest {
 
     @Test
     void saveQustionWithFiles() {
+        String title = "제목";
+        String content = "내용";
+        Long userId = 1L;
+        Long courseId = 2L;
 
+        CommunityQuestionReq communityQuestionReq = CommunityQuestionReq.create(
+                null,
+                courseId,
+                userId,
+                title,
+                content
+        );
+        List<MultipartFile> attachments = List.of(
+                new MockMultipartFile("practiceFile", "practice1.jpg", "image/jpeg", "내용".getBytes()));
+
+        CommunityQuestionRes res = CommunityQuestionRes.create(
+                userId,
+                courseId,
+                title,
+                content,
+                Instant.now(),
+                Instant.now(),
+                null,
+                null
+        );
+
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                title,
+                content
+        );
+
+        // mock
+//        when(appProperties.getDomain())
+//                .thenReturn("insty.test.com");
+//        when(s3FileManager.upload(any(), anyString(), anyString()))
+//                .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
+//        when(courseReader.getCourseById(courseId))
+//                .thenReturn(course);
+//        when(userReader.getUser(userId))
+//                .thenReturn(user);
+//        when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
+//                .thenReturn(communityQuestion);
+//        //when
+//        CommunityQuestionRes communityQuestionRes = communityService.saveQuestion(communityQuestionReq, attachments);
+
+        //then
+//        assertThat(communityQuestionRes).isNotNull();
+//        assertThat(communityQuestionRes.title()).isEqualTo(title);
+//        assertThat(communityQuestionRes.content()).isEqualTo(content);
+//        assertThat(communityQuestionRes.attachments()).isNotNull();
+//        assertThat(communityQuestionRes.attachments().size()).isEqualTo(1);
+//        assertThat(communityQuestionRes.attachments().get(0).name()).isEqualTo("practice1.jpg");
+//        assertThat(communityQuestionRes.attachments().get(0).url()).isEqualTo("https://insty.test.com/00000000-0000-0000-0000-000000000001.jpg");
     }
 
     @Test
