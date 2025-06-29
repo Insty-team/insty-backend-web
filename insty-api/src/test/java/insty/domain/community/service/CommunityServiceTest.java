@@ -230,16 +230,19 @@ public class CommunityServiceTest {
         CommunityAnswer communityAnswer1 = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 content1
         );
         CommunityAnswer communityAnswer2 = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 content2
         );
         CommunityAnswer communityAnswer3 = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 content3
         );
 
@@ -273,6 +276,7 @@ public class CommunityServiceTest {
         CommunityAnswerRes res = CommunityAnswerRes.create(
                 userId,
                 content,
+                null,
                 Instant.now(),
                 Instant.now()
         );
@@ -290,6 +294,7 @@ public class CommunityServiceTest {
         CommunityAnswer communityAnswer = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 content
         );
 
@@ -325,6 +330,7 @@ public class CommunityServiceTest {
         CommunityAnswer communityAnswer = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 "답변 내용"
         );
 
@@ -365,12 +371,14 @@ public class CommunityServiceTest {
         CommunityAnswer communityAnswer = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 "기존 답변 내용"
         );
 
         CommunityAnswer updatedCommunityAnswer = CommunityAnswer.create(
                 communityQuestion,
                 user,
+                null,
                 content
         );
 
