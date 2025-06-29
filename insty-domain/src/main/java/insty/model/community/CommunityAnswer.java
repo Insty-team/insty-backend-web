@@ -40,7 +40,7 @@ public class CommunityAnswer {
     private String content;
 
     //ToDo: 답변 image
-    @OneToMany(mappedBy = "communityAnswer", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JoinColumn(name = "answer_image_id", nullable = true)
     private File answerImage;
 
