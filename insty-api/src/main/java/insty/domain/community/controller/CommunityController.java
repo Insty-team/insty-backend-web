@@ -88,8 +88,10 @@ public class CommunityController {
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PostMapping("/questions/{question_id}/answer")
-    public SuccessRes<CommunityAnswerRes> createAnswer(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq));
+    public SuccessRes<CommunityAnswerRes> createAnswer(
+            @RequestPart CommunityAnswerReq communityAnswerReq,
+            @RequestPart(value = "answerImage", required = false) MultipartFile imageFile){
+        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFile));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")

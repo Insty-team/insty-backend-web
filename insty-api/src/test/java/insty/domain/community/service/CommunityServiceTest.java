@@ -301,7 +301,7 @@ public class CommunityServiceTest {
                 .thenReturn(communityAnswer);
 
         //when
-        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req);
+        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, null);
 
         //then
         assertThat(communityAnswerRes).isNotNull();

@@ -41,6 +41,7 @@ public class CommunityFile extends BaseEntity {
     private File file;
 
     public static CommunityFile create(CommunityQuestion communityQuestion, File file) {
+        validateCreate(communityQuestion, file);
         return CommunityFile.builder()
                 .communityQuestion(communityQuestion)
                 .file(file)
