@@ -273,6 +273,7 @@ public class CommunityServiceTest {
         CommunityAnswerRes res = CommunityAnswerRes.create(
                 userId,
                 content,
+                null,
                 Instant.now(),
                 Instant.now()
         );
@@ -301,7 +302,7 @@ public class CommunityServiceTest {
                 .thenReturn(communityAnswer);
 
         //when
-        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req);
+        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, null);
 
         //then
         assertThat(communityAnswerRes).isNotNull();

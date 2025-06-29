@@ -3,10 +3,12 @@ package insty.domain.community.implement;
 import insty.domain.common.FileInfo;
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityQuestionReq;
+import insty.domain.community.reposiotry.CommunityAnswerFileRepository;
 import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityFileRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.model.community.CommunityAnswer;
+import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
@@ -27,6 +29,7 @@ public class CommunityWriter {
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
     private final CommunityFileRepository communityFileRepository;
+    private final CommunityAnswerFileRepository communityAnswerFileRepository;
 
     // TODO: 첨부파일
     public CommunityQuestion saveQuestion(CommunityQuestion communityQuestion, Course course, User user) {
@@ -37,6 +40,12 @@ public class CommunityWriter {
     public List<CommunityFile> saveCommunityFiles(List<CommunityFile> communityFiles) {
 
         return communityFileRepository.saveAll(communityFiles);
+
+    }
+
+    public CommunityAnswerFile saveCommunityAnswerFile(CommunityAnswerFile communityAnswerFile) {
+
+        return communityAnswerFileRepository.save(communityAnswerFile);
 
     }
 

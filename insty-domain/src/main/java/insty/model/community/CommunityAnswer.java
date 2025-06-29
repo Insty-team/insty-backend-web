@@ -1,5 +1,6 @@
 package insty.model.community;
 
+import insty.model.file.File;
 import insty.model.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,6 +13,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "community_answers", schema = "web_service")
@@ -37,6 +40,9 @@ public class CommunityAnswer {
     private String content;
 
     //ToDo: 답변 image
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @JoinColumn(name = "answer_image_id", nullable = true)
+    private File answerImage;
 
     @CreatedDate
     @Column(nullable = false, name = "created_at", updatable = false)

@@ -88,8 +88,10 @@ public class CommunityController {
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PostMapping("/questions/{question_id}/answer")
-    public SuccessRes<CommunityAnswerRes> createAnswer(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq));
+    public SuccessRes<CommunityAnswerRes> createAnswer(
+            @RequestPart CommunityAnswerReq communityAnswerReq,
+            @RequestPart(value = "answerImage", required = false) MultipartFile imageFile){
+        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFile));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
@@ -104,20 +106,6 @@ public class CommunityController {
     @DeleteMapping("/questions/{question_id}/answer")
     public SuccessRes<?> deleteAnswer(@RequestBody CommunityAnswerReq communityAnswerReq) {
         return SuccessRes.of(null);
-    }
-
-    @Operation(summary = "답변 이미지 업로드", description = "댓글에 이미지 업로드")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_IMAGE_UPLOAD)
-    @PostMapping("/questions/{question_id}/answer/image")
-    public SuccessRes<CommunityAnswerRes> postAnswerImage(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.postAnswerImage(communityAnswerReq));
-    }
-
-    @Operation(summary = "답변 비디오 업로드", description = "댓글에 비디오 업로드")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_VIDEO_UPLOAD)
-    @PostMapping("/questions/{question_id}/answer/video")
-    public SuccessRes<CommunityAnswerReq> postAnswerVideo(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.postAnswerVideo(communityAnswerReq));
     }
 
 }
