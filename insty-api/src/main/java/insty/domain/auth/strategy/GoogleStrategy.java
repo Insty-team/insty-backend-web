@@ -20,7 +20,7 @@ public class GoogleStrategy implements SocialStrategy {
     private final UserRepository userRepository;
 
     /**
-     *  전략 사용 지원 여부
+     *  전략 사용 지원 여부 체크
      */
     @Override
     public boolean supports(SocialType provider) {
