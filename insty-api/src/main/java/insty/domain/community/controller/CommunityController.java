@@ -108,18 +108,4 @@ public class CommunityController {
         return SuccessRes.of(null);
     }
 
-    @Operation(summary = "답변 이미지 업로드", description = "댓글에 이미지 업로드")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_IMAGE_UPLOAD)
-    @PostMapping("/questions/{question_id}/answer/image")
-    public SuccessRes<CommunityAnswerRes> postAnswerImage(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.postAnswerImage(communityAnswerReq));
-    }
-
-    @Operation(summary = "답변 비디오 업로드", description = "댓글에 비디오 업로드")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_VIDEO_UPLOAD)
-    @PostMapping("/questions/{question_id}/answer/video")
-    public SuccessRes<CommunityAnswerReq> postAnswerVideo(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.postAnswerVideo(communityAnswerReq));
-    }
-
 }
