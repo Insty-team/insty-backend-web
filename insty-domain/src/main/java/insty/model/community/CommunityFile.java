@@ -24,8 +24,11 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityFile extends BaseEntity {
 
-    @EmbeddedId
-    private CommunityFileId communityFileId;
+//    @EmbeddedId
+//    private CommunityFileId communityFileId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionId")
