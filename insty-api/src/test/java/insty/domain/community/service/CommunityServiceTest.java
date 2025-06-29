@@ -18,9 +18,12 @@ import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
+import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.course.CourseFixtureBuilder;
+import insty.model.file.File;
+import insty.model.file.FileFixtureBuilder;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.time.Instant;
@@ -171,6 +174,8 @@ public class CommunityServiceTest {
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("practiceFile", "practice1.jpg", "image/jpeg", "내용".getBytes()));
 
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
+
         CommunityQuestionRes res = CommunityQuestionRes.create(
                 userId,
                 courseId,
@@ -192,28 +197,16 @@ public class CommunityServiceTest {
                 content
         );
 
-        // mock
-//        when(appProperties.getDomain())
-//                .thenReturn("insty.test.com");
-//        when(s3FileManager.upload(any(), anyString(), anyString()))
-//                .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 //        when(courseReader.getCourseById(courseId))
 //                .thenReturn(course);
 //        when(userReader.getUser(userId))
 //                .thenReturn(user);
 //        when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
 //                .thenReturn(communityQuestion);
-//        //when
-//        CommunityQuestionRes communityQuestionRes = communityService.saveQuestion(communityQuestionReq, attachments);
+//        when(communityWriter.saveCommunityFiles(any()))
+//                .thenReturn(List.of(CommunityFile.create(communityQuestion, file)));
 
-        //then
-//        assertThat(communityQuestionRes).isNotNull();
-//        assertThat(communityQuestionRes.title()).isEqualTo(title);
-//        assertThat(communityQuestionRes.content()).isEqualTo(content);
-//        assertThat(communityQuestionRes.attachments()).isNotNull();
-//        assertThat(communityQuestionRes.attachments().size()).isEqualTo(1);
-//        assertThat(communityQuestionRes.attachments().get(0).name()).isEqualTo("practice1.jpg");
-//        assertThat(communityQuestionRes.attachments().get(0).url()).isEqualTo("https://insty.test.com/00000000-0000-0000-0000-000000000001.jpg");
+
     }
 
     @Test

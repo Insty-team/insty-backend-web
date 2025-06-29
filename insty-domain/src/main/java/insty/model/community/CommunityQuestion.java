@@ -40,11 +40,11 @@ public class CommunityQuestion extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @Builder.Default
     private List<CommunityFile> attachments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @Builder.Default
     private List<CommunityAnswer> answers = new ArrayList<>();
 

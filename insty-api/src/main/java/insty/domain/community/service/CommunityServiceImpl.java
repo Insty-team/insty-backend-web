@@ -164,9 +164,10 @@ public class CommunityServiceImpl implements CommunityService {
                         communityQuestion.getId()
                 )).toList();
 
-        List<File> files = fileCreateReqs.stream()
-                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
-                .toList();
+//        List<File> files = fileCreateReqs.stream()
+//                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
+//                .toList();
+        List<File> files = fileWriter.saveFiles(fileCreateReqs);
 
 
         List<CommunityFile> communityFiles = files.stream()
