@@ -320,15 +320,15 @@ public class CommunityServiceImpl implements CommunityService {
         User user = userReader.getUser(userId);
         CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
 
-        FileCreateReq fileCreateReq = new FileCreateReq(
-                        imageFile,
-                        FileContainerType.QUESTION_IMAGE,
-                        communityAnswer.getId()
-                );
-
-        File file = fileWriter.saveFile(fileCreateReq);
-        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
-        communityWriter.saveCommunityAnswerFile(communityAnswerFile);
+//        FileCreateReq fileCreateReq = new FileCreateReq(
+//                        imageFile,
+//                        FileContainerType.QUESTION_IMAGE,
+//                        communityAnswer.getId()
+//                );
+//
+//        File file = fileWriter.saveFile(fileCreateReq);
+//        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
+//        communityWriter.saveCommunityAnswerFile(communityAnswerFile);
 
         return CommunityAnswerRes.create(
                 userId,
