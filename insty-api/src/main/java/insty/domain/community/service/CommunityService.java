@@ -33,8 +33,6 @@ public interface CommunityService {
 
     void deleteAnswer(CommunityAnswerReq communityAnswerReq);
 
-    CommunityAnswerRes getAIAnswerRecommendation(CommunityAnswerReq communityAnswerReq);
-
     CommunityAnswerRes postAnswerImage(CommunityAnswerReq communityAnswerReq);
 
     CommunityAnswerReq postAnswerVideo(CommunityAnswerReq communityAnswerReq);

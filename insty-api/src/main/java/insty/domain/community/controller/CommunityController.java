@@ -106,13 +106,6 @@ public class CommunityController {
         return SuccessRes.of(null);
     }
 
-    @Operation(summary = "AI 답변 추천", description = "AI 응답 추천 받기")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_AI_RECOMMENDATION)
-    @PostMapping("/questions/{question_id}/answer/ai")
-    public SuccessRes<CommunityAnswerRes> getAIAnswerRecommendation(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.getAIAnswerRecommendation(communityAnswerReq));
-    }
-
     @Operation(summary = "답변 이미지 업로드", description = "댓글에 이미지 업로드")
     //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_IMAGE_UPLOAD)
     @PostMapping("/questions/{question_id}/answer/image")

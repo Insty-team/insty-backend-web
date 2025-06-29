@@ -1,5 +1,7 @@
 package insty.model.community;
 
+import insty.error.CommunityErrorCode;
+import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -9,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -16,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Entity
 @Table(name = "community_questions", schema = "web_service")
 @Getter
@@ -65,6 +69,7 @@ public class CommunityQuestion extends BaseEntity {
     private boolean isDeleted;
 
     public static CommunityQuestion create(Course course, User user, String title, String content) {
+        validateCreate(course, user, title, content);
         return CommunityQuestion.builder()
                 .course(course)
                 .user(user)
@@ -82,4 +87,22 @@ public class CommunityQuestion extends BaseEntity {
         this.updatedAt = Instant.now();
     }
 
+    private static void validateCreate(Course course, User user, String title, String content) {
+        if (course == null || course.getId() == null) {
+            log.error("CommunityQuestion creation error - course is null or has no ID");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (user == null || user.getId() == null) {
+            log.error("CommunityQuestion creation error - user is null or has no ID");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (title == null || title.isBlank()) {
+            log.error("CommunityQuestion creation error - title is null or blank");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (content == null || content.isBlank()) {
+            log.error("CommunityQuestion creation error - content is null or blank");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+    }
 }

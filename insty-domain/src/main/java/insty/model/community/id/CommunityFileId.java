@@ -1,11 +1,15 @@
 package insty.model.community.id;
 
+import insty.error.CommunityErrorCode;
+import insty.exception.CustomException;
 import jakarta.persistence.Embeddable;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+@Slf4j
 @Embeddable
 @Getter
 @Builder
@@ -33,10 +37,22 @@ public class CommunityFileId implements Serializable {
     }
 
     public static CommunityFileId create(Long questionId, Long fileId) {
+        validateCreate(questionId, fileId);
         return CommunityFileId.builder()
                 .questionId(questionId)
                 .fileId(fileId)
                 .build();
+    }
+
+    private static void validateCreate(Long questionId, Long fileId) {
+        if (questionId == null) {
+            log.error("생성 오류 - questionId : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (fileId == null) {
+            log.error("생성 오류 - fileId : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
     }
 }
 
