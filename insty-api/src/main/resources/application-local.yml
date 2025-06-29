@@ -3,4 +3,4 @@ spring:
     import: optional:file:.env[.properties]
 
 swagger:
-  server-url: http://localhost:8080/
+  server-url: http://localhost:8080

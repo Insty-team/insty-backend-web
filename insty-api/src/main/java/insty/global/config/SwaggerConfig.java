@@ -32,6 +32,7 @@ import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.method.HandlerMethod;
 
@@ -50,10 +51,11 @@ import org.springframework.web.method.HandlerMethod;
         in = io.swagger.v3.oas.annotations.enums.SecuritySchemeIn.HEADER, // 헤더에 담기
         paramName = "Authorization"          // 실제 헤더명
 )
+@Profile({"local, dev"})
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${swagger.server-url:https://localhost:8080/}")
+    @Value("${swagger.server-url}")
     private String swaggerServerUrl;
 
     @Bean
