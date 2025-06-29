@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +51,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionRes> createQuestion(
-            @RequestBody CommunityQuestionReq communityQuestionReq,
+            @RequestPart("communityQuestionReq") @Validated CommunityQuestionReq communityQuestionReq,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityService.saveQuestion(communityQuestionReq, attachments));
@@ -61,9 +62,11 @@ public class CommunityController {
     @PatchMapping("/questions/{question_id}")
     public SuccessRes<CommunityQuestionRes> updateQuestion(
             @PathVariable @NotBlank String questionId,
-            @RequestBody CommunityQuestionReq communityQuestionReq) {
+            @RequestPart CommunityQuestionReq communityQuestionReq,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
+    ) {
         //communityQuestionReq.setId(questionId);
-        return SuccessRes.of(communityService.updateQuestion(communityQuestionReq));
+        return SuccessRes.of(communityService.updateQuestion(communityQuestionReq, attachments));
     }
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")
@@ -74,6 +77,7 @@ public class CommunityController {
         return SuccessRes.of(null);
     }
 
+    //삭제하고 질문 상세보기와 통합
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
     @GetMapping("/questions/{question_id}/answer")
@@ -100,13 +104,6 @@ public class CommunityController {
     @DeleteMapping("/questions/{question_id}/answer")
     public SuccessRes<?> deleteAnswer(@RequestBody CommunityAnswerReq communityAnswerReq) {
         return SuccessRes.of(null);
-    }
-
-    @Operation(summary = "AI 답변 추천", description = "AI 응답 추천 받기")
-    //@CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_AI_RECOMMENDATION)
-    @PostMapping("/questions/{question_id}/answer/ai")
-    public SuccessRes<CommunityAnswerRes> getAIAnswerRecommendation(@RequestBody CommunityAnswerReq communityAnswerReq) {
-        return SuccessRes.of(communityService.getAIAnswerRecommendation(communityAnswerReq));
     }
 
     @Operation(summary = "답변 이미지 업로드", description = "댓글에 이미지 업로드")

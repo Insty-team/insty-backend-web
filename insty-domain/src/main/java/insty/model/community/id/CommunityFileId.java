@@ -1,0 +1,58 @@
+package insty.model.community.id;
+
+import insty.error.CommunityErrorCode;
+import insty.exception.CustomException;
+import jakarta.persistence.Embeddable;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+@Slf4j
+@Embeddable
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class CommunityFileId implements Serializable {
+
+    private Long questionId;
+    private Long fileId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CommunityFileId)) return false;
+
+        CommunityFileId that = (CommunityFileId) o;
+        return Objects.equals(questionId, that.questionId) &&
+                Objects.equals(fileId, that.fileId);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(questionId, fileId);
+    }
+
+    public static CommunityFileId create(Long questionId, Long fileId) {
+        validateCreate(questionId, fileId);
+        return CommunityFileId.builder()
+                .questionId(questionId)
+                .fileId(fileId)
+                .build();
+    }
+
+    private static void validateCreate(Long questionId, Long fileId) {
+        if (questionId == null) {
+            log.error("생성 오류 - questionId : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (fileId == null) {
+            log.error("생성 오류 - fileId : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+    }
+}
+

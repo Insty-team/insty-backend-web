@@ -119,6 +119,7 @@ public class CourseService {
         CourseSearchFilter filter = req.toSearchFilter();
 
         List<CourseSearchInfo> searchInfo = courseComplexReader.searchCourse(paginationReq, filter);
+        searchInfo = courseComplexReader.setBasicThumbnailUrlForSearch(searchInfo);
         PaginationRes paginationRes = courseComplexReader.countSearchCourse(paginationReq, filter);
 
         return SearchRes.from(paginationRes, searchInfo);
@@ -128,13 +129,14 @@ public class CourseService {
         PaginationReq paginationReq = req.toPaginationReq();
 
         List<CourseMySearchInfo> searchInfo = courseComplexReader.searchMyCourse(paginationReq, userId);
+        searchInfo = courseComplexReader.setBasicThumbnailUrlForMy(searchInfo);
         PaginationRes paginationRes = courseComplexReader.countSearchMyCourse(paginationReq, userId);
 
         return SearchRes.from(paginationRes, searchInfo);
     }
 
     /**
-     *  러너가 크리에이터에게 강의 요청
+     * 러너가 크리에이터에게 강의 요청
      */
     public CourseRequestRes createCourseRequest(Long userId, CourseRequestReq req) {
         CourseRequest saveCourseRequest = courseRequestWriter.saveCourseRequest(userId, req);
@@ -142,7 +144,7 @@ public class CourseService {
     }
 
     /**
-     *  크리에이터에 요청된 강의 목록 조회
+     * 크리에이터에 요청된 강의 목록 조회
      */
     public List<CourseRequestRes> searchCourseRequest(Long userId) {
         List<CourseRequest> findMyCourseRequest = courseRequestReader.getListMyCourseRequest(userId);

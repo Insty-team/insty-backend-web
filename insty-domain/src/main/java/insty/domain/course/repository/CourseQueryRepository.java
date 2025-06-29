@@ -7,6 +7,7 @@ import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface CourseQueryRepository {
 
@@ -19,4 +20,6 @@ public interface CourseQueryRepository {
     List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId);
 
     PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId);
+
+    Map<Long, UUID> getCourseVideoUuids(List<Long> courseIds);
 }

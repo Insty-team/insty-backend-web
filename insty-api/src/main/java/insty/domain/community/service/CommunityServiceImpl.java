@@ -1,28 +1,33 @@
 package insty.domain.community.service;
 
 import insty.domain.common.FileCreateReq;
+import insty.domain.common.FileInfo;
 import insty.domain.community.dto.*;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.file.implement.FileWriter;
 import insty.domain.user.implement.UserReader;
+import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAttactments;
+import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import insty.model.user.User;
+import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileReader;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,22 +39,14 @@ public class CommunityServiceImpl implements CommunityService {
     private final CourseReader courseReader;
     private final UserReader userReader;
     private final FileWriter fileWriter;
+    private final AppProperties appProperties;
+    private final S3FileManager s3FileManager;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
         CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
         List<CommunityAnswer> communityAnswers = communityQuestion.getAnswers();
-        List<CommunityAttactments> communityAttactments = communityQuestion.getAttachments();
-
-        List<CommunityAnswerRes> answers = new ArrayList<>();
-
-        if (communityAnswers != null) {
-            answers = communityAnswers.stream()
-                    .map(answer -> CommunityAnswerRes.create(answer.getContent()))
-                    .toList();
-        }
-        //TODO: 수정필요
-        //List<CommunityAttachmentRes> attachments = getCommunityAttachments(communityAttactments);
+        List<CommunityFile> communityAttactments = communityQuestion.getAttachments();
 
         String title = communityQuestion.getTitle();
         String content = communityQuestion.getContent();
@@ -59,6 +56,18 @@ public class CommunityServiceImpl implements CommunityService {
 
         Course course = communityQuestion.getCourse();
         Long courseId = course.getId();
+
+        List<CommunityAnswerRes> answers = new ArrayList<>();
+
+        if (communityAnswers != null) {
+            answers = communityAnswers.stream()
+                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), answer.getCreatedAt(), answer.getUpdatedAt()))
+                    .toList();
+        }
+        //TODO: 수정필요
+
+
+
 
         //TODO: id가 아닌 객체 내부 데이터
 
@@ -74,34 +83,12 @@ public class CommunityServiceImpl implements CommunityService {
                 content,
                 createdAt,
                 updatedAt,
-                answers
+                answers,
+                null
                 //attachments
         );
     }
 
-    //TODO: 수정필요
-    /*
-    List<CommunityAttachmentRes> getCommunityAttachments(List<CommunityAttactments> communityAttactments) {
-        List<CommunityAttachmentRes> attacments = new ArrayList<>();
-
-        for (CommunityAttactments attachment : communityAttactments) {
-            File communityFile = attachment.getFile();
-            FileContainerType fileContainerType = communityFile.getContainerType();
-            String contentType = communityFile.getContentType();
-            String fileContent = attachment.getFileContent();
-
-            CommunityAttachmentRes communityAttachmentRes = CommunityAttachmentRes.create(
-                    fileContainerType,
-                    contentType,
-                    fileContent
-            );
-
-            attacments.add(communityAttachmentRes);
-        }
-
-        return attacments;
-    }
-    */
 
     @Override
     public List<CommunityQuestionRes> getAllQuestions() {
@@ -115,6 +102,7 @@ public class CommunityServiceImpl implements CommunityService {
                         question.getContent(),
                         question.getCreatedAt(),
                         question.getUpdatedAt(),
+                        null,
                         null
                 )).toList();
     }
@@ -131,6 +119,7 @@ public class CommunityServiceImpl implements CommunityService {
                         question.getContent(),
                         question.getCreatedAt(),
                         question.getUpdatedAt(),
+                        null,
                         null
                 )).toList();
     }
@@ -148,12 +137,8 @@ public class CommunityServiceImpl implements CommunityService {
                         communityQuestionReq.content()
                 );
 
-
-        List<CommunityAttactments> communityAttactments = createCommunityAttachments(attachments, communityQuestion);
-        //TODO: 첨부파일 추가
-        //communityQuestion.addAttachments(communityAttactments);
-
-        communityQuestion = communityWriter.saveQuestion(communityQuestion, course, user);//, communityAttactments);
+        communityQuestion = communityWriter.saveQuestion(communityQuestion, course, user);
+        List<FileInfo> fileInfos = saveCommunityFiles(communityQuestion, attachments); //첨부파일 리스트
 
         return CommunityQuestionRes.create(
                 user.getId(),
@@ -162,11 +147,48 @@ public class CommunityServiceImpl implements CommunityService {
                 communityQuestion.getContent(),
                 Instant.now(),
                 Instant.now(),
-                null //TODO: 답변 리스트 추가
+                null,
+                fileInfos
+
         );
     }
 
-    public List<CommunityAttactments> createCommunityAttachments(List<MultipartFile> attachments, CommunityQuestion communityQuestion) {
+    private List<FileInfo> saveCommunityFiles(CommunityQuestion communityQuestion, List<MultipartFile> attachments) {
+        if (attachments == null || attachments.isEmpty()) {
+            return null;
+        }
+        List<FileCreateReq> fileCreateReqs = attachments.stream()
+                .map(file -> new FileCreateReq(
+                        file,
+                        FileContainerType.QUESTION_IMAGE,
+                        communityQuestion.getId()
+                )).toList();
+
+        List<File> files = fileCreateReqs.stream()
+                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
+                .toList();
+
+
+        List<CommunityFile> communityFiles = files.stream()
+                .map(file -> CommunityFile.create(communityQuestion, file))
+                .toList();
+
+        communityWriter.saveCommunityFiles(communityFiles);
+
+        return files.stream()
+                .map(file -> FileInfo.from(file, appProperties.getDomain()))
+                .toList();
+
+    }
+
+    private File uploadAndCreateFile(FileCreateReq req) {
+        String uploadName = s3FileManager.upload(req.file(), req.containerType().toString(),
+                req.containerId().toString());
+        return File.create(req.containerType(), req.containerId(), uploadName, req.file().getOriginalFilename(),
+                req.file().getContentType(), req.file().getSize());
+    }
+
+    public List<CommunityFile> createCommunityAttachments(List<MultipartFile> attachments, CommunityQuestion communityQuestion) {
         if (attachments == null || attachments.isEmpty()) {
             return new ArrayList<>();
         }
@@ -183,10 +205,10 @@ public class CommunityServiceImpl implements CommunityService {
 
         List<File> files = fileWriter.saveFiles(fileCreateReqs);
 
-        List<CommunityAttactments> communityAttachments = files
+        List<CommunityFile> communityAttachments = files
                 .stream()
                 .map(
-                        file -> CommunityAttactments.create(
+                        file -> CommunityFile.create(
                                 communityQuestion,
                                 file
                         )
@@ -196,9 +218,48 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq) {
+    public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
         CommunityQuestion prevCommunityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityQuestionReq.questionId()));
-        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq);
+
+        //새 첨푸파일과 기존 첨부파일 비교
+        List<CommunityFile> existingAttachments = prevCommunityQuestion.getAttachments();
+
+        /*
+        // 기존 첨부파일 ID 목록
+        Set<Long> existingFileIds = existingAttachments.stream()
+                .map(CommunityFile::getId)
+                .collect(Collectors.toSet());
+
+        // DTO에서 전달된 첨부파일 ID 목록 (예: List<Long> attachmentIds)
+        Set<Long> newFileIds = new HashSet<>(dto.getAttachmentIds());
+
+        // 삭제 대상: 기존에는 있지만, 새 목록에는 없는 파일
+        Set<Long> toDelete = new HashSet<>(existingFileIds);
+        toDelete.removeAll(newFileIds);
+
+        // 추가 대상: 새 목록에는 있지만, 기존에는 없는 파일
+        Set<Long> toAdd = new HashSet<>(newFileIds);
+        toAdd.removeAll(existingFileIds);
+
+        // 삭제 처리
+        for (Long fileId : toDelete) {
+            fileWriter.deleteFileById(fileId);
+        }
+
+        // 추가 처리 (예: MultipartFile로 전달된 신규 파일들)
+        for (MultipartFile file : dto.getNewFiles()) {
+            // 파일 업로드 및 DB 저장
+            FileCreateReq req = new FileCreateReq(file, FileContainerType.QUESTION_IMAGE, questionId);
+            File savedFile = uploadAndCreateFile(req);
+            // CommunityFile로 매핑 및 저장
+            CommunityFile communityFile = CommunityFile.create(communityQuestion, savedFile);
+            communityWriter.saveCommunityFile(communityFile);
+        }
+
+         */
+
+        //TODO: 첨부파일
+        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq, attachments);
         //TODO: 첨부파일 추가
         return CommunityQuestionRes.create(
                 null,
@@ -207,7 +268,8 @@ public class CommunityServiceImpl implements CommunityService {
                 updatedQuestion.getContent(),
                 null,
                 Instant.now(),
-                null //TODO: 답변 리스트 추가
+                null, //TODO: 답변 리스트 추가
+                null
         );
     }
 
@@ -218,34 +280,64 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public CommunityAnswerRes getAnswerDetails(String answerId) {
+        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
+        User user = communityAnswer.getUser();
+
+        return CommunityAnswerRes.create(
+                user.getId(),
+                communityAnswer.getContent(),
+                communityAnswer.getCreatedAt(),
+                communityAnswer.getUpdatedAt()
+        );
+    }
+
+    @Override
     public List<CommunityAnswerRes> getAllAnswers(String questionId) {
-        List<CommunityAnswer> communityAnswers = new ArrayList<CommunityAnswer>(); //communityReader.getAllCommunityAnswers(questionId);
+
+        List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers(questionId);
 
         return communityAnswers.stream()
                 .map(answer -> CommunityAnswerRes.create(
-                        answer.getContent()))
+                        answer.getUser().getId(),
+                        answer.getContent(),
+                        answer.getCreatedAt(),
+                        answer.getUpdatedAt()))
                 .toList();
     }
 
     @Override
     public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq) {
-        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityAnswerReq.questionId()));
-        User user = userReader.getUser(communityAnswerReq.userId());
+        String questionId = communityAnswerReq.questionId();
+        Long userId = communityAnswerReq.userId();
+
+        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
+        User user = userReader.getUser(userId);
         CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
 
         return CommunityAnswerRes.create(
-                communityAnswer.getContent()
+                userId,
+                communityAnswer.getContent(),
+                communityAnswer.getCreatedAt(),
+                communityAnswer.getUpdatedAt()
         );
 
     }
 
     @Override
     public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq) {
-        CommunityAnswer prevCommunityAnswer = communityReader.getCommunityAnswerById(String.valueOf(communityAnswerReq.answerId()));
+        String answerId = communityAnswerReq.answerId();
+        String questionId = communityAnswerReq.questionId();
+        Long userId = communityAnswerReq.userId();
+
+        CommunityAnswer prevCommunityAnswer = communityReader.getCommunityAnswerById(answerId);
         CommunityAnswer updateAnswer = communityWriter.updateAnswer(prevCommunityAnswer, communityAnswerReq);
 
         return CommunityAnswerRes.create(
-                updateAnswer.getContent()
+                userId,
+                updateAnswer.getContent(),
+                updateAnswer.getCreatedAt(),
+                updateAnswer.getUpdatedAt()
         );
     }
 
@@ -255,10 +347,6 @@ public class CommunityServiceImpl implements CommunityService {
         communityWriter.deleteAnswer(communityAnswer);
     }
 
-    @Override
-    public CommunityAnswerRes getAIAnswerRecommendation(CommunityAnswerReq communityAnswerReq) {
-        return null;
-    }
 
     @Override
     public CommunityAnswerRes postAnswerImage(CommunityAnswerReq communityAnswerReq) {

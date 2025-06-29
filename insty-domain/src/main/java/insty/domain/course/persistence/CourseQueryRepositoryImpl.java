@@ -21,6 +21,7 @@ import insty.domain.course.repository.CourseQueryRepository;
 import insty.model.course.Course;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -119,6 +120,18 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
             totalItems = 0L;
         }
         return PaginationRes.of(totalItems.intValue(), paginationReq.page(), paginationReq.pageSize());
+    }
+
+    @Override
+    public Map<Long, UUID> getCourseVideoUuids(List<Long> courseIds) {
+        return queryFactory()
+                .select(course.id, videoCourse.videoUuid)
+                .from(course)
+                .join(videoCourse).on(videoCourse.course.id.eq(course.id)
+                        .and(videoCourse.isDeleted.eq(false)))
+                .where(course.id.in(courseIds))
+                .transform(GroupBy.groupBy(course.id)
+                        .as(videoCourse.videoUuid));
     }
 
     /**

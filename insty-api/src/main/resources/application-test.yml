@@ -12,20 +12,24 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
 
-  # TODO detault 제거 개선
   security:
     jwt:
-      secret: ${JWT_SECRET_KEY:test-secret-key}
+      secret: test-secret-key
     cors:
-      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
-      allowed-methods: ${CORS_ALLOWED_METHODS:OPTIONS,GET,POST,PUT,DELETE}
+      allowed-origins: http://localhost:3000
+      allowed-methods: OPTIONS,GET,POST,PUT,DELETE
 
   data:
     redis:
       host: test
       port: 1234
 
-# TODO detault 제거 개선
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 oauth:
   providers:
     kakao:
@@ -51,8 +55,6 @@ oauth:
         user-info-url: test
       client_id: test
       client-secret: test
-
-
 
 app:
   health-check-path: /tmp

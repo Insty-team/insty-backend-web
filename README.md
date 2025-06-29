@@ -1,3 +1,7 @@
+## 전체 아키텍처
+
+![architecture](.github/image/architecture.png)
+
 ## ✨ Husky & Commitlint
 
 Git 훅을 이용해 커밋 메세지 형식을 강제하여 일관성을 유지합니다.

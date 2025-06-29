@@ -3,12 +3,19 @@ package insty.domain.community.dto;
 import jakarta.validation.constraints.NotNull;
 
 public record CommunityAnswerReq(
-        Long answerId,
+        String answerId,
         @NotNull
-        Long questionId,
+        String questionId,
         @NotNull
         Long userId,
         @NotNull
         String content
 ) {
+    public static CommunityAnswerReq create(
+            @NotNull String questionId,
+            @NotNull Long userId,
+            @NotNull String content
+    ) {
+        return new CommunityAnswerReq(null , questionId, userId, content);
+    }
 }
