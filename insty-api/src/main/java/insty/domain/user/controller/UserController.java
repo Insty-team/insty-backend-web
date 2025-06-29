@@ -74,6 +74,7 @@ public class UserController {
             security = @SecurityRequirement(name = "JWT")
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_DETAIL)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/profile")
     public SuccessRes<UserDetailRes> getProfile(@CurrentUser Long userId) {
         return SuccessRes.of(userService.getDetailUser(userId));
