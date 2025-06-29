@@ -55,11 +55,10 @@ public class CommunityAnswer {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CommunityAnswer create(CommunityQuestion communityQuestion, User user, File answerImage, String content) {
+    public static CommunityAnswer create(CommunityQuestion communityQuestion, User user, String content) {
         return CommunityAnswer.builder()
                 .communityQuestion(communityQuestion)
                 .user(user)
-                .answerImage(answerImage)
                 .content(content)
                 .isDeleted(false)
                 .build();

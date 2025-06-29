@@ -65,7 +65,6 @@ public class CommunityWriter {
                 .create(
                         communityQuestion,
                         user,
-                        null,
                         communityAnswerReq.content()
                 );
 
