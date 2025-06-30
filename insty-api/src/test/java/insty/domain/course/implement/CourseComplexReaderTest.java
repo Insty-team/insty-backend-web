@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import insty.domain.common.dto.CreatorInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseMySearchInfo;
@@ -49,7 +50,8 @@ class CourseComplexReaderTest {
         CourseSearchFilter req = new CourseSearchFilter("파이썬");
 
         // mock
-        CourseSearchInfo searchInfo = new CourseSearchInfo(1L, "파이썬 강의", "설명", null, null, null);
+        CreatorInfo creatorInfo = new CreatorInfo(1L, "닉네임");
+        CourseSearchInfo searchInfo = new CourseSearchInfo(1L, creatorInfo, "파이썬 강의", "설명", null, null, null);
         when(courseQueryRepository.searchCourses(paginationReq, req))
                 .thenReturn(List.of(searchInfo));
         Map<Long, List<String>> courseTag = Map.of(1L, List.of("태그1", "태그2"));
@@ -151,10 +153,15 @@ class CourseComplexReaderTest {
     @Test
     void setBasicThumbnailUrlForSearch_정상() {
         // given
-        CourseSearchInfo searchInfo1 = new CourseSearchInfo(1L, "사용자가 썸네일을 업로드한 강의", "설명", null, "업로드된 썸네일 url", null);
-        CourseSearchInfo searchInfo2 = new CourseSearchInfo(2L, "사용자가 썸네일을 업로드하지 않아 기본썸네일이 제공되는 강의", "설명", null, null,
+        CreatorInfo commonInfo = new CreatorInfo(1L, "임시 닉네임");
+        CourseSearchInfo searchInfo1 = new CourseSearchInfo(1L, commonInfo, "사용자가 썸네일을 업로드한 강의", "설명", null,
+                "업로드된 썸네일 url",
                 null);
-        CourseSearchInfo searchInfo3 = new CourseSearchInfo(3L, "연결된 영상이 없는 강의", "설명", null, null, null);
+        CourseSearchInfo searchInfo2 = new CourseSearchInfo(2L, commonInfo, "사용자가 썸네일을 업로드하지 않아 기본썸네일이 제공되는 강의", "설명",
+                null,
+                null,
+                null);
+        CourseSearchInfo searchInfo3 = new CourseSearchInfo(3L, commonInfo, "연결된 영상이 없는 강의", "설명", null, null, null);
         List<CourseSearchInfo> searchInfo = List.of(searchInfo1, searchInfo2, searchInfo3);
 
         // mock
