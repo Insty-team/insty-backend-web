@@ -68,7 +68,7 @@ public class CourseService {
         List<String> keypoints = courseWriter.saveCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, req.tags());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos,
+        return CourseDetailRes.from(course, user, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos,
                 videoUuid);
     }
 
@@ -76,6 +76,7 @@ public class CourseService {
                                         List<MultipartFile> practiceFile) {
         courseValidator.validateCourseOwner(courseId, userId);
         Course course = courseWriter.updateCourse(courseId, req);
+        User user = course.getUser();
         UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
         courseFileWriter.updateThumbnail(thumbnail, course);
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
@@ -86,7 +87,7 @@ public class CourseService {
         List<String> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.updateCourseTags(course, req.tags());
 
-        return CourseDetailRes.from(course, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoUuid);
+        return CourseDetailRes.from(course, user, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoUuid);
     }
 
     /**
@@ -104,6 +105,7 @@ public class CourseService {
 
     public CourseDetailRes detailCourse(Long courseId) {
         Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
+        User creator = course.getUser();
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
@@ -111,7 +113,8 @@ public class CourseService {
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
         List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
 
-        return CourseDetailRes.from(course, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles, videoUuid);
+        return CourseDetailRes.from(course, creator, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles,
+                videoUuid);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {
