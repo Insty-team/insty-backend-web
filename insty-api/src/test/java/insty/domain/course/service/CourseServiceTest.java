@@ -425,6 +425,8 @@ class CourseServiceTest {
 
         assertThat(items).isNotNull();
         assertThat(items.size()).isEqualTo(1);
+        assertThat(items.get(0).creatorInfo().id()).isEqualTo(1L);
+        assertThat(items.get(0).creatorInfo().nickname()).isEqualTo("example");
         assertThat(items.get(0).title()).contains(search);
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
         assertThat(items.get(0).thumbnailUrl()).isEqualTo(

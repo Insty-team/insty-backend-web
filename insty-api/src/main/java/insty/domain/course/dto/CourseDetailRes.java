@@ -1,8 +1,8 @@
 package insty.domain.course.dto;
 
-import insty.domain.common.CreatorInfo;
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
+import insty.domain.common.dto.CreatorInfo;
 import insty.model.course.Course;
 import insty.model.user.User;
 import insty.model.video.VideoType;

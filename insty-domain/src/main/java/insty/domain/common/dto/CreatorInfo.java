@@ -1,4 +1,4 @@
-package insty.domain.common;
+package insty.domain.common.dto;
 
 import insty.model.user.User;
 
