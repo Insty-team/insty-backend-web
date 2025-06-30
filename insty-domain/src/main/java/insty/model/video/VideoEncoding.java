@@ -56,7 +56,7 @@ public class VideoEncoding {
     /**
      * 미리보기 영상의 디렉토리 경로를 반환한다.
      *
-     * @return file/{type}/hls/{uuid}
+     * @return preview/{type}/hls/{uuid}
      */
     public String getPreviewVideoDirectoryPath() {
         validateEncodingS3Key();
@@ -77,7 +77,7 @@ public class VideoEncoding {
     /**
      * 미리보기 영상의 마스터 파일 경로를 반환한다.
      *
-     * @return file/{type}/hls/{uuid}/fileName.m3u8
+     * @return preview/{type}/hls/{uuid}/fileName.m3u8
      */
     public String getPreviewMasterFileKey() {
         validateEncodingS3Key();

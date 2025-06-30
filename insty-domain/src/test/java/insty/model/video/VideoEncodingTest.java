@@ -39,6 +39,17 @@ class VideoEncodingTest {
     }
 
     @Test
+    void getPreviewVideoDirectoryPath_정상() {
+        // given
+
+        // when
+        String encodingVideoDirectoryPath = videoEncoding.getPreviewVideoDirectoryPath();
+
+        // then
+        assertThat(encodingVideoDirectoryPath).isEqualTo("preview/COURSE/hls/00000000-0000-0000-0000-000000000001");
+    }
+
+    @Test
     void getHlsMasterFileKey_정상() {
         // given
 
@@ -47,6 +58,17 @@ class VideoEncodingTest {
 
         // then
         assertThat(hlsMasterFileKey).isEqualTo("vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.m3u8");
+    }
+
+    @Test
+    void getPreviewMasterFileKey_정상() {
+        // given
+
+        // when
+        String hlsMasterFileKey = videoEncoding.getPreviewMasterFileKey();
+
+        // then
+        assertThat(hlsMasterFileKey).isEqualTo("preview/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.m3u8");
     }
 
     @Test
