@@ -1,5 +1,6 @@
 package insty.model.video;
 
+import insty.constants.VideoConstants;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import jakarta.persistence.Column;
@@ -53,6 +54,17 @@ public class VideoEncoding {
     }
 
     /**
+     * 미리보기 영상의 디렉토리 경로를 반환한다.
+     *
+     * @return file/{type}/hls/{uuid}
+     */
+    public String getPreviewVideoDirectoryPath() {
+        validateEncodingS3Key();
+        int lastSlashIndex = this.encodingS3Key.lastIndexOf('/');
+        return VideoConstants.PREVIEW_BASE_FOLDER + this.encodingS3Key.substring(3, lastSlashIndex);
+    }
+
+    /**
      * HLS 영상의 마스터 파일 경로를 반환한다.
      *
      * @return vod/{type}/hls/{uuid}/fileName.m3u8
@@ -60,6 +72,16 @@ public class VideoEncoding {
     public String getHlsMasterFileKey() {
         validateEncodingS3Key();
         return this.encodingS3Key + ".m3u8";
+    }
+
+    /**
+     * 미리보기 영상의 마스터 파일 경로를 반환한다.
+     *
+     * @return file/{type}/hls/{uuid}/fileName.m3u8
+     */
+    public String getPreviewMasterFileKey() {
+        validateEncodingS3Key();
+        return VideoConstants.PREVIEW_BASE_FOLDER + this.encodingS3Key.substring(3) + ".m3u8";
     }
 
     /**

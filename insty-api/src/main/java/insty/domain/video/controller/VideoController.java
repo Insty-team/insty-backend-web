@@ -64,11 +64,24 @@ public class VideoController {
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_GET)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/playlist")
-    public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylist(
+    public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getEncodedVideo(
             @CurrentUser Long userId,
             @RequestBody @Validated VideoHlsPlaylistReq req
     ) {
-        Map<String, String> signedCookieMap = videoService.getSignedCookieMap(userId, req);
+        return getHlsPlaylistWithCookie(videoService.getVideoCookieMap(userId, req));
+    }
+
+    @Operation(summary = "영상 미리보기", description = "1분 미리보기 영상 url을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_PREVIEW)
+    @PostMapping("/preview")
+    public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getPreviewVideo(
+            @RequestBody @Validated VideoHlsPlaylistReq req
+    ) {
+        return getHlsPlaylistWithCookie(videoService.getPreviewCookieMap(req));
+    }
+
+    private ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getHlsPlaylistWithCookie(
+            Map<String, String> signedCookieMap) {
         String domain = signedCookieMap.get(DOMAIN);
         String path = signedCookieMap.get(PATH);
         String signedUrl = signedCookieMap.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL);
@@ -103,14 +116,5 @@ public class VideoController {
                 .header(HttpHeaders.SET_COOKIE, cookie2.toString())
                 .header(HttpHeaders.SET_COOKIE, cookie3.toString())
                 .body(SuccessRes.of(new VideoHlsPlaylistRes(signedUrl)));
-    }
-
-    @Operation(summary = "영상 미리보기", description = "1분 미리보기 영상 url을 제공받는다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_PREVIEW)
-    @PostMapping("/preview")
-    public SuccessRes<VideoHlsPlaylistRes> getPreviewVideo(
-            @RequestBody @Validated VideoHlsPlaylistReq req
-    ) {
-        return SuccessRes.of(videoService.getPreviewVideo(req));
     }
 }
