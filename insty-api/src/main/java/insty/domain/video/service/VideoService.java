@@ -1,8 +1,8 @@
 package insty.domain.video.service;
 
+import insty.constants.VideoConstants;
 import insty.domain.user.implement.UserReader;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
-import insty.domain.video.dto.VideoHlsPlaylistRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoAccessManager;
@@ -51,7 +51,7 @@ public class VideoService {
         return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
     }
 
-    public Map<String, String> getSignedCookieMap(Long userId, VideoHlsPlaylistReq req) {
+    public Map<String, String> getVideoCookieMap(Long userId, VideoHlsPlaylistReq req) {
 //        videoValidator.validateReadable(userId, req.type(), req.id()); TODO - 개발 편의를 위해 비활성화
         videoValidator.verifyEncodingCompletedAndDeleted(req.type(), req.id());
 
@@ -59,16 +59,16 @@ public class VideoService {
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
 
         return videoAccessManager.getSignedCookieMap(videoEncoding.getEncodingVideoDirectoryPath(),
-                videoEncoding.getHlsMasterFileKey());
+                videoEncoding.getHlsMasterFileKey(), VideoConstants.VIDEO_EXPIRATION_MINUTES);
     }
 
-    public VideoHlsPlaylistRes getPreviewVideo(VideoHlsPlaylistReq req) {
+    public Map<String, String> getPreviewCookieMap(VideoHlsPlaylistReq req) {
         videoValidator.verifyEncodingCompletedAndDeleted(req.type(), req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
 
-        String presignedUrl = videoAccessManager.getPresignedUrl(videoEncoding.getEncodingS3Key());
-        return new VideoHlsPlaylistRes(presignedUrl);
+        return videoAccessManager.getSignedCookieMap(videoEncoding.getPreviewVideoDirectoryPath(),
+                videoEncoding.getPreviewMasterFileKey(), VideoConstants.PREVIEW_VIDEO_EXPIRATION_MINUTES);
     }
 }

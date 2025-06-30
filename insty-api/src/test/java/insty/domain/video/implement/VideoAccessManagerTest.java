@@ -4,6 +4,7 @@ import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_MA
 import static insty.constants.VideoConstants.DOMAIN;
 import static insty.constants.VideoConstants.PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +61,7 @@ class VideoAccessManagerTest {
         // given
         String encodingVideoDirectoryPath = "vod/COURSE/hls/00000000-0000-0000-0000-000000000001";
         String hlsMasterFileKey = "vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.m3u8";
+        long expiredMinutes = 60L;
 
         // mock
         when(appProperties.getDomain())
@@ -69,7 +71,7 @@ class VideoAccessManagerTest {
                 "CloudFront-Key-Pair-Id", "key-pair-id",
                 "CloudFront-Policy", "policy-value"
         ));
-        when(cloudFrontSigner.generateSignedCookiesForVideo(anyString(), anyString()))
+        when(cloudFrontSigner.generateSignedCookiesForVideo(anyString(), anyString(), anyLong()))
                 .thenReturn(signedCookieMap);
         when(cloudFrontSigner.generateResourcePath(anyString(), anyString()))
                 .thenAnswer(invocation -> {
@@ -80,7 +82,7 @@ class VideoAccessManagerTest {
 
         // when
         Map<String, String> result = videoAccessManager.getSignedCookieMap(encodingVideoDirectoryPath,
-                hlsMasterFileKey);
+                hlsMasterFileKey, expiredMinutes);
 
         // then
         assertThat(result.size()).isEqualTo(6);
@@ -88,23 +90,5 @@ class VideoAccessManagerTest {
         assertThat(result.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL)).isEqualTo(
                 "https://insty.test.com/vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.m3u8");
         assertThat(result.get(DOMAIN)).isEqualTo("insty.test.com");
-    }
-
-    @Test
-    void getPresignedUrl_정상() {
-        // given
-        String encodingVideoKey = "vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName";
-
-        // mock
-        when(appProperties.getDomain())
-                .thenReturn("insty.test.com");
-        when(cloudFrontSigner.generatePresignedUrlForVideo(anyString(), anyString()))
-                .thenReturn("pre-signed video url");
-
-        // when
-        String presignedUrl = videoAccessManager.getPresignedUrl(encodingVideoKey);
-
-        // then
-        assertThat(presignedUrl).isNotNull();
     }
 }

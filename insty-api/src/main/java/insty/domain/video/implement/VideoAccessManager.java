@@ -1,7 +1,6 @@
 package insty.domain.video.implement;
 
 import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_MASTER_M3U8_URL;
-import static insty.cloudfront.constant.CloudFrontConstants.ENCODING_VIDEO_PREVIEW_SUFFIX;
 import static insty.constants.VideoConstants.DOMAIN;
 import static insty.constants.VideoConstants.PATH;
 
@@ -30,28 +29,19 @@ public class VideoAccessManager {
      *
      * @param encodingVideoDirectoryPath vod/{type}/hls/{uuid}
      * @param hlsMasterFileKey           vod/{type}/hls/{uuid}/fileName.m3u8
+     * @param expiredMinutes             만료기간(분)
      * @return <br>Path : 쿠키를 적용할 api path
      * <br>CloudFront-Signed-Url : 클라이언트가 접근할 HLS 마스터 파일 경로
      * <br>Domain : 쿠키를 적용할 도메인
      */
-    public Map<String, String> getSignedCookieMap(String encodingVideoDirectoryPath, String hlsMasterFileKey) {
+    public Map<String, String> getSignedCookieMap(String encodingVideoDirectoryPath, String hlsMasterFileKey,
+                                                  long expiredMinutes) {
         Map<String, String> signedCookieMap = cloudFrontSigner.generateSignedCookiesForVideo(
-                appProperties.getDomain(), encodingVideoDirectoryPath + "/*");
+                appProperties.getDomain(), encodingVideoDirectoryPath + "/*", expiredMinutes);
         signedCookieMap.put(PATH, "/" + encodingVideoDirectoryPath + "/");
         signedCookieMap.put(CLOUDFRONT_SIGNED_MASTER_M3U8_URL,
                 cloudFrontSigner.generateResourcePath(appProperties.getDomain(), hlsMasterFileKey));
         signedCookieMap.put(DOMAIN, appProperties.getDomain());
         return signedCookieMap;
-    }
-
-    /**
-     * CloudFront Pre-Signed URL을 반환한다.
-     *
-     * @param encodingVideoKey vod/{type}/hls/{uuid}/fileName_{preview_suffix}
-     * @return
-     */
-    public String getPresignedUrl(String encodingVideoKey) {
-        return cloudFrontSigner.generatePresignedUrlForVideo(appProperties.getDomain(),
-                encodingVideoKey + ENCODING_VIDEO_PREVIEW_SUFFIX);
     }
 }
