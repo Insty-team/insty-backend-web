@@ -9,8 +9,11 @@ import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -29,13 +32,13 @@ public class CommunityController {
 
     @Operation(summary = "질문 상세 조회", description = "질문 상세 정보 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
-    @GetMapping("/questions/{question_id}")
+    @GetMapping("/questions/{questionId}")
     public SuccessRes<CommunityQuestionRes> retrieveQuestionDetails(@PathVariable @NotBlank String questionId) {
         return SuccessRes.of(communityService.getQuestionDetails(questionId));
     }
 
     @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
-    @GetMapping("/questions/courses/{course_id}")
+    @GetMapping("/questions/courses/{courseId}")
     public SuccessRes<List<CommunityQuestionRes>> retrieveQuestionsByCourseId(
             @PathVariable @NotBlank String courseId) {
         return SuccessRes.of(communityService.getQuestionsByCourseId(courseId));
@@ -59,7 +62,7 @@ public class CommunityController {
 
     @Operation(summary = "질문 수정", description = "질문 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
-    @PatchMapping("/questions/{question_id}")
+    @PatchMapping("/questions/{questionId}")
     public SuccessRes<CommunityQuestionRes> updateQuestion(
             @PathVariable @NotBlank String questionId,
             @RequestPart CommunityQuestionReq communityQuestionReq,
@@ -71,7 +74,7 @@ public class CommunityController {
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
-    @DeleteMapping("/questions/{question_id}")
+    @DeleteMapping("/questions/{questionId}")
     public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank String questionId) {
         communityService.deleteQuestion(questionId);
         return SuccessRes.of(null);
@@ -80,18 +83,20 @@ public class CommunityController {
     //삭제하고 질문 상세보기와 통합
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
-    @GetMapping("/questions/{question_id}/answer")
+    @GetMapping("/questions/{questionId}/answer")
     public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank String questionId) {
         return SuccessRes.of(communityService.getAllAnswers(questionId));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
-    @PostMapping("/questions/{question_id}/answer")
+    @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
+            @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityAnswerReq communityAnswerReq,
-            @RequestPart(value = "answerImage", required = false) MultipartFile imageFile){
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFile));
+            @Parameter(description = "댓글 이미지", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles){
+        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")

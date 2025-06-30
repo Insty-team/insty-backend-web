@@ -27,7 +27,7 @@ public interface CommunityService {
     //불필요해보임
     List<CommunityAnswerRes> getAllAnswers(String questionId);
 
-    CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, MultipartFile imageFile);
+    CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles);
 
     CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq);
 

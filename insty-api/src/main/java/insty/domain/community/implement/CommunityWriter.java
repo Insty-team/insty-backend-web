@@ -43,9 +43,9 @@ public class CommunityWriter {
 
     }
 
-    public CommunityAnswerFile saveCommunityAnswerFile(CommunityAnswerFile communityAnswerFile) {
+    public List<CommunityAnswerFile> saveCommunityAnswerFiles(List<CommunityAnswerFile> communityAnswerFiles) {
 
-        return communityAnswerFileRepository.save(communityAnswerFile);
+        return communityAnswerFileRepository.saveAll(communityAnswerFiles);
 
     }
 

@@ -312,13 +312,15 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, MultipartFile imageFile) {
+    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles) {
         String questionId = communityAnswerReq.questionId();
         Long userId = communityAnswerReq.userId();
 
         CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
         User user = userReader.getUser(userId);
         CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
+
+        saveImageFiles(communityAnswer, imageFiles);
 
 //        FileCreateReq fileCreateReq = new FileCreateReq(
 //                        imageFile,
@@ -338,6 +340,27 @@ public class CommunityServiceImpl implements CommunityService {
                 communityAnswer.getUpdatedAt()
         );
 
+    }
+
+    private void saveImageFiles(CommunityAnswer communityAnswer, List<MultipartFile> imageFiles) {
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            return;
+        }
+
+        List<FileCreateReq> fileCreateReqs = imageFiles.stream()
+                .map(file -> new FileCreateReq(
+                        file,
+                        FileContainerType.ANSWER_IMAGE,
+                        communityAnswer.getId()
+                )).toList();
+
+        List<File> files = fileWriter.saveFiles(fileCreateReqs);
+
+        List<CommunityAnswerFile> communityAnswerFiles = files.stream()
+                .map(file -> CommunityAnswerFile.create(communityAnswer, file))
+                .toList();
+
+        communityWriter.saveCommunityAnswerFiles(communityAnswerFiles);
     }
 
     @Override
