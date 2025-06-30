@@ -24,25 +24,26 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommunityFile extends BaseEntity {
 
-//    @EmbeddedId
-//    private CommunityFileId communityFileId;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private CommunityFileId communityFileId;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    //@MapsId("questionId")
+    @MapsId("questionId")
     @JoinColumn(name = "question_id", nullable = false)
     private CommunityQuestion communityQuestion;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
-    //@MapsId("fileId")
+    @MapsId("fileId")
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
     public static CommunityFile create(CommunityQuestion communityQuestion, File file) {
         validateCreate(communityQuestion, file);
         return CommunityFile.builder()
+                .communityFileId(CommunityFileId.create(communityQuestion.getId(), file.getId()))
                 .communityQuestion(communityQuestion)
                 .file(file)
                 .build();
