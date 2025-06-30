@@ -100,4 +100,23 @@ class VideoEncodingTest {
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
     }
+
+    @Test
+    void validateEncodingS3Key_에러_vod로_시작하지_않음() {
+        // given
+        videoEncoding = VideoEncoding.builder()
+                .videoUuid(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                .format("hls")
+                .encodingS3Key("invalid/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName") // 잘못된 키
+                .createdAt(Instant.now())
+                .build();
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoEncoding.validateEncodingS3Key())
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
+    }
 }

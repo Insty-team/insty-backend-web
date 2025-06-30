@@ -94,5 +94,8 @@ public class VideoEncoding {
         if (slashCount != 4) {
             throw new CustomException(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
         }
+        if (!this.encodingS3Key.startsWith("vod/")) {
+            throw new CustomException(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
+        }
     }
 }
