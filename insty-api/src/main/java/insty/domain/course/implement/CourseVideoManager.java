@@ -17,15 +17,14 @@ public class CourseVideoManager {
 
     private final VideoCourseRepository videoCourseRepository;
 
-    public UUID attachmentCourse(Course course, UUID videoUuid) {
+    public VideoCourse attachmentCourse(Course course, UUID videoUuid) {
         if (videoUuid == null) {
             return null;
         }
         VideoCourse videoCourse = videoCourseRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         videoCourse.updateCourse(course);
-        videoCourseRepository.save(videoCourse);
-        return videoCourse.getVideoUuid();
+        return videoCourseRepository.save(videoCourse);
     }
 
     /**
@@ -34,7 +33,7 @@ public class CourseVideoManager {
      * @param course
      * @param videoUuid
      */
-    public UUID updateVideo(Course course, UUID videoUuid) {
+    public VideoCourse updateVideo(Course course, UUID videoUuid) {
         if (videoUuid == null) {
             return null;
         }
@@ -42,15 +41,9 @@ public class CourseVideoManager {
         return attachmentCourse(course, videoUuid);
     }
 
-    /**
-     * 해당 강의에 연결되어 있는 영상 uuid를 반환한다.<br> 연결된 영상은 is_deleted가 false이다.<br> 연결된 영상이 없으면 null이 반환됨에 주의한다.
-     *
-     * @param courseId
-     * @return
-     */
     @Transactional(readOnly = true)
-    public UUID getAttachVideoUuid(Long courseId) {
-        return videoCourseRepository.findVideoUuidByCourseId(courseId)
-                .orElse(null);
+    public VideoCourse getAttachCourseVideo(Long courseId) {
+        return videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false)
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
     }
 }

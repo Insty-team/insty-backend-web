@@ -5,10 +5,9 @@ import insty.domain.common.VideoInfo;
 import insty.domain.common.dto.CreatorInfo;
 import insty.model.course.Course;
 import insty.model.user.User;
-import insty.model.video.VideoType;
+import insty.model.video.VideoCourse;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 public record CourseDetailRes(
         Long courseId,
@@ -29,7 +28,7 @@ public record CourseDetailRes(
     public static CourseDetailRes from(Course course, User creator,
                                        List<CourseInstallEnvChecklistInfo> installEnvChecklist,
                                        List<String> keyPoints, List<String> tags, String thumbnailUrl,
-                                       List<FileInfo> practiceFile, UUID videoUuid) {
+                                       List<FileInfo> practiceFile, VideoCourse videoCourse) {
         return new CourseDetailRes(
                 course.getId(),
                 CreatorInfo.from(creator),
@@ -43,7 +42,7 @@ public record CourseDetailRes(
                 tags,
                 thumbnailUrl,
                 practiceFile,
-                VideoInfo.of(VideoType.COURSE, videoUuid)
+                VideoInfo.of(videoCourse)
         );
     }
 }
