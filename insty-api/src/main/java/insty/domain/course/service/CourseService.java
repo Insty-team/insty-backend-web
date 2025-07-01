@@ -30,8 +30,8 @@ import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
 import insty.model.course.CourseRequest;
 import insty.model.user.User;
+import insty.model.video.VideoCourse;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,9 +59,9 @@ public class CourseService {
                                         List<MultipartFile> practiceFile) {
         User user = userReader.getUser(userId);
         Course course = courseWriter.saveCourse(user, req);
-        UUID videoUuid = courseVideoManager.attachmentCourse(course, req.videoUuid());
+        VideoCourse videoCourse = courseVideoManager.attachmentCourse(course, req.videoUuid());
         courseFileWriter.saveThumbnail(thumbnail, course);
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoCourse.getVideoUuid());
         List<FileInfo> practiceFileInfos = courseFileWriter.savePracticeFilesAndGetInfo(practiceFile, course);
         List<CourseInstallEnvChecklistInfo> checklists = courseWriter.saveCourseInstallEnvChecklist(course,
                 req.installEnvChecklist());
@@ -69,7 +69,7 @@ public class CourseService {
         List<String> tags = courseTagWriter.saveCourseTagsAndGetTagNames(course, req.tags());
 
         return CourseDetailRes.from(course, user, checklists, keypoints, tags, thumbnailUrl, practiceFileInfos,
-                videoUuid);
+                videoCourse);
     }
 
     public CourseDetailRes updateCourse(Long userId, Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
@@ -77,9 +77,9 @@ public class CourseService {
         courseValidator.validateCourseOwner(courseId, userId);
         Course course = courseWriter.updateCourse(courseId, req);
         User user = course.getUser();
-        UUID videoUuid = courseVideoManager.updateVideo(course, req.updateVideoUuid());
+        VideoCourse videoCourse = courseVideoManager.updateVideo(course, req.updateVideoUuid());
         courseFileWriter.updateThumbnail(thumbnail, course);
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoCourse.getVideoUuid());
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,
                 req.deletePracticeFileId(), course);
         List<CourseInstallEnvChecklistInfo> checklists = courseWriter.updateCourseInstallEnvChecklist(course,
@@ -87,7 +87,7 @@ public class CourseService {
         List<String> keypoints = courseWriter.updateCourseKeypoints(course, req.keyPoints());
         List<String> tags = courseTagWriter.updateCourseTags(course, req.tags());
 
-        return CourseDetailRes.from(course, user, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoUuid);
+        return CourseDetailRes.from(course, user, checklists, keypoints, tags, thumbnailUrl, fileInfos, videoCourse);
     }
 
     /**
@@ -109,12 +109,12 @@ public class CourseService {
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());
         List<String> tagNames = courseReader.getTagNamesByCourseId(course.getId());
-        UUID videoUuid = courseVideoManager.getAttachVideoUuid(course.getId());
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
+        VideoCourse videoCourse = courseVideoManager.getAttachCourseVideo(course.getId());
+        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoCourse.getVideoUuid());
         List<FileInfo> practiceFiles = courseFileReader.getPracticeFiles(course);
 
         return CourseDetailRes.from(course, creator, checklists, keypoints, tagNames, thumbnailUrl, practiceFiles,
-                videoUuid);
+                videoCourse);
     }
 
     public SearchRes<CourseSearchInfo> searchCourse(CourseSearchReq req) {
