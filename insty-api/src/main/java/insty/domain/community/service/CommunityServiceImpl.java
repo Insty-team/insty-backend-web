@@ -10,6 +10,7 @@ import insty.domain.file.implement.FileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
+import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
@@ -59,9 +60,10 @@ public class CommunityServiceImpl implements CommunityService {
 
         List<CommunityAnswerRes> answers = new ArrayList<>();
 
+        //TODO: 댓글 이미지
         if (communityAnswers != null) {
             answers = communityAnswers.stream()
-                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), answer.getCreatedAt(), answer.getUpdatedAt()))
+                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), null, answer.getCreatedAt(), answer.getUpdatedAt()))
                     .toList();
         }
         //TODO: 수정필요
@@ -164,9 +166,10 @@ public class CommunityServiceImpl implements CommunityService {
                         communityQuestion.getId()
                 )).toList();
 
-        List<File> files = fileCreateReqs.stream()
-                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
-                .toList();
+//        List<File> files = fileCreateReqs.stream()
+//                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
+//                .toList();
+        List<File> files = fileWriter.saveFiles(fileCreateReqs);
 
 
         List<CommunityFile> communityFiles = files.stream()
@@ -287,6 +290,7 @@ public class CommunityServiceImpl implements CommunityService {
         return CommunityAnswerRes.create(
                 user.getId(),
                 communityAnswer.getContent(),
+                null, //TODO: 첨부파일
                 communityAnswer.getCreatedAt(),
                 communityAnswer.getUpdatedAt()
         );
@@ -301,13 +305,14 @@ public class CommunityServiceImpl implements CommunityService {
                 .map(answer -> CommunityAnswerRes.create(
                         answer.getUser().getId(),
                         answer.getContent(),
+                        null, //TODO: 첨부파일
                         answer.getCreatedAt(),
                         answer.getUpdatedAt()))
                 .toList();
     }
 
     @Override
-    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq) {
+    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, MultipartFile imageFile) {
         String questionId = communityAnswerReq.questionId();
         Long userId = communityAnswerReq.userId();
 
@@ -315,9 +320,20 @@ public class CommunityServiceImpl implements CommunityService {
         User user = userReader.getUser(userId);
         CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
 
+//        FileCreateReq fileCreateReq = new FileCreateReq(
+//                        imageFile,
+//                        FileContainerType.QUESTION_IMAGE,
+//                        communityAnswer.getId()
+//                );
+//
+//        File file = fileWriter.saveFile(fileCreateReq);
+//        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
+//        communityWriter.saveCommunityAnswerFile(communityAnswerFile);
+
         return CommunityAnswerRes.create(
                 userId,
                 communityAnswer.getContent(),
+                null,
                 communityAnswer.getCreatedAt(),
                 communityAnswer.getUpdatedAt()
         );
@@ -336,6 +352,7 @@ public class CommunityServiceImpl implements CommunityService {
         return CommunityAnswerRes.create(
                 userId,
                 updateAnswer.getContent(),
+                null, //TODO: 첨부파일
                 updateAnswer.getCreatedAt(),
                 updateAnswer.getUpdatedAt()
         );
@@ -347,14 +364,4 @@ public class CommunityServiceImpl implements CommunityService {
         communityWriter.deleteAnswer(communityAnswer);
     }
 
-
-    @Override
-    public CommunityAnswerRes postAnswerImage(CommunityAnswerReq communityAnswerReq) {
-        return null;
-    }
-
-    @Override
-    public CommunityAnswerReq postAnswerVideo(CommunityAnswerReq communityAnswerReq) {
-        return null;
-    }
 }
