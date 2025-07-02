@@ -57,6 +57,7 @@ public class CourseService {
 
     public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
+        courseValidator.validateCourseThumbnailExtension(thumbnail);
         User user = userReader.getUser(userId);
         Course course = courseWriter.saveCourse(user, req);
         VideoCourse videoCourse = courseVideoManager.attachmentCourse(course, req.videoUuid());
@@ -75,6 +76,7 @@ public class CourseService {
     public CourseDetailRes updateCourse(Long userId, Long courseId, CourseUpdateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
         courseValidator.validateCourseOwner(courseId, userId);
+        courseValidator.validateCourseThumbnailExtension(thumbnail);
         Course course = courseWriter.updateCourse(courseId, req);
         User user = course.getUser();
         VideoCourse videoCourse = courseVideoManager.updateVideo(course, req.updateVideoUuid());
