@@ -22,10 +22,7 @@ public class CourseFileReader {
         if (thumbnail != null) {
             return thumbnail.getUrl(appProperties.getDomain());
         }
-        if (videoUuid != null) {
-            return VideoUtils.getVideoBaseThumbnailUrl(appProperties.getDomain(), videoUuid);
-        }
-        return null;
+        return VideoUtils.getVideoBaseThumbnailUrl(appProperties.getDomain(), videoUuid);
     }
 
     public List<FileInfo> getPracticeFiles(Course course) {
