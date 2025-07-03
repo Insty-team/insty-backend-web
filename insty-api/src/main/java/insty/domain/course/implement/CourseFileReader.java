@@ -1,6 +1,8 @@
 package insty.domain.course.implement;
 
 import insty.domain.common.FileInfo;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.file.File;
@@ -21,6 +23,9 @@ public class CourseFileReader {
         File thumbnail = course.getThumbnail();
         if (thumbnail != null) {
             return thumbnail.getUrl(appProperties.getDomain());
+        }
+        if (videoUuid == null) {
+            throw new CustomException(CourseErrorCode.COURSE_NOT_FOUND_LINKED_VIDEO);
         }
         return VideoUtils.getVideoBaseThumbnailUrl(appProperties.getDomain(), videoUuid);
     }

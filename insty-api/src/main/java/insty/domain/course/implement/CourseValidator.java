@@ -21,7 +21,6 @@ public class CourseValidator {
     private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of("image/jpeg", "image/png");
 
     public void validateCourseOwner(Long courseId, Long userId) {
-        log.info("#@!: {}, {}", courseId, userId);
         if (!courseRepository.existsByIdAndUserId(courseId, userId)) {
             throw new CustomException(CourseErrorCode.COURSE_CANT_CHANGE);
         }
