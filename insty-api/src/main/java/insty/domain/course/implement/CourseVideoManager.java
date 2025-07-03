@@ -30,9 +30,9 @@ public class CourseVideoManager {
      * @param course
      * @param videoUuid
      */
-    public VideoCourse updateVideo(Course course, UUID videoUuid) {
+    public VideoCourse updateAndGetLinkedVideo(Course course, UUID videoUuid) {
         if (videoUuid == null) {
-            return null;
+            return getAttachCourseVideo(course.getId());
         }
         videoCourseRepository.deleteLogicallyByCourseId(course.getId());
         return attachmentCourse(course, videoUuid);
