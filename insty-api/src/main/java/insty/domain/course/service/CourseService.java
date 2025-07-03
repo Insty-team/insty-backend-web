@@ -79,7 +79,7 @@ public class CourseService {
         courseValidator.validateCourseThumbnailExtension(thumbnail);
         Course course = courseWriter.updateCourse(courseId, req);
         User user = course.getUser();
-        VideoCourse videoCourse = courseVideoManager.updateVideo(course, req.updateVideoUuid());
+        VideoCourse videoCourse = courseVideoManager.updateAndGetLinkedVideo(course, req.updateVideoUuid());
         courseFileWriter.updateThumbnail(thumbnail, course);
         String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoCourse.getVideoUuid());
         List<FileInfo> fileInfos = courseFileWriter.updatePracticeFilesAndGetInfo(practiceFile,

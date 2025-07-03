@@ -23,6 +23,7 @@ public record CourseCreateReq(
         List<String> keyPoints,
         @NotNull
         Set<String> tags,
+        @NotNull
         UUID videoUuid
 ) {
 }

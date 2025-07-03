@@ -54,22 +54,7 @@ class CourseVideoManagerTest {
     }
 
     @Test
-    void attachmentCourse_정상_영상을_업로드하지_않았다() {
-        // given
-        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
-        UUID videoUuid = null;
-
-        // mock
-
-        // when
-        VideoCourse videoCourse = courseVideoManager.attachmentCourse(course, videoUuid);
-
-        // then
-        assertThat(videoCourse).isNull();
-    }
-
-    @Test
-    void updateVideo_정상() {
+    void updateAndGetLinkedVideo_정상() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID updateVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -82,23 +67,29 @@ class CourseVideoManagerTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        VideoCourse videoCourse = courseVideoManager.attachmentCourse(course, updateVideoUuid);
+        VideoCourse videoCourse = courseVideoManager.updateAndGetLinkedVideo(course, updateVideoUuid);
 
         // then
         assertThat(videoCourse.getVideoUuid()).isEqualTo(updateVideoUuid);
     }
 
     @Test
-    void updateVideo_정상_영상을_교체하지_않는다() {
+    void updateAndGetLinkedVideo_정상_영상을_교체하지_않으면_연결되어_있는_영상을_반환한다() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID updateVideoUuid = null;
 
+        // mock
+        VideoCourse mockVideoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
+        when(videoCourseRepository.findByCourseIdAndIsDeleted(anyLong(), anyBoolean()))
+                .thenReturn(Optional.of(mockVideoCourse));
+
         // when
-        VideoCourse videoCourse = courseVideoManager.updateVideo(course, updateVideoUuid);
+        VideoCourse videoCourse = courseVideoManager.updateAndGetLinkedVideo(course, updateVideoUuid);
 
         // then
-        assertThat(videoCourse).isNull();
+        assertThat(videoCourse).isNotNull();
+        assertThat(videoCourse.getVideoUuid()).isNotNull();
     }
 
     @Test

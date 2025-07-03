@@ -18,9 +18,6 @@ public class CourseVideoManager {
     private final VideoCourseRepository videoCourseRepository;
 
     public VideoCourse attachmentCourse(Course course, UUID videoUuid) {
-        if (videoUuid == null) {
-            return null;
-        }
         VideoCourse videoCourse = videoCourseRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         videoCourse.updateCourse(course);
@@ -28,14 +25,14 @@ public class CourseVideoManager {
     }
 
     /**
-     * 기존 강의영상은 가상삭제하고, 새로운 강의영상을 강의와 연결한다.<br> videoUuid가 null이면 작업을 수행하지 않는다.
+     * 기존 강의영상은 가상삭제하고, 새로운 강의영상을 강의와 연결한다.<br> videoUuid가 null이면 기존에 연결된 강의를 반환한다.
      *
      * @param course
      * @param videoUuid
      */
-    public VideoCourse updateVideo(Course course, UUID videoUuid) {
+    public VideoCourse updateAndGetLinkedVideo(Course course, UUID videoUuid) {
         if (videoUuid == null) {
-            return null;
+            return getAttachCourseVideo(course.getId());
         }
         videoCourseRepository.deleteLogicallyByCourseId(course.getId());
         return attachmentCourse(course, videoUuid);
