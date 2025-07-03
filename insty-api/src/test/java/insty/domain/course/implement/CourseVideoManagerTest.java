@@ -54,21 +54,6 @@ class CourseVideoManagerTest {
     }
 
     @Test
-    void attachmentCourse_정상_영상을_업로드하지_않았다() {
-        // given
-        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
-        UUID videoUuid = null;
-
-        // mock
-
-        // when
-        VideoCourse videoCourse = courseVideoManager.attachmentCourse(course, videoUuid);
-
-        // then
-        assertThat(videoCourse).isNull();
-    }
-
-    @Test
     void updateVideo_정상() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();

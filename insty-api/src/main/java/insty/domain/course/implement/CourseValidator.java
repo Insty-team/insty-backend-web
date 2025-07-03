@@ -5,10 +5,12 @@ import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class CourseValidator {
     private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of("image/jpeg", "image/png");
 
     public void validateCourseOwner(Long courseId, Long userId) {
+        log.info("#@!: {}, {}", courseId, userId);
         if (!courseRepository.existsByIdAndUserId(courseId, userId)) {
             throw new CustomException(CourseErrorCode.COURSE_CANT_CHANGE);
         }
