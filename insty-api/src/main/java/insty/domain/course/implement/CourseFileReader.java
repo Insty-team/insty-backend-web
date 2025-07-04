@@ -27,7 +27,7 @@ public class CourseFileReader {
         if (videoUuid == null) {
             throw new CustomException(CourseErrorCode.COURSE_NOT_FOUND_LINKED_VIDEO);
         }
-        return VideoUtils.getVideoBaseThumbnailUrl(appProperties.getDomain(), videoUuid);
+        return VideoUtils.getVideoBasicThumbnailUrl(appProperties.getDomain(), videoUuid);
     }
 
     public List<FileInfo> getPracticeFiles(Course course) {

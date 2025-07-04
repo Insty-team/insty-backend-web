@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 class VideoUtilsTest {
 
     @Test
-    void getVideoBaseThumbnailUrl_정상() {
+    void getVideoBasicThumbnailUrl_정상() {
         // given
         String domain = "insty.test.com";
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
         // when
-        String thumbnailUrl = VideoUtils.getVideoBaseThumbnailUrl(domain, uuid);
+        String thumbnailUrl = VideoUtils.getVideoBasicThumbnailUrl(domain, uuid);
 
         // then
         assertThat(thumbnailUrl).isEqualTo(

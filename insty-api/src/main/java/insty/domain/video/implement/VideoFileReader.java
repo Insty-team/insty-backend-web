@@ -18,10 +18,10 @@ public class VideoFileReader {
     private final AppProperties appProperties;
 
     public String getThumbnailUrl(UUID videoUuid) {
-        String thumbnailKey = VideoUtils.getVideoBaseThumbnailKey(videoUuid);
+        String thumbnailKey = VideoUtils.getVideoBasicThumbnailKey(videoUuid);
         if (!s3FileManager.doesFileExist(thumbnailKey)) {
             throw new CustomException(VideoErrorCode.VIDEO_BASIC_THUMBNAIL_NOT_FOUND);
         }
-        return VideoUtils.getVideoBaseThumbnailUrl(appProperties.getDomain(), videoUuid);
+        return VideoUtils.getVideoBasicThumbnailUrl(appProperties.getDomain(), videoUuid);
     }
 }
