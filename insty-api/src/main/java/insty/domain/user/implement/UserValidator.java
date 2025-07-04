@@ -4,6 +4,7 @@ import insty.domain.user.repository.UserRepository;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserValidator {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
      * 사용자 이메일 중복 체크
@@ -52,5 +54,18 @@ public class UserValidator {
                 throw new CustomException(UserErrorCode.USER_DUPLICATE_NICKNAME);
             }
         });
+    }
+
+    /**
+     *  비밀번호 상태에 따른 유효성
+     */
+    public void validateMatchesCurrentPassword(String userPassword, String currentPassword, String newPassword) {
+        if (!bCryptPasswordEncoder.matches(currentPassword, userPassword)) {
+            throw new CustomException(UserErrorCode.USER_CURRENT_PASSWORD_NOT_MATCHED);
+        }
+
+        if (bCryptPasswordEncoder.matches(newPassword, userPassword)) {
+            throw new CustomException(UserErrorCode.USER_NEW_PASSWORD_SAME_AS_CURRENT);
+        }
     }
 }

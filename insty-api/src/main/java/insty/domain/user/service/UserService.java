@@ -94,7 +94,10 @@ public class UserService {
         userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
         userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
 
-        String encodedPassword = bCryptPasswordEncoder.encode(req.password());
+        User findUser = userReader.getUser(userId);
+        userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+
+        String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
         User updatedUser = userWriter.updateUser(
                 userId,
                 req.email(),
