@@ -1,16 +1,18 @@
 package insty.util;
 
-import static insty.constants.VideoConstants.VIDEO_BASIC_THUMBNAIL_NAME;
-
 import java.util.UUID;
 
 public class VideoUtils {
 
+    private static final String VIDEO_BASIC_THUMBNAIL_DIRECTORY = "file/VIDEO_BASIC_THUMBNAIL";
+    private static final String VIDEO_BASIC_THUMBNAIL_NAME = "basic_thumbnail.jpg";
+
     public static String getVideoBasicThumbnailUrl(String domain, UUID videoUuid) {
-        return "https://" + domain + "/file/VIDEO_BASIC_THUMBNAIL/" + videoUuid + "/" + VIDEO_BASIC_THUMBNAIL_NAME;
+        return "https://" + domain + "/" + VIDEO_BASIC_THUMBNAIL_DIRECTORY + "/" + videoUuid + "/"
+                + VIDEO_BASIC_THUMBNAIL_NAME;
     }
 
     public static String getVideoBasicThumbnailKey(UUID videoUuid) {
-        return "file/VIDEO_BASIC_THUMBNAIL/" + videoUuid + "/" + VIDEO_BASIC_THUMBNAIL_NAME;
+        return VIDEO_BASIC_THUMBNAIL_DIRECTORY + "/" + videoUuid + "/" + VIDEO_BASIC_THUMBNAIL_NAME;
     }
 }
