@@ -2,6 +2,8 @@ package insty.domain.user.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -161,14 +163,23 @@ class UserServiceTest {
     void 사용자_정보_수정_시_비밀번호를_암호화하고_업데이트한다() {
         // given
         Long userId = 1L;
-        UserUpdateReq req = new UserUpdateReq("new@example.com", "rawPassword1!", "newnick", "introduce");
+        UserUpdateReq req = new UserUpdateReq("new@example.com", "curPassword1!", "newPassword1!", "newnick", "introduce");
         MultipartFile profileImage = mock(MultipartFile.class);
         String encodedPassword = "encodedPassword";
         String imageUrl = "https://cdn.com/new.png";
 
+        // 1. userReader.getUser()에 반환값 설정
+        User findUser = UserFixtureBuilder.getUserWithId(userId, "old@example.com", "encodedCurrentPassword", "oldnick");
+        when(userReader.getUser(userId)).thenReturn(findUser);
+
+        // 2. validateMatchesCurrentPassword()는 실제로 아무 동작 안 하도록 처리
+        doNothing().when(userValidator).validateMatchesCurrentPassword(
+                eq("encodedCurrentPassword"), eq(req.currentPassword()), eq(req.newPassword())
+        );
+
         User updatedUser = UserFixtureBuilder.getUserWithId(userId, "new@example.com", encodedPassword, "newnick");
 
-        when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
+        when(bCryptPasswordEncoder.encode(req.newPassword())).thenReturn(encodedPassword);
         when(userWriter.updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce()))
                 .thenReturn(updatedUser);
         when(userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage)).thenReturn(Optional.of(imageUrl));
@@ -179,11 +190,14 @@ class UserServiceTest {
         // then
         verify(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
         verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
-        verify(bCryptPasswordEncoder).encode(req.password());
+        verify(userReader).getUser(userId);
+        verify(userValidator).validateMatchesCurrentPassword("encodedCurrentPassword", req.currentPassword(), req.newPassword());
+        verify(bCryptPasswordEncoder).encode(req.newPassword());
         verify(userWriter).updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce());
         verify(userFileWriter).saveProfileImageGetUrl(updatedUser, profileImage);
         assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
+
 
     @Test
     void 사용자_타입_변경_시_업데이트가_정상적으로_동작한다() {
