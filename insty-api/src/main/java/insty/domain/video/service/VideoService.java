@@ -3,9 +3,11 @@ package insty.domain.video.service;
 import insty.constants.VideoConstants;
 import insty.domain.user.implement.UserReader;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
+import insty.domain.video.dto.VideoThumbnailRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoAccessManager;
+import insty.domain.video.implement.VideoFileReader;
 import insty.domain.video.implement.VideoReader;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
@@ -30,6 +32,7 @@ public class VideoService {
     private final VideoReader videoReader;
     private final VideoAccessManager videoAccessManager;
     private final UserReader userReader;
+    private final VideoFileReader videoFileReader;
 
     public VideoUploadRes getPreSignedURLForCourseVideoUpload(Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
@@ -49,6 +52,11 @@ public class VideoService {
         VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req, user);
         PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(videoAnswer.getS3Key(), req.contentType());
         return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
+    }
+
+    public VideoThumbnailRes getThumbnailUrl(UUID videoUuid) {
+        String thumbnailUrl = videoFileReader.getThumbnailUrl(videoUuid);
+        return new VideoThumbnailRes(thumbnailUrl);
     }
 
     public Map<String, String> getVideoCookieMap(Long userId, VideoHlsPlaylistReq req) {
