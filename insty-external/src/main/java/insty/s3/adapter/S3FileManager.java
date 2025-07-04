@@ -4,6 +4,7 @@ import insty.exception.CustomException;
 import insty.s3.error.S3ErrorCode;
 import insty.uuid.UuidProvider;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -11,8 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
+@Slf4j
 @Service
 public class S3FileManager {
 
@@ -50,6 +54,7 @@ public class S3FileManager {
         try {
             s3Client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
         } catch (IOException e) {
+            log.error(e.getMessage(), e);
             throw new CustomException(S3ErrorCode.S3_UPLOAD_ERROR);
         }
         return fileName;
@@ -66,5 +71,22 @@ public class S3FileManager {
 
     private String getFilePath(String directory, String key, String fileName) {
         return "file/" + directory + "/" + key + "/" + fileName;
+    }
+
+    public boolean doesFileExist(String key) {
+        HeadObjectRequest request = HeadObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+        try {
+            s3Client.headObject(request);
+            return true;
+        } catch (S3Exception e) {
+            if (e.statusCode() == 403) {
+                return false;
+            }
+            log.error(e.getMessage(), e);
+            throw new CustomException(S3ErrorCode.S3_HEAD_ERROR);
+        }
     }
 }

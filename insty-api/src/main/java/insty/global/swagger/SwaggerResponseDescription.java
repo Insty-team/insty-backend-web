@@ -6,10 +6,12 @@ import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND;
 import static insty.error.CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND;
 import static insty.error.CourseErrorCode.COURSE_NOT_FOUND;
 import static insty.error.UserErrorCode.USER_NOT_FOUND;
+import static insty.error.VideoErrorCode.VIDEO_BASIC_THUMBNAIL_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR;
 import static insty.error.VideoErrorCode.VIDEO_INVALID_FILE_NAME;
 import static insty.error.VideoErrorCode.VIDEO_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_TYPE_NOT_MATCH;
+import static insty.s3.error.S3ErrorCode.S3_HEAD_ERROR;
 
 import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
@@ -41,6 +43,10 @@ public enum SwaggerResponseDescription {
             VIDEO_CONTENT_TYPE_ERROR,
             VIDEO_INVALID_FILE_NAME,
             VIDEO_TYPE_NOT_MATCH
+    ))),
+    VIDEO_THUMBNAIL_GET(new LinkedHashSet<>(Set.of(
+            VIDEO_BASIC_THUMBNAIL_NOT_FOUND,
+            S3_HEAD_ERROR
     ))),
     VIDEO_GET(new LinkedHashSet<>(Set.of(
             VIDEO_NOT_FOUND,
