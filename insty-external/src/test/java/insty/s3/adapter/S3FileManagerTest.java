@@ -2,6 +2,7 @@ package insty.s3.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Tag("unit")
@@ -100,7 +102,7 @@ class S3FileManagerTest {
                 .statusCode(403)
                 .build();
 
-        when(s3FileManager.doesFileExist(key))
+        when(s3Client.headObject(any(HeadObjectRequest.class)))
                 .thenThrow(accessDenied403);
 
         // when
