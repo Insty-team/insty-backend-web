@@ -13,6 +13,7 @@ public enum VideoErrorCode implements ErrorCode {
     VIDEO_ENCODING_FAILED("VIDEO_010", "인코딩에 실패했습니다.", 500),
     VIDEO_ENCODING_FAILED_INVALID_LENGTH("VIDEO_011", "인코딩 실패 - 영상 길이는 3초 이상 30분 이하여야 합니다.", 422),
     VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE("VIDEO_012", "인코딩 실패 - 음성 데이터가 없습니다.", 422),
+    VIDEO_BASIC_THUMBNAIL_NOT_FOUND("VIDEO_013", "썸네일이 생성되지 않았습니다.", 403),
     ;
 
     private final String code;

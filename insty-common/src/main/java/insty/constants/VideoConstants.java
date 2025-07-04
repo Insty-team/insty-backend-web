@@ -14,4 +14,6 @@ public class VideoConstants {
     public static final long PREVIEW_VIDEO_EXPIRATION_MINUTES = 10L;
 
     public static final Set<String> ALLOWED_THUMBNAIL_TYPES = Set.of("image/jpeg", "image/png");
+
+    public static final String VIDEO_BASIC_THUMBNAIL_NAME = "basic_thumbnail.jpg";
 }
