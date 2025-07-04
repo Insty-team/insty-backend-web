@@ -68,7 +68,7 @@ class CourseFileReaderTest {
 
         // then
         assertThat(thumbnailUrl).isEqualTo(
-                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.0000000.jpg");
+                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg");
     }
 
     @Test

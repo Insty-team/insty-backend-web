@@ -20,6 +20,19 @@ class VideoUtilsTest {
 
         // then
         assertThat(thumbnailUrl).isEqualTo(
-                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.0000000.jpg");
+                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg");
+    }
+
+    @Test
+    void getVideoBasicThumbnailKey_정상() {
+        // given
+        UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+        // when
+        String thumbnailKey = VideoUtils.getVideoBasicThumbnailKey(uuid);
+
+        // then
+        assertThat(thumbnailKey).isEqualTo(
+                "file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg");
     }
 }
