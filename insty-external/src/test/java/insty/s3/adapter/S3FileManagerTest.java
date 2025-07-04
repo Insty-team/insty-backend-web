@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -75,5 +76,37 @@ class S3FileManagerTest {
         // then
         assertThatCode(() -> s3FileManager.delete(directory, key, fileName))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    void doesFileExist_정상() {
+        // given
+        String key = "file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg";
+
+        // when
+        boolean result = s3FileManager.doesFileExist(key);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void doesFileExist_정상_썸네일을_찾지_못함() {
+        // given
+        String key = "file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg";
+
+        // mock
+        S3Exception accessDenied403 = (S3Exception) S3Exception.builder()
+                .statusCode(403)
+                .build();
+
+        when(s3FileManager.doesFileExist(key))
+                .thenThrow(accessDenied403);
+
+        // when
+        boolean result = s3FileManager.doesFileExist(key);
+
+        // then
+        assertThat(result).isFalse();
     }
 }
