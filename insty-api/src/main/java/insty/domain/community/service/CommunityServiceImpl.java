@@ -230,55 +230,40 @@ public class CommunityServiceImpl implements CommunityService {
     public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
         CommunityQuestion prevCommunityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityQuestionReq.questionId()));
 
-        //새 첨푸파일과 기존 첨부파일 비교
+        // 기존 첨부파일 목록
         List<CommunityFile> existingAttachments = prevCommunityQuestion.getAttachments();
 
-        /*
-        // 기존 첨부파일 ID 목록
-        Set<Long> existingFileIds = existingAttachments.stream()
-                .map(CommunityFile::getId)
-                .collect(Collectors.toSet());
-
-        // DTO에서 전달된 첨부파일 ID 목록 (예: List<Long> attachmentIds)
-        Set<Long> newFileIds = new HashSet<>(dto.getAttachmentIds());
-
-        // 삭제 대상: 기존에는 있지만, 새 목록에는 없는 파일
-        Set<Long> toDelete = new HashSet<>(existingFileIds);
-        toDelete.removeAll(newFileIds);
-
-        // 추가 대상: 새 목록에는 있지만, 기존에는 없는 파일
-        Set<Long> toAdd = new HashSet<>(newFileIds);
-        toAdd.removeAll(existingFileIds);
-
-        // 삭제 처리
-        for (Long fileId : toDelete) {
-            fileWriter.deleteFileById(fileId);
-        }
-
-        // 추가 처리 (예: MultipartFile로 전달된 신규 파일들)
-        for (MultipartFile file : dto.getNewFiles()) {
-            // 파일 업로드 및 DB 저장
-            FileCreateReq req = new FileCreateReq(file, FileContainerType.QUESTION_IMAGE, questionId);
-            File savedFile = uploadAndCreateFile(req);
-            // CommunityFile로 매핑 및 저장
-            CommunityFile communityFile = CommunityFile.create(communityQuestion, savedFile);
-            communityWriter.saveCommunityFile(communityFile);
-        }
-
-         */
-
-        //TODO: 첨부파일
+        // 질문 내용 업데이트
         CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq, attachments);
-        //TODO: 첨부파일 추가
+
+        // 새로운 첨부파일이 있는 경우 처리
+        List<FileInfo> updatedFileInfos = null;
+        if (attachments != null && !attachments.isEmpty()) {
+            // 기존 첨부파일 삭제
+            if (existingAttachments != null && !existingAttachments.isEmpty()) {
+                deleteExistingAttachments(existingAttachments);
+            }
+            
+            // 새로운 첨부파일 저장
+            updatedFileInfos = saveCommunityFiles(updatedQuestion, attachments);
+        } else {
+            // 첨부파일이 없는 경우 기존 첨부파일 정보 반환
+            if (existingAttachments != null && !existingAttachments.isEmpty()) {
+                updatedFileInfos = existingAttachments.stream()
+                        .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
+                        .toList();
+            }
+        }
+
         return CommunityQuestionRes.create(
-                null,
-                null,
+                updatedQuestion.getUser().getId(),
+                updatedQuestion.getCourse().getId(),
                 updatedQuestion.getTitle(),
                 updatedQuestion.getContent(),
-                null,
-                Instant.now(),
-                null, //TODO: 답변 리스트 추가
-                null
+                updatedQuestion.getCreatedAt(),
+                updatedQuestion.getUpdatedAt(),
+                null, // TODO: 답변 리스트 추가
+                updatedFileInfos
         );
     }
 
@@ -388,6 +373,44 @@ public class CommunityServiceImpl implements CommunityService {
         communityWriter.saveCommunityAnswerFile(communityAnswerFile);
     }
 
+    private void deleteExistingAttachments(List<CommunityFile> existingAttachments) {
+        if (existingAttachments == null || existingAttachments.isEmpty()) {
+            return;
+        }
+        
+        // S3에서 파일 삭제
+        for (CommunityFile communityFile : existingAttachments) {
+            File file = communityFile.getFile();
+            s3FileManager.delete(
+                file.getContainerType().toString(),
+                file.getContainerId().toString(),
+                file.getName()
+            );
+        }
+        
+        // DB에서 CommunityFile 삭제
+        communityWriter.deleteCommunityFiles(existingAttachments);
+    }
+
+    private void deleteExistingAnswerFiles(List<CommunityAnswerFile> existingAnswerFiles) {
+        if (existingAnswerFiles == null || existingAnswerFiles.isEmpty()) {
+            return;
+        }
+        
+        // S3에서 파일 삭제
+        for (CommunityAnswerFile communityAnswerFile : existingAnswerFiles) {
+            File file = communityAnswerFile.getFile();
+            s3FileManager.delete(
+                file.getContainerType().toString(),
+                file.getContainerId().toString(),
+                file.getName()
+            );
+        }
+        
+        // DB에서 CommunityAnswerFile 삭제
+        communityWriter.deleteCommunityAnswerFiles(existingAnswerFiles);
+    }
+
     @Override
     public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid) {
         String answerId = communityAnswerReq.answerId();
@@ -397,17 +420,22 @@ public class CommunityServiceImpl implements CommunityService {
         CommunityAnswer prevCommunityAnswer = communityReader.getCommunityAnswerById(answerId);
         CommunityAnswer updateAnswer = communityWriter.updateAnswer(prevCommunityAnswer, communityAnswerReq);
 
+        // 기존 첨부파일 목록 가져오기
+        List<CommunityAnswerFile> existingAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
+
         // 이미지 파일 업데이트
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            // 기존 이미지 파일 삭제 후 새로 저장
-            // TODO: 기존 이미지 파일 삭제 로직 구현
+            // 기존 이미지 파일 삭제
+            deleteExistingAnswerFiles(existingAnswerFiles);
+            // 새로운 이미지 파일 저장
             saveImageFiles(updateAnswer, imageFiles);
         }
         
         // 영상 UUID 업데이트
         if (videoUuid != null) {
-            // 기존 영상 파일 삭제 후 새로 저장
-            // TODO: 기존 영상 파일 삭제 로직 구현
+            // 기존 영상 파일 삭제
+            deleteExistingAnswerFiles(existingAnswerFiles);
+            // 새로운 영상 파일 저장
             saveVideoFile(updateAnswer, videoUuid);
         }
 

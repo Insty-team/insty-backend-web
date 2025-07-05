@@ -61,15 +61,15 @@ public class CommunityController {
         return SuccessRes.of(communityService.saveQuestion(communityQuestionReq, attachments));
     }
 
-    @Operation(summary = "질문 수정", description = "질문 수정")
+    @Operation(summary = "질문 수정", description = "질문 수정 (첨부파일 업로드 지원)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
-    @PatchMapping("/questions/{questionId}")
+    @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionRes> updateQuestion(
             @PathVariable @NotBlank String questionId,
             @RequestPart CommunityQuestionReq communityQuestionReq,
+            @Parameter(description = "질문 첨부파일 (이미지, 코드 파일 등)")
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        //communityQuestionReq.setId(questionId);
         return SuccessRes.of(communityService.updateQuestion(communityQuestionReq, attachments));
     }
 
@@ -89,11 +89,7 @@ public class CommunityController {
         return SuccessRes.of(communityService.getAllAnswers(questionId));
     }
 
-    @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성 (이미지와 영상 업로드 지원)\n\n" +
-            "영상 업로드 방법:\n" +
-            "1. 먼저 /api/v1/videos/upload/answer API를 호출하여 영상 업로드 URL을 받습니다.\n" +
-            "2. 받은 URL로 영상을 업로드합니다.\n" +
-            "3. 업로드 완료 후 받은 UUID를 이 API의 videoUuid 파라미터로 전달합니다.")
+    @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
@@ -116,11 +112,7 @@ public class CommunityController {
         return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles, videoUuidObj));
     }
 
-    @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정 (이미지와 영상 업로드 지원)\n\n" +
-            "영상 업로드 방법:\n" +
-            "1. 먼저 /api/v1/videos/upload/answer API를 호출하여 영상 업로드 URL을 받습니다.\n" +
-            "2. 받은 URL로 영상을 업로드합니다.\n" +
-            "3. 업로드 완료 후 받은 UUID를 이 API의 videoUuid 파라미터로 전달합니다.")
+    @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
     @PatchMapping(value = "/questions/{question_id}/answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> updateAnswer(

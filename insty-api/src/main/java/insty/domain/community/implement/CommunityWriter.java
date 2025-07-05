@@ -55,6 +55,18 @@ public class CommunityWriter {
 
     }
 
+    public void deleteCommunityFiles(List<CommunityFile> communityFiles) {
+
+        communityFileRepository.deleteAll(communityFiles);
+
+    }
+
+    public void deleteCommunityAnswerFiles(List<CommunityAnswerFile> communityAnswerFiles) {
+
+        communityAnswerFileRepository.deleteAll(communityAnswerFiles);
+
+    }
+
     public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
         //prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), attachments);
         return communityQuestionRepository.save(prevCommunityQuestion);
