@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "커뮤니티 API")
 @RestController
@@ -88,28 +89,65 @@ public class CommunityController {
         return SuccessRes.of(communityService.getAllAnswers(questionId));
     }
 
-    @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
+    @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성 (이미지와 영상 업로드 지원)\n\n" +
+            "영상 업로드 방법:\n" +
+            "1. 먼저 /api/v1/videos/upload/answer API를 호출하여 영상 업로드 URL을 받습니다.\n" +
+            "2. 받은 URL로 영상을 업로드합니다.\n" +
+            "3. 업로드 완료 후 받은 UUID를 이 API의 videoUuid 파라미터로 전달합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityAnswerReq communityAnswerReq,
-            @Parameter(description = "댓글 이미지", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles){
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles));
+            @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
+            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
+            @RequestPart(value = "videoUuid", required = false) String videoUuid){
+        
+        UUID videoUuidObj = null;
+        if (videoUuid != null && !videoUuid.trim().isEmpty()) {
+            try {
+                videoUuidObj = UUID.fromString(videoUuid);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 영상 UUID 형식입니다.");
+            }
+        }
+        
+        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles, videoUuidObj));
     }
 
-    @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
+    @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정 (이미지와 영상 업로드 지원)\n\n" +
+            "영상 업로드 방법:\n" +
+            "1. 먼저 /api/v1/videos/upload/answer API를 호출하여 영상 업로드 URL을 받습니다.\n" +
+            "2. 받은 URL로 영상을 업로드합니다.\n" +
+            "3. 업로드 완료 후 받은 UUID를 이 API의 videoUuid 파라미터로 전달합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
-    @PatchMapping("/questions/{question_id}/answer")
-    public SuccessRes<CommunityAnswerRes> updateAnswer( @RequestBody CommunityAnswerReq communityQuestionReq) {
-        return SuccessRes.of(communityService.updateAnswer(communityQuestionReq));
+    @PatchMapping(value = "/questions/{question_id}/answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SuccessRes<CommunityAnswerRes> updateAnswer(
+            @PathVariable @NotBlank String question_id,
+            @RequestPart CommunityAnswerReq communityAnswerReq,
+            @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
+            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
+            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
+        
+        UUID videoUuidObj = null;
+        if (videoUuid != null && !videoUuid.trim().isEmpty()) {
+            try {
+                videoUuidObj = UUID.fromString(videoUuid);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 영상 UUID 형식입니다.");
+            }
+        }
+        
+        return SuccessRes.of(communityService.updateAnswer(communityAnswerReq, imageFiles, videoUuidObj));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
-    @DeleteMapping("/questions/{question_id}/answer")
-    public SuccessRes<?> deleteAnswer(@RequestBody CommunityAnswerReq communityAnswerReq) {
+    @DeleteMapping("/questions/{question_id}/answer/{answerId}")
+    public SuccessRes<?> deleteAnswer(@PathVariable @NotBlank String question_id, @PathVariable @NotBlank String answerId) {
+        communityService.deleteAnswer(answerId);
         return SuccessRes.of(null);
     }
 

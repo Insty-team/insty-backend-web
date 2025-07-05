@@ -49,6 +49,12 @@ public class CommunityWriter {
 
     }
 
+    public CommunityAnswerFile saveCommunityAnswerFile(CommunityAnswerFile communityAnswerFile) {
+
+        return communityAnswerFileRepository.save(communityAnswerFile);
+
+    }
+
     public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
         //prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), attachments);
         return communityQuestionRepository.save(prevCommunityQuestion);

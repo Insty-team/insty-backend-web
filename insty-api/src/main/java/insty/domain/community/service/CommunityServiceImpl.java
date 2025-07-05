@@ -8,6 +8,8 @@ import insty.domain.community.implement.CommunityWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.file.implement.FileWriter;
 import insty.domain.user.implement.UserReader;
+import insty.domain.video.repository.VideoAnswerRepository;
+import insty.domain.file.repository.FileRepository;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;
@@ -17,6 +19,7 @@ import insty.model.course.Course;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import insty.model.user.User;
+import insty.model.video.VideoAnswer;
 import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,8 @@ public class CommunityServiceImpl implements CommunityService {
     private final FileWriter fileWriter;
     private final AppProperties appProperties;
     private final S3FileManager s3FileManager;
+    private final VideoAnswerRepository videoAnswerRepository;
+    private final FileRepository fileRepository;
 
     @Override
     public CommunityQuestionRes getQuestionDetails(String questionId) {
@@ -312,7 +317,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles) {
+    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid) {
         String questionId = communityAnswerReq.questionId();
         Long userId = communityAnswerReq.userId();
 
@@ -321,16 +326,11 @@ public class CommunityServiceImpl implements CommunityService {
         CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
 
         saveImageFiles(communityAnswer, imageFiles);
-
-//        FileCreateReq fileCreateReq = new FileCreateReq(
-//                        imageFile,
-//                        FileContainerType.QUESTION_IMAGE,
-//                        communityAnswer.getId()
-//                );
-//
-//        File file = fileWriter.saveFile(fileCreateReq);
-//        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
-//        communityWriter.saveCommunityAnswerFile(communityAnswerFile);
+        
+        // 영상 UUID가 있는 경우 처리
+        if (videoUuid != null) {
+            saveVideoFile(communityAnswer, videoUuid);
+        }
 
         return CommunityAnswerRes.create(
                 userId,
@@ -363,14 +363,52 @@ public class CommunityServiceImpl implements CommunityService {
         communityWriter.saveCommunityAnswerFiles(communityAnswerFiles);
     }
 
+    private void saveVideoFile(CommunityAnswer communityAnswer, UUID videoUuid) {
+        // VideoAnswer에서 영상 정보를 가져와서 CommunityAnswerFile로 저장
+        VideoAnswer videoAnswer = videoAnswerRepository.findByVideoUuid(videoUuid)
+                .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 영상을 찾을 수 없습니다: " + videoUuid));
+        
+        // VideoAnswer의 정보를 바탕으로 File 엔티티 생성
+        String contentType = "video/" + videoAnswer.getExtension();
+        File videoFile = File.create(
+                FileContainerType.ANSWER_IMAGE, // 답변 영상용 타입 (필요시 새로운 타입 추가 가능)
+                communityAnswer.getId(),
+                videoAnswer.getS3Key(),
+                videoAnswer.getOriginalFileName(),
+                contentType,
+                0 // VideoAnswer에는 size 정보가 없으므로 0으로 설정
+        );
+        
+        // File 직접 저장
+        File savedFile = fileRepository.save(videoFile);
+        
+        // CommunityAnswerFile 생성 및 저장
+        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, savedFile);
+        communityWriter.saveCommunityAnswerFile(communityAnswerFile);
+    }
+
     @Override
-    public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq) {
+    public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid) {
         String answerId = communityAnswerReq.answerId();
         String questionId = communityAnswerReq.questionId();
         Long userId = communityAnswerReq.userId();
 
         CommunityAnswer prevCommunityAnswer = communityReader.getCommunityAnswerById(answerId);
         CommunityAnswer updateAnswer = communityWriter.updateAnswer(prevCommunityAnswer, communityAnswerReq);
+
+        // 이미지 파일 업데이트
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            // 기존 이미지 파일 삭제 후 새로 저장
+            // TODO: 기존 이미지 파일 삭제 로직 구현
+            saveImageFiles(updateAnswer, imageFiles);
+        }
+        
+        // 영상 UUID 업데이트
+        if (videoUuid != null) {
+            // 기존 영상 파일 삭제 후 새로 저장
+            // TODO: 기존 영상 파일 삭제 로직 구현
+            saveVideoFile(updateAnswer, videoUuid);
+        }
 
         return CommunityAnswerRes.create(
                 userId,
@@ -382,8 +420,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public void deleteAnswer(CommunityAnswerReq communityAnswerReq) {
-        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(String.valueOf(communityAnswerReq.answerId()));
+    public void deleteAnswer(String answerId) {
+        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
         communityWriter.deleteAnswer(communityAnswer);
     }
 
