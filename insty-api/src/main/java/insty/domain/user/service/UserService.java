@@ -4,6 +4,7 @@ import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
@@ -15,6 +16,7 @@ import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
 import insty.error.UserErrorCode;
+import insty.exception.CustomException;
 import insty.model.user.User;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -59,21 +61,15 @@ public class UserService {
     /**
      * 이메일 존재여부 체크
      */
-    public UserDuplicateCheckRes existCheckByEmail(UserEmailCheckReq req) {
-        boolean emailExists = userReader.existCheckByEmail(req.email());
-        boolean isAvailable = !emailExists; // 존재하지 않으면 사용가능
-        String reason = isAvailable ? "사용 가능한 이메일입니다." : UserErrorCode.USER_DUPLICATE_EMAIL.getMessage();
-        return UserDuplicateCheckRes.from(isAvailable, reason);
+    public void existCheckByEmail(UserEmailCheckReq req) {
+        userValidator.validateDuplicateEmail(req.email());
     }
 
     /**
      * 닉네임 존재여부 체크
      */
-    public UserDuplicateCheckRes existsCheckByNickname(UserNicknameCheckReq req) {
-        boolean nicknameExists = userReader.existCheckByNickname(req.nickname());
-        boolean isAvailable = !nicknameExists; // 존재하지 않으면 사용가능
-        String reason = isAvailable ? "사용 가능한 닉네임입니다." : UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage();
-        return UserDuplicateCheckRes.from(isAvailable, reason);
+    public void existsCheckByNickname(UserNicknameCheckReq req) {
+        userValidator.validateDuplicateNickname(req.nickname());
     }
 
 
@@ -94,14 +90,9 @@ public class UserService {
         userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
         userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
 
-        User findUser = userReader.getUser(userId);
-        userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
-
-        String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
         User updatedUser = userWriter.updateUser(
                 userId,
                 req.email(),
-                encodedPassword,
                 req.nickname(),
                 req.introduce()
         );
@@ -126,6 +117,21 @@ public class UserService {
     public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
         User updatedUser = userWriter.updateUserByAgreement(userId, req.isEmailAgree());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+        return UserDetailRes.from(updatedUser, profileImageUrl);
+    }
+
+    /**
+     *  비밀번호 변경
+     */
+    public UserDetailRes updatePassword(Long userId, UserPasswordUpdateReq req) {
+        User findUser = userReader.getUser(userId);
+        userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+
+        String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
+
+        User updatedUser = userWriter.changePassword(userId, encodedPassword);
+        String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 }

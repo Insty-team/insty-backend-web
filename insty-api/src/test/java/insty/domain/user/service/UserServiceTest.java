@@ -12,6 +12,7 @@ import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
@@ -80,65 +81,7 @@ class UserServiceTest {
         assertThat(result.userType()).isEqualTo(savedUser.getUserType());
     }
 
-    @Test
-    void 이메일이_존재하지_않으면_사용가능_응답을_반환한다() {
-        // given
-        String email = "unique@example.com";
-        UserEmailCheckReq req = new UserEmailCheckReq(email);
-        when(userReader.existCheckByEmail(email)).thenReturn(false);
 
-        // when
-        UserDuplicateCheckRes result = userService.existCheckByEmail(req);
-
-        // then
-        assertThat(result.isAvailable()).isTrue();
-        assertThat(result.reason()).isEqualTo("사용 가능한 이메일입니다.");
-    }
-
-    @Test
-    void 이메일이_존재하면_사용불가_응답을_반환한다() {
-        // given
-        String email = "duplicate@example.com";
-        UserEmailCheckReq req = new UserEmailCheckReq(email);
-        when(userReader.existCheckByEmail(email)).thenReturn(true);
-
-        // when
-        UserDuplicateCheckRes result = userService.existCheckByEmail(req);
-
-        // then
-        assertThat(result.isAvailable()).isFalse();
-        assertThat(result.reason()).isEqualTo(UserErrorCode.USER_DUPLICATE_EMAIL.getMessage());
-    }
-
-    @Test
-    void 닉네임이_존재하지_않으면_사용가능_응답을_반환한다() {
-        // given
-        String nickname = "uniqueNick";
-        UserNicknameCheckReq req = new UserNicknameCheckReq(nickname);
-        when(userReader.existCheckByNickname(nickname)).thenReturn(false);
-
-        // when
-        UserDuplicateCheckRes result = userService.existsCheckByNickname(req);
-
-        // then
-        assertThat(result.isAvailable()).isTrue();
-        assertThat(result.reason()).isEqualTo("사용 가능한 닉네임입니다.");
-    }
-
-    @Test
-    void 닉네임이_존재하면_사용불가_응답을_반환한다() {
-        // given
-        String nickname = "duplicatedNick";
-        UserNicknameCheckReq req = new UserNicknameCheckReq(nickname);
-        when(userReader.existCheckByNickname(nickname)).thenReturn(true);
-
-        // when
-        UserDuplicateCheckRes result = userService.existsCheckByNickname(req);
-
-        // then
-        assertThat(result.isAvailable()).isFalse();
-        assertThat(result.reason()).isEqualTo(UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage());
-    }
 
     @Test
     void 사용자_상세정보_조회에_성공한다() {
@@ -160,29 +103,24 @@ class UserServiceTest {
     }
 
     @Test
-    void 사용자_정보_수정_시_비밀번호를_암호화하고_업데이트한다() {
+    void 사용자_정보_수정_시_유효성_검증_후_업데이트한다() {
         // given
         Long userId = 1L;
-        UserUpdateReq req = new UserUpdateReq("new@example.com", "curPassword1!", "newPassword1!", "newnick", "introduce");
+        UserUpdateReq req = new UserUpdateReq(
+                "new@example.com",
+                "newnick",
+                "introduce"
+        );
         MultipartFile profileImage = mock(MultipartFile.class);
-        String encodedPassword = "encodedPassword";
         String imageUrl = "https://cdn.com/new.png";
 
-        // 1. userReader.getUser()에 반환값 설정
-        User findUser = UserFixtureBuilder.getUserWithId(userId, "old@example.com", "encodedCurrentPassword", "oldnick");
-        when(userReader.getUser(userId)).thenReturn(findUser);
+        // 기존 사용자 정보 (사용 안 하지만 만약 내부에서 쓰게 되면 대비용)
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId, req.email(), "encodedPassword", req.nickname());
 
-        // 2. validateMatchesCurrentPassword()는 실제로 아무 동작 안 하도록 처리
-        doNothing().when(userValidator).validateMatchesCurrentPassword(
-                eq("encodedCurrentPassword"), eq(req.currentPassword()), eq(req.newPassword())
-        );
-
-        User updatedUser = UserFixtureBuilder.getUserWithId(userId, "new@example.com", encodedPassword, "newnick");
-
-        when(bCryptPasswordEncoder.encode(req.newPassword())).thenReturn(encodedPassword);
-        when(userWriter.updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce()))
+        when(userWriter.updateUser(userId, req.email(), req.nickname(), req.introduce()))
                 .thenReturn(updatedUser);
-        when(userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage)).thenReturn(Optional.of(imageUrl));
+        when(userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage))
+                .thenReturn(Optional.of(imageUrl));
 
         // when
         UserDetailRes result = userService.updateUser(userId, req, profileImage);
@@ -190,12 +128,50 @@ class UserServiceTest {
         // then
         verify(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
         verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
-        verify(userReader).getUser(userId);
-        verify(userValidator).validateMatchesCurrentPassword("encodedCurrentPassword", req.currentPassword(), req.newPassword());
-        verify(bCryptPasswordEncoder).encode(req.newPassword());
-        verify(userWriter).updateUser(userId, req.email(), encodedPassword, req.nickname(), req.introduce());
+
+        verify(userWriter).updateUser(userId, req.email(), req.nickname(), req.introduce());
         verify(userFileWriter).saveProfileImageGetUrl(updatedUser, profileImage);
-        assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
+
+        assertThat(result).usingRecursiveComparison()
+                .isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
+    }
+
+    @Test
+    void 사용자_비밀번호_수정_시_암호화하여_저장한다() {
+        // given
+        Long userId = 1L;
+        String currentPassword = "Current123!";
+        String newPassword = "NewPassword123!";
+        String encodedPassword = "EncodedNewPassword!";
+        String profileImageUrl = "https://cdn.com/profile.png";
+
+        UserPasswordUpdateReq req = new UserPasswordUpdateReq(currentPassword, newPassword);
+
+        User findUser = UserFixtureBuilder.getUserWithId(userId, "user@example.com", "encodedCurrentPassword", "nickname");
+
+        when(userReader.getUser(userId)).thenReturn(findUser);
+        doNothing().when(userValidator).validateMatchesCurrentPassword(
+                findUser.getPassword(), currentPassword, newPassword);
+        when(bCryptPasswordEncoder.encode(newPassword)).thenReturn(encodedPassword);
+
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId, "user@example.com", encodedPassword, "nickname");
+
+        when(userWriter.changePassword(userId, encodedPassword)).thenReturn(updatedUser);
+        when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(profileImageUrl);
+
+        // when
+        UserDetailRes result = userService.updatePassword(userId, req);
+
+        // then
+        verify(userReader).getUser(userId);
+        verify(userValidator).validateMatchesCurrentPassword(
+                findUser.getPassword(), currentPassword, newPassword);
+        verify(bCryptPasswordEncoder).encode(newPassword);
+        verify(userWriter).changePassword(userId, encodedPassword);
+        verify(userFileReader).getProfileImageUrl(updatedUser);
+
+        assertThat(result).usingRecursiveComparison()
+                .isEqualTo(UserDetailRes.from(updatedUser, profileImageUrl));
     }
 
 
