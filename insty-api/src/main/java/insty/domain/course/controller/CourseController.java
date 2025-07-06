@@ -100,7 +100,7 @@ public class CourseController {
 
     @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_SEARCH)
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping
     public SuccessRes<SearchRes<CourseSearchInfo>> courseSearch(
             @ModelAttribute @Validated CourseSearchReq req

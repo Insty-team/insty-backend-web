@@ -87,6 +87,7 @@ public class VideoController {
 
     @Operation(summary = "영상 미리보기", description = "1분 미리보기 영상 url을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_PREVIEW)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/preview")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getPreviewVideo(
             @RequestBody @Validated VideoHlsPlaylistReq req
