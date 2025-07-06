@@ -486,8 +486,6 @@ public class CommunityServiceTest {
                 .thenReturn(communityAnswer);
         when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
                 .thenReturn(updatedCommunityAnswer);
-        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
-                .thenReturn(List.of());
         when(fileWriter.saveFiles(any()))
                 .thenReturn(List.of(file));
         when(communityWriter.saveCommunityAnswerFiles(any()))
