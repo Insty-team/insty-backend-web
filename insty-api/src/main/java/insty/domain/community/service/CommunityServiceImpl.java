@@ -69,32 +69,47 @@ public class CommunityServiceImpl implements CommunityService {
 
         List<CommunityAnswerRes> answers = new ArrayList<>();
 
-        //TODO: 댓글 이미지
         if (communityAnswers != null) {
             answers = communityAnswers.stream()
-                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), null, answer.getCreatedAt(), answer.getUpdatedAt(), answer.isAccepted()))
+                    .map(answer -> {
+                        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                        List<FileInfo> fileInfos = answerFiles.stream()
+                                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                                .toList();
+                        return CommunityAnswerRes.create(
+                                answer.getUser().getId(), 
+                                answer.getContent(), 
+                                fileInfos, 
+                                answer.getCreatedAt(), 
+                                answer.getUpdatedAt(), 
+                                answer.isAccepted()
+                        );
+                    })
                     .toList();
         }
-        //TODO: 수정필요
-
-
-
-
-        //TODO: id가 아닌 객체 내부 데이터
 
         boolean isAnswered = communityQuestion.isAnswered();
 
         Instant createdAt = communityQuestion.getCreatedAt();
         Instant updatedAt = communityQuestion.getUpdatedAt();
 
+        // 질문 첨부파일 정보 생성
+        List<FileInfo> questionAttachments = communityAttactments.stream()
+                .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
+                .toList();
+
         // 채택된 답변 정보 생성
         CommunityAnswerRes acceptedAnswerRes = null;
         if (communityQuestion.getAcceptedAnswer() != null) {
             CommunityAnswer acceptedAnswer = communityQuestion.getAcceptedAnswer();
+            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+            List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
+                    .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                    .toList();
             acceptedAnswerRes = CommunityAnswerRes.create(
                     acceptedAnswer.getUser().getId(),
                     acceptedAnswer.getContent(),
-                    null, //TODO: 첨부파일
+                    acceptedAnswerFileInfos,
                     acceptedAnswer.getCreatedAt(),
                     acceptedAnswer.getUpdatedAt(),
                     acceptedAnswer.isAccepted()
@@ -109,9 +124,8 @@ public class CommunityServiceImpl implements CommunityService {
                 createdAt,
                 updatedAt,
                 answers,
-                null,
+                questionAttachments,
                 acceptedAnswerRes
-                //attachments
         );
     }
 
@@ -121,17 +135,60 @@ public class CommunityServiceImpl implements CommunityService {
         List<CommunityQuestion> communityQuestions = communityReader.getAllCommunityQuestions();
 
         return communityQuestions.stream()
-                .map(question -> CommunityQuestionRes.create(
-                        null,
-                        null,
-                        question.getTitle(),
-                        question.getContent(),
-                        question.getCreatedAt(),
-                        question.getUpdatedAt(),
-                        null,
-                        null,
-                        null
-                )).toList();
+                .map(question -> {
+                    // 질문 첨부파일 정보 생성
+                    List<FileInfo> questionAttachments = question.getAttachments().stream()
+                            .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
+                            .toList();
+                    
+                    // 답변들 정보 생성
+                    List<CommunityAnswerRes> answers = question.getAnswers().stream()
+                            .map(answer -> {
+                                List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                                List<FileInfo> fileInfos = answerFiles.stream()
+                                        .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                                        .toList();
+                                return CommunityAnswerRes.create(
+                                        answer.getUser().getId(),
+                                        answer.getContent(),
+                                        fileInfos,
+                                        answer.getCreatedAt(),
+                                        answer.getUpdatedAt(),
+                                        answer.isAccepted()
+                                );
+                            })
+                            .toList();
+                    
+                    // 채택된 답변 정보 생성
+                    CommunityAnswerRes acceptedAnswerRes = null;
+                    if (question.getAcceptedAnswer() != null) {
+                        CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
+                        List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+                        List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
+                                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                                .toList();
+                        acceptedAnswerRes = CommunityAnswerRes.create(
+                                acceptedAnswer.getUser().getId(),
+                                acceptedAnswer.getContent(),
+                                acceptedAnswerFileInfos,
+                                acceptedAnswer.getCreatedAt(),
+                                acceptedAnswer.getUpdatedAt(),
+                                acceptedAnswer.isAccepted()
+                        );
+                    }
+                    
+                    return CommunityQuestionRes.create(
+                            question.getUser().getId(),
+                            question.getCourse().getId(),
+                            question.getTitle(),
+                            question.getContent(),
+                            question.getCreatedAt(),
+                            question.getUpdatedAt(),
+                            answers,
+                            questionAttachments,
+                            acceptedAnswerRes
+                    );
+                }).toList();
     }
 
     @Override
@@ -139,17 +196,60 @@ public class CommunityServiceImpl implements CommunityService {
         List<CommunityQuestion> communityQuestions = communityReader.getAllCommunityQuestionsByCourseId(courseId);
 
         return communityQuestions.stream()
-                .map(question -> CommunityQuestionRes.create(
-                        null,
-                        null,
-                        question.getTitle(),
-                        question.getContent(),
-                        question.getCreatedAt(),
-                        question.getUpdatedAt(),
-                        null,
-                        null,
-                        null
-                )).toList();
+                .map(question -> {
+                    // 질문 첨부파일 정보 생성
+                    List<FileInfo> questionAttachments = question.getAttachments().stream()
+                            .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
+                            .toList();
+                    
+                    // 답변들 정보 생성
+                    List<CommunityAnswerRes> answers = question.getAnswers().stream()
+                            .map(answer -> {
+                                List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                                List<FileInfo> fileInfos = answerFiles.stream()
+                                        .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                                        .toList();
+                                return CommunityAnswerRes.create(
+                                        answer.getUser().getId(),
+                                        answer.getContent(),
+                                        fileInfos,
+                                        answer.getCreatedAt(),
+                                        answer.getUpdatedAt(),
+                                        answer.isAccepted()
+                                );
+                            })
+                            .toList();
+                    
+                    // 채택된 답변 정보 생성
+                    CommunityAnswerRes acceptedAnswerRes = null;
+                    if (question.getAcceptedAnswer() != null) {
+                        CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
+                        List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+                        List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
+                                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                                .toList();
+                        acceptedAnswerRes = CommunityAnswerRes.create(
+                                acceptedAnswer.getUser().getId(),
+                                acceptedAnswer.getContent(),
+                                acceptedAnswerFileInfos,
+                                acceptedAnswer.getCreatedAt(),
+                                acceptedAnswer.getUpdatedAt(),
+                                acceptedAnswer.isAccepted()
+                        );
+                    }
+                    
+                    return CommunityQuestionRes.create(
+                            question.getUser().getId(),
+                            question.getCourse().getId(),
+                            question.getTitle(),
+                            question.getContent(),
+                            question.getCreatedAt(),
+                            question.getUpdatedAt(),
+                            answers,
+                            questionAttachments,
+                            acceptedAnswerRes
+                    );
+                }).toList();
     }
 
     @Override
@@ -276,6 +376,42 @@ public class CommunityServiceImpl implements CommunityService {
             }
         }
 
+        // 답변들 정보 생성
+        List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
+                .map(answer -> {
+                    List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                    List<FileInfo> fileInfos = answerFiles.stream()
+                            .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                            .toList();
+                    return CommunityAnswerRes.create(
+                            answer.getUser().getId(),
+                            answer.getContent(),
+                            fileInfos,
+                            answer.getCreatedAt(),
+                            answer.getUpdatedAt(),
+                            answer.isAccepted()
+                    );
+                })
+                .toList();
+        
+        // 채택된 답변 정보 생성
+        CommunityAnswerRes acceptedAnswerRes = null;
+        if (updatedQuestion.getAcceptedAnswer() != null) {
+            CommunityAnswer acceptedAnswer = updatedQuestion.getAcceptedAnswer();
+            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+            List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
+                    .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                    .toList();
+            acceptedAnswerRes = CommunityAnswerRes.create(
+                    acceptedAnswer.getUser().getId(),
+                    acceptedAnswer.getContent(),
+                    acceptedAnswerFileInfos,
+                    acceptedAnswer.getCreatedAt(),
+                    acceptedAnswer.getUpdatedAt(),
+                    acceptedAnswer.isAccepted()
+            );
+        }
+
         return CommunityQuestionRes.create(
                 updatedQuestion.getUser().getId(),
                 updatedQuestion.getCourse().getId(),
@@ -283,9 +419,9 @@ public class CommunityServiceImpl implements CommunityService {
                 updatedQuestion.getContent(),
                 updatedQuestion.getCreatedAt(),
                 updatedQuestion.getUpdatedAt(),
-                null, // TODO: 답변 리스트 추가
+                answers,
                 updatedFileInfos,
-                null
+                acceptedAnswerRes
         );
     }
 
@@ -300,10 +436,16 @@ public class CommunityServiceImpl implements CommunityService {
         CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
         User user = communityAnswer.getUser();
 
+        // 답변 첨부파일 정보 생성
+        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
+        List<FileInfo> fileInfos = answerFiles.stream()
+                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                .toList();
+
         return CommunityAnswerRes.create(
                 user.getId(),
                 communityAnswer.getContent(),
-                null, //TODO: 첨부파일
+                fileInfos,
                 communityAnswer.getCreatedAt(),
                 communityAnswer.getUpdatedAt(),
                 communityAnswer.isAccepted()
@@ -316,13 +458,20 @@ public class CommunityServiceImpl implements CommunityService {
         List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers(questionId);
 
         return communityAnswers.stream()
-                .map(answer -> CommunityAnswerRes.create(
-                        answer.getUser().getId(),
-                        answer.getContent(),
-                        null, //TODO: 첨부파일
-                        answer.getCreatedAt(),
-                        answer.getUpdatedAt(),
-                        answer.isAccepted()))
+                .map(answer -> {
+                    List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                    List<FileInfo> fileInfos = answerFiles.stream()
+                            .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                            .toList();
+                    return CommunityAnswerRes.create(
+                            answer.getUser().getId(),
+                            answer.getContent(),
+                            fileInfos,
+                            answer.getCreatedAt(),
+                            answer.getUpdatedAt(),
+                            answer.isAccepted()
+                    );
+                })
                 .toList();
     }
 
@@ -343,10 +492,16 @@ public class CommunityServiceImpl implements CommunityService {
             saveVideoFile(communityAnswer, videoUuidObj);
         }
 
+        // 저장된 첨부파일 정보 가져오기
+        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(communityAnswer.getId().toString());
+        List<FileInfo> fileInfos = answerFiles.stream()
+                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                .toList();
+
         return CommunityAnswerRes.create(
                 userId,
                 communityAnswer.getContent(),
-                null,
+                fileInfos,
                 communityAnswer.getCreatedAt(),
                 communityAnswer.getUpdatedAt(),
                 communityAnswer.isAccepted()
@@ -382,7 +537,7 @@ public class CommunityServiceImpl implements CommunityService {
         // VideoAnswer의 정보를 바탕으로 File 엔티티 생성
         String contentType = "video/" + videoAnswer.getExtension();
         File videoFile = File.create(
-                FileContainerType.ANSWER_IMAGE, // 답변 영상용 타입 (필요시 새로운 타입 추가 가능)
+                FileContainerType.ANSWER_IMAGE, // 답변 영상용 타입
                 communityAnswer.getId(),
                 videoAnswer.getS3Key(),
                 videoAnswer.getOriginalFileName(),
@@ -465,10 +620,16 @@ public class CommunityServiceImpl implements CommunityService {
             saveVideoFile(updateAnswer, videoUuidObj);
         }
 
+        // 업데이트된 첨부파일 정보 가져오기
+        List<CommunityAnswerFile> updatedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
+        List<FileInfo> fileInfos = updatedAnswerFiles.stream()
+                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
+                .toList();
+
         return CommunityAnswerRes.create(
                 userId,
                 updateAnswer.getContent(),
-                null, //TODO: 첨부파일
+                fileInfos,
                 updateAnswer.getCreatedAt(),
                 updateAnswer.getUpdatedAt(),
                 updateAnswer.isAccepted()
