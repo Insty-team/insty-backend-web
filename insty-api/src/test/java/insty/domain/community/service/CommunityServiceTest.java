@@ -128,6 +128,7 @@ public class CommunityServiceTest {
                 Instant.now(),
                 Instant.now(),
                 null,
+                null,
                 null
         );
 
@@ -183,6 +184,7 @@ public class CommunityServiceTest {
                 content,
                 Instant.now(),
                 Instant.now(),
+                null,
                 null,
                 null
         );
@@ -275,7 +277,8 @@ public class CommunityServiceTest {
                 content,
                 null,
                 Instant.now(),
-                Instant.now()
+                Instant.now(),
+                false
         );
 
         User user = UserFixtureBuilder.getUserWithId();
@@ -302,7 +305,7 @@ public class CommunityServiceTest {
                 .thenReturn(communityAnswer);
 
         //when
-        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, null);
+        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, null, null);
 
         //then
         assertThat(communityAnswerRes).isNotNull();
@@ -339,7 +342,7 @@ public class CommunityServiceTest {
 //                .thenReturn(communityAnswer);
 
         //when
-        communityService.deleteAnswer(communityAnswerReq);
+        communityService.deleteAnswer(String.valueOf(answerId));
 
         //then
         Optional<CommunityAnswer> deletedAnswer = communityAnswerRepository.findById(answerId);
@@ -379,7 +382,8 @@ public class CommunityServiceTest {
                 "1",
                 String.valueOf(communityQuestion.getId()),
                 1L,
-                content
+                content,
+                null
         );
 
 
@@ -390,7 +394,7 @@ public class CommunityServiceTest {
                 .thenReturn(updatedCommunityAnswer);
 
         //when
-        CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req);
+        CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req, null, null);
 
         //then
         assertThat(communityAnswerRes).isNotNull();

@@ -55,17 +55,32 @@ public class CommunityAnswer {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
+    @Column(nullable = false, name = "is_accepted")
+    @Builder.Default
+    private boolean isAccepted = false;
+
     public static CommunityAnswer create(CommunityQuestion communityQuestion, User user, String content) {
         return CommunityAnswer.builder()
                 .communityQuestion(communityQuestion)
                 .user(user)
                 .content(content)
                 .isDeleted(false)
+                .isAccepted(false)
                 .build();
     }
 
     public void update(String content) {
         this.content = content;
+        this.updatedAt = Instant.now();
+    }
+
+    public void accept() {
+        this.isAccepted = true;
+        this.updatedAt = Instant.now();
+    }
+
+    public void unaccept() {
+        this.isAccepted = false;
         this.updatedAt = Instant.now();
     }
 }

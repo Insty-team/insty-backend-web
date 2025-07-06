@@ -91,6 +91,13 @@ public enum SwaggerResponseDescription {
     ))),
     COMMUNITY_ANSWER_DELETE(new LinkedHashSet<>(Set.of(
             COMMUNITY_ANSWER_NOT_FOUND
+    ))),
+    COMMUNITY_ANSWER_ACCEPT(new LinkedHashSet<>(Set.of(
+            COMMUNITY_QUESTION_NOT_FOUND,
+            COMMUNITY_ANSWER_NOT_FOUND
+    ))),
+    COMMUNITY_ANSWER_UNACCEPT(new LinkedHashSet<>(Set.of(
+            COMMUNITY_QUESTION_NOT_FOUND
     )));
 
     private Set<ErrorCode> errorCodeList;

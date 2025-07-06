@@ -9,8 +9,11 @@ import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "커뮤니티 API")
 @RestController
@@ -29,13 +33,13 @@ public class CommunityController {
 
     @Operation(summary = "질문 상세 조회", description = "질문 상세 정보 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
-    @GetMapping("/questions/{question_id}")
+    @GetMapping("/questions/{questionId}")
     public SuccessRes<CommunityQuestionRes> retrieveQuestionDetails(@PathVariable @NotBlank String questionId) {
         return SuccessRes.of(communityService.getQuestionDetails(questionId));
     }
 
     @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
-    @GetMapping("/questions/courses/{course_id}")
+    @GetMapping("/questions/courses/{courseId}")
     public SuccessRes<List<CommunityQuestionRes>> retrieveQuestionsByCourseId(
             @PathVariable @NotBlank String courseId) {
         return SuccessRes.of(communityService.getQuestionsByCourseId(courseId));
@@ -57,21 +61,21 @@ public class CommunityController {
         return SuccessRes.of(communityService.saveQuestion(communityQuestionReq, attachments));
     }
 
-    @Operation(summary = "질문 수정", description = "질문 수정")
+    @Operation(summary = "질문 수정", description = "질문 수정 (첨부파일 업로드 지원)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
-    @PatchMapping("/questions/{question_id}")
+    @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionRes> updateQuestion(
             @PathVariable @NotBlank String questionId,
             @RequestPart CommunityQuestionReq communityQuestionReq,
+            @Parameter(description = "질문 첨부파일 (이미지, 코드 파일 등)")
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        //communityQuestionReq.setId(questionId);
         return SuccessRes.of(communityService.updateQuestion(communityQuestionReq, attachments));
     }
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
-    @DeleteMapping("/questions/{question_id}")
+    @DeleteMapping("/questions/{questionId}")
     public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank String questionId) {
         communityService.deleteQuestion(questionId);
         return SuccessRes.of(null);
@@ -80,31 +84,78 @@ public class CommunityController {
     //삭제하고 질문 상세보기와 통합
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
-    @GetMapping("/questions/{question_id}/answer")
+    @GetMapping("/questions/{questionId}/answer")
     public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank String questionId) {
         return SuccessRes.of(communityService.getAllAnswers(questionId));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
-    @PostMapping("/questions/{question_id}/answer")
+    @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
+            @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityAnswerReq communityAnswerReq,
-            @RequestPart(value = "answerImage", required = false) MultipartFile imageFile){
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFile));
+            @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
+            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
+            @RequestPart(value = "videoUuid", required = false) String videoUuid){
+        
+        UUID videoUuidObj = null;
+        if (videoUuid != null && !videoUuid.trim().isEmpty()) {
+            try {
+                videoUuidObj = UUID.fromString(videoUuid);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 영상 UUID 형식입니다.");
+            }
+        }
+        
+        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles, videoUuidObj));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
-    @PatchMapping("/questions/{question_id}/answer")
-    public SuccessRes<CommunityAnswerRes> updateAnswer( @RequestBody CommunityAnswerReq communityQuestionReq) {
-        return SuccessRes.of(communityService.updateAnswer(communityQuestionReq));
+    @PatchMapping(value = "/questions/{question_id}/answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SuccessRes<CommunityAnswerRes> updateAnswer(
+            @PathVariable @NotBlank String question_id,
+            @RequestPart CommunityAnswerReq communityAnswerReq,
+            @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
+            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
+            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
+        
+        UUID videoUuidObj = null;
+        if (videoUuid != null && !videoUuid.trim().isEmpty()) {
+            try {
+                videoUuidObj = UUID.fromString(videoUuid);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 영상 UUID 형식입니다.");
+            }
+        }
+        
+        return SuccessRes.of(communityService.updateAnswer(communityAnswerReq, imageFiles, videoUuidObj));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
-    @DeleteMapping("/questions/{question_id}/answer")
-    public SuccessRes<?> deleteAnswer(@RequestBody CommunityAnswerReq communityAnswerReq) {
+    @DeleteMapping("/questions/{question_id}/answer/{answerId}")
+    public SuccessRes<?> deleteAnswer(@PathVariable @NotBlank String question_id, @PathVariable @NotBlank String answerId) {
+        communityService.deleteAnswer(answerId);
+        return SuccessRes.of(null);
+    }
+
+    @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
+    @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
+    public SuccessRes<?> acceptAnswer(@PathVariable @NotBlank String questionId, @PathVariable @NotBlank String answerId) {
+        communityService.acceptAnswer(questionId, answerId);
+        return SuccessRes.of(null);
+    }
+
+    @Operation(summary = "답변 채택 해제", description = "질문 작성자가 채택된 답변을 해제")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UNACCEPT)
+    @DeleteMapping("/questions/{questionId}/answer/accept")
+    public SuccessRes<?> unacceptAnswer(@PathVariable @NotBlank String questionId) {
+        communityService.unacceptAnswer(questionId);
         return SuccessRes.of(null);
     }
 

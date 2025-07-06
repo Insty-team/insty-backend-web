@@ -12,16 +12,18 @@ public record CommunityAnswerRes(
         String content,
         String imageURL,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        boolean isAccepted
 ) {
     public static CommunityAnswerRes create(
             @NotNull Long userId,
             @NotNull String content,
             String imageURL,
             Instant createdAt,
-            Instant updatedAt
+            Instant updatedAt,
+            boolean isAccepted
     ) {
-        return new CommunityAnswerRes(userId, content, imageURL, createdAt, updatedAt);
+        return new CommunityAnswerRes(userId, content, imageURL, createdAt, updatedAt, isAccepted);
     }
 
 }

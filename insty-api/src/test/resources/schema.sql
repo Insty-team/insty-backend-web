@@ -168,7 +168,8 @@ CREATE TABLE IF NOT EXISTS web_service.community_questions (
     is_answered BOOLEAN NOT NULL DEFAULT FALSE, -- 답변 여부
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 생성 시각
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 수정 시각
-    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE -- 삭제 여부
+    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE, -- 삭제 여부
+    accepted_answer_id BIGINT -- 채택된 답변 ID
 );
 
 CREATE TABLE IF NOT EXISTS web_service.community_answers (
@@ -179,7 +180,8 @@ CREATE TABLE IF NOT EXISTS web_service.community_answers (
     answer_image_id BIGINT, -- 답변 이미지 ID (nullable)
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 생성 시각
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 수정 시각
-    is_deleted      BOOLEAN NOT NULL DEFAULT FALSE -- 삭제 여부
+    is_deleted      BOOLEAN NOT NULL DEFAULT FALSE, -- 삭제 여부
+    is_accepted      BOOLEAN NOT NULL DEFAULT FALSE -- 채택 여부
 
 );
 
