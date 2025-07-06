@@ -275,7 +275,8 @@ public class CommunityServiceTest {
                 content,
                 null,
                 Instant.now(),
-                Instant.now()
+                Instant.now(),
+                false
         );
 
         User user = UserFixtureBuilder.getUserWithId();
