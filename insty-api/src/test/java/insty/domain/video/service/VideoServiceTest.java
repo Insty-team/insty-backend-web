@@ -7,6 +7,7 @@ import static insty.cloudfront.constant.CloudFrontConstants.CLOUDFRONT_SIGNED_MA
 import static insty.constants.VideoConstants.DOMAIN;
 import static insty.constants.VideoConstants.PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
@@ -14,10 +15,11 @@ import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.repository.UserRepository;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
-import insty.domain.video.dto.VideoHlsPlaylistRes;
+import insty.domain.video.dto.VideoThumbnailRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoAccessManager;
+import insty.domain.video.implement.VideoFileReader;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.domain.video.repository.VideoAnswerRepository;
@@ -76,6 +78,8 @@ class VideoServiceTest {
     private VideoEncodingRepository videoEncodingRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private VideoFileReader videoFileReader;
 
     @MockitoBean
     private UuidProvider uuidProvider;
@@ -180,6 +184,24 @@ class VideoServiceTest {
         assertThat(videoAnswer.getEncodingAt()).isNotNull();
     }
 
+    @Test
+    void getThumbnailUrl_정상() {
+        // given
+        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+        // mock
+        when(s3FileManager.doesFileExist(anyString()))
+                .thenReturn(true);
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+        
+        // when
+        VideoThumbnailRes res = videoService.getThumbnailUrl(fixedUuid);
+
+        // then
+        assertThat(res.thumbnailUrl()).isNotNull();
+    }
+
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
@@ -191,7 +213,7 @@ class VideoServiceTest {
                     "VALUES (1, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })
     @Test
-    void getSignedCookieMap_정상() {
+    void getVideoCookieMap_정상() {
         // given
         Long userId = 1L;
         VideoType videoType = VideoType.COURSE;
@@ -203,7 +225,7 @@ class VideoServiceTest {
         cookieMap.put("CloudFront-Signature", "sig-value");
         cookieMap.put("CloudFront-Key-Pair-Id", "key-pair-id");
         cookieMap.put("CloudFront-Policy", "policy-value");
-        when(cloudFrontSigner.generateSignedCookiesForVideo(anyString(), anyString()))
+        when(cloudFrontSigner.generateSignedCookiesForVideo(anyString(), anyString(), anyLong()))
                 .thenReturn(cookieMap);
 
         when(cloudFrontSigner.generateResourcePath(anyString(), anyString()))
@@ -217,7 +239,7 @@ class VideoServiceTest {
                 .thenReturn("insty.test.com");
 
         // when
-        Map<String, String> res = videoService.getSignedCookieMap(userId, req);
+        Map<String, String> res = videoService.getVideoCookieMap(userId, req);
 
         // then
         assertThat(res).isNotNull();
@@ -242,23 +264,42 @@ class VideoServiceTest {
                     "VALUES (1, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName', NOW())"
     })
     @Test
-    void getPreviewVideo_정상() {
+    void getPreviewCookieMap_정상() {
         // given
         VideoType videoType = VideoType.COURSE;
         Long id = 1L;
         VideoHlsPlaylistReq req = new VideoHlsPlaylistReq(videoType, id);
 
         // mock
+        Map<String, String> cookieMap = new HashMap<>();
+        cookieMap.put("CloudFront-Signature", "sig-value");
+        cookieMap.put("CloudFront-Key-Pair-Id", "key-pair-id");
+        cookieMap.put("CloudFront-Policy", "policy-value");
+        when(cloudFrontSigner.generateSignedCookiesForVideo(anyString(), anyString(), anyLong()))
+                .thenReturn(cookieMap);
+
+        when(cloudFrontSigner.generateResourcePath(anyString(), anyString()))
+                .thenAnswer(invocation -> {
+                    String domain = invocation.getArgument(0);
+                    String path = invocation.getArgument(1);
+                    return "https://" + domain + "/" + path;
+                });
+
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
-        when(cloudFrontSigner.generatePresignedUrlForVideo(anyString(), anyString()))
-                .thenReturn("pre-signed video url");
 
         // when
-        VideoHlsPlaylistRes res = videoService.getPreviewVideo(req);
+        Map<String, String> res = videoService.getPreviewCookieMap(req);
 
         // then
         assertThat(res).isNotNull();
-        assertThat(res.signedUrl()).isNotNull();
+        assertThat(res.size()).isEqualTo(6);
+        assertThat(cookieMap.get(CLOUDFRONT_KEY_PAIR_ID)).isNotNull();
+        assertThat(cookieMap.get(CLOUDFRONT_SIGNATURE)).isNotNull();
+        assertThat(cookieMap.get(CLOUDFRONT_POLICY)).isNotNull();
+        assertThat(cookieMap.get(PATH)).isEqualTo("/preview/COURSE/hls/00000000-0000-0000-0000-000000000001/");
+        assertThat(cookieMap.get(CLOUDFRONT_SIGNED_MASTER_M3U8_URL)).isEqualTo(
+                "https://insty.test.com/preview/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.m3u8");
+        assertThat(cookieMap.get(DOMAIN)).isEqualTo("insty.test.com");
     }
 }

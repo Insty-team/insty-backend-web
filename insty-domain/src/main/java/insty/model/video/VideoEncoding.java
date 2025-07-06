@@ -1,5 +1,6 @@
 package insty.model.video;
 
+import insty.constants.VideoConstants;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import jakarta.persistence.Column;
@@ -53,6 +54,17 @@ public class VideoEncoding {
     }
 
     /**
+     * 미리보기 영상의 디렉토리 경로를 반환한다.
+     *
+     * @return preview/{type}/hls/{uuid}
+     */
+    public String getPreviewVideoDirectoryPath() {
+        validateEncodingS3Key();
+        int lastSlashIndex = this.encodingS3Key.lastIndexOf('/');
+        return VideoConstants.PREVIEW_BASE_FOLDER + this.encodingS3Key.substring(3, lastSlashIndex);
+    }
+
+    /**
      * HLS 영상의 마스터 파일 경로를 반환한다.
      *
      * @return vod/{type}/hls/{uuid}/fileName.m3u8
@@ -63,6 +75,16 @@ public class VideoEncoding {
     }
 
     /**
+     * 미리보기 영상의 마스터 파일 경로를 반환한다.
+     *
+     * @return preview/{type}/hls/{uuid}/fileName.m3u8
+     */
+    public String getPreviewMasterFileKey() {
+        validateEncodingS3Key();
+        return VideoConstants.PREVIEW_BASE_FOLDER + this.encodingS3Key.substring(3) + ".m3u8";
+    }
+
+    /**
      * s3 키의 형식을 검사한다.<br> 키의 형식은 vod/{type}/hls/{uuid}/{파일명} 으로 /가 4개 들어가야 한다.
      */
     public void validateEncodingS3Key() {
@@ -70,6 +92,9 @@ public class VideoEncoding {
                 .filter(c -> c == '/')
                 .count();
         if (slashCount != 4) {
+            throw new CustomException(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
+        }
+        if (!this.encodingS3Key.startsWith("vod/")) {
             throw new CustomException(VideoErrorCode.VIDEO_INVALID_ENCODING_KEY);
         }
     }

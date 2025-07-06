@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner.CookiesForCustomPolicy;
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import java.security.PrivateKey;
 import java.util.Map;
@@ -40,6 +39,7 @@ class CloudFrontSignerTest {
         // given
         String domain = "insty.test.com";
         String objectPath = "vod/COURSE/hls/00000000-0000-0000-0000-000000000001/*";
+        long expiredMinutes = 60L;
 
         // mock
         PrivateKey fakePrivateKey = mock(PrivateKey.class);
@@ -63,40 +63,14 @@ class CloudFrontSignerTest {
             when(fakeCookies.getPolicy()).thenReturn(policy);
 
             // when
-            Map<String, String> cookieMap = cloudFrontSigner.generateSignedCookiesForVideo(domain, objectPath);
+            Map<String, String> cookieMap = cloudFrontSigner.generateSignedCookiesForVideo(domain, objectPath,
+                    expiredMinutes);
 
             // then
             assertThat(cookieMap.size()).isEqualTo(3);
             assertThat(cookieMap.get(CLOUDFRONT_KEY_PAIR_ID)).contains("key-pair-id");
             assertThat(cookieMap.get(CLOUDFRONT_SIGNATURE)).isNotNull();
             assertThat(cookieMap.get(CLOUDFRONT_POLICY)).isNotNull();
-        }
-    }
-
-    @Test
-    void generatePresignedUrlForVideo_정상() {
-        // given
-        String domain = "insty.test.com";
-        String objectPath = "vod/COURSE/hls/00000000-0000-0000-0000-000000000001/*";
-
-        // mock
-        PrivateKey fakePrivateKey = mock(PrivateKey.class);
-
-        try (MockedStatic<SignerUtils> signerUtilsMock = mockStatic(SignerUtils.class);
-             MockedStatic<CloudFrontUrlSigner> urlSignerMock = mockStatic(CloudFrontUrlSigner.class)
-        ) {
-            signerUtilsMock.when(() -> SignerUtils.loadPrivateKey(anyString()))
-                    .thenReturn(fakePrivateKey);
-
-            urlSignerMock.when(
-                            () -> CloudFrontUrlSigner.getSignedURLWithCannedPolicy(anyString(), anyString(), any(), any()))
-                    .thenReturn("https://insty.test.com/signed-url");
-
-            // when
-            String presignedUrl = cloudFrontSigner.generatePresignedUrlForVideo(domain, objectPath);
-
-            // then
-            assertThat(presignedUrl).isNotNull();
         }
     }
 }

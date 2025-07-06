@@ -11,6 +11,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import insty.domain.common.dto.CreatorInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.common.repository.QuerydslRepositorySupport;
@@ -37,6 +38,11 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 Projections.constructor(
                         CourseSearchInfo.class,
                         course.id,
+                        Projections.constructor(
+                                CreatorInfo.class,
+                                user.id,
+                                user.nickname
+                        ),
                         course.title,
                         course.description,
                         Expressions.nullExpression(List.class),
@@ -45,6 +51,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 )
         )
                 .from(course)
+                .join(course.user, user)
                 .leftJoin(videoCourse).on(videoCourse.course.id.eq(course.id))
                 .where(searchCourseConditions(filter))
                 .orderBy(createOrderSpecifier(null))

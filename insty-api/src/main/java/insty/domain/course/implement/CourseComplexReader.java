@@ -127,7 +127,7 @@ public class CourseComplexReader {
                     if (getThumbnailUrl.apply(info) != null || !courseVideoUuids.containsKey(getCourseId.apply(info))) {
                         return info;
                     }
-                    String baseThumbnailUrl = VideoUtils.getVideoBaseThumbnailUrl(
+                    String baseThumbnailUrl = VideoUtils.getVideoBasicThumbnailUrl(
                             appProperties.getDomain(),
                             courseVideoUuids.get(getCourseId.apply(info))
                     );

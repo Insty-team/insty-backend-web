@@ -153,6 +153,8 @@ class CourseServiceTest {
         // then
         assertThat(res).isNotNull();
 //        assertThat(res.courseId()).isNotNull(); // 객체 캡슐화를 지키고 id 생성 테스트는 생략
+        assertThat(res.creatorInfo().id()).isEqualTo(userId);
+        assertThat(res.creatorInfo().nickname()).isEqualTo("example");
         assertThat(res.title()).isEqualTo(title);
         assertThat(res.description()).isEqualTo(description);
         assertThat(res.targetAudience()).isEqualTo(targetAudience);
@@ -236,6 +238,8 @@ class CourseServiceTest {
         // then
         assertThat(res).isNotNull();
 //        assertThat(res.courseId()).isNotNull(); // 객체 캡슐화를 지키고 id 생성 테스트는 생략
+        assertThat(res.creatorInfo().id()).isEqualTo(userId);
+        assertThat(res.creatorInfo().nickname()).isEqualTo("example");
         assertThat(res.title()).isEqualTo(title);
         assertThat(res.description()).isEqualTo(description);
         assertThat(res.targetAudience()).isEqualTo(targetAudience);
@@ -347,6 +351,8 @@ class CourseServiceTest {
         assertThat(course.get().getViewCount()).isEqualTo(1);
 
         assertThat(res).isNotNull();
+        assertThat(res.creatorInfo().id()).isEqualTo(1L);
+        assertThat(res.creatorInfo().nickname()).isEqualTo("example");
         assertThat(res.title()).isEqualTo(course.get().getTitle());
         assertThat(res.description()).isEqualTo(course.get().getDescription());
         assertThat(res.targetAudience()).isEqualTo(course.get().getTargetAudience());
@@ -419,6 +425,8 @@ class CourseServiceTest {
 
         assertThat(items).isNotNull();
         assertThat(items.size()).isEqualTo(1);
+        assertThat(items.get(0).creatorInfo().id()).isEqualTo(1L);
+        assertThat(items.get(0).creatorInfo().nickname()).isEqualTo("example");
         assertThat(items.get(0).title()).contains(search);
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
         assertThat(items.get(0).thumbnailUrl()).isEqualTo(

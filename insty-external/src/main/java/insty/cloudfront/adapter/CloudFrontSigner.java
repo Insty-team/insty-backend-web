@@ -2,10 +2,8 @@ package insty.cloudfront.adapter;
 
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
 import com.amazonaws.services.cloudfront.CloudFrontCookieSigner.CookiesForCustomPolicy;
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import com.amazonaws.services.cloudfront.util.SignerUtils.Protocol;
-import insty.cloudfront.constant.CloudFrontConstants;
 import insty.cloudfront.error.CloudFrontErrorCode;
 import insty.exception.CustomException;
 import java.security.PrivateKey;
@@ -36,16 +34,17 @@ public class CloudFrontSigner {
     /**
      * CloudFront 유틸 클래스를 이용해 리소스에 접근할 수 있는 쿠키를 발급한다.<br> 영상 조회에 사용한다.
      *
-     * @param domain     {도메인}
-     * @param objectPath /vod/{type}/hls/{uuid}/*
+     * @param domain         {도메인}
+     * @param objectPath     /vod/{type}/hls/{uuid}/*
+     * @param expiredMinutes 만료기간(분)
      * @return CloudFront-Key-Pair-Id, CloudFront-Signature, CloudFront-Policy
      */
-    public Map<String, String> generateSignedCookiesForVideo(String domain, String objectPath) {
+    public Map<String, String> generateSignedCookiesForVideo(String domain, String objectPath, long expiredMinutes) {
         try {
             String resourcePath = generateResourcePath(domain, objectPath);
             PrivateKey privateKey = SignerUtils.loadPrivateKey(privateKeyPath);
             Instant expiredAt = Instant.now()
-                    .plus(Duration.ofHours(CloudFrontConstants.GET_VIDEO_URL_EXPIRATION_HOURS));
+                    .plus(Duration.ofMinutes(expiredMinutes));
             Date expiration = Date.from(expiredAt);
 
             CookiesForCustomPolicy cookies = CloudFrontCookieSigner.getCookiesForCustomPolicy(
@@ -59,30 +58,6 @@ public class CloudFrontSigner {
         } catch (Exception e) {
             log.error("CloudFront 에러\n", e);
             throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL);
-        }
-    }
-
-    /**
-     * CloudFront 유틸 클래스를 이용해 리소스에 접근할 수 있는 서명된 url을 발급한다.<br> 미리보기에 사용한다.
-     *
-     * @param domain
-     * @param objectPath
-     * @return
-     */
-    public String generatePresignedUrlForVideo(String domain, String objectPath) {
-        try {
-            String resourcePath = generateResourcePath(domain, objectPath);
-            PrivateKey privateKey = SignerUtils.loadPrivateKey(privateKeyPath);
-            Instant expiredAt = Instant.now()
-                    .plus(Duration.ofMinutes(CloudFrontConstants.GET_PREVIEW_VIDEO_URL_EXPIRATION_MINUTES));
-            Date expiration = Date.from(expiredAt);
-
-            return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
-                    resourcePath, keyPairId, privateKey, expiration
-            );
-        } catch (Exception e) {
-            log.error("CloudFront 에러\n", e);
-            throw new CustomException(CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL);
         }
     }
 
