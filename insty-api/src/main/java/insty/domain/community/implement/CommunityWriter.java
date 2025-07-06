@@ -31,7 +31,6 @@ public class CommunityWriter {
     private final CommunityFileRepository communityFileRepository;
     private final CommunityAnswerFileRepository communityAnswerFileRepository;
 
-    // TODO: 첨부파일
     public CommunityQuestion saveQuestion(CommunityQuestion communityQuestion, Course course, User user) {
 
         return communityQuestionRepository.save(communityQuestion);
@@ -68,7 +67,7 @@ public class CommunityWriter {
     }
 
     public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
-        //prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), attachments);
+        prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), prevCommunityQuestion.getAttachments());
         return communityQuestionRepository.save(prevCommunityQuestion);
     }
 

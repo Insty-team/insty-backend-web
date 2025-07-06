@@ -39,7 +39,6 @@ public class CommunityAnswer {
     @Column(nullable = false)
     private String content;
 
-    //ToDo: 답변 image
     @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JoinColumn(name = "answer_image_id", nullable = true)
     private File answerImage;
