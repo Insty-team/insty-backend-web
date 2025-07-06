@@ -16,7 +16,8 @@ public record CommunityQuestionRes(
         Instant createdAt,
         Instant updatedAt,
         List<CommunityAnswerRes> answers,
-        List<FileInfo> attachments
+        List<FileInfo> attachments,
+        CommunityAnswerRes acceptedAnswer
 ) {
     public static CommunityQuestionRes create(
             Long userId,
@@ -26,7 +27,8 @@ public record CommunityQuestionRes(
             Instant createdAt,
             Instant updatedAt,
             List<CommunityAnswerRes> answers,
-            List<FileInfo> attachments
+            List<FileInfo> attachments,
+            CommunityAnswerRes acceptedAnswer
     ) {
         return new CommunityQuestionRes(
                 userId,
@@ -35,8 +37,9 @@ public record CommunityQuestionRes(
                 content,
                 createdAt,
                 updatedAt,
-                null,
-                attachments
+                answers,
+                attachments,
+                acceptedAnswer
         );
     }
 }

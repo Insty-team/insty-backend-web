@@ -98,4 +98,14 @@ public class CommunityWriter {
 
         communityAnswerRepository.delete(communityAnswer);
     }
+
+    public void acceptAnswer(CommunityQuestion communityQuestion, CommunityAnswer communityAnswer) {
+        communityQuestion.acceptAnswer(communityAnswer);
+        communityQuestionRepository.save(communityQuestion);
+    }
+
+    public void unacceptAnswer(CommunityQuestion communityQuestion) {
+        communityQuestion.unacceptAnswer();
+        communityQuestionRepository.save(communityQuestion);
+    }
 }

@@ -143,4 +143,20 @@ public class CommunityController {
         return SuccessRes.of(null);
     }
 
+    @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
+    @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
+    public SuccessRes<?> acceptAnswer(@PathVariable @NotBlank String questionId, @PathVariable @NotBlank String answerId) {
+        communityService.acceptAnswer(questionId, answerId);
+        return SuccessRes.of(null);
+    }
+
+    @Operation(summary = "답변 채택 해제", description = "질문 작성자가 채택된 답변을 해제")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UNACCEPT)
+    @DeleteMapping("/questions/{questionId}/answer/accept")
+    public SuccessRes<?> unacceptAnswer(@PathVariable @NotBlank String questionId) {
+        communityService.unacceptAnswer(questionId);
+        return SuccessRes.of(null);
+    }
+
 }

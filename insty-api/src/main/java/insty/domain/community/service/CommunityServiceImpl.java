@@ -69,7 +69,7 @@ public class CommunityServiceImpl implements CommunityService {
         //TODO: 댓글 이미지
         if (communityAnswers != null) {
             answers = communityAnswers.stream()
-                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), null, answer.getCreatedAt(), answer.getUpdatedAt()))
+                    .map(answer -> CommunityAnswerRes.create(userId, answer.getContent(), null, answer.getCreatedAt(), answer.getUpdatedAt(), answer.isAccepted()))
                     .toList();
         }
         //TODO: 수정필요
@@ -84,6 +84,20 @@ public class CommunityServiceImpl implements CommunityService {
         Instant createdAt = communityQuestion.getCreatedAt();
         Instant updatedAt = communityQuestion.getUpdatedAt();
 
+        // 채택된 답변 정보 생성
+        CommunityAnswerRes acceptedAnswerRes = null;
+        if (communityQuestion.getAcceptedAnswer() != null) {
+            CommunityAnswer acceptedAnswer = communityQuestion.getAcceptedAnswer();
+            acceptedAnswerRes = CommunityAnswerRes.create(
+                    acceptedAnswer.getUser().getId(),
+                    acceptedAnswer.getContent(),
+                    null, //TODO: 첨부파일
+                    acceptedAnswer.getCreatedAt(),
+                    acceptedAnswer.getUpdatedAt(),
+                    acceptedAnswer.isAccepted()
+            );
+        }
+
         return CommunityQuestionRes.create(
                 userId,
                 courseId,
@@ -92,7 +106,8 @@ public class CommunityServiceImpl implements CommunityService {
                 createdAt,
                 updatedAt,
                 answers,
-                null
+                null,
+                acceptedAnswerRes
                 //attachments
         );
     }
@@ -111,6 +126,7 @@ public class CommunityServiceImpl implements CommunityService {
                         question.getCreatedAt(),
                         question.getUpdatedAt(),
                         null,
+                        null,
                         null
                 )).toList();
     }
@@ -127,6 +143,7 @@ public class CommunityServiceImpl implements CommunityService {
                         question.getContent(),
                         question.getCreatedAt(),
                         question.getUpdatedAt(),
+                        null,
                         null,
                         null
                 )).toList();
@@ -156,7 +173,8 @@ public class CommunityServiceImpl implements CommunityService {
                 Instant.now(),
                 Instant.now(),
                 null,
-                fileInfos
+                fileInfos,
+                null
 
         );
     }
@@ -263,7 +281,8 @@ public class CommunityServiceImpl implements CommunityService {
                 updatedQuestion.getCreatedAt(),
                 updatedQuestion.getUpdatedAt(),
                 null, // TODO: 답변 리스트 추가
-                updatedFileInfos
+                updatedFileInfos,
+                null
         );
     }
 
@@ -283,7 +302,8 @@ public class CommunityServiceImpl implements CommunityService {
                 communityAnswer.getContent(),
                 null, //TODO: 첨부파일
                 communityAnswer.getCreatedAt(),
-                communityAnswer.getUpdatedAt()
+                communityAnswer.getUpdatedAt(),
+                communityAnswer.isAccepted()
         );
     }
 
@@ -298,7 +318,8 @@ public class CommunityServiceImpl implements CommunityService {
                         answer.getContent(),
                         null, //TODO: 첨부파일
                         answer.getCreatedAt(),
-                        answer.getUpdatedAt()))
+                        answer.getUpdatedAt(),
+                        answer.isAccepted()))
                 .toList();
     }
 
@@ -323,7 +344,8 @@ public class CommunityServiceImpl implements CommunityService {
                 communityAnswer.getContent(),
                 null,
                 communityAnswer.getCreatedAt(),
-                communityAnswer.getUpdatedAt()
+                communityAnswer.getUpdatedAt(),
+                communityAnswer.isAccepted()
         );
 
     }
@@ -444,7 +466,8 @@ public class CommunityServiceImpl implements CommunityService {
                 updateAnswer.getContent(),
                 null, //TODO: 첨부파일
                 updateAnswer.getCreatedAt(),
-                updateAnswer.getUpdatedAt()
+                updateAnswer.getUpdatedAt(),
+                updateAnswer.isAccepted()
         );
     }
 
@@ -452,6 +475,29 @@ public class CommunityServiceImpl implements CommunityService {
     public void deleteAnswer(String answerId) {
         CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
         communityWriter.deleteAnswer(communityAnswer);
+    }
+
+    @Override
+    public void acceptAnswer(String questionId, String answerId) {
+        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
+        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
+        
+        // 질문 작성자만 답변을 채택할 수 있도록 검증
+        // TODO: 실제로는 현재 로그인한 사용자가 질문 작성자인지 확인해야 함
+        // 현재는 임시로 검증 로직을 제거하고, 실제 구현시 CurrentUser 어노테이션을 사용하여 검증
+        
+        // 답변이 해당 질문에 속하는지 검증
+        if (!communityAnswer.getCommunityQuestion().getId().equals(communityQuestion.getId())) {
+            throw new IllegalArgumentException("해당 질문에 속하지 않는 답변입니다.");
+        }
+        
+        communityWriter.acceptAnswer(communityQuestion, communityAnswer);
+    }
+
+    @Override
+    public void unacceptAnswer(String questionId) {
+        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
+        communityWriter.unacceptAnswer(communityQuestion);
     }
 
 }

@@ -33,4 +33,8 @@ public interface CommunityService {
     CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid);
 
     void deleteAnswer(String answerId);
+
+    void acceptAnswer(String questionId, String answerId);
+
+    void unacceptAnswer(String questionId);
 }
