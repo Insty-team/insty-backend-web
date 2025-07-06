@@ -3,6 +3,7 @@ package insty.domain.community.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
@@ -31,6 +32,7 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +76,27 @@ public class CommunityServiceTest {
     @Mock
     CommunityAnswerRepository communityAnswerRepository;
 
+    // ID를 설정하는 헬퍼 메서드
+    private void setId(CommunityAnswer answer, Long id) {
+        try {
+            Field idField = CommunityAnswer.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(answer, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set ID", e);
+        }
+    }
+
+    private void setId(CommunityQuestion question, Long id) {
+        try {
+            Field idField = CommunityQuestion.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(question, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set ID", e);
+        }
+    }
+
     @Test
     void getQuestionDetails() {
         String questionId = "1";
@@ -92,9 +115,9 @@ public class CommunityServiceTest {
 
         when(communityReader.getCommunityQuestionDetailsById(questionId))
                 .thenReturn(communityQuestion);
-        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+        lenient().when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
                 .thenReturn(List.of());
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -136,7 +159,7 @@ public class CommunityServiceTest {
                 .thenReturn(user);
         when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
                 .thenReturn(communityQuestion);
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -173,6 +196,7 @@ public class CommunityServiceTest {
                 title,
                 content
         );
+        setId(communityQuestion, 1L);
 
         File file = FileFixtureBuilder.getCourseThumbnailWithId();
         CommunityFile communityFile = CommunityFile.create(communityQuestion, file);
@@ -187,7 +211,7 @@ public class CommunityServiceTest {
                 .thenReturn(List.of(file));
         when(communityWriter.saveCommunityFiles(any()))
                 .thenReturn(List.of(communityFile));
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -222,22 +246,27 @@ public class CommunityServiceTest {
                 user,
                 content1
         );
+        setId(communityAnswer1, 1L);
+        
         CommunityAnswer communityAnswer2 = CommunityAnswer.create(
                 communityQuestion,
                 user,
                 content2
         );
+        setId(communityAnswer2, 2L);
+        
         CommunityAnswer communityAnswer3 = CommunityAnswer.create(
                 communityQuestion,
                 user,
                 content3
         );
+        setId(communityAnswer3, 3L);
 
         when(communityReader.getAllCommunityAnswers(questionId))
                 .thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
-        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+        lenient().when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
                 .thenReturn(List.of());
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -278,6 +307,7 @@ public class CommunityServiceTest {
                 user,
                 content
         );
+        setId(communityAnswer, 1L);
 
         when(communityReader.getCommunityQuestionDetailsById(questionId))
                 .thenReturn(communityQuestion);
@@ -285,9 +315,9 @@ public class CommunityServiceTest {
                 .thenReturn(user);
         when(communityWriter.saveAnswer(any(CommunityQuestion.class), any(), any(User.class)))
                 .thenReturn(communityAnswer);
-        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+        lenient().when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
                 .thenReturn(List.of());
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -329,6 +359,7 @@ public class CommunityServiceTest {
                 user,
                 content
         );
+        setId(communityAnswer, 1L);
 
         File file = FileFixtureBuilder.getCourseThumbnailWithId();
         CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
@@ -345,7 +376,7 @@ public class CommunityServiceTest {
                 .thenReturn(List.of(communityAnswerFile));
         when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
                 .thenReturn(List.of(communityAnswerFile));
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -408,12 +439,14 @@ public class CommunityServiceTest {
                 user,
                 "기존 답변 내용"
         );
+        setId(communityAnswer, 1L);
 
         CommunityAnswer updatedCommunityAnswer = CommunityAnswer.create(
                 communityQuestion,
                 user,
                 content
         );
+        setId(updatedCommunityAnswer, 1L);
 
         CommunityAnswerReq req = new CommunityAnswerReq(
                 "1",
@@ -427,9 +460,9 @@ public class CommunityServiceTest {
                 .thenReturn(communityAnswer);
         when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
                 .thenReturn(updatedCommunityAnswer);
-        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
+        lenient().when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
                 .thenReturn(List.of());
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
@@ -461,12 +494,14 @@ public class CommunityServiceTest {
                 user,
                 "기존 답변 내용"
         );
+        setId(communityAnswer, 1L);
 
         CommunityAnswer updatedCommunityAnswer = CommunityAnswer.create(
                 communityQuestion,
                 user,
                 content
         );
+        setId(updatedCommunityAnswer, 1L);
 
         CommunityAnswerReq req = new CommunityAnswerReq(
                 "1",
@@ -492,7 +527,7 @@ public class CommunityServiceTest {
                 .thenReturn(List.of(communityAnswerFile));
         when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
                 .thenReturn(List.of(communityAnswerFile));
-        when(appProperties.getDomain())
+        lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
         //when
