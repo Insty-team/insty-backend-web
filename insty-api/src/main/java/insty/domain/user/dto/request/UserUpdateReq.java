@@ -13,27 +13,6 @@ public record UserUpdateReq (
         @Email(message = "올바른 이메일 형식이어야 합니다.")
         String email,
 
-        /*
-            (?=.*[A-Za-z])      // 영문이 있나?
-            (?=.*\d)            // 숫자가 있나?
-            (?=.*[!@#$...])     // 특수문자가 있나?
-         */
-        @Schema(description = "현재 비밀번호", example = "abc123!")
-        @NotBlank(message = "비밀번호는 필수입니다.")
-        @Pattern(
-                regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
-                message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
-        )
-        String currentPassword,
-
-        @Schema(description = "수정할 비밀번호", example = "abc1234!")
-        @NotBlank(message = "수정될 비밀번호는 필수입니다.")
-        @Pattern(
-                regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
-                message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
-        )
-        String newPassword,
-
         @Schema(description = "닉네임", example = "유재석")
         @NotBlank(message = "닉네임은 필수입니다.")
         @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
