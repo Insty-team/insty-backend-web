@@ -34,6 +34,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import insty.error.CommunityErrorCode;
+import insty.exception.CustomException;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -324,7 +327,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid) {
+    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid) {
         String questionId = communityAnswerReq.questionId();
         Long userId = communityAnswerReq.userId();
 
@@ -335,8 +338,9 @@ public class CommunityServiceImpl implements CommunityService {
         saveImageFiles(communityAnswer, imageFiles);
         
         // 영상 UUID가 있는 경우 처리
-        if (videoUuid != null) {
-            saveVideoFile(communityAnswer, videoUuid);
+        UUID videoUuidObj = validateAndParseVideoUuid(videoUuid);
+        if (videoUuidObj != null) {
+            saveVideoFile(communityAnswer, videoUuidObj);
         }
 
         return CommunityAnswerRes.create(
@@ -347,7 +351,6 @@ public class CommunityServiceImpl implements CommunityService {
                 communityAnswer.getUpdatedAt(),
                 communityAnswer.isAccepted()
         );
-
     }
 
     private void saveImageFiles(CommunityAnswer communityAnswer, List<MultipartFile> imageFiles) {
@@ -374,7 +377,7 @@ public class CommunityServiceImpl implements CommunityService {
     private void saveVideoFile(CommunityAnswer communityAnswer, UUID videoUuid) {
         // VideoAnswer에서 영상 정보를 가져와서 CommunityAnswerFile로 저장
         VideoAnswer videoAnswer = videoAnswerRepository.findByVideoUuid(videoUuid)
-                .orElseThrow(() -> new IllegalArgumentException("해당 UUID의 영상을 찾을 수 없습니다: " + videoUuid));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID));
         
         // VideoAnswer의 정보를 바탕으로 File 엔티티 생성
         String contentType = "video/" + videoAnswer.getExtension();
@@ -434,7 +437,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid) {
+    public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid) {
         String answerId = communityAnswerReq.answerId();
         String questionId = communityAnswerReq.questionId();
         Long userId = communityAnswerReq.userId();
@@ -454,11 +457,12 @@ public class CommunityServiceImpl implements CommunityService {
         }
         
         // 영상 UUID 업데이트
-        if (videoUuid != null) {
+        UUID videoUuidObj = validateAndParseVideoUuid(videoUuid);
+        if (videoUuidObj != null) {
             // 기존 영상 파일 삭제
             deleteExistingAnswerFiles(existingAnswerFiles);
             // 새로운 영상 파일 저장
-            saveVideoFile(updateAnswer, videoUuid);
+            saveVideoFile(updateAnswer, videoUuidObj);
         }
 
         return CommunityAnswerRes.create(
@@ -482,13 +486,9 @@ public class CommunityServiceImpl implements CommunityService {
         CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
         CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
         
-        // 질문 작성자만 답변을 채택할 수 있도록 검증
-        // TODO: 실제로는 현재 로그인한 사용자가 질문 작성자인지 확인해야 함
-        // 현재는 임시로 검증 로직을 제거하고, 실제 구현시 CurrentUser 어노테이션을 사용하여 검증
-        
         // 답변이 해당 질문에 속하는지 검증
         if (!communityAnswer.getCommunityQuestion().getId().equals(communityQuestion.getId())) {
-            throw new IllegalArgumentException("해당 질문에 속하지 않는 답변입니다.");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
         }
         
         communityWriter.acceptAnswer(communityQuestion, communityAnswer);
@@ -499,5 +499,19 @@ public class CommunityServiceImpl implements CommunityService {
         CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
         communityWriter.unacceptAnswer(communityQuestion);
     }
+
+    private UUID validateAndParseVideoUuid(String videoUuid) {
+        if (videoUuid == null || videoUuid.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            return UUID.fromString(videoUuid);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID);
+        }
+    }
+
+
 
 }

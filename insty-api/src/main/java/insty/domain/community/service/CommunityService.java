@@ -7,7 +7,6 @@ import insty.domain.community.dto.CommunityQuestionRes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface CommunityService {
 
@@ -25,12 +24,11 @@ public interface CommunityService {
 
     CommunityAnswerRes getAnswerDetails(String answerId);
 
-    //불필요해보임
     List<CommunityAnswerRes> getAllAnswers(String questionId);
 
-    CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid);
+    CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid);
 
-    CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, UUID videoUuid);
+    CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid);
 
     void deleteAnswer(String answerId);
 

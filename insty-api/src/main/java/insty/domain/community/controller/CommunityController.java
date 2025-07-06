@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 @Tag(name = "커뮤니티 API")
 @RestController
@@ -81,7 +80,6 @@ public class CommunityController {
         return SuccessRes.of(null);
     }
 
-    //삭제하고 질문 상세보기와 통합
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
     @GetMapping("/questions/{questionId}/answer")
@@ -98,18 +96,9 @@ public class CommunityController {
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
             @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
-            @RequestPart(value = "videoUuid", required = false) String videoUuid){
+            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
         
-        UUID videoUuidObj = null;
-        if (videoUuid != null && !videoUuid.trim().isEmpty()) {
-            try {
-                videoUuidObj = UUID.fromString(videoUuid);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("유효하지 않은 영상 UUID 형식입니다.");
-            }
-        }
-        
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles, videoUuidObj));
+        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles, videoUuid));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
@@ -123,16 +112,7 @@ public class CommunityController {
             @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
             @RequestPart(value = "videoUuid", required = false) String videoUuid) {
         
-        UUID videoUuidObj = null;
-        if (videoUuid != null && !videoUuid.trim().isEmpty()) {
-            try {
-                videoUuidObj = UUID.fromString(videoUuid);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("유효하지 않은 영상 UUID 형식입니다.");
-            }
-        }
-        
-        return SuccessRes.of(communityService.updateAnswer(communityAnswerReq, imageFiles, videoUuidObj));
+        return SuccessRes.of(communityService.updateAnswer(communityAnswerReq, imageFiles, videoUuid));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
