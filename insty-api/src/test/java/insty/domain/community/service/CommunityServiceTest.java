@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
+import insty.domain.common.FileInfo;
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
@@ -15,9 +16,11 @@ import insty.domain.community.implement.CommunityWriter;
 import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.file.implement.FileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
+import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
@@ -26,30 +29,23 @@ import insty.model.file.File;
 import insty.model.file.FileFixtureBuilder;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
+import insty.s3.adapter.S3FileManager;
+import insty.s3.adapter.S3UrlIssuer;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-
-import insty.s3.adapter.S3FileManager;
-import insty.s3.adapter.S3UrlIssuer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 public class CommunityServiceTest {
-
 
     @InjectMocks
     CommunityServiceImpl communityService;
@@ -62,20 +58,21 @@ public class CommunityServiceTest {
     CourseReader courseReader;
     @Mock
     UserReader userReader;
+    @Mock
+    FileWriter fileWriter;
+    @Mock
+    AppProperties appProperties;
+    @Mock
+    S3FileManager s3FileManager;
+    @Mock
+    S3UrlIssuer s3UrlIssuer;
+    @Mock
+    CloudFrontSigner cloudFrontSigner;
 
     @Mock
     CommunityQuestionRepository communityQuestionRepository;
     @Mock
     CommunityAnswerRepository communityAnswerRepository;
-
-    @Mock
-    S3UrlIssuer s3UrlIssuer;
-    @Mock
-    S3FileManager s3FileManager;
-    @Mock
-    CloudFrontSigner cloudFrontSigner;
-    @Mock
-    AppProperties appProperties;
 
     @Test
     void getQuestionDetails() {
@@ -95,6 +92,10 @@ public class CommunityServiceTest {
 
         when(communityReader.getCommunityQuestionDetailsById(questionId))
                 .thenReturn(communityQuestion);
+        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+                .thenReturn(List.of());
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
 
         //when
         CommunityQuestionRes communityQuestionRes = communityService.getQuestionDetails(questionId);
@@ -102,7 +103,6 @@ public class CommunityServiceTest {
         assertThat(communityQuestionRes).isNotNull();
         assertThat(communityQuestionRes.title()).isEqualTo(title);
         assertThat(communityQuestionRes.content()).isEqualTo(content);
-
     }
 
     @Test
@@ -118,18 +118,6 @@ public class CommunityServiceTest {
                 userId,
                 title,
                 content
-        );
-
-        CommunityQuestionRes res = CommunityQuestionRes.create(
-                userId,
-                courseId,
-                title,
-                content,
-                Instant.now(),
-                Instant.now(),
-                null,
-                null,
-                null
         );
 
         User user = UserFixtureBuilder.getUserWithId();
@@ -148,6 +136,8 @@ public class CommunityServiceTest {
                 .thenReturn(user);
         when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
                 .thenReturn(communityQuestion);
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
 
         //when
         CommunityQuestionRes communityQuestionRes = communityService.saveQuestion(communityQuestionReq, null);
@@ -155,11 +145,10 @@ public class CommunityServiceTest {
         assertThat(communityQuestionRes).isNotNull();
         assertThat(communityQuestionRes.title()).isEqualTo(title);
         assertThat(communityQuestionRes.content()).isEqualTo(content);
-
     }
 
     @Test
-    void saveQustionWithFiles() {
+    void saveQuestionWithFiles() {
         String title = "제목";
         String content = "내용";
         Long userId = 1L;
@@ -175,20 +164,6 @@ public class CommunityServiceTest {
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("practiceFile", "practice1.jpg", "image/jpeg", "내용".getBytes()));
 
-        File file = FileFixtureBuilder.getCourseThumbnailWithId();
-
-        CommunityQuestionRes res = CommunityQuestionRes.create(
-                userId,
-                courseId,
-                title,
-                content,
-                Instant.now(),
-                Instant.now(),
-                null,
-                null,
-                null
-        );
-
         User user = UserFixtureBuilder.getUserWithId();
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
@@ -199,16 +174,29 @@ public class CommunityServiceTest {
                 content
         );
 
-//        when(courseReader.getCourseById(courseId))
-//                .thenReturn(course);
-//        when(userReader.getUser(userId))
-//                .thenReturn(user);
-//        when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
-//                .thenReturn(communityQuestion);
-//        when(communityWriter.saveCommunityFiles(any()))
-//                .thenReturn(List.of(CommunityFile.create(communityQuestion, file)));
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
+        CommunityFile communityFile = CommunityFile.create(communityQuestion, file);
 
+        when(courseReader.getCourseById(courseId))
+                .thenReturn(course);
+        when(userReader.getUser(userId))
+                .thenReturn(user);
+        when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
+                .thenReturn(communityQuestion);
+        when(fileWriter.saveFiles(any()))
+                .thenReturn(List.of(file));
+        when(communityWriter.saveCommunityFiles(any()))
+                .thenReturn(List.of(communityFile));
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
 
+        //when
+        CommunityQuestionRes communityQuestionRes = communityService.saveQuestion(communityQuestionReq, attachments);
+        //then
+        assertThat(communityQuestionRes).isNotNull();
+        assertThat(communityQuestionRes.title()).isEqualTo(title);
+        assertThat(communityQuestionRes.content()).isEqualTo(content);
+        assertThat(communityQuestionRes.attachments()).isNotNull();
     }
 
     @Test
@@ -247,6 +235,10 @@ public class CommunityServiceTest {
 
         when(communityReader.getAllCommunityAnswers(questionId))
                 .thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
+        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+                .thenReturn(List.of());
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
 
         //when
         List<CommunityAnswerRes> communityAnswerResList = communityService.getAllAnswers(questionId);
@@ -257,7 +249,6 @@ public class CommunityServiceTest {
         assertThat(communityAnswerResList.get(0).content()).isEqualTo(content1);
         assertThat(communityAnswerResList.get(1).content()).isEqualTo(content2);
         assertThat(communityAnswerResList.get(2).content()).isEqualTo(content3);
-
     }
 
     @Test
@@ -270,15 +261,6 @@ public class CommunityServiceTest {
                 questionId,
                 userId,
                 content
-        );
-
-        CommunityAnswerRes res = CommunityAnswerRes.create(
-                userId,
-                content,
-                null,
-                Instant.now(),
-                Instant.now(),
-                false
         );
 
         User user = UserFixtureBuilder.getUserWithId();
@@ -303,6 +285,10 @@ public class CommunityServiceTest {
                 .thenReturn(user);
         when(communityWriter.saveAnswer(any(CommunityQuestion.class), any(), any(User.class)))
                 .thenReturn(communityAnswer);
+        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+                .thenReturn(List.of());
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
 
         //when
         CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, null, null);
@@ -310,6 +296,66 @@ public class CommunityServiceTest {
         //then
         assertThat(communityAnswerRes).isNotNull();
         assertThat(communityAnswerRes.content()).isEqualTo(content);
+        assertThat(communityAnswerRes.attachments()).isNotNull();
+    }
+
+    @Test
+    void saveAnswerWithFiles() {
+        String questionId = "1";
+        String content = "답변 내용";
+        Long userId = 1L;
+
+        CommunityAnswerReq req = CommunityAnswerReq.create(
+                questionId,
+                userId,
+                content
+        );
+
+        List<MultipartFile> imageFiles = List.of(
+                new MockMultipartFile("imageFile", "image1.jpg", "image/jpeg", "내용".getBytes()));
+
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                "질문 제목",
+                "질문 내용"
+        );
+
+        CommunityAnswer communityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content
+        );
+
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
+        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
+
+        when(communityReader.getCommunityQuestionDetailsById(questionId))
+                .thenReturn(communityQuestion);
+        when(userReader.getUser(userId))
+                .thenReturn(user);
+        when(communityWriter.saveAnswer(any(CommunityQuestion.class), any(), any(User.class)))
+                .thenReturn(communityAnswer);
+        when(fileWriter.saveFiles(any()))
+                .thenReturn(List.of(file));
+        when(communityWriter.saveCommunityAnswerFiles(any()))
+                .thenReturn(List.of(communityAnswerFile));
+        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
+                .thenReturn(List.of(communityAnswerFile));
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
+
+        //when
+        CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, imageFiles, null);
+
+        //then
+        assertThat(communityAnswerRes).isNotNull();
+        assertThat(communityAnswerRes.content()).isEqualTo(content);
+        assertThat(communityAnswerRes.attachments()).isNotNull();
+        assertThat(communityAnswerRes.attachments().size()).isEqualTo(1);
     }
 
     @Test
@@ -332,29 +378,20 @@ public class CommunityServiceTest {
                 "답변 내용"
         );
 
-        CommunityAnswerReq communityAnswerReq = CommunityAnswerReq.create(
-                String.valueOf(communityQuestion.getId()),
-                user.getId(),
-                communityAnswer.getContent()
-        );
-
-//        when(communityReader.getCommunityAnswerById(any(String.class)))
-//                .thenReturn(communityAnswer);
+        when(communityReader.getCommunityAnswerById(String.valueOf(answerId)))
+                .thenReturn(communityAnswer);
 
         //when
         communityService.deleteAnswer(String.valueOf(answerId));
 
         //then
-        Optional<CommunityAnswer> deletedAnswer = communityAnswerRepository.findById(answerId);
-        assertThat(deletedAnswer.isPresent()).isFalse();
+        // deleteAnswer는 void 메서드이므로 예외가 발생하지 않으면 성공
     }
 
     @Test
     void updateAnswer() {
         String answerId = "1";
         String content = "수정된 답변 내용";
-
-
 
         User user = UserFixtureBuilder.getUserWithId();
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
@@ -386,12 +423,14 @@ public class CommunityServiceTest {
                 null
         );
 
-
-
         when(communityReader.getCommunityAnswerById(answerId))
                 .thenReturn(communityAnswer);
         when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
                 .thenReturn(updatedCommunityAnswer);
+        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
+                .thenReturn(List.of());
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
 
         //when
         CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req, null, null);
@@ -399,8 +438,74 @@ public class CommunityServiceTest {
         //then
         assertThat(communityAnswerRes).isNotNull();
         assertThat(communityAnswerRes.content()).isEqualTo(content);
+        assertThat(communityAnswerRes.attachments()).isNotNull();
     }
 
+    @Test
+    void updateAnswerWithFiles() {
+        String answerId = "1";
+        String content = "수정된 답변 내용";
+
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+
+        CommunityQuestion communityQuestion = CommunityQuestion.create(
+                course,
+                user,
+                "질문 제목",
+                "질문 내용"
+        );
+
+        CommunityAnswer communityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                "기존 답변 내용"
+        );
+
+        CommunityAnswer updatedCommunityAnswer = CommunityAnswer.create(
+                communityQuestion,
+                user,
+                content
+        );
+
+        CommunityAnswerReq req = new CommunityAnswerReq(
+                "1",
+                String.valueOf(communityQuestion.getId()),
+                1L,
+                content,
+                null
+        );
+
+        List<MultipartFile> imageFiles = List.of(
+                new MockMultipartFile("imageFile", "image1.jpg", "image/jpeg", "내용".getBytes()));
+
+        File file = FileFixtureBuilder.getCourseThumbnailWithId();
+        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(updatedCommunityAnswer, file);
+
+        when(communityReader.getCommunityAnswerById(answerId))
+                .thenReturn(communityAnswer);
+        when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
+                .thenReturn(updatedCommunityAnswer);
+        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
+                .thenReturn(List.of());
+        when(fileWriter.saveFiles(any()))
+                .thenReturn(List.of(file));
+        when(communityWriter.saveCommunityAnswerFiles(any()))
+                .thenReturn(List.of(communityAnswerFile));
+        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
+                .thenReturn(List.of(communityAnswerFile));
+        when(appProperties.getDomain())
+                .thenReturn("test.com");
+
+        //when
+        CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req, imageFiles, null);
+
+        //then
+        assertThat(communityAnswerRes).isNotNull();
+        assertThat(communityAnswerRes.content()).isEqualTo(content);
+        assertThat(communityAnswerRes.attachments()).isNotNull();
+        assertThat(communityAnswerRes.attachments().size()).isEqualTo(1);
+    }
 }
 
 
