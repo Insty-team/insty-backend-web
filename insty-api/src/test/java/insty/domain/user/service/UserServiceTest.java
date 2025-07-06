@@ -2,7 +2,6 @@ package insty.domain.user.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,20 +9,16 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
-import insty.domain.user.dto.request.UserEmailCheckReq;
-import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
-import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.implement.UserFileReader;
 import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
-import insty.error.UserErrorCode;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.user.UserType;
