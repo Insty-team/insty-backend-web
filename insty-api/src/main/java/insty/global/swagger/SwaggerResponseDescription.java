@@ -4,6 +4,9 @@ import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PR
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND;
 import static insty.error.CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND;
+import static insty.error.CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID;
+import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED;
+import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION;
 import static insty.error.CourseErrorCode.COURSE_NOT_FOUND;
 import static insty.error.UserErrorCode.USER_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR;
@@ -79,16 +82,21 @@ public enum SwaggerResponseDescription {
     ))),
     COMMUNITY_QUESTION_CREATE(new LinkedHashSet<>(Set.of())),
     COMMUNITY_ANSWER_SEARCH(new LinkedHashSet<>(Set.of())),
-    COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of())),
+    COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of(
+            COMMUNITY_INVALID_VIDEO_UUID
+    ))),
     COMMUNITY_ANSWER_UPDATE(new LinkedHashSet<>(Set.of(
-            COMMUNITY_ANSWER_NOT_FOUND
+            COMMUNITY_ANSWER_NOT_FOUND,
+            COMMUNITY_INVALID_VIDEO_UUID
     ))),
     COMMUNITY_ANSWER_DELETE(new LinkedHashSet<>(Set.of(
             COMMUNITY_ANSWER_NOT_FOUND
     ))),
     COMMUNITY_ANSWER_ACCEPT(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_NOT_FOUND,
-            COMMUNITY_ANSWER_NOT_FOUND
+            COMMUNITY_ANSWER_NOT_FOUND,
+            COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED,
+            COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION
     ))),
     COMMUNITY_ANSWER_UNACCEPT(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_NOT_FOUND
