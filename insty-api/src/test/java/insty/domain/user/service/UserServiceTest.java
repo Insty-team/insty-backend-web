@@ -2,8 +2,12 @@ package insty.domain.user.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +56,7 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+
     @Test
     void 회원가입시_이메일_닉네임_중복검사를_수행하고_비밀번호를_암호화하여_저장한다() {
         // given
@@ -98,37 +103,84 @@ class UserServiceTest {
     }
 
     @Test
-    void 사용자_정보_수정_시_유효성_검증_후_업데이트한다() {
+    void 사용자정보수정_비밀번호변경포함_성공한다() {
         // given
         Long userId = 1L;
         UserUpdateReq req = new UserUpdateReq(
                 "new@example.com",
                 "newnick",
-                "introduce"
+                "소개글",
+                "currentPassword!",
+                "newPassword1!"
         );
-        MultipartFile profileImage = mock(MultipartFile.class);
-        String imageUrl = "https://cdn.com/new.png";
 
-        // 기존 사용자 정보 (사용 안 하지만 만약 내부에서 쓰게 되면 대비용)
-        User updatedUser = UserFixtureBuilder.getUserWithId(userId, req.email(), "encodedPassword", req.nickname());
+        User findUser = UserFixtureBuilder.getUserWithId(userId, "old@example.com", "encodedCurrentPassword", "oldnick");
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId, req.email(), "encodedNewPassword", req.nickname());
 
-        when(userWriter.updateUser(userId, req.email(), req.nickname(), req.introduce()))
-                .thenReturn(updatedUser);
-        when(userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage))
-                .thenReturn(Optional.of(imageUrl));
+        when(userReader.getUser(userId)).thenReturn(findUser);
+        doNothing().when(userValidator).validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
+        doNothing().when(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
+        doNothing().when(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+        doNothing().when(userValidator).validatePasswordChangeAvailable(findUser.getSocialId());
+        doNothing().when(userValidator).validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+
+        when(bCryptPasswordEncoder.encode(req.newPassword())).thenReturn("encodedNewPassword");
+        when(userWriter.updateUser(userId, req.email(), req.nickname(), req.introduce())).thenReturn(updatedUser);
+        when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn("https://profile.img/default.png");
 
         // when
-        UserDetailRes result = userService.updateUser(userId, req, profileImage);
+        UserDetailRes result = userService.updateUser(userId, req, null);
 
         // then
+        verify(userValidator).validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
         verify(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
         verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
-
+        verify(userValidator).validatePasswordChangeAvailable(findUser.getSocialId());
+        verify(userValidator).validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+        verify(userWriter).changePassword(userId, "encodedNewPassword");
         verify(userWriter).updateUser(userId, req.email(), req.nickname(), req.introduce());
-        verify(userFileWriter).saveProfileImageGetUrl(updatedUser, profileImage);
 
-        assertThat(result).usingRecursiveComparison()
-                .isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
+        assertThat(result.email()).isEqualTo(req.email());
+        assertThat(result.nickname()).isEqualTo(req.nickname());
+    }
+
+    @Test
+    void 사용자정보수정_비밀번호변경없이_성공한다() {
+        // given
+        Long userId = 1L;
+        UserUpdateReq req = new UserUpdateReq(
+                "new@example.com",
+                "newnick",
+                "소개글",
+                "currentPassword!",
+                null
+        );
+
+        User findUser = UserFixtureBuilder.getUserWithId(userId, "old@example.com", "encodedCurrentPassword", "oldnick");
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId, req.email(), "encodedCurrentPassword", req.nickname());
+
+        when(userReader.getUser(userId)).thenReturn(findUser);
+        doNothing().when(userValidator).validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
+        doNothing().when(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
+        doNothing().when(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+
+        when(userWriter.updateUser(userId, req.email(), req.nickname(), req.introduce())).thenReturn(updatedUser);
+        when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn("https://profile.img/default.png");
+
+        // when
+        UserDetailRes result = userService.updateUser(userId, req, null);
+
+        // then
+        verify(userValidator).validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
+        verify(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
+        verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+        verify(userValidator, never()).validatePasswordChangeAvailable(any());
+        verify(userValidator, never()).validateMatchesCurrentPassword(any(), any(), any());
+        verify(userWriter, never()).changePassword(anyLong(), anyString());
+        verify(userWriter).updateUser(userId, req.email(), req.nickname(), req.introduce());
+
+        assertThat(result.email()).isEqualTo(req.email());
+        assertThat(result.nickname()).isEqualTo(req.nickname());
     }
 
     @Test
