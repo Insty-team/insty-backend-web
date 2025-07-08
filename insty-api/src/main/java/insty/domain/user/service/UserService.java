@@ -83,9 +83,19 @@ public class UserService {
      * 사용자 정보 수정
      */
     public UserDetailRes updateUser(Long userId, UserUpdateReq req, MultipartFile profileImage) {
-        // 내껏을 제회한 유효성 체크
+        User findUser = userReader.getUser(userId);
+        userValidator.validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
         userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
         userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+
+        // TODO 회원 정보 수정 페이지 분리 되면 삭제 예정
+        if(req.currentPassword() != null && req.newPassword() != null) {
+            userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
+            String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
+            userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+            userWriter.changePassword(userId, encodedPassword);
+        }
+
 
         User updatedUser = userWriter.updateUser(
                 userId,
@@ -123,9 +133,9 @@ public class UserService {
     public UserDetailRes updatePassword(Long userId, UserPasswordUpdateReq req) {
         User findUser = userReader.getUser(userId);
         userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+        userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
 
         String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
-
         User updatedUser = userWriter.changePassword(userId, encodedPassword);
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
 

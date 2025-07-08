@@ -1,6 +1,7 @@
 package insty.domain.user.implement;
 
 import insty.domain.user.repository.UserRepository;
+import insty.error.SocialErrorCode;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +67,22 @@ public class UserValidator {
 
         if (bCryptPasswordEncoder.matches(newPassword, userPassword)) {
             throw new CustomException(UserErrorCode.USER_NEW_PASSWORD_SAME_AS_CURRENT);
+        }
+    }
+
+    /**
+     * 비밀번호 변경할 수 있는 사용자인가 유효성
+     */
+    public void validatePasswordChangeAvailable(String socialId) {
+        if(socialId != null) throw new CustomException(SocialErrorCode.NOT_FOUND_PASSWORD);
+    }
+
+    /**
+     *  본인확인
+     */
+    public void validateIdentityByPassword(String userPassword, String currentPassword) {
+        if (!bCryptPasswordEncoder.matches(currentPassword, userPassword)) {
+            throw new CustomException(UserErrorCode.USER_CURRENT_PASSWORD_NOT_MATCHED);
         }
     }
 }
