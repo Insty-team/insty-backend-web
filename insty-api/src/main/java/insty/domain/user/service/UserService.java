@@ -86,6 +86,16 @@ public class UserService {
         // 내껏을 제회한 유효성 체크
         userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
         userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+        User findUser = userReader.getUser(userId);
+        userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword());
+
+        // TODO 회원 정보 수정 페이지 분리 되면 삭제 예정
+        if(req.currentPassword() != null && req.newPassword() != null) {
+            String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
+            userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+            userWriter.changePassword(userId, encodedPassword);
+        }
+
 
         User updatedUser = userWriter.updateUser(
                 userId,

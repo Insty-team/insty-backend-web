@@ -68,4 +68,13 @@ public class UserValidator {
             throw new CustomException(UserErrorCode.USER_NEW_PASSWORD_SAME_AS_CURRENT);
         }
     }
+
+    /**
+     *  비밀번호 상태에 따른 유효성
+     */
+    public void validateMatchesCurrentPassword(String userPassword, String currentPassword) {
+        if (!bCryptPasswordEncoder.matches(currentPassword, userPassword)) {
+            throw new CustomException(UserErrorCode.USER_CURRENT_PASSWORD_NOT_MATCHED);
+        }
+    }
 }

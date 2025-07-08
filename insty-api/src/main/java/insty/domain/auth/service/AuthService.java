@@ -115,7 +115,6 @@ public class AuthService {
      *  소셜 로그인
      */
     public AuthUserRes loginBySocial(SocialType socialName, UserSocialLoginReq req) {
-        log.info("{} 로그인 시도", socialName);
         // 전략 가져오기
         SocialStrategy socialLoginStrategy = strategies.stream()
                 .filter(s -> s.supports(socialName))        // supports() 로 판별
