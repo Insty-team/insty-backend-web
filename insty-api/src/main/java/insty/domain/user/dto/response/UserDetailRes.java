@@ -1,5 +1,6 @@
 package insty.domain.user.dto.response;
 
+import insty.model.user.SocialType;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import java.time.Instant;
@@ -11,6 +12,7 @@ public record UserDetailRes(
         boolean isEmailAgreed,
         String thumbnailUrl,
         String introduce,
+        SocialType socialType,
         UserType userType,
         Instant createdAt
 ) {
@@ -22,6 +24,7 @@ public record UserDetailRes(
                 user.isEmailAgreed(),
                 thumbnailUrl,
                 user.getIntroduce(),
+                user.getSocialType(),
                 user.getUserType(),
                 user.getCreatedAt()
         );
