@@ -1,8 +1,6 @@
 package insty.domain.user.implement;
 
 import insty.domain.user.repository.UserRepository;
-import insty.error.UserErrorCode;
-import insty.exception.CustomException;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +25,7 @@ public class UserWriter {
     /**
      * 사용자 정보 수정
      */
-    public User updateUser(Long userId, String email, String nickname, String introduce) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    public User updateUser(User user, String email, String nickname, String introduce) {
         user.update(email, nickname, introduce);
         return userRepository.save(user);
     }
@@ -37,16 +33,15 @@ public class UserWriter {
     /**
      *  사용자 비밀번호 변경
      */
-    public User changePassword(Long userId, String password) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    public User changePassword(User user, String password) {
         user.changePassword(password);
         return userRepository.save(user);
     }
 
-    public User changeNickname(Long userId, String nickname, String introduce) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    /**
+     *  사용자 닉네임 변경
+     */
+    public User changeNickname(User user, String nickname, String introduce) {
         user.update(user.getEmail(), nickname, introduce);
         return userRepository.save(user);
     }
@@ -54,9 +49,7 @@ public class UserWriter {
     /**
      * 사용자 정보 수정 (유저타입)
      */
-    public User changeUserType(Long userId, UserType userType) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    public User changeUserType(User user, UserType userType) {
         user.update(userType);
         return userRepository.save(user);
     }
@@ -64,9 +57,7 @@ public class UserWriter {
     /**
      * 사용자 정보 수정 (약관 동의 및 수신 동의)
      */
-    public User changeEmailAgreementStatus(Long userId, boolean isEmailAgreed) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    public User changeEmailAgreementStatus(User user, boolean isEmailAgreed) {
         user.update(isEmailAgreed);
         return userRepository.save(user);
     }
@@ -74,9 +65,7 @@ public class UserWriter {
     /**
      * 사용자 정보 수정 (마지막 로그인 시각)
      */
-    public void updateLastLoginAt(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    public void updateLastLoginAt(User user) {
         user.updateLastLoginAt();
         userRepository.save(user);
     }
