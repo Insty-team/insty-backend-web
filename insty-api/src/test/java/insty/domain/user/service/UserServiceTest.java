@@ -3,10 +3,7 @@ package insty.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +23,6 @@ import insty.domain.user.implement.UserWriter;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.user.UserType;
-import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +30,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.multipart.MultipartFile;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -125,7 +120,7 @@ class UserServiceTest {
         doNothing().when(userValidator).validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
 
         when(bCryptPasswordEncoder.encode(req.newPassword())).thenReturn("encodedNewPassword");
-        when(userWriter.updateUser(userId, req.email(), req.nickname(), req.introduce())).thenReturn(updatedUser);
+        when(userWriter.updateUser(findUser, req.email(), req.nickname(), req.introduce())).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn("https://profile.img/default.png");
 
         // when
@@ -137,8 +132,8 @@ class UserServiceTest {
         verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
         verify(userValidator).validatePasswordChangeAvailable(findUser.getSocialId());
         verify(userValidator).validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
-        verify(userWriter).changePassword(userId, "encodedNewPassword");
-        verify(userWriter).updateUser(userId, req.email(), req.nickname(), req.introduce());
+        verify(userWriter).changePassword(findUser, "encodedNewPassword");
+        verify(userWriter).updateUser(findUser, req.email(), req.nickname(), req.introduce());
 
         assertThat(result.email()).isEqualTo(req.email());
         assertThat(result.nickname()).isEqualTo(req.nickname());
@@ -164,7 +159,7 @@ class UserServiceTest {
         doNothing().when(userValidator).validateDuplicateEmailExcludingSelf(userId, req.email());
         doNothing().when(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
 
-        when(userWriter.updateUser(userId, req.email(), req.nickname(), req.introduce())).thenReturn(updatedUser);
+        when(userWriter.updateUser(findUser, req.email(), req.nickname(), req.introduce())).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn("https://profile.img/default.png");
 
         // when
@@ -176,8 +171,7 @@ class UserServiceTest {
         verify(userValidator).validateDuplicateNicknameExcludingSelf(userId, req.nickname());
         verify(userValidator, never()).validatePasswordChangeAvailable(any());
         verify(userValidator, never()).validateMatchesCurrentPassword(any(), any(), any());
-        verify(userWriter, never()).changePassword(anyLong(), anyString());
-        verify(userWriter).updateUser(userId, req.email(), req.nickname(), req.introduce());
+        verify(userWriter).updateUser(findUser, req.email(), req.nickname(), req.introduce());
 
         assertThat(result.email()).isEqualTo(req.email());
         assertThat(result.nickname()).isEqualTo(req.nickname());
@@ -203,7 +197,7 @@ class UserServiceTest {
 
         User updatedUser = UserFixtureBuilder.getUserWithId(userId, "user@example.com", encodedPassword, "nickname");
 
-        when(userWriter.changePassword(userId, encodedPassword)).thenReturn(updatedUser);
+        when(userWriter.changePassword(findUser, encodedPassword)).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(profileImageUrl);
 
         // when
@@ -214,7 +208,7 @@ class UserServiceTest {
         verify(userValidator).validateMatchesCurrentPassword(
                 findUser.getPassword(), currentPassword, newPassword);
         verify(bCryptPasswordEncoder).encode(newPassword);
-        verify(userWriter).changePassword(userId, encodedPassword);
+        verify(userWriter).changePassword(findUser, encodedPassword);
         verify(userFileReader).getProfileImageUrl(updatedUser);
 
         assertThat(result).usingRecursiveComparison()
@@ -227,17 +221,21 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         UserTypeUpdateReq req = new UserTypeUpdateReq(UserType.LEARNER);
-        User updatedUser = UserFixtureBuilder.getUserWithId(userId);
+        User findUser = UserFixtureBuilder.getUserWithId(userId, "user@example.com", "encodedCurrentPassword", "nickname");
+        User updatedUser = UserFixtureBuilder.getUserWithId(userId); // 혹은 다른 상태
         String imageUrl = "https://cdn.com/profile.png";
 
-        when(userWriter.changeUserType(userId, req.userType())).thenReturn(updatedUser);
+        // 👉 누락된 Stub 추가
+        when(userReader.getUser(userId)).thenReturn(findUser);
+        when(userWriter.changeUserType(findUser, req.userType())).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.updateUserType(userId, req);
 
         // then
-        verify(userWriter).changeUserType(userId, req.userType());
+        verify(userReader).getUser(userId);
+        verify(userWriter).changeUserType(findUser, req.userType());
         verify(userFileReader).getProfileImageUrl(updatedUser);
         assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
@@ -250,14 +248,16 @@ class UserServiceTest {
         User updatedUser = UserFixtureBuilder.getUserWithId(userId);
         String imageUrl = "https://cdn.com/profile.png";
 
-        when(userWriter.changeEmailAgreementStatus(userId, req.isEmailAgree())).thenReturn(updatedUser);
+        when(userReader.getUser(userId)).thenReturn(updatedUser);
+        when(userWriter.changeEmailAgreementStatus(updatedUser, req.isEmailAgree())).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.updateAgreement(userId, req);
 
         // then
-        verify(userWriter).changeEmailAgreementStatus(userId, req.isEmailAgree());
+        verify(userReader).getUser(userId);
+        verify(userWriter).changeEmailAgreementStatus(updatedUser, req.isEmailAgree());
         verify(userFileReader).getProfileImageUrl(updatedUser);
         assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }

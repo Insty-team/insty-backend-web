@@ -88,7 +88,7 @@ public class UserService {
             userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
             userValidator.validateRestrictedUpdatesForSocialUser(findUser, req);
 
-            User updatedUser = userWriter.changeNickname(findUser.getId(), req.nickname(), req.introduce());
+            User updatedUser = userWriter.changeNickname(findUser, req.nickname(), req.introduce());
             String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
 
             return UserDetailRes.from(updatedUser, profileImageUrl);
@@ -102,12 +102,12 @@ public class UserService {
                 userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
                 String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
                 userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
-                userWriter.changePassword(userId, encodedPassword);
+                userWriter.changePassword(findUser, encodedPassword);
             }
 
 
             User updatedUser = userWriter.updateUser(
-                    userId,
+                    findUser,
                     req.email(),
                     req.nickname(),
                     req.introduce()
@@ -123,7 +123,8 @@ public class UserService {
      * 사용자 타입 변경
      */
     public UserDetailRes updateUserType(Long userId, UserTypeUpdateReq req) {
-        User updatedUser = userWriter.changeUserType(userId, req.userType());
+        User findUser = userReader.getUser(userId);
+        User updatedUser = userWriter.changeUserType(findUser, req.userType());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
@@ -132,7 +133,8 @@ public class UserService {
      * 사용자 수신 및 약관 동의 여부 변경
      */
     public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
-        User updatedUser = userWriter.changeEmailAgreementStatus(userId, req.isEmailAgree());
+        User findUser = userReader.getUser(userId);
+        User updatedUser = userWriter.changeEmailAgreementStatus(findUser, req.isEmailAgree());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
@@ -146,7 +148,7 @@ public class UserService {
         userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
 
         String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
-        User updatedUser = userWriter.changePassword(userId, encodedPassword);
+        User updatedUser = userWriter.changePassword(findUser, encodedPassword);
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
 
         return UserDetailRes.from(updatedUser, profileImageUrl);
