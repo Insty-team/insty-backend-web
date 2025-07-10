@@ -114,6 +114,10 @@ public class User extends BaseEntity {
         this.userType = userType;
     }
 
+    public boolean isSocialUser() {
+        return this.socialId != null;
+    }
+
     public void update(boolean isEmailAgreed) {
         this.isEmailAgreed = isEmailAgreed;
     }

@@ -230,14 +230,14 @@ class UserServiceTest {
         User updatedUser = UserFixtureBuilder.getUserWithId(userId);
         String imageUrl = "https://cdn.com/profile.png";
 
-        when(userWriter.updateUserByUserType(userId, req.userType())).thenReturn(updatedUser);
+        when(userWriter.changeUserType(userId, req.userType())).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.updateUserType(userId, req);
 
         // then
-        verify(userWriter).updateUserByUserType(userId, req.userType());
+        verify(userWriter).changeUserType(userId, req.userType());
         verify(userFileReader).getProfileImageUrl(updatedUser);
         assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
@@ -250,14 +250,14 @@ class UserServiceTest {
         User updatedUser = UserFixtureBuilder.getUserWithId(userId);
         String imageUrl = "https://cdn.com/profile.png";
 
-        when(userWriter.updateUserByAgreement(userId, req.isEmailAgree())).thenReturn(updatedUser);
+        when(userWriter.changeEmailAgreementStatus(userId, req.isEmailAgree())).thenReturn(updatedUser);
         when(userFileReader.getProfileImageUrl(updatedUser)).thenReturn(imageUrl);
 
         // when
         UserDetailRes result = userService.updateAgreement(userId, req);
 
         // then
-        verify(userWriter).updateUserByAgreement(userId, req.isEmailAgree());
+        verify(userWriter).changeEmailAgreementStatus(userId, req.isEmailAgree());
         verify(userFileReader).getProfileImageUrl(updatedUser);
         assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }

@@ -65,7 +65,7 @@ public class AuthService {
         CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
         // 마지막 로그인 시간 변경 및 유저타입 변경
         userWriter.updateLastLoginAt(user.getUserId());
-        userWriter.updateUserByUserType(user.getUserId(), req.userType());
+        userWriter.changeUserType(user.getUserId(), req.userType());
 
         // 토큰 발급
         UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getUserId(), user.getUserType());
@@ -128,7 +128,7 @@ public class AuthService {
 
         // 마지막 로그인 시간 변경 및 유저타입 변경
         userWriter.updateLastLoginAt(user.getId());
-        userWriter.updateUserByUserType(user.getId(), req.userType());
+        userWriter.changeUserType(user.getId(), req.userType());
 
         // 토큰 발급
         UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId(), user.getUserType());
