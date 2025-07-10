@@ -29,9 +29,8 @@ public record UserUpdateReq (
             (?=.*[!@#$...])     // 특수문자가 있나?
          */
         @Schema(description = "현재 비밀번호", example = "abc123!")
-        @NotBlank(message = "비밀번호는 필수입니다.")
         @Pattern(
-                regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
+                regexp = "^$|^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
                 message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
         )
         String currentPassword,

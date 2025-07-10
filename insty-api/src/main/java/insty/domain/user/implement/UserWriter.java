@@ -44,10 +44,17 @@ public class UserWriter {
         return userRepository.save(user);
     }
 
+    public User changeNickname(Long userId, String nickname, String introduce) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+        user.update(user.getEmail(), nickname, introduce);
+        return userRepository.save(user);
+    }
+
     /**
      * 사용자 정보 수정 (유저타입)
      */
-    public User updateUserByUserType(Long userId, UserType userType) {
+    public User changeUserType(Long userId, UserType userType) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         user.update(userType);
@@ -57,7 +64,7 @@ public class UserWriter {
     /**
      * 사용자 정보 수정 (약관 동의 및 수신 동의)
      */
-    public User updateUserByAgreement(Long userId, boolean isEmailAgreed) {
+    public User changeEmailAgreementStatus(Long userId, boolean isEmailAgreed) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         user.update(isEmailAgreed);

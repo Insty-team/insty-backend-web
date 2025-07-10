@@ -84,36 +84,46 @@ public class UserService {
      */
     public UserDetailRes updateUser(Long userId, UserUpdateReq req, MultipartFile profileImage) {
         User findUser = userReader.getUser(userId);
-        userValidator.validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
-        userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
-        userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+        if(findUser.isSocialUser()) {
+            userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+            userValidator.validateRestrictedUpdatesForSocialUser(findUser, req);
 
-        // TODO 회원 정보 수정 페이지 분리 되면 삭제 예정
-        if(req.currentPassword() != null && req.newPassword() != null) {
-            userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
-            String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
-            userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
-            userWriter.changePassword(userId, encodedPassword);
+            User updatedUser = userWriter.changeNickname(findUser.getId(), req.nickname(), req.introduce());
+            String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+
+            return UserDetailRes.from(updatedUser, profileImageUrl);
+        } else {
+            userValidator.validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
+            userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
+            userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+
+            // TODO 회원 정보 수정 페이지 분리 되면 삭제 예정
+            if(req.currentPassword() != null && req.newPassword() != null) {
+                userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
+                String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
+                userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+                userWriter.changePassword(userId, encodedPassword);
+            }
+
+
+            User updatedUser = userWriter.updateUser(
+                    userId,
+                    req.email(),
+                    req.nickname(),
+                    req.introduce()
+            );
+            Optional<String> savedUrl = userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage);
+            String profileImageUrl = savedUrl.orElseGet(() -> userFileReader.getProfileImageUrl(updatedUser));
+
+            return UserDetailRes.from(updatedUser, profileImageUrl);
         }
-
-
-        User updatedUser = userWriter.updateUser(
-                userId,
-                req.email(),
-                req.nickname(),
-                req.introduce()
-        );
-        Optional<String> savedUrl = userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage);
-        String profileImageUrl = savedUrl.orElseGet(() -> userFileReader.getProfileImageUrl(updatedUser));
-
-        return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 
     /**
      * 사용자 타입 변경
      */
     public UserDetailRes updateUserType(Long userId, UserTypeUpdateReq req) {
-        User updatedUser = userWriter.updateUserByUserType(userId, req.userType());
+        User updatedUser = userWriter.changeUserType(userId, req.userType());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
@@ -122,7 +132,7 @@ public class UserService {
      * 사용자 수신 및 약관 동의 여부 변경
      */
     public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
-        User updatedUser = userWriter.updateUserByAgreement(userId, req.isEmailAgree());
+        User updatedUser = userWriter.changeEmailAgreementStatus(userId, req.isEmailAgree());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
