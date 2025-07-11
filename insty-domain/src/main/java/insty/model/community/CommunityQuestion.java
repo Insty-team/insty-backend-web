@@ -12,10 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,14 +58,6 @@ public class CommunityQuestion extends BaseEntity {
     @Column(nullable = false, name = "is_answered")
     private boolean isAnswered;
 
-    @CreatedDate
-    @Column(nullable = false, name = "created_at", updatable = false)
-    private Instant createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false, name = "updated_at", updatable = false)
-    private Instant updatedAt;
-
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
@@ -88,7 +77,6 @@ public class CommunityQuestion extends BaseEntity {
         this.title = title;
         this.content = content;
         this.attachments = attachments;
-        this.updatedAt = Instant.now();
     }
 
     public void acceptAnswer(CommunityAnswer answer) {
@@ -98,7 +86,6 @@ public class CommunityQuestion extends BaseEntity {
         this.acceptedAnswer = answer;
         this.isAnswered = true;
         answer.accept();
-        this.updatedAt = Instant.now();
     }
 
     public void unacceptAnswer() {
@@ -107,7 +94,6 @@ public class CommunityQuestion extends BaseEntity {
             this.acceptedAnswer = null;
         }
         this.isAnswered = false;
-        this.updatedAt = Instant.now();
     }
 
     private static void validateCreate(Course course, User user, String title, String content) {

@@ -1,5 +1,6 @@
 package insty.model.community;
 
+import insty.model.BaseEntity;
 import insty.model.file.File;
 import insty.model.user.User;
 import jakarta.persistence.*;
@@ -8,11 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +19,7 @@ import java.util.List;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityAnswer {
+public class CommunityAnswer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,14 +40,6 @@ public class CommunityAnswer {
     @JoinColumn(name = "answer_image_id", nullable = true)
     private File answerImage;
 
-    @CreatedDate
-    @Column(nullable = false, name = "created_at", updatable = false)
-    private Instant createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false, name = "updated_at", updatable = false)
-    private Instant updatedAt;
-
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
@@ -70,16 +59,13 @@ public class CommunityAnswer {
 
     public void update(String content) {
         this.content = content;
-        this.updatedAt = Instant.now();
     }
 
     public void accept() {
         this.isAccepted = true;
-        this.updatedAt = Instant.now();
     }
 
     public void unaccept() {
         this.isAccepted = false;
-        this.updatedAt = Instant.now();
     }
 }
