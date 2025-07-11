@@ -2,15 +2,22 @@ package insty.error;
 
 public enum CommunityErrorCode implements ErrorCode {
 
-    COMMUNITY_QUESTION_NOT_FOUND("COMMUNITY_001", "Community question not found", 404),
-    COMMUNITY_ANSWER_NOT_FOUND("COMMUNITY_002", "Community answer not found", 404),
-    COMMUNITY_CREATE_ERROR("COMMUNITY_004", "Community craete failed.", 500),
-    COMMUNITY_INVALID_VIDEO_UUID("COMMUNITY_005", "Invalid video UUID format", 400),
-    COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED("COMMUNITY_006", "Only question author can accept answers", 403),
-    COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION("COMMUNITY_007", "Answer does not belong to the specified question", 400),
-    COMMUNITY_UPDATE_ERROR("COMMUNITY_008", "Community update failed", 500),
-    COMMUNITY_DELETE_ERROR("COMMUNITY_009", "Community delete failed", 500)
+    COMMUNITY_QUESTION_NOT_FOUND("COMMUNITY_001", "질문을 찾을 수 없습니다.", 404),
+    COMMUNITY_ANSWER_NOT_FOUND("COMMUNITY_002", "답변을 찾을 수 없습니다.", 404),
+    COMMUNITY_CREATE_ERROR("COMMUNITY_004", "커뮤니티 생성에 실패했습니다.", 500),
+    COMMUNITY_INVALID_VIDEO_UUID("COMMUNITY_005", "잘못된 비디오 UUID 형식입니다.", 400),
+    COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED("COMMUNITY_006", "질문 작성자만 답변을 채택할 수 있습니다.", 403),
+    COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION("COMMUNITY_007", "해당 질문에 속하지 않는 답변입니다.", 400),
+    COMMUNITY_UPDATE_ERROR("COMMUNITY_008", "커뮤니티 수정에 실패했습니다.", 500),
+    COMMUNITY_DELETE_ERROR("COMMUNITY_009", "커뮤니티 삭제에 실패했습니다.", 500),
+    COMMUNITY_TITLE_IS_REQUIRED("COMMUNITY_010", "제목을 입력해 주세요.", 400),
+    COMMUNITY_CONTENT_IS_REQUIRED("COMMUNITY_011", "내용을 입력해 주세요.", 400),
+    COMMUNITY_COURSE_ID_IS_REQUIRED("COMMUNITY_012", "강의 ID가 필요합니다.", 400),
+    COMMUNITY_USER_ID_IS_REQUIRED("COMMUNITY_013", "사용자 ID가 필요합니다.", 400),
+    COMMUNITY_QUESTION_ID_IS_REQUIRED("COMMUNITY_014", "질문 ID가 필요합니다.", 400),
+    COMMUNITY_FILE_IS_EMPTY("COMMUNITY_015", "파일이 비어있습니다.", 400)
     ;
+
 
     private final String code;
     private final String message;
