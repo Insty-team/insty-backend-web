@@ -73,6 +73,25 @@ public class CommunityQuestion extends BaseEntity {
                 .build();
     }
 
+    private static void validateCreate(Course course, User user, String title, String content) {
+        if (course == null || course.getId() == null) {
+            log.error("생성 오류 - course : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (user == null || user.getId() == null) {
+            log.error("생성 오류 - user : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (title == null || title.isBlank()) {
+            log.error("생성 오류 - title : 비었음");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (content == null || content.isBlank()) {
+            log.error("생성 오류 - content : 비었음");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+    }
+
     public void update(String title, String content, List<CommunityFile> attachments) {
         this.title = title;
         this.content = content;
@@ -96,22 +115,4 @@ public class CommunityQuestion extends BaseEntity {
         this.isAnswered = false;
     }
 
-    private static void validateCreate(Course course, User user, String title, String content) {
-        if (course == null || course.getId() == null) {
-            log.error("CommunityQuestion creation error - course is null or has no ID");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (user == null || user.getId() == null) {
-            log.error("CommunityQuestion creation error - user is null or has no ID");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (title == null || title.isBlank()) {
-            log.error("CommunityQuestion creation error - title is null or blank");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (content == null || content.isBlank()) {
-            log.error("CommunityQuestion creation error - content is null or blank");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-    }
 }
