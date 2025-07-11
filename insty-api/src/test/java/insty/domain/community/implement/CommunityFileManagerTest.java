@@ -53,14 +53,16 @@ class CommunityFileManagerTest {
         MultipartFile attachment = mock(MultipartFile.class);
         List<MultipartFile> attachments = List.of(attachment);
         File file = mock(File.class);
-        CommunityFile communityFile = mock(CommunityFile.class);
         List<File> files = List.of(file);
-        List<CommunityFile> communityFiles = List.of(communityFile);
 
         // mock
         when(question.getId()).thenReturn(1L);
         when(fileWriter.saveFiles(anyList())).thenReturn(files);
-        when(CommunityFile.create(question, file)).thenReturn(communityFile);
+        when(file.getId()).thenReturn(1L);
+        when(file.getOriginalName()).thenReturn("test.jpg");
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getUrl("test.com")).thenReturn("http://test.com/test.jpg");
         when(appProperties.getDomain()).thenReturn("test.com");
 
         // when
@@ -68,6 +70,7 @@ class CommunityFileManagerTest {
 
         // then
         assertThat(result).isNotNull();
+        assertThat(result).hasSize(1);
         verify(fileWriter, times(1)).saveFiles(anyList());
         verify(communityWriter, times(1)).saveCommunityFiles(anyList());
     }
@@ -109,14 +112,16 @@ class CommunityFileManagerTest {
         MultipartFile imageFile = mock(MultipartFile.class);
         List<MultipartFile> imageFiles = List.of(imageFile);
         File file = mock(File.class);
-        CommunityAnswerFile communityAnswerFile = mock(CommunityAnswerFile.class);
         List<File> files = List.of(file);
-        List<CommunityAnswerFile> communityAnswerFiles = List.of(communityAnswerFile);
 
         // mock
         when(answer.getId()).thenReturn(1L);
         when(fileWriter.saveFiles(anyList())).thenReturn(files);
-        when(CommunityAnswerFile.create(answer, file)).thenReturn(communityAnswerFile);
+        when(file.getId()).thenReturn(1L);
+        when(file.getOriginalName()).thenReturn("test.jpg");
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getUrl("test.com")).thenReturn("http://test.com/test.jpg");
         when(appProperties.getDomain()).thenReturn("test.com");
 
         // when
@@ -124,6 +129,7 @@ class CommunityFileManagerTest {
 
         // then
         assertThat(result).isNotNull();
+        assertThat(result).hasSize(1);
         verify(fileWriter, times(1)).saveFiles(anyList());
         verify(communityWriter, times(1)).saveCommunityAnswerFiles(anyList());
     }
@@ -261,6 +267,11 @@ class CommunityFileManagerTest {
 
         // mock
         when(communityFile.getFile()).thenReturn(file);
+        when(file.getId()).thenReturn(1L);
+        when(file.getOriginalName()).thenReturn("test.jpg");
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getUrl("test.com")).thenReturn("http://test.com/test.jpg");
         when(appProperties.getDomain()).thenReturn("test.com");
 
         // when
@@ -304,6 +315,11 @@ class CommunityFileManagerTest {
 
         // mock
         when(answerFile.getFile()).thenReturn(file);
+        when(file.getId()).thenReturn(1L);
+        when(file.getOriginalName()).thenReturn("test.jpg");
+        when(file.getContentType()).thenReturn("image/jpeg");
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getUrl("test.com")).thenReturn("http://test.com/test.jpg");
         when(appProperties.getDomain()).thenReturn("test.com");
 
         // when
