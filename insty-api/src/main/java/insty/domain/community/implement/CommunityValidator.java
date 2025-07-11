@@ -19,6 +19,9 @@ public class CommunityValidator {
 
     private final CommunityReader communityReader;
 
+    /**
+     * 질문 작성자 검증
+     */
     public void validateQuestionOwner(Long questionId, Long userId) {
         CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId.toString());
         if (!question.getUser().getId().equals(userId)) {
@@ -26,6 +29,9 @@ public class CommunityValidator {
         }
     }
 
+    /**
+     * 답변 작성자 검증
+     */
     public void validateAnswerOwner(Long answerId, Long userId) {
         CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId.toString());
         if (!answer.getUser().getId().equals(userId)) {
@@ -33,20 +39,32 @@ public class CommunityValidator {
         }
     }
 
+    /**
+     * 질문 존재 여부 검증
+     */
     public CommunityQuestion validateQuestionExists(Long questionId) {
         return communityReader.getCommunityQuestionDetailsById(questionId.toString());
     }
 
+    /**
+     * 답변 존재 여부 검증
+     */
     public CommunityAnswer validateAnswerExists(Long answerId) {
         return communityReader.getCommunityAnswerById(answerId.toString());
     }
 
+    /**
+     * 답변이 해당 질문에 속하는지 검증
+     */
     public void validateAnswerBelongsToQuestion(CommunityAnswer answer, CommunityQuestion question) {
         if (!answer.getCommunityQuestion().getId().equals(question.getId())) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
         }
     }
 
+    /**
+     * 질문 요청 데이터 검증
+     */
     public void validateQuestionRequest(CommunityQuestionReq req) {
         if (req.title() == null || req.title().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_TITLE_IS_REQUIRED);
@@ -62,6 +80,9 @@ public class CommunityValidator {
         }
     }
 
+    /**
+     * 답변 요청 데이터 검증
+     */
     public void validateAnswerRequest(CommunityAnswerReq req) {
         if (req.content() == null || req.content().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
@@ -74,6 +95,9 @@ public class CommunityValidator {
         }
     }
 
+    /**
+     * 파일 검증
+     */
     public void validateFiles(List<MultipartFile> files) {
         if (files == null) {
             return;
@@ -87,6 +111,9 @@ public class CommunityValidator {
         }
     }
 
+    /**
+     * 비디오 UUID 검증 및 파싱
+     */
     public UUID validateAndParseVideoUuid(String videoUuid) {
         if (videoUuid == null || videoUuid.trim().isEmpty()) {
             return null;
