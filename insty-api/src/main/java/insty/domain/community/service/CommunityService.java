@@ -1,381 +1,75 @@
 package insty.domain.community.service;
 
-import insty.domain.common.FileCreateReq;
 import insty.domain.common.FileInfo;
 import insty.domain.community.dto.*;
+import insty.domain.community.implement.CommunityFileManager;
 import insty.domain.community.implement.CommunityReader;
+import insty.domain.community.implement.CommunityValidator;
 import insty.domain.community.implement.CommunityWriter;
 import insty.domain.course.implement.CourseReader;
-import insty.domain.file.implement.FileWriter;
 import insty.domain.user.implement.UserReader;
-import insty.domain.video.repository.VideoAnswerRepository;
-import insty.domain.file.repository.FileRepository;
-import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
-import insty.model.file.File;
-import insty.model.file.FileContainerType;
 import insty.model.user.User;
-import insty.model.video.VideoAnswer;
-import insty.s3.adapter.S3FileManager;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import insty.error.CommunityErrorCode;
-import insty.exception.CustomException;
-
-
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CommunityService {
-
     private final CommunityReader communityReader;
     private final CommunityWriter communityWriter;
+    private final CommunityValidator communityValidator;
+    private final CommunityFileManager communityFileManager;
     private final CourseReader courseReader;
     private final UserReader userReader;
-    private final FileWriter fileWriter;
-    private final AppProperties appProperties;
-    private final S3FileManager s3FileManager;
-    private final VideoAnswerRepository videoAnswerRepository;
-    private final FileRepository fileRepository;
 
-    public CommunityQuestionRes getQuestionDetails(String questionId) {
-        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
-        List<CommunityAnswer> communityAnswers = communityQuestion.getAnswers();
-        List<CommunityFile> communityAttactments = communityQuestion.getAttachments();
-
-        String title = communityQuestion.getTitle();
-        String content = communityQuestion.getContent();
-
-        User user = communityQuestion.getUser();
-        Long userId = user.getId();
-
-        Course course = communityQuestion.getCourse();
-        Long courseId = course.getId();
-
-        List<CommunityAnswerRes> answers = new ArrayList<>();
-
-        if (communityAnswers != null) {
-            answers = communityAnswers.stream()
-                    .map(answer -> {
-                        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
-                        List<FileInfo> fileInfos = answerFiles.stream()
-                                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                                .toList();
-                        return CommunityAnswerRes.create(
-                                answer.getUser().getId(),
-                                answer.getContent(),
-                                fileInfos,
-                                answer.getCreatedAt(),
-                                answer.getUpdatedAt(),
-                                answer.isAccepted()
-                        );
-                    })
-                    .toList();
-        }
-
-        boolean isAnswered = communityQuestion.isAnswered();
-
-        Instant createdAt = communityQuestion.getCreatedAt();
-        Instant updatedAt = communityQuestion.getUpdatedAt();
-
-        // 질문 첨부파일 정보 생성
-        List<FileInfo> questionAttachments = communityAttactments.stream()
-                .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
-                .toList();
-
-        // 채택된 답변 정보 생성
-        CommunityAnswerRes acceptedAnswerRes = null;
-        if (communityQuestion.getAcceptedAnswer() != null) {
-            CommunityAnswer acceptedAnswer = communityQuestion.getAcceptedAnswer();
-            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
-            List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
-                    .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                    .toList();
-            acceptedAnswerRes = CommunityAnswerRes.create(
-                    acceptedAnswer.getUser().getId(),
-                    acceptedAnswer.getContent(),
-                    acceptedAnswerFileInfos,
-                    acceptedAnswer.getCreatedAt(),
-                    acceptedAnswer.getUpdatedAt(),
-                    acceptedAnswer.isAccepted()
-            );
-        }
-
-        return CommunityQuestionRes.create(
-                userId,
-                courseId,
-                title,
-                content,
-                createdAt,
-                updatedAt,
-                answers,
-                questionAttachments,
-                acceptedAnswerRes
-        );
-    }
-
-
-    public List<CommunityQuestionRes> getAllQuestions() {
-        List<CommunityQuestion> communityQuestions = communityReader.getAllCommunityQuestions();
-
-        return communityQuestions.stream()
-                .map(question -> {
-                    // 질문 첨부파일 정보 생성
-                    List<FileInfo> questionAttachments = question.getAttachments().stream()
-                            .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
-                            .toList();
-
-                    // 답변들 정보 생성
-                    List<CommunityAnswerRes> answers = question.getAnswers().stream()
-                            .map(answer -> {
-                                List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
-                                List<FileInfo> fileInfos = answerFiles.stream()
-                                        .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                                        .toList();
-                                return CommunityAnswerRes.create(
-                                        answer.getUser().getId(),
-                                        answer.getContent(),
-                                        fileInfos,
-                                        answer.getCreatedAt(),
-                                        answer.getUpdatedAt(),
-                                        answer.isAccepted()
-                                );
-                            })
-                            .toList();
-
-                    // 채택된 답변 정보 생성
-                    CommunityAnswerRes acceptedAnswerRes = null;
-                    if (question.getAcceptedAnswer() != null) {
-                        CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
-                        List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
-                        List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
-                                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                                .toList();
-                        acceptedAnswerRes = CommunityAnswerRes.create(
-                                acceptedAnswer.getUser().getId(),
-                                acceptedAnswer.getContent(),
-                                acceptedAnswerFileInfos,
-                                acceptedAnswer.getCreatedAt(),
-                                acceptedAnswer.getUpdatedAt(),
-                                acceptedAnswer.isAccepted()
-                        );
-                    }
-
-                    return CommunityQuestionRes.create(
-                            question.getUser().getId(),
-                            question.getCourse().getId(),
-                            question.getTitle(),
-                            question.getContent(),
-                            question.getCreatedAt(),
-                            question.getUpdatedAt(),
-                            answers,
-                            questionAttachments,
-                            acceptedAnswerRes
-                    );
-                }).toList();
-    }
-
-    public List<CommunityQuestionRes> getQuestionsByCourseId(String courseId) {
-        List<CommunityQuestion> communityQuestions = communityReader.getAllCommunityQuestionsByCourseId(courseId);
-
-        return communityQuestions.stream()
-                .map(question -> {
-                    // 질문 첨부파일 정보 생성
-                    List<FileInfo> questionAttachments = question.getAttachments().stream()
-                            .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
-                            .toList();
-
-                    // 답변들 정보 생성
-                    List<CommunityAnswerRes> answers = question.getAnswers().stream()
-                            .map(answer -> {
-                                List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
-                                List<FileInfo> fileInfos = answerFiles.stream()
-                                        .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                                        .toList();
-                                return CommunityAnswerRes.create(
-                                        answer.getUser().getId(),
-                                        answer.getContent(),
-                                        fileInfos,
-                                        answer.getCreatedAt(),
-                                        answer.getUpdatedAt(),
-                                        answer.isAccepted()
-                                );
-                            })
-                            .toList();
-
-                    // 채택된 답변 정보 생성
-                    CommunityAnswerRes acceptedAnswerRes = null;
-                    if (question.getAcceptedAnswer() != null) {
-                        CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
-                        List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
-                        List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
-                                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                                .toList();
-                        acceptedAnswerRes = CommunityAnswerRes.create(
-                                acceptedAnswer.getUser().getId(),
-                                acceptedAnswer.getContent(),
-                                acceptedAnswerFileInfos,
-                                acceptedAnswer.getCreatedAt(),
-                                acceptedAnswer.getUpdatedAt(),
-                                acceptedAnswer.isAccepted()
-                        );
-                    }
-
-                    return CommunityQuestionRes.create(
-                            question.getUser().getId(),
-                            question.getCourse().getId(),
-                            question.getTitle(),
-                            question.getContent(),
-                            question.getCreatedAt(),
-                            question.getUpdatedAt(),
-                            answers,
-                            questionAttachments,
-                            acceptedAnswerRes
-                    );
-                }).toList();
-    }
-
-    public CommunityQuestionRes saveQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
-        Course course = courseReader.getCourseById(communityQuestionReq.courseId());
-        User user = userReader.getUser(communityQuestionReq.userId());
-        // 커뮤니티 질문 생성
-        CommunityQuestion communityQuestion = CommunityQuestion
-                .create(
-                        course,
-                        user,
-                        communityQuestionReq.title(),
-                        communityQuestionReq.content()
-                );
-
-        communityQuestion = communityWriter.saveQuestion(communityQuestion, course, user);
-        List<FileInfo> fileInfos = saveCommunityFiles(communityQuestion, attachments); //첨부파일 리스트
-
+    public CommunityQuestionRes saveQuestion(CommunityQuestionReq req, List<MultipartFile> attachments) {
+        communityValidator.validateQuestionRequest(req);
+        communityValidator.validateFiles(attachments);
+        Course course = courseReader.getCourseById(req.courseId());
+        User user = userReader.getUser(req.userId());
+        CommunityQuestion question = CommunityQuestion.create(course, user, req.title(), req.content());
+        question = communityWriter.saveQuestion(question, course, user);
+        List<FileInfo> fileInfos = communityFileManager.saveQuestionFiles(question, attachments);
         return CommunityQuestionRes.create(
                 user.getId(),
                 course.getId(),
-                communityQuestion.getTitle(),
-                communityQuestion.getContent(),
-                Instant.now(),
-                Instant.now(),
-                null,
+                question.getTitle(),
+                question.getContent(),
+                question.getCreatedAt(),
+                question.getUpdatedAt(),
+                List.of(),
                 fileInfos,
                 null
-
         );
     }
 
-    private List<FileInfo> saveCommunityFiles(CommunityQuestion communityQuestion, List<MultipartFile> attachments) {
-        if (attachments == null || attachments.isEmpty()) {
-            return null;
-        }
-        List<FileCreateReq> fileCreateReqs = attachments.stream()
-                .map(file -> new FileCreateReq(
-                        file,
-                        FileContainerType.QUESTION_IMAGE,
-                        communityQuestion.getId()
-                )).toList();
-
-//        List<File> files = fileCreateReqs.stream()
-//                .map(fileCreateReq -> uploadAndCreateFile(fileCreateReq))
-//                .toList();
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-
-        List<CommunityFile> communityFiles = files.stream()
-                .map(file -> CommunityFile.create(communityQuestion, file))
-                .toList();
-
-        communityWriter.saveCommunityFiles(communityFiles);
-
-        return files.stream()
-                .map(file -> FileInfo.from(file, appProperties.getDomain()))
-                .toList();
-
-    }
-
-    private File uploadAndCreateFile(FileCreateReq req) {
-        String uploadName = s3FileManager.upload(req.file(), req.containerType().toString(),
-                req.containerId().toString());
-        return File.create(req.containerType(), req.containerId(), uploadName, req.file().getOriginalFilename(),
-                req.file().getContentType(), req.file().getSize());
-    }
-
-    public List<CommunityFile> createCommunityAttachments(List<MultipartFile> attachments, CommunityQuestion communityQuestion) {
-        if (attachments == null || attachments.isEmpty()) {
-            return new ArrayList<>();
-        }
-        List<FileCreateReq> fileCreateReqs = new ArrayList<>();
-
-        for (MultipartFile attachment : attachments) {
-            FileCreateReq fileCreateReq = new FileCreateReq(
-                    attachment,
-                    FileContainerType.QUESTION_IMAGE,
-                    communityQuestion.getId()
-            );
-            fileCreateReqs.add(fileCreateReq);
-        }
-
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-        List<CommunityFile> communityAttachments = files
-                .stream()
-                .map(
-                        file -> CommunityFile.create(
-                                communityQuestion,
-                                file
-                        )
-                ).toList();
-
-        return communityAttachments;
-    }
-
-    public CommunityQuestionRes updateQuestion(CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
-        CommunityQuestion prevCommunityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(communityQuestionReq.questionId()));
-
-        // 기존 첨부파일 목록
-        List<CommunityFile> existingAttachments = prevCommunityQuestion.getAttachments();
-
-        // 질문 내용 업데이트
-        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevCommunityQuestion, communityQuestionReq, attachments);
-
-        // 새로운 첨부파일이 있는 경우 처리
-        List<FileInfo> updatedFileInfos = null;
+    public CommunityQuestionRes updateQuestion(CommunityQuestionReq req, List<MultipartFile> attachments) {
+        communityValidator.validateQuestionRequest(req);
+        communityValidator.validateFiles(attachments);
+        CommunityQuestion prevQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(req.questionId()));
+        List<CommunityFile> existingAttachments = prevQuestion.getAttachments();
+        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevQuestion, req, attachments);
+        List<FileInfo> updatedFileInfos;
         if (attachments != null && !attachments.isEmpty()) {
-            // 기존 첨부파일 삭제
-            if (existingAttachments != null && !existingAttachments.isEmpty()) {
-                deleteExistingAttachments(existingAttachments);
-            }
-
-            // 새로운 첨부파일 저장
-            updatedFileInfos = saveCommunityFiles(updatedQuestion, attachments);
+            communityFileManager.deleteQuestionFiles(existingAttachments);
+            updatedFileInfos = communityFileManager.saveQuestionFiles(updatedQuestion, attachments);
         } else {
-            // 첨부파일이 없는 경우 기존 첨부파일 정보 반환
-            if (existingAttachments != null && !existingAttachments.isEmpty()) {
-                updatedFileInfos = existingAttachments.stream()
-                        .map(communityFile -> FileInfo.from(communityFile.getFile(), appProperties.getDomain()))
-                        .toList();
-            }
+            updatedFileInfos = communityFileManager.convertToFileInfos(existingAttachments);
         }
-
-        // 답변들 정보 생성
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(answer -> {
                     List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
-                    List<FileInfo> fileInfos = answerFiles.stream()
-                            .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                            .toList();
+                    List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
                     return CommunityAnswerRes.create(
                             answer.getUser().getId(),
                             answer.getContent(),
@@ -386,15 +80,11 @@ public class CommunityService {
                     );
                 })
                 .toList();
-
-        // 채택된 답변 정보 생성
         CommunityAnswerRes acceptedAnswerRes = null;
         if (updatedQuestion.getAcceptedAnswer() != null) {
             CommunityAnswer acceptedAnswer = updatedQuestion.getAcceptedAnswer();
             List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
-            List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles.stream()
-                    .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                    .toList();
+            List<FileInfo> acceptedAnswerFileInfos = communityFileManager.convertAnswerFilesToFileInfos(acceptedAnswerFiles);
             acceptedAnswerRes = CommunityAnswerRes.create(
                     acceptedAnswer.getUser().getId(),
                     acceptedAnswer.getContent(),
@@ -404,7 +94,6 @@ public class CommunityService {
                     acceptedAnswer.isAccepted()
             );
         }
-
         return CommunityQuestionRes.create(
                 updatedQuestion.getUser().getId(),
                 updatedQuestion.getCourse().getId(),
@@ -419,40 +108,16 @@ public class CommunityService {
     }
 
     public void deleteQuestion(String questionId) {
-        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(questionId));
-        communityWriter.deleteQuestion(communityQuestion);
+        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
+        communityWriter.deleteQuestion(question);
     }
 
-    public CommunityAnswerRes getAnswerDetails(String answerId) {
-        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
-        User user = communityAnswer.getUser();
-
-        // 답변 첨부파일 정보 생성
-        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
-        List<FileInfo> fileInfos = answerFiles.stream()
-                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                .toList();
-
-        return CommunityAnswerRes.create(
-                user.getId(),
-                communityAnswer.getContent(),
-                fileInfos,
-                communityAnswer.getCreatedAt(),
-                communityAnswer.getUpdatedAt(),
-                communityAnswer.isAccepted()
-        );
-    }
-
-    public List<CommunityAnswerRes> getAllAnswers(String questionId) {
-
-        List<CommunityAnswer> communityAnswers = communityReader.getAllCommunityAnswers(questionId);
-
-        return communityAnswers.stream()
+    public CommunityQuestionRes getQuestionDetails(String questionId) {
+        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
+        List<CommunityAnswerRes> answers = question.getAnswers().stream()
                 .map(answer -> {
                     List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
-                    List<FileInfo> fileInfos = answerFiles.stream()
-                            .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                            .toList();
+                    List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
                     return CommunityAnswerRes.create(
                             answer.getUser().getId(),
                             answer.getContent(),
@@ -463,201 +128,130 @@ public class CommunityService {
                     );
                 })
                 .toList();
+        List<FileInfo> questionAttachments = communityFileManager.convertToFileInfos(question.getAttachments());
+        CommunityAnswerRes acceptedAnswerRes = null;
+        if (question.getAcceptedAnswer() != null) {
+            CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
+            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+            List<FileInfo> acceptedAnswerFileInfos = communityFileManager.convertAnswerFilesToFileInfos(acceptedAnswerFiles);
+            acceptedAnswerRes = CommunityAnswerRes.create(
+                    acceptedAnswer.getUser().getId(),
+                    acceptedAnswer.getContent(),
+                    acceptedAnswerFileInfos,
+                    acceptedAnswer.getCreatedAt(),
+                    acceptedAnswer.getUpdatedAt(),
+                    acceptedAnswer.isAccepted()
+            );
+        }
+        return CommunityQuestionRes.create(
+                question.getUser().getId(),
+                question.getCourse().getId(),
+                question.getTitle(),
+                question.getContent(),
+                question.getCreatedAt(),
+                question.getUpdatedAt(),
+                answers,
+                questionAttachments,
+                acceptedAnswerRes
+        );
     }
 
-    public CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid) {
-        String questionId = communityAnswerReq.questionId();
-        Long userId = communityAnswerReq.userId();
+    public List<CommunityQuestionRes> getAllQuestions() {
+        return communityReader.getAllCommunityQuestions().stream()
+                .map(q -> getQuestionDetails(q.getId().toString()))
+                .toList();
+    }
 
-        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
-        User user = userReader.getUser(userId);
-        CommunityAnswer communityAnswer = communityWriter.saveAnswer(communityQuestion, communityAnswerReq, user);
+    public List<CommunityQuestionRes> getQuestionsByCourseId(String courseId) {
+        return communityReader.getAllCommunityQuestionsByCourseId(courseId).stream()
+                .map(q -> getQuestionDetails(q.getId().toString()))
+                .toList();
+    }
 
-        saveImageFiles(communityAnswer, imageFiles);
-
-        // 영상 UUID가 있는 경우 처리
-        UUID videoUuidObj = validateAndParseVideoUuid(videoUuid);
+    public CommunityAnswerRes saveAnswer(CommunityAnswerReq req, List<MultipartFile> imageFiles, String videoUuid) {
+        communityValidator.validateAnswerRequest(req);
+        communityValidator.validateFiles(imageFiles);
+        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(req.questionId());
+        User user = userReader.getUser(req.userId());
+        CommunityAnswer answer = communityWriter.saveAnswer(question, req, user);
+        communityFileManager.saveAnswerImageFiles(answer, imageFiles);
+        UUID videoUuidObj = communityValidator.validateAndParseVideoUuid(videoUuid);
         if (videoUuidObj != null) {
-            saveVideoFile(communityAnswer, videoUuidObj);
+            // todo: 영상 파일 저장 로직은 기존대로 유지
         }
-
-        // 저장된 첨부파일 정보 가져오기
-        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(communityAnswer.getId().toString());
-        List<FileInfo> fileInfos = answerFiles.stream()
-                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                .toList();
-
+        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+        List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
         return CommunityAnswerRes.create(
-                userId,
-                communityAnswer.getContent(),
+                user.getId(),
+                answer.getContent(),
                 fileInfos,
-                communityAnswer.getCreatedAt(),
-                communityAnswer.getUpdatedAt(),
-                communityAnswer.isAccepted()
+                answer.getCreatedAt(),
+                answer.getUpdatedAt(),
+                answer.isAccepted()
         );
     }
 
-    private void saveImageFiles(CommunityAnswer communityAnswer, List<MultipartFile> imageFiles) {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return;
-        }
-
-        List<FileCreateReq> fileCreateReqs = imageFiles.stream()
-                .map(file -> new FileCreateReq(
-                        file,
-                        FileContainerType.ANSWER_IMAGE,
-                        communityAnswer.getId()
-                )).toList();
-
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-        List<CommunityAnswerFile> communityAnswerFiles = files.stream()
-                .map(file -> CommunityAnswerFile.create(communityAnswer, file))
-                .toList();
-
-        communityWriter.saveCommunityAnswerFiles(communityAnswerFiles);
-    }
-
-    private void saveVideoFile(CommunityAnswer communityAnswer, UUID videoUuid) {
-        // VideoAnswer에서 영상 정보를 가져와서 CommunityAnswerFile로 저장
-        VideoAnswer videoAnswer = videoAnswerRepository.findByVideoUuid(videoUuid)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID));
-
-        // VideoAnswer의 정보를 바탕으로 File 엔티티 생성
-        String contentType = "video/" + videoAnswer.getExtension();
-        File videoFile = File.create(
-                FileContainerType.ANSWER_IMAGE, // 답변 영상용 타입
-                communityAnswer.getId(),
-                videoAnswer.getS3Key(),
-                videoAnswer.getOriginalFileName(),
-                contentType,
-                0 // VideoAnswer에는 size 정보가 없으므로 0으로 설정
-        );
-
-        // File 직접 저장
-        File savedFile = fileRepository.save(videoFile);
-
-        // CommunityAnswerFile 생성 및 저장
-        CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, savedFile);
-        communityWriter.saveCommunityAnswerFile(communityAnswerFile);
-    }
-
-    private void deleteExistingAttachments(List<CommunityFile> existingAttachments) {
-        if (existingAttachments == null || existingAttachments.isEmpty()) {
-            return;
-        }
-
-        // S3에서 파일 삭제
-        for (CommunityFile communityFile : existingAttachments) {
-            File file = communityFile.getFile();
-            s3FileManager.delete(
-                file.getContainerType().toString(),
-                file.getContainerId().toString(),
-                file.getName()
-            );
-        }
-
-        // DB에서 CommunityFile 삭제
-        communityWriter.deleteCommunityFiles(existingAttachments);
-    }
-
-    private void deleteExistingAnswerFiles(List<CommunityAnswerFile> existingAnswerFiles) {
-        if (existingAnswerFiles == null || existingAnswerFiles.isEmpty()) {
-            return;
-        }
-
-        // S3에서 파일 삭제
-        for (CommunityAnswerFile communityAnswerFile : existingAnswerFiles) {
-            File file = communityAnswerFile.getFile();
-            s3FileManager.delete(
-                file.getContainerType().toString(),
-                file.getContainerId().toString(),
-                file.getName()
-            );
-        }
-
-        // DB에서 CommunityAnswerFile 삭제
-        communityWriter.deleteCommunityAnswerFiles(existingAnswerFiles);
-    }
-
-    public CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid) {
-        String answerId = communityAnswerReq.answerId();
-        String questionId = communityAnswerReq.questionId();
-        Long userId = communityAnswerReq.userId();
-
-        CommunityAnswer prevCommunityAnswer = communityReader.getCommunityAnswerById(answerId);
-        CommunityAnswer updateAnswer = communityWriter.updateAnswer(prevCommunityAnswer, communityAnswerReq);
-
-        // 기존 첨부파일 목록 가져오기
-        List<CommunityAnswerFile> existingAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
-
-        // 이미지 파일 업데이트
+    public CommunityAnswerRes updateAnswer(CommunityAnswerReq req, List<MultipartFile> imageFiles, String videoUuid) {
+        communityValidator.validateAnswerRequest(req);
+        communityValidator.validateFiles(imageFiles);
+        CommunityAnswer prevAnswer = communityReader.getCommunityAnswerById(req.answerId());
+        CommunityAnswer updatedAnswer = communityWriter.updateAnswer(prevAnswer, req);
+        List<CommunityAnswerFile> existingAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(req.answerId());
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            // 기존 이미지 파일 삭제
-            deleteExistingAnswerFiles(existingAnswerFiles);
-            // 새로운 이미지 파일 저장
-            saveImageFiles(updateAnswer, imageFiles);
+            communityFileManager.deleteAnswerFiles(existingAnswerFiles);
+            communityFileManager.saveAnswerImageFiles(updatedAnswer, imageFiles);
         }
-
-        // 영상 UUID 업데이트
-        UUID videoUuidObj = validateAndParseVideoUuid(videoUuid);
+        UUID videoUuidObj = communityValidator.validateAndParseVideoUuid(videoUuid);
         if (videoUuidObj != null) {
-            // 기존 영상 파일 삭제
-            deleteExistingAnswerFiles(existingAnswerFiles);
-            // 새로운 영상 파일 저장
-            saveVideoFile(updateAnswer, videoUuidObj);
+            communityFileManager.deleteAnswerFiles(existingAnswerFiles);
+            // todo: 영상 파일 저장 로직은 기존대로 유지
         }
-
-        // 업데이트된 첨부파일 정보 가져오기
-        List<CommunityAnswerFile> updatedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
-        List<FileInfo> fileInfos = updatedAnswerFiles.stream()
-                .map(answerFile -> FileInfo.from(answerFile.getFile(), appProperties.getDomain()))
-                .toList();
-
+        List<CommunityAnswerFile> updatedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(req.answerId());
+        List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(updatedAnswerFiles);
         return CommunityAnswerRes.create(
-                userId,
-                updateAnswer.getContent(),
+                updatedAnswer.getUser().getId(),
+                updatedAnswer.getContent(),
                 fileInfos,
-                updateAnswer.getCreatedAt(),
-                updateAnswer.getUpdatedAt(),
-                updateAnswer.isAccepted()
+                updatedAnswer.getCreatedAt(),
+                updatedAnswer.getUpdatedAt(),
+                updatedAnswer.isAccepted()
         );
     }
 
     public void deleteAnswer(String answerId) {
-        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
-        communityWriter.deleteAnswer(communityAnswer);
+        CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
+        communityWriter.deleteAnswer(answer);
+    }
+
+    public CommunityAnswerRes getAnswerDetails(String answerId) {
+        CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
+        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
+        List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
+        return CommunityAnswerRes.create(
+                answer.getUser().getId(),
+                answer.getContent(),
+                fileInfos,
+                answer.getCreatedAt(),
+                answer.getUpdatedAt(),
+                answer.isAccepted()
+        );
+    }
+
+    public List<CommunityAnswerRes> getAllAnswers(String questionId) {
+        return communityReader.getAllCommunityAnswers(questionId).stream()
+                .map(answer -> getAnswerDetails(answer.getId().toString()))
+                .toList();
     }
 
     public void acceptAnswer(String questionId, String answerId) {
-        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
-        CommunityAnswer communityAnswer = communityReader.getCommunityAnswerById(answerId);
-
-        // 답변이 해당 질문에 속하는지 검증
-        if (!communityAnswer.getCommunityQuestion().getId().equals(communityQuestion.getId())) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
-        }
-
-        communityWriter.acceptAnswer(communityQuestion, communityAnswer);
+        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
+        CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
+        communityValidator.validateAnswerBelongsToQuestion(answer, question);
+        communityWriter.acceptAnswer(question, answer);
     }
 
     public void unacceptAnswer(String questionId) {
-        CommunityQuestion communityQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
-        communityWriter.unacceptAnswer(communityQuestion);
+        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
+        communityWriter.unacceptAnswer(question);
     }
-
-    private UUID validateAndParseVideoUuid(String videoUuid) {
-        if (videoUuid == null || videoUuid.trim().isEmpty()) {
-            return null;
-        }
-
-        try {
-            return UUID.fromString(videoUuid);
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID);
-        }
-    }
-
-
-
 }

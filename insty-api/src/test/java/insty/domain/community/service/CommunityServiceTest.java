@@ -12,6 +12,7 @@ import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.implement.CommunityReader;
+import insty.domain.community.implement.CommunityValidator;
 import insty.domain.community.implement.CommunityWriter;
 import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
@@ -31,6 +32,8 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
+import insty.domain.community.implement.CommunityFileManager;
+import insty.domain.common.FileInfo;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -50,6 +53,8 @@ public class CommunityServiceTest {
     CommunityService communityService;
 
     @Mock
+    CommunityValidator communityValidator;
+    @Mock
     CommunityWriter communityWriter;
     @Mock
     CommunityReader communityReader;
@@ -67,6 +72,8 @@ public class CommunityServiceTest {
     S3UrlIssuer s3UrlIssuer;
     @Mock
     CloudFrontSigner cloudFrontSigner;
+    @Mock
+    CommunityFileManager communityFileManager;
 
     @Mock
     CommunityQuestionRepository communityQuestionRepository;
@@ -95,7 +102,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void getQuestionDetails() {
+    void getQuestionDetails_정상() {
+        // given
         String questionId = "1";
         String title = "제목";
         String content = "내용";
@@ -126,7 +134,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void create_question_정상() {
+    void saveQuestion_정상() { // create_question_정상
+        // given
         String title = "제목";
         String content = "내용";
         Long userId = 1L;
@@ -156,6 +165,8 @@ public class CommunityServiceTest {
                 .thenReturn(user);
         when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
                 .thenReturn(communityQuestion);
+        when(communityFileManager.saveQuestionFiles(any(), any()))
+                .thenReturn(List.of());
         lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
@@ -168,7 +179,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void saveQuestionWithFiles() {
+    void saveQuestion_파일첨부_정상() {
+        // given
         String title = "제목";
         String content = "내용";
         Long userId = 1L;
@@ -197,6 +209,7 @@ public class CommunityServiceTest {
 
         File file = FileFixtureBuilder.getCourseThumbnailWithId();
         CommunityFile communityFile = CommunityFile.create(communityQuestion, file);
+        FileInfo fileInfo = FileInfo.from(file, "test.com");
 
         when(courseReader.getCourseById(courseId))
                 .thenReturn(course);
@@ -204,10 +217,8 @@ public class CommunityServiceTest {
                 .thenReturn(user);
         when(communityWriter.saveQuestion(any(CommunityQuestion.class), any(Course.class), any(User.class)))
                 .thenReturn(communityQuestion);
-        when(fileWriter.saveFiles(any()))
-                .thenReturn(List.of(file));
-        when(communityWriter.saveCommunityFiles(any()))
-                .thenReturn(List.of(communityFile));
+        when(communityFileManager.saveQuestionFiles(any(), any()))
+                .thenReturn(List.of(fileInfo));
         lenient().when(appProperties.getDomain())
                 .thenReturn("test.com");
 
@@ -221,7 +232,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void getAllAnswers() {
+    void getAllAnswers_정상() {
+        // given
         String questionId = "1";
 
         User user = UserFixtureBuilder.getUserWithId();
@@ -244,14 +256,14 @@ public class CommunityServiceTest {
                 content1
         );
         setId(communityAnswer1, 1L);
-        
+
         CommunityAnswer communityAnswer2 = CommunityAnswer.create(
                 communityQuestion,
                 user,
                 content2
         );
         setId(communityAnswer2, 2L);
-        
+
         CommunityAnswer communityAnswer3 = CommunityAnswer.create(
                 communityQuestion,
                 user,
@@ -259,12 +271,12 @@ public class CommunityServiceTest {
         );
         setId(communityAnswer3, 3L);
 
-        when(communityReader.getAllCommunityAnswers(questionId))
-                .thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
-        lenient().when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
-                .thenReturn(List.of());
-        lenient().when(appProperties.getDomain())
-                .thenReturn("test.com");
+        when(communityReader.getAllCommunityAnswers(questionId)).thenReturn(List.of(communityAnswer1, communityAnswer2, communityAnswer3));
+        when(communityReader.getCommunityAnswerById("1")).thenReturn(communityAnswer1);
+        when(communityReader.getCommunityAnswerById("2")).thenReturn(communityAnswer2);
+        when(communityReader.getCommunityAnswerById("3")).thenReturn(communityAnswer3);
+        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString())).thenReturn(List.of());
+        lenient().when(appProperties.getDomain()).thenReturn("test.com");
 
         //when
         List<CommunityAnswerRes> communityAnswerResList = communityService.getAllAnswers(questionId);
@@ -278,7 +290,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void saveAnswer() {
+    void saveAnswer_정상() {
+        // given
         String questionId = "1";
         String content = "답변 내용";
         Long userId = 1L;
@@ -327,7 +340,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void saveAnswerWithFiles() {
+    void saveAnswer_파일첨부_정상() {
+        // given
         String questionId = "1";
         String content = "답변 내용";
         Long userId = 1L;
@@ -359,22 +373,16 @@ public class CommunityServiceTest {
         setId(communityAnswer, 1L);
 
         File file = FileFixtureBuilder.getCourseThumbnailWithId();
+        FileInfo fileInfo = FileInfo.from(file, "test.com");
         CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(communityAnswer, file);
 
-        when(communityReader.getCommunityQuestionDetailsById(questionId))
-                .thenReturn(communityQuestion);
-        when(userReader.getUser(userId))
-                .thenReturn(user);
-        when(communityWriter.saveAnswer(any(CommunityQuestion.class), any(), any(User.class)))
-                .thenReturn(communityAnswer);
-        when(fileWriter.saveFiles(any()))
-                .thenReturn(List.of(file));
-        when(communityWriter.saveCommunityAnswerFiles(any()))
-                .thenReturn(List.of(communityAnswerFile));
-        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString()))
-                .thenReturn(List.of(communityAnswerFile));
-        lenient().when(appProperties.getDomain())
-                .thenReturn("test.com");
+        when(communityReader.getCommunityQuestionDetailsById(questionId)).thenReturn(communityQuestion);
+        when(userReader.getUser(userId)).thenReturn(user);
+        when(communityWriter.saveAnswer(any(CommunityQuestion.class), any(), any(User.class))).thenReturn(communityAnswer);
+        when(communityFileManager.saveAnswerImageFiles(any(), any())).thenReturn(List.of(fileInfo));
+        when(communityReader.getCommunityAnswerFilesByAnswerId(anyString())).thenReturn(List.of(communityAnswerFile));
+        when(communityFileManager.convertAnswerFilesToFileInfos(List.of(communityAnswerFile))).thenReturn(List.of(fileInfo));
+        lenient().when(appProperties.getDomain()).thenReturn("test.com");
 
         //when
         CommunityAnswerRes communityAnswerRes = communityService.saveAnswer(req, imageFiles, null);
@@ -387,7 +395,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void deleteAnswer() {
+    void deleteAnswer_정상() {
+        // given
         Long answerId = 1L;
 
         User user = UserFixtureBuilder.getUserWithId();
@@ -417,7 +426,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void updateAnswer() {
+    void updateAnswer_정상() {
+        // given
         String answerId = "1";
         String content = "수정된 답변 내용";
 
@@ -472,7 +482,8 @@ public class CommunityServiceTest {
     }
 
     @Test
-    void updateAnswerWithFiles() {
+    void updateAnswer_파일첨부_정상() {
+        // given
         String answerId = "1";
         String content = "수정된 답변 내용";
 
@@ -512,20 +523,15 @@ public class CommunityServiceTest {
                 new MockMultipartFile("imageFile", "image1.jpg", "image/jpeg", "내용".getBytes()));
 
         File file = FileFixtureBuilder.getCourseThumbnailWithId();
+        FileInfo fileInfo = FileInfo.from(file, "test.com");
         CommunityAnswerFile communityAnswerFile = CommunityAnswerFile.create(updatedCommunityAnswer, file);
 
-        when(communityReader.getCommunityAnswerById(answerId))
-                .thenReturn(communityAnswer);
-        when(communityWriter.updateAnswer(any(CommunityAnswer.class), any()))
-                .thenReturn(updatedCommunityAnswer);
-        when(fileWriter.saveFiles(any()))
-                .thenReturn(List.of(file));
-        when(communityWriter.saveCommunityAnswerFiles(any()))
-                .thenReturn(List.of(communityAnswerFile));
-        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId))
-                .thenReturn(List.of(communityAnswerFile));
-        lenient().when(appProperties.getDomain())
-                .thenReturn("test.com");
+        when(communityReader.getCommunityAnswerById(answerId)).thenReturn(communityAnswer);
+        when(communityWriter.updateAnswer(any(CommunityAnswer.class), any())).thenReturn(updatedCommunityAnswer);
+        when(communityFileManager.saveAnswerImageFiles(any(), any())).thenReturn(List.of(fileInfo));
+        when(communityReader.getCommunityAnswerFilesByAnswerId(answerId)).thenReturn(List.of(communityAnswerFile));
+        when(communityFileManager.convertAnswerFilesToFileInfos(List.of(communityAnswerFile))).thenReturn(List.of(fileInfo));
+        lenient().when(appProperties.getDomain()).thenReturn("test.com");
 
         //when
         CommunityAnswerRes communityAnswerRes = communityService.updateAnswer(req, imageFiles, null);
