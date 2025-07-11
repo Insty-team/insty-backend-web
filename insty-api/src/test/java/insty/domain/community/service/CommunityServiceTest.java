@@ -7,7 +7,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import insty.cloudfront.adapter.CloudFrontSigner;
-import insty.domain.common.FileInfo;
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
@@ -33,9 +32,7 @@ import insty.model.user.UserFixtureBuilder;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import java.lang.reflect.Field;
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommunityServiceTest {
 
     @InjectMocks
-    CommunityServiceImpl communityService;
+    CommunityService communityService;
 
     @Mock
     CommunityWriter communityWriter;
