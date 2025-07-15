@@ -10,7 +10,6 @@ import insty.domain.user.repository.UserRepository;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
-import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
