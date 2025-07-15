@@ -33,7 +33,7 @@ class UserValidatorTest {
         // given
         String email = "test@example.com";
         User existingUser = mock(User.class);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
+        when(userRepository.existsByEmail(email)).thenReturn(true);
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> {
@@ -47,7 +47,7 @@ class UserValidatorTest {
     void 이메일이_존재하지_않으면_예외가_발생하지_않는다() {
         // given
         String email = "unique@example.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.existsByEmail(email)).thenReturn(false);
 
         // when & then
         assertDoesNotThrow(() -> userValidator.validateDuplicateEmail(email));
@@ -57,8 +57,7 @@ class UserValidatorTest {
     void 닉네임이_이미_존재하면_예외가_발생한다() {
         // given
         String nickname = "tester";
-        User existingUser = mock(User.class);
-        when(userRepository.findByNickname(nickname)).thenReturn(Optional.of(existingUser));
+        when(userRepository.existsByNickname(nickname)).thenReturn(true);
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> {
@@ -72,7 +71,7 @@ class UserValidatorTest {
     void 닉네임이_존재하지_않으면_예외가_발생하지_않는다() {
         // given
         String nickname = "uniquenick";
-        when(userRepository.findByNickname(nickname)).thenReturn(Optional.empty());
+        when(userRepository.existsByNickname(nickname)).thenReturn(false);
 
         // when & then
         assertDoesNotThrow(() -> userValidator.validateDuplicateNickname(nickname));
