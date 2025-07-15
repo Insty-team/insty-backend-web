@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmailAndSocialIdIsNull(String email);
+    Optional<User> findByEmail(String email);
 
     Optional<User> findByNickname(String nickname);
 
@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByNickname(String nickname);
 
     Optional<User> findBySocialIdAndSocialType(String s, SocialType socialType);
+
 }
