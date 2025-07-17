@@ -1,4 +1,4 @@
-package insty.domain.community.reposiotry;
+package insty.domain.community.repository;
 
 import insty.model.community.CommunityFile;
 import org.springframework.data.jpa.repository.JpaRepository;

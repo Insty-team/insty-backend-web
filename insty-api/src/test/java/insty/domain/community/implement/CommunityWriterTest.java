@@ -10,10 +10,10 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityQuestionReq;
-import insty.domain.community.reposiotry.CommunityAnswerFileRepository;
-import insty.domain.community.reposiotry.CommunityAnswerRepository;
-import insty.domain.community.reposiotry.CommunityFileRepository;
-import insty.domain.community.reposiotry.CommunityQuestionRepository;
+import insty.domain.community.repository.CommunityAnswerFileRepository;
+import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityFileRepository;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityFile;

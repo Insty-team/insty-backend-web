@@ -1,10 +1,9 @@
 package insty.domain.community.implement;
 
-import insty.domain.community.reposiotry.CommunityAnswerRepository;
-import insty.domain.community.reposiotry.CommunityQuestionRepository;
-import insty.domain.community.reposiotry.CommunityAnswerFileRepository;
+import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityQuestionRepository;
+import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.error.CommunityErrorCode;
-import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;

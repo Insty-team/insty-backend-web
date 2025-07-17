@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import insty.domain.community.reposiotry.CommunityAnswerFileRepository;
-import insty.domain.community.reposiotry.CommunityAnswerRepository;
-import insty.domain.community.reposiotry.CommunityQuestionRepository;
+import insty.domain.community.repository.CommunityAnswerFileRepository;
+import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
