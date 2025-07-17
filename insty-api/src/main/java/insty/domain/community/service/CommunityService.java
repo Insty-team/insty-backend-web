@@ -1,7 +1,11 @@
 package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
+import insty.domain.common.SearchRes;
+import insty.domain.common.dto.PaginationReq;
+import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.*;
+import insty.domain.community.implement.CommunityComplexReader;
 import insty.domain.community.implement.CommunityFileManager;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityValidator;
@@ -26,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class CommunityService {
     private final CommunityReader communityReader;
+    private final CommunityComplexReader communityComplexReader;
     private final CommunityWriter communityWriter;
     private final CommunityValidator communityValidator;
     private final CommunityFileManager communityFileManager;
@@ -56,7 +61,7 @@ public class CommunityService {
         // 4. 첨부 파일 저장 및 FileInfo 변환
         List<FileInfo> fileInfos = communityFileManager.saveQuestionFiles(question, attachments);
 
-        // 5. 응답 데이터 생성 (새로 생성된 질문이므로 답변 목록은 빈 리스트)
+        // 5. 응답 데이터 생성
         return CommunityQuestionRes.create(
                 user.getId(),
                 course.getId(),
@@ -64,9 +69,9 @@ public class CommunityService {
                 question.getContent(),
                 question.getCreatedAt(),
                 question.getUpdatedAt(),
-                List.of(), // 새 질문이므로 답변 없음
+                List.of(),
                 fileInfos,
-                null // 채택된 답변 없음
+                null
         );
     }
 
@@ -229,6 +234,22 @@ public class CommunityService {
         return communityReader.getAllCommunityQuestions().stream()
                 .map(q -> getQuestionDetails(q.getId().toString()))
                 .toList();
+    }
+
+    /**
+     * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색합니다.
+     *
+     * @param req 검색/필터/정렬/페이지네이션 정보가 담긴 요청 DTO
+     * @return    검색 결과(질문 목록 + 페이지네이션)
+     */
+    public SearchRes<CommunityQuestionRes> searchQuestions(CommunityQuestionSearchReq req) {
+        PaginationReq paginationReq = req.toPaginationReq();
+        CommunityQuestionSearchFilter filter = req.toSearchFilter();
+        String sort = req.sort();
+
+        List<CommunityQuestionRes> questionResList = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        PaginationRes paginationRes = communityComplexReader.countSearchQuestions(paginationReq, filter);
+        return SearchRes.from(paginationRes, questionResList);
     }
 
     /**

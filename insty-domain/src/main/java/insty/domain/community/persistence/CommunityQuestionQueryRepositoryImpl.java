@@ -1,4 +1,4 @@
-package insty.domain.community.persistence;
+package insty.domain.community.reposiotry;
 
 import static insty.model.community.QCommunityQuestion.communityQuestion;
 
