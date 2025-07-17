@@ -1,9 +1,11 @@
 package insty.domain.community.controller;
 
+import insty.domain.common.SearchRes;
 import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
+import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.service.CommunityService;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
@@ -78,6 +80,14 @@ public class CommunityController {
     public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank String questionId) {
         CommunityService.deleteQuestion(questionId);
         return SuccessRes.of(null);
+    }
+
+    @Operation(summary = "커뮤니티 질문 검색", description = "강의 목록을 조회한다")
+    @GetMapping("/search")
+    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
+            @ModelAttribute @Validated CommunityQuestionSearchReq req
+    ) {
+        return SuccessRes.of(CommunityService.searchQuestions(req));
     }
 
     @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
