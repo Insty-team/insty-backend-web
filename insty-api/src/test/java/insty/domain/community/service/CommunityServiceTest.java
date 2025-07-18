@@ -11,9 +11,13 @@ import insty.domain.community.dto.CommunityAnswerReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionReq;
 import insty.domain.community.dto.CommunityQuestionRes;
+import insty.domain.community.dto.CommunityQuestionSearchReq;
+import insty.domain.common.SearchRes;
+import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.implement.CommunityReader;
 import insty.domain.community.implement.CommunityValidator;
 import insty.domain.community.implement.CommunityWriter;
+import insty.domain.community.implement.CommunityComplexReader;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.domain.course.implement.CourseReader;
@@ -24,6 +28,7 @@ import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
+import insty.model.community.CommunityQuestionFixtureBuilder;
 import insty.model.course.Course;
 import insty.model.course.CourseFixtureBuilder;
 import insty.model.file.File;
@@ -79,6 +84,8 @@ public class CommunityServiceTest {
     CommunityQuestionRepository communityQuestionRepository;
     @Mock
     CommunityAnswerRepository communityAnswerRepository;
+    @Mock
+    CommunityComplexReader communityComplexReader;
 
     // ID를 설정하는 헬퍼 메서드
     private void setId(CommunityAnswer answer, Long id) {
@@ -541,6 +548,80 @@ public class CommunityServiceTest {
         assertThat(communityAnswerRes.content()).isEqualTo(content);
         assertThat(communityAnswerRes.attachments()).isNotNull();
         assertThat(communityAnswerRes.attachments().size()).isEqualTo(1);
+    }
+
+    @Test
+    void searchQuestions_정상() {
+        // 검색 조건에 따른 질문 검색이 올바르게 동작하는지 검증
+
+        // given
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, 1L, true, "파이썬", "createdAt:desc");
+
+        CommunityQuestion question1 = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "파이썬 질문1", "내용1");
+        CommunityQuestion question2 = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(2L, "파이썬 질문2", "내용2");
+        List<CommunityQuestionRes> questionResList = List.of(
+                CommunityQuestionRes.create(1L, 1L, "파이썬 질문1", "내용1", null, null, List.of(), List.of(), null),
+                CommunityQuestionRes.create(1L, 1L, "파이썬 질문2", "내용2", null, null, List.of(), List.of(), null)
+        );
+
+        when(communityComplexReader.searchQuestions(any(), any(), any())).thenReturn(questionResList);
+        when(communityComplexReader.countSearchQuestions(any(), any())).thenReturn(new PaginationRes(2, 1, 1, 10));
+
+        // when
+        SearchRes<CommunityQuestionRes> result = communityService.searchQuestions(req);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.items()).hasSize(2);
+        assertThat(result.pagination().totalItems()).isEqualTo(2);
+        assertThat(result.pagination().currentPage()).isEqualTo(1);
+        assertThat(result.pagination().perPage()).isEqualTo(10);
+        assertThat(result.items().get(0).title()).isEqualTo("파이썬 질문1");
+        assertThat(result.items().get(1).title()).isEqualTo("파이썬 질문2");
+    }
+
+    @Test
+    void searchQuestions_빈_결과() {
+        // 검색 결과가 없을 때 빈 리스트가 반환되는지 검증
+
+        // given
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, "존재하지 않는 키워드", "createdAt:desc");
+
+        when(communityComplexReader.searchQuestions(any(), any(), any())).thenReturn(List.of());
+        when(communityComplexReader.countSearchQuestions(any(), any())).thenReturn(new PaginationRes(0, 0, 1, 10));
+
+        // when
+        SearchRes<CommunityQuestionRes> result = communityService.searchQuestions(req);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.items()).isEmpty();
+        assertThat(result.pagination().totalItems()).isEqualTo(0);
+        assertThat(result.pagination().totalPages()).isEqualTo(0);
+    }
+
+    @Test
+    void searchQuestions_페이지네이션_검증() {
+        // 페이지네이션이 올바르게 적용되는지 검증
+
+        // given
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(2, 5, null, null, null, "createdAt:desc");
+
+        CommunityQuestionRes questionRes = CommunityQuestionRes.create(1L, 1L, "질문", "내용", null, null, List.of(), List.of(), null);
+        List<CommunityQuestionRes> questionResList = List.of(questionRes);
+
+        when(communityComplexReader.searchQuestions(any(), any(), any())).thenReturn(questionResList);
+        when(communityComplexReader.countSearchQuestions(any(), any())).thenReturn(new PaginationRes(10, 2, 2, 5));
+
+        // when
+        SearchRes<CommunityQuestionRes> result = communityService.searchQuestions(req);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.pagination().currentPage()).isEqualTo(2);
+        assertThat(result.pagination().perPage()).isEqualTo(5);
+        assertThat(result.pagination().totalItems()).isEqualTo(10);
+        assertThat(result.pagination().totalPages()).isEqualTo(2);
     }
 }
 
