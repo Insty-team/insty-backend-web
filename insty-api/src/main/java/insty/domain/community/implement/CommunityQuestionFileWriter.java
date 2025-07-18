@@ -3,6 +3,7 @@ package insty.domain.community.implement;
 
 import insty.domain.common.FileCreateReq;
 import insty.domain.common.FileInfo;
+import insty.domain.community.repository.CommunityFileRepository;
 import insty.domain.file.implement.FileWriter;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityFile;
@@ -20,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommunityQuestionFileWriter {
 
     private final FileWriter fileWriter;
-    private final CommunityQuestionWriter communityQuestionWriter;
+    private final CommunityFileRepository communityFileRepository;
     private final AppProperties appProperties;
 
     /**
@@ -46,7 +47,7 @@ public class CommunityQuestionFileWriter {
                 .map(file -> CommunityFile.create(question, file))
                 .collect(Collectors.toList());
 
-        communityQuestionWriter.saveCommunityFiles(communityFiles);
+        communityFileRepository.saveAll(communityFiles);
 
         return files.stream()
                 .map(file -> FileInfo.from(file, appProperties.getDomain()))
@@ -60,6 +61,6 @@ public class CommunityQuestionFileWriter {
         if (existingFiles == null || existingFiles.isEmpty()) {
             return;
         }
-        communityQuestionWriter.deleteCommunityFiles(existingFiles);
+        communityFileRepository.deleteAll(existingFiles);
     }
 }

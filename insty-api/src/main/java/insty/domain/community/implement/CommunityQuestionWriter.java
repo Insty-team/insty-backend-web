@@ -2,15 +2,12 @@ package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
-import insty.domain.community.repository.CommunityFileRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityQuestionWriter {
 
     private final CommunityQuestionRepository communityQuestionRepository;
-    private final CommunityFileRepository communityFileRepository;
 
     /**
      * 커뮤니티 질문 생성 및 저장
@@ -46,19 +42,5 @@ public class CommunityQuestionWriter {
      */
     public void deleteQuestion(CommunityQuestion communityQuestion) {
         communityQuestionRepository.delete(communityQuestion);
-    }
-
-    /**
-     * 커뮤니티 파일 목록 저장
-     */
-    public List<CommunityFile> saveCommunityFiles(List<CommunityFile> communityFiles) {
-        return communityFileRepository.saveAll(communityFiles);
-    }
-
-    /**
-     * 커뮤니티 파일 목록 삭제
-     */
-    public void deleteCommunityFiles(List<CommunityFile> communityFiles) {
-        communityFileRepository.deleteAll(communityFiles);
     }
 }
