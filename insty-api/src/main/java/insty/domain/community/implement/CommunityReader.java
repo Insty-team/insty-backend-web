@@ -27,26 +27,40 @@ public class CommunityReader {
         return communityQuestionRepository.findAll();
     }
 
-    public List<CommunityQuestion> getAllCommunityQuestionsByCourseId(String courseId) {
-        return communityQuestionRepository.findAllByCourseId(Long.parseLong(courseId));
+    /**
+     * 특정 강좌의 모든 커뮤니티 질문 조회
+     */
+    public List<CommunityQuestion> getAllCommunityQuestionsByCourseId(Long courseId) {
+        return communityQuestionRepository.findAllByCourseId(courseId);
     }
 
-    //id로 질문 상세 조회
-    public CommunityQuestion getCommunityQuestionDetailsById(String questionId) {
-        return  communityQuestionRepository.findById(Long.parseLong(questionId))
+    /**
+     * 커뮤니티 질문 상세조회
+     */
+    public CommunityQuestion getCommunityQuestionDetailsById(Long questionId) {
+        return  communityQuestionRepository.findById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
     }
 
-    public CommunityAnswer getCommunityAnswerById(String answerId) {
-        return communityAnswerRepository.findById(Long.parseLong(answerId))
+    /**
+     * 커뮤니티 답변 조회
+     */
+    public CommunityAnswer getCommunityAnswerById(Long answerId) {
+        return communityAnswerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
     }
 
-    public List<CommunityAnswer> getAllCommunityAnswers(String questionId) {
-        return communityAnswerRepository.findAllByCommunityQuestionId(Long.parseLong(questionId));
+    /**
+     * 커뮤니티 답변에 따른 모든 질문 조회
+     */
+    public List<CommunityAnswer> getAllCommunityAnswers(Long questionId) {
+        return communityAnswerRepository.findAllByCommunityQuestionId(questionId);
     }
 
-    public List<CommunityAnswerFile> getCommunityAnswerFilesByAnswerId(String answerId) {
-        return communityAnswerFileRepository.findAllByCommunityAnswerId(Long.parseLong(answerId));
+    /**
+     * 커뮤니티 질문에 모든 파일 조회
+     */
+    public List<CommunityAnswerFile> getCommunityAnswerFilesByAnswerId(Long answerId) {
+        return communityAnswerFileRepository.findAllByCommunityAnswerId(answerId);
     }
 }

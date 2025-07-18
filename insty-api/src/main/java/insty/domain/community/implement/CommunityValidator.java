@@ -1,7 +1,9 @@
 package insty.domain.community.implement;
 
-import insty.domain.community.dto.CommunityAnswerReq;
-import insty.domain.community.dto.CommunityQuestionReq;
+import insty.domain.community.dto.CommunityAnswerCreateReq;
+import insty.domain.community.dto.CommunityAnswerUpdateReq;
+import insty.domain.community.dto.CommunityQuestionCreateReq;
+import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
@@ -23,7 +25,7 @@ public class CommunityValidator {
      * 질문 작성자 검증
      */
     public void validateQuestionOwner(Long questionId, Long userId) {
-        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId.toString());
+        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
         if (!question.getUser().getId().equals(userId)) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED);
         }
@@ -33,7 +35,7 @@ public class CommunityValidator {
      * 답변 작성자 검증
      */
     public void validateAnswerOwner(Long answerId, Long userId) {
-        CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId.toString());
+        CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
         if (!answer.getUser().getId().equals(userId)) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED);
         }
@@ -43,14 +45,14 @@ public class CommunityValidator {
      * 질문 존재 여부 검증
      */
     public CommunityQuestion validateQuestionExists(Long questionId) {
-        return communityReader.getCommunityQuestionDetailsById(questionId.toString());
+        return communityReader.getCommunityQuestionDetailsById(questionId);
     }
 
     /**
      * 답변 존재 여부 검증
      */
     public CommunityAnswer validateAnswerExists(Long answerId) {
-        return communityReader.getCommunityAnswerById(answerId.toString());
+        return communityReader.getCommunityAnswerById(answerId);
     }
 
     /**
@@ -63,9 +65,9 @@ public class CommunityValidator {
     }
 
     /**
-     * 질문 요청 데이터 검증
+     * 질문 생성 요청 데이터 검증
      */
-    public void validateQuestionRequest(CommunityQuestionReq req) {
+    public void validateQuestionCreateRequest(CommunityQuestionCreateReq req) {
         if (req.title() == null || req.title().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_TITLE_IS_REQUIRED);
         }
@@ -81,18 +83,42 @@ public class CommunityValidator {
     }
 
     /**
-     * 답변 요청 데이터 검증
+     * 질문 수정 요청 데이터 검증
      */
-    public void validateAnswerRequest(CommunityAnswerReq req) {
+    public void validateQuestionUpdateRequest(CommunityQuestionUpdateReq req) {
+        // todo : id 검증
+        if (req.title() == null || req.title().trim().isEmpty()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_TITLE_IS_REQUIRED);
+        }
         if (req.content() == null || req.content().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
         }
-        if (req.questionId() == null || req.questionId().trim().isEmpty()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ID_IS_REQUIRED);
+    }
+
+    /**
+     * 답변 생성 요청 데이터 검증
+     */
+    public void validateAnswerCreateRequest(CommunityAnswerCreateReq req) {
+        if (req.content() == null || req.content().trim().isEmpty()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
         }
         if (req.userId() == null) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_USER_ID_IS_REQUIRED);
         }
+    }
+
+    /**
+     * 답변 수정 요청 데이터 검증
+     */
+    public void validateAnswerUpdateRequest(CommunityAnswerUpdateReq req) {
+        // todo : 수정하고자하는 답변 ID 누락
+        if (req.answerId() == null) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
+        }
+        if (req.content() == null || req.content().trim().isEmpty()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
+        }
+
     }
 
     /**

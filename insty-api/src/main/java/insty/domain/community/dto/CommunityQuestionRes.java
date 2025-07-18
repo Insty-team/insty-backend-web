@@ -50,7 +50,7 @@ public record CommunityQuestionRes(
         // 1. 답변 목록 생성 (각 답변의 첨부 파일 포함)
         List<CommunityAnswerRes> answers = question.getAnswers().stream()
                 .map(answer -> {
-                    List<insty.model.community.CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                    List<insty.model.community.CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId());
                     List<insty.domain.common.FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
                     return CommunityAnswerRes.create(
                             answer.getUser().getId(),
@@ -70,7 +70,7 @@ public record CommunityQuestionRes(
         CommunityAnswerRes acceptedAnswerRes = null;
         if (question.getAcceptedAnswer() != null) {
             var acceptedAnswer = question.getAcceptedAnswer();
-            List<insty.model.community.CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+            List<insty.model.community.CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId());
             List<insty.domain.common.FileInfo> acceptedAnswerFileInfos = communityFileManager.convertAnswerFilesToFileInfos(acceptedAnswerFiles);
             acceptedAnswerRes = CommunityAnswerRes.create(
                     acceptedAnswer.getUser().getId(),

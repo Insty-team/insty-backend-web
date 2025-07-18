@@ -3,30 +3,29 @@ package insty.domain.community.dto;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
-public record CommunityAnswerReq(
-        String answerId,
+public record CommunityAnswerCreateReq(
         @NotNull
-        String questionId,
+        Long questionId,
         @NotNull
         Long userId,
         @NotNull
         String content,
         UUID videoUuid
 ) {
-    public static CommunityAnswerReq create(
-            @NotNull String questionId,
+    public static CommunityAnswerCreateReq create(
+            @NotNull Long questionId,
             @NotNull Long userId,
             @NotNull String content
     ) {
-        return new CommunityAnswerReq(null , questionId, userId, content, null);
+        return new CommunityAnswerCreateReq(questionId, userId, content, null);
     }
     
-    public static CommunityAnswerReq createWithVideo(
-            @NotNull String questionId,
+    public static CommunityAnswerCreateReq createWithVideo(
+            @NotNull Long questionId,
             @NotNull Long userId,
             @NotNull String content,
             UUID videoUuid
     ) {
-        return new CommunityAnswerReq(null, questionId, userId, content, videoUuid);
+        return new CommunityAnswerCreateReq( questionId, userId, content, videoUuid);
     }
 }

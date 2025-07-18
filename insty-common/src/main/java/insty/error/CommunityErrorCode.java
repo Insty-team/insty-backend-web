@@ -15,7 +15,8 @@ public enum CommunityErrorCode implements ErrorCode {
     COMMUNITY_COURSE_ID_IS_REQUIRED("COMMUNITY_012", "강의 ID가 필요합니다.", 400),
     COMMUNITY_USER_ID_IS_REQUIRED("COMMUNITY_013", "사용자 ID가 필요합니다.", 400),
     COMMUNITY_QUESTION_ID_IS_REQUIRED("COMMUNITY_014", "질문 ID가 필요합니다.", 400),
-    COMMUNITY_FILE_IS_EMPTY("COMMUNITY_015", "파일이 비어있습니다.", 400)
+    COMMUNITY_ANSWER_ID_IS_REQUIRED("COMMUNITY_015", "답변 ID가 필요합니다.", 400),
+    COMMUNITY_FILE_IS_EMPTY("COMMUNITY_016", "파일이 비어있습니다.", 400)
     ;
 
 

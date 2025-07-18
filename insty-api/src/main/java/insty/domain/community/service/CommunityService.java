@@ -56,23 +56,23 @@ public class CommunityService {
     /**
      * 특정 코스의 질문 목록 조회
      */
-    public List<CommunityQuestionRes> getQuestionsByCourseId(String courseId) {
+    public List<CommunityQuestionRes> getQuestionsByCourseId(Long courseId) {
         return communityReader.getAllCommunityQuestionsByCourseId(courseId).stream()
-                .map(q -> getQuestionDetails(q.getId().toString()))
+                .map(q -> getQuestionDetails(q.getId()))
                 .toList();
     }
 
     /**
      * 질문 상세 조회 (첨부 파일 포함)
      */
-    public CommunityQuestionRes getQuestionDetails(String questionId) {
+    public CommunityQuestionRes getQuestionDetails(Long questionId) {
         // 질문 조회
         CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
 
         // 답변 목록 생성 (각 답변의 첨부 파일 포함)
         List<CommunityAnswerRes> answers = question.getAnswers().stream()
                 .map(answer -> {
-                    List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                    List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId());
                     List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
                     return CommunityAnswerRes.create(
                             answer.getUser().getId(),
@@ -92,7 +92,7 @@ public class CommunityService {
         CommunityAnswerRes acceptedAnswerRes = null;
         if (question.getAcceptedAnswer() != null) {
             CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
-            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId());
             List<FileInfo> acceptedAnswerFileInfos = communityFileManager.convertAnswerFilesToFileInfos(acceptedAnswerFiles);
             acceptedAnswerRes = CommunityAnswerRes.create(
                     acceptedAnswer.getUser().getId(),
@@ -121,9 +121,9 @@ public class CommunityService {
     /**
      * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
      */
-    public CommunityQuestionRes saveQuestion(CommunityQuestionReq req, List<MultipartFile> attachments) {
+    public CommunityQuestionRes saveQuestion(CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
         // 요청 데이터 검증
-        communityValidator.validateQuestionRequest(req);
+        communityValidator.validateQuestionCreateRequest(req);
         communityValidator.validateFiles(attachments);
 
         // 관련 엔티티 조회
@@ -131,12 +131,12 @@ public class CommunityService {
         User user = userReader.getUser(req.userId());
 
         // 질문 엔티티 생성 및 저장
-        CommunityQuestion question = CommunityQuestion.create(course, user, req.title(), req.content());
-        question = communityWriter.saveQuestion(question, course, user);
+        CommunityQuestion question = communityWriter.saveQuestion(user, course, req);
 
         // 첨부 파일 저장 및 FileInfo 변환
         List<FileInfo> fileInfos = communityFileManager.saveQuestionFiles(question, attachments);
-
+        
+        // 비디오 등록
         return CommunityQuestionRes.create(
                 user.getId(),
                 course.getId(),
@@ -153,17 +153,17 @@ public class CommunityService {
     /**
      * 기존 질문을 수정하고 첨부 파일을 업데이트
      */
-    public CommunityQuestionRes updateQuestion(CommunityQuestionReq req, List<MultipartFile> attachments) {
+    public CommunityQuestionRes updateQuestion(Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
         // 요청 데이터 검증
-        communityValidator.validateQuestionRequest(req);
+        communityValidator.validateQuestionUpdateRequest(req);
         communityValidator.validateFiles(attachments);
 
         // 기존 질문 조회
-        CommunityQuestion prevQuestion = communityReader.getCommunityQuestionDetailsById(String.valueOf(req.questionId()));
+        CommunityQuestion prevQuestion = communityReader.getCommunityQuestionDetailsById(questionId);
         List<CommunityFile> existingAttachments = prevQuestion.getAttachments();
 
         // 질문 업데이트
-        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(prevQuestion, req, attachments);
+        CommunityQuestion updatedQuestion = communityWriter.updateQuestion(questionId, req);
 
         // 첨부 파일 처리
         List<FileInfo> updatedFileInfos;
@@ -178,7 +178,7 @@ public class CommunityService {
 
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(answer -> {
-                    List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+                    List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId());
                     List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
                     return CommunityAnswerRes.create(
                             answer.getUser().getId(),
@@ -195,7 +195,7 @@ public class CommunityService {
         CommunityAnswerRes acceptedAnswerRes = null;
         if (updatedQuestion.getAcceptedAnswer() != null) {
             CommunityAnswer acceptedAnswer = updatedQuestion.getAcceptedAnswer();
-            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId().toString());
+            List<CommunityAnswerFile> acceptedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId());
             List<FileInfo> acceptedAnswerFileInfos = communityFileManager.convertAnswerFilesToFileInfos(acceptedAnswerFiles);
             acceptedAnswerRes = CommunityAnswerRes.create(
                     acceptedAnswer.getUser().getId(),
@@ -224,7 +224,7 @@ public class CommunityService {
     /**
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
      */
-    public void deleteQuestion(String questionId) {
+    public void deleteQuestion(Long questionId) {
         CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
         communityWriter.deleteQuestion(question);
     }
@@ -234,16 +234,16 @@ public class CommunityService {
     /**
      * 특정 질문에 달린 모든 답변을 상세 정보와 함께 조회
      */
-    public List<CommunityAnswerRes> getAllAnswers(String questionId) {
+    public List<CommunityAnswerRes> getAllAnswers(Long questionId) {
         return communityReader.getAllCommunityAnswers(questionId).stream()
-                .map(answer -> getAnswerDetails(answer.getId().toString()))
+                .map(answer -> getAnswerDetails(answer.getId()))
                 .toList();
     }
 
     /**
      * 답변의 모든 정보와 첨부 파일을 포함하여 조회
      */
-    public CommunityAnswerRes getAnswerDetails(String answerId) {
+    public CommunityAnswerRes getAnswerDetails(Long answerId) {
         // 답변 조회
         CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
 
@@ -266,9 +266,9 @@ public class CommunityService {
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
      */
-    public CommunityAnswerRes saveAnswer(CommunityAnswerReq req, List<MultipartFile> imageFiles, String videoUuid) {
+    public CommunityAnswerRes saveAnswer(CommunityAnswerCreateReq req, List<MultipartFile> imageFiles, String videoUuid) {
         // 요청 데이터 검증
-        communityValidator.validateAnswerRequest(req);
+        communityValidator.validateAnswerCreateRequest(req);
         communityValidator.validateFiles(imageFiles);
 
         // 관련 엔티티 조회
@@ -276,7 +276,7 @@ public class CommunityService {
         User user = userReader.getUser(req.userId());
 
         // 답변 저장
-        CommunityAnswer answer = communityWriter.saveAnswer(question, req, user);
+        CommunityAnswer answer = communityWriter.saveAnswer(user, question, req);
 
         // 이미지 파일 저장
         communityFileManager.saveAnswerImageFiles(answer, imageFiles);
@@ -288,7 +288,7 @@ public class CommunityService {
         }
 
         // 저장된 파일 정보 조회 및 응답 생성
-        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId().toString());
+        List<CommunityAnswerFile> answerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answer.getId());
         List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(answerFiles);
 
         return CommunityAnswerRes.create(
@@ -305,17 +305,17 @@ public class CommunityService {
      * 기존 답변을 수정하고 첨부 파일을 업데이트
      * 새로운 파일이 첨부되면 기존 파일을 삭제하고 새 파일을 저장
      */
-    public CommunityAnswerRes updateAnswer(CommunityAnswerReq req, List<MultipartFile> imageFiles, String videoUuid) {
+    public CommunityAnswerRes updateAnswer(Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> imageFiles, String videoUuid) {
         // 요청 데이터 검증
-        communityValidator.validateAnswerRequest(req);
+        communityValidator.validateAnswerUpdateRequest(req);
         communityValidator.validateFiles(imageFiles);
 
         // 기존 답변 조회 및 수정
-        CommunityAnswer prevAnswer = communityReader.getCommunityAnswerById(req.answerId());
-        CommunityAnswer updatedAnswer = communityWriter.updateAnswer(prevAnswer, req);
+        CommunityAnswer prevAnswer = communityReader.getCommunityAnswerById(answerId);
+        CommunityAnswer updatedAnswer = communityWriter.updateAnswer(answerId, req);
 
         // 기존 파일 조회
-        List<CommunityAnswerFile> existingAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(req.answerId());
+        List<CommunityAnswerFile> existingAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
 
         // 이미지 파일 처리
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -333,7 +333,7 @@ public class CommunityService {
         }
 
         // 6. 업데이트된 파일 정보 조회 및 응답 생성
-        List<CommunityAnswerFile> updatedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(req.answerId());
+        List<CommunityAnswerFile> updatedAnswerFiles = communityReader.getCommunityAnswerFilesByAnswerId(answerId);
         List<FileInfo> fileInfos = communityFileManager.convertAnswerFilesToFileInfos(updatedAnswerFiles);
 
         return CommunityAnswerRes.create(
@@ -349,7 +349,7 @@ public class CommunityService {
     /**
      * 답변과 관련된 모든 데이터(첨부 파일 등)를 함께 삭제
      */
-    public void deleteAnswer(String answerId) {
+    public void deleteAnswer(Long answerId) {
         CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
         communityWriter.deleteAnswer(answer);
     }
@@ -361,7 +361,7 @@ public class CommunityService {
      * 질문 작성자가 특정 답변을 채택
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
-    public void acceptAnswer(String questionId, String answerId) {
+    public void acceptAnswer(Long questionId, Long answerId) {
         // 1. 질문과 답변 조회
         CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
         CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
@@ -376,7 +376,7 @@ public class CommunityService {
     /**
      * 질문 작성자가 채택된 답변을 취소
      */
-    public void unacceptAnswer(String questionId) {
+    public void unacceptAnswer(Long questionId) {
         CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
         communityWriter.unacceptAnswer(question);
     }

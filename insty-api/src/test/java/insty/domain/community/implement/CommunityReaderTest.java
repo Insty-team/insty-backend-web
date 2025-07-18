@@ -59,7 +59,7 @@ class CommunityReaderTest {
     @Test
     void getAllCommunityQuestionsByCourseId_정상() {
         // given
-        String courseId = "1";
+        Long courseId = 1L;
         CommunityQuestion question1 = mock(CommunityQuestion.class);
         CommunityQuestion question2 = mock(CommunityQuestion.class);
         List<CommunityQuestion> questions = List.of(question1, question2);
@@ -78,7 +78,7 @@ class CommunityReaderTest {
     @Test
     void getCommunityQuestionDetailsById_정상() {
         // given
-        String questionId = "1";
+        Long questionId = 1L;
         CommunityQuestion question = mock(CommunityQuestion.class);
 
         // mock
@@ -95,7 +95,7 @@ class CommunityReaderTest {
     @Test
     void getCommunityQuestionDetailsById_에러_존재하지_않는_질문() {
         // given
-        String questionId = "1";
+        Long questionId = 1L;
 
         // mock
         when(communityQuestionRepository.findById(1L)).thenReturn(Optional.empty());
@@ -112,7 +112,7 @@ class CommunityReaderTest {
     @Test
     void getCommunityAnswerById_정상() {
         // given
-        String answerId = "1";
+        Long answerId = 1L;
         CommunityAnswer answer = mock(CommunityAnswer.class);
 
         // mock
@@ -129,7 +129,7 @@ class CommunityReaderTest {
     @Test
     void getCommunityAnswerById_에러_존재하지_않는_답변() {
         // given
-        String answerId = "1";
+        Long answerId = 1L;
 
         // mock
         when(communityAnswerRepository.findById(1L)).thenReturn(Optional.empty());
@@ -146,7 +146,7 @@ class CommunityReaderTest {
     @Test
     void getAllCommunityAnswers_정상() {
         // given
-        String questionId = "1";
+        Long questionId = 1L;
         CommunityAnswer answer1 = mock(CommunityAnswer.class);
         CommunityAnswer answer2 = mock(CommunityAnswer.class);
         List<CommunityAnswer> answers = List.of(answer1, answer2);
@@ -165,7 +165,7 @@ class CommunityReaderTest {
     @Test
     void getCommunityAnswerFilesByAnswerId_정상() {
         // given
-        String answerId = "1";
+        Long answerId = 1L;
         CommunityAnswerFile answerFile1 = mock(CommunityAnswerFile.class);
         CommunityAnswerFile answerFile2 = mock(CommunityAnswerFile.class);
         List<CommunityAnswerFile> answerFiles = List.of(answerFile1, answerFile2);
