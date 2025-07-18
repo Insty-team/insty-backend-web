@@ -51,6 +51,11 @@ public class CommunityAnswer extends BaseEntity {
     @Builder.Default
     private boolean isAccepted = false;
 
+    @OneToMany(mappedBy = "communityAnswer", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @Builder.Default
+    private List<CommunityAnswerFile> attachments = new ArrayList<>();
+
+
     public static CommunityAnswer create(CommunityQuestion communityQuestion, User user, String content) {
         validateCreate(communityQuestion, user, content);
         return CommunityAnswer.builder()
