@@ -53,14 +53,14 @@ class CommunityComplexReaderTest {
                 .thenReturn(List.of(question));
 
         // when
-        List<CommunityQuestionRes> res = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestion> res = communityComplexReader.searchQuestions(paginationReq, filter, sort);
 
         // then
         assertThat(res).hasSize(1);
-        assertThat(res.get(0).title()).isEqualTo("질문1");
-        assertThat(res.get(0).content()).isEqualTo("내용1");
-        assertThat(res.get(0).userId()).isEqualTo(question.getUser().getId());
-        assertThat(res.get(0).courseId()).isEqualTo(question.getCourse().getId());
+        assertThat(res.get(0).getTitle()).isEqualTo("질문1");
+        assertThat(res.get(0).getContent()).isEqualTo("내용1");
+        assertThat(res.get(0).getUser().getId()).isEqualTo(question.getUser().getId());
+        assertThat(res.get(0).getCourse().getId()).isEqualTo(question.getCourse().getId());
     }
 
     @Test
@@ -71,32 +71,25 @@ class CommunityComplexReaderTest {
         PaginationReq paginationReq = new PaginationReq(1, 10);
         CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null);
         String sort = "createdAt:desc";
-
         CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(2L, "질문2", "내용2");
-        // 첨부파일
         CommunityFile file = CommunityFile.create(question, FileFixtureBuilder.getCourseThumbnailWithId());
         ReflectionTestUtils.setField(question, "attachments", List.of(file));
-        when(communityFileManager.convertToFileInfos(any())).thenReturn(List.of());
-        // 답변
         CommunityAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question, 200L, "답변내용");
         ReflectionTestUtils.setField(question, "answers", List.of(answer));
-        when(communityReader.getCommunityAnswerFilesByAnswerId(any())).thenReturn(List.of());
-        when(communityFileManager.convertAnswerFilesToFileInfos(any())).thenReturn(List.of());
-        // 채택답변
         ReflectionTestUtils.setField(question, "acceptedAnswer", answer);
-
         when(communityQuestionQueryRepository.searchQuestions(paginationReq, filter, sort))
                 .thenReturn(List.of(question));
 
         // when
-        List<CommunityQuestionRes> res = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestion> res = communityComplexReader.searchQuestions(paginationReq, filter, sort);
 
         // then
         assertThat(res).hasSize(1);
-        assertThat(res.get(0).attachments()).isNotNull();
-        assertThat(res.get(0).answers()).isNotNull();
-        assertThat(res.get(0).acceptedAnswer()).isNotNull();
+        assertThat(res.get(0).getAttachments()).isNotNull();
+        assertThat(res.get(0).getAnswers()).isNotNull();
+        assertThat(res.get(0).getAcceptedAnswer()).isNotNull();
     }
+
 
     @Test
     void searchQuestions_여러_질문_여러_필드_검증() {
@@ -113,15 +106,15 @@ class CommunityComplexReaderTest {
                 .thenReturn(List.of(q1, q2));
 
         // when
-        List<CommunityQuestionRes> res = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestion> res = communityComplexReader.searchQuestions(paginationReq, filter, sort);
 
         // then
         assertThat(res).hasSize(2);
-        assertThat(res.get(0).title()).isEqualTo("질문1");
-        assertThat(res.get(1).title()).isEqualTo("질문2");
-        assertThat(res.get(0).answers()).isEmpty();
-        assertThat(res.get(0).attachments()).isEmpty();
-        assertThat(res.get(0).acceptedAnswer()).isNull();
+        assertThat(res.get(0).getTitle()).isEqualTo("질문1");
+        assertThat(res.get(1).getTitle()).isEqualTo("질문2");
+        assertThat(res.get(0).getAnswers()).isEmpty();
+        assertThat(res.get(0).getAnswers()).isEmpty();
+        assertThat(res.get(0).getAcceptedAnswer()).isNull();
     }
 
     @Test

@@ -6,11 +6,10 @@ import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.*;
 import insty.domain.community.implement.CommunityAnswerAcceptService;
+import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityComplexReader;
-import insty.domain.community.implement.CommunityFileManager;
-import insty.domain.community.implement.CommunityReader;
+import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityValidator;
-import insty.domain.community.implement.CommunityWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
@@ -39,9 +38,12 @@ public class CommunityService {
     private final CommunityQuestionReader communityQuestionReader;
     private final CommunityQuestionWriter communityQuestionWriter;
     private final CommunityComplexReader communityComplexReader;
-    private final CommunityQuestionFileWriter communityQuestionFileWriter;
+
     private final CommunityAnswerReader communityAnswerReader;
     private final CommunityAnswerWriter communityAnswerWriter;
+    private final CommunityQuestionFileReader communityQuestionFileReader;
+    private final CommunityQuestionFileWriter communityQuestionFileWriter;
+    private final CommunityAnswerFileReader communityAnswerFileReader;
     private final CommunityAnswerFileWriter communityAnswerFileWriter;
     private final CommunityValidator communityValidator;
     private final CommunityAnswerAcceptService communityAnswerAcceptService;
@@ -59,9 +61,22 @@ public class CommunityService {
         CommunityQuestionSearchFilter filter = req.toSearchFilter();
         String sort = req.sort();
 
-        List<CommunityQuestionRes> questionResList = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestion> questions = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+
+        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
+                .map( question -> CommunityQuestionRes.from(
+                        question,
+                        communityQuestionFileReader.getQuestionFileInfos(question),
+                        question.getAnswers().stream().map(
+                                answer -> CommunityAnswerRes.from(answer, communityAnswerFileReader.getAnswerFileInfos(answer)
+                                )
+                        ).toList()
+                )).toList();
+
+
+
         PaginationRes paginationRes = communityComplexReader.countSearchQuestions(paginationReq, filter);
-        return SearchRes.from(paginationRes, questionResList);
+        return SearchRes.from(paginationRes, communityQuestionRes);
     }
 
     /**
@@ -79,53 +94,19 @@ public class CommunityService {
     public CommunityQuestionRes getQuestionDetails(Long questionId) {
         // 질문 조회
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
+
 
         // 답변 목록 생성 (각 답변의 첨부 파일 포함)
         List<CommunityAnswerRes> answers = question.getAnswers().stream()
                 .map(answer -> {
-                    List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answer.getId());
-                    List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
-                    return CommunityAnswerRes.create(
-                            answer.getUser().getId(),
-                            answer.getContent(),
-                            fileInfos,
-                            answer.getCreatedAt(),
-                            answer.getUpdatedAt(),
-                            answer.isAccepted()
-                    );
+                    List<FileInfo> fileInfos =  communityAnswerFileReader.getAnswerFileInfos(answer);
+                    return CommunityAnswerRes.from(answer, fileInfos);
                 })
                 .toList();
 
-        // 질문 첨부 파일 처리
-        List<FileInfo> questionAttachments = question.getAttachments() == null ? List.of() : question.getAttachments().stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
 
-        // 채택된 답변 처리 (있는 경우에만)
-        CommunityAnswerRes acceptedAnswerRes = null;
-        if (question.getAcceptedAnswer() != null) {
-            CommunityAnswer acceptedAnswer = question.getAcceptedAnswer();
-            List<CommunityAnswerFile> acceptedAnswerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId());
-            List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles == null ? List.of() : acceptedAnswerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
-            acceptedAnswerRes = CommunityAnswerRes.create(
-                    acceptedAnswer.getUser().getId(),
-                    acceptedAnswer.getContent(),
-                    acceptedAnswerFileInfos,
-                    acceptedAnswer.getCreatedAt(),
-                    acceptedAnswer.getUpdatedAt(),
-                    acceptedAnswer.isAccepted()
-            );
-        }
-
-        return CommunityQuestionRes.create(
-                question.getUser().getId(),
-                question.getCourse().getId(),
-                question.getTitle(),
-                question.getContent(),
-                question.getCreatedAt(),
-                question.getUpdatedAt(),
-                answers,
-                questionAttachments,
-                acceptedAnswerRes
-        );
+        return CommunityQuestionRes.from(question, questionFileInfos, answers);
     }
 
 
@@ -147,18 +128,7 @@ public class CommunityService {
         // 첨부 파일 저장 및 FileInfo 변환
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
 
-        // 비디오 등록
-        return CommunityQuestionRes.create(
-                user.getId(),
-                course.getId(),
-                question.getTitle(),
-                question.getContent(),
-                question.getCreatedAt(),
-                question.getUpdatedAt(),
-                List.of(),
-                fileInfos,
-                null
-        );
+        return CommunityQuestionRes.from(question, fileInfos, null);
     }
 
     /**
@@ -191,45 +161,11 @@ public class CommunityService {
                 .map(answer -> {
                     List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answer.getId());
                     List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
-                    return CommunityAnswerRes.create(
-                            answer.getUser().getId(),
-                            answer.getContent(),
-                            fileInfos,
-                            answer.getCreatedAt(),
-                            answer.getUpdatedAt(),
-                            answer.isAccepted()
-                    );
+                    return CommunityAnswerRes.from(answer,fileInfos);
                 })
                 .toList();
 
-        // 채택된 답변 처리 (있는 경우에만)
-        CommunityAnswerRes acceptedAnswerRes = null;
-        if (updatedQuestion.getAcceptedAnswer() != null) {
-            CommunityAnswer acceptedAnswer = updatedQuestion.getAcceptedAnswer();
-            List<CommunityAnswerFile> acceptedAnswerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(acceptedAnswer.getId());
-            List<FileInfo> acceptedAnswerFileInfos = acceptedAnswerFiles == null ? List.of() : acceptedAnswerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
-            acceptedAnswerRes = CommunityAnswerRes.create(
-                    acceptedAnswer.getUser().getId(),
-                    acceptedAnswer.getContent(),
-                    acceptedAnswerFileInfos,
-                    acceptedAnswer.getCreatedAt(),
-                    acceptedAnswer.getUpdatedAt(),
-                    acceptedAnswer.isAccepted()
-            );
-        }
-
-        // 최종 응답 데이터 생성
-        return CommunityQuestionRes.create(
-                updatedQuestion.getUser().getId(),
-                updatedQuestion.getCourse().getId(),
-                updatedQuestion.getTitle(),
-                updatedQuestion.getContent(),
-                updatedQuestion.getCreatedAt(),
-                updatedQuestion.getUpdatedAt(),
-                answers,
-                updatedFileInfos,
-                acceptedAnswerRes
-        );
+        return CommunityQuestionRes.from(updatedQuestion, updatedFileInfos, answers);
     }
 
     /**
@@ -262,15 +198,7 @@ public class CommunityService {
         List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answerId);
         List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
 
-        // 응답 데이터 생성
-        return CommunityAnswerRes.create(
-                answer.getUser().getId(),
-                answer.getContent(),
-                fileInfos,
-                answer.getCreatedAt(),
-                answer.getUpdatedAt(),
-                answer.isAccepted()
-        );
+        return CommunityAnswerRes.from(answer, fileInfos);
     }
 
 
@@ -302,14 +230,7 @@ public class CommunityService {
         List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answer.getId());
         List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
 
-        return CommunityAnswerRes.create(
-                user.getId(),
-                answer.getContent(),
-                fileInfos,
-                answer.getCreatedAt(),
-                answer.getUpdatedAt(),
-                answer.isAccepted()
-        );
+        return CommunityAnswerRes.from(answer, fileInfos);
     }
 
     /**
@@ -347,14 +268,7 @@ public class CommunityService {
         List<CommunityAnswerFile> updatedAnswerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answerId);
         List<FileInfo> fileInfos = updatedAnswerFiles == null ? List.of() : updatedAnswerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
 
-        return CommunityAnswerRes.create(
-                updatedAnswer.getUser().getId(),
-                updatedAnswer.getContent(),
-                fileInfos,
-                updatedAnswer.getCreatedAt(),
-                updatedAnswer.getUpdatedAt(),
-                updatedAnswer.isAccepted()
-        );
+        return CommunityAnswerRes.from(updatedAnswer, fileInfos);
     }
 
     /**

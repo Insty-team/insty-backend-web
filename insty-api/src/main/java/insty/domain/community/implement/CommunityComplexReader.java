@@ -16,14 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommunityComplexReader {
     private final CommunityQuestionQueryRepository communityQuestionQueryRepository;
-    private final CommunityReader communityReader;
-    private final CommunityFileManager communityFileManager;
 
-    public List<CommunityQuestionRes> searchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter, String sort) {
-        List<CommunityQuestion> questions = communityQuestionQueryRepository.searchQuestions(paginationReq, filter, sort);
-        return questions.stream()
-                .map(q -> CommunityQuestionRes.from(q, communityReader, communityFileManager))
-                .toList();
+    public List<CommunityQuestion> searchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter, String sort) {
+        return communityQuestionQueryRepository.searchQuestions(paginationReq, filter, sort);
     }
 
     public PaginationRes countSearchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter) {
