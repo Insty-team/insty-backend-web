@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationRes;
@@ -109,6 +110,8 @@ class CourseServiceTest {
     private S3FileManager s3FileManager;
     @MockitoBean
     private CloudFrontSigner cloudFrontSigner;
+    @MockitoBean
+    private AiRequester aiRequester;
     @MockitoBean
     private AppProperties appProperties;
 
