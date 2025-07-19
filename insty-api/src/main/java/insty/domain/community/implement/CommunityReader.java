@@ -2,10 +2,12 @@ package insty.domain.community.implement;
 
 import insty.domain.community.reposiotry.CommunityAnswerRepository;
 import insty.domain.community.reposiotry.CommunityQuestionRepository;
+import insty.domain.community.reposiotry.CommunityAnswerFileRepository;
 import insty.error.CommunityErrorCode;
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
+import insty.model.community.CommunityAnswerFile;
 import insty.model.community.CommunityQuestion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class CommunityReader {
 
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
+    private final CommunityAnswerFileRepository communityAnswerFileRepository;
 
     public List<CommunityQuestion> getAllCommunityQuestions() {
         return communityQuestionRepository.findAll();
@@ -42,5 +45,9 @@ public class CommunityReader {
 
     public List<CommunityAnswer> getAllCommunityAnswers(String questionId) {
         return communityAnswerRepository.findAllByCommunityQuestionId(Long.parseLong(questionId));
+    }
+
+    public List<CommunityAnswerFile> getCommunityAnswerFilesByAnswerId(String answerId) {
+        return communityAnswerFileRepository.findAllByCommunityAnswerId(Long.parseLong(answerId));
     }
 }

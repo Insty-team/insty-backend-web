@@ -1,9 +1,12 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import insty.domain.common.FileInfo;
+import insty.error.CourseErrorCode;
+import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.course.Course;
 import insty.model.course.CourseFixtureBuilder;
@@ -65,20 +68,22 @@ class CourseFileReaderTest {
 
         // then
         assertThat(thumbnailUrl).isEqualTo(
-                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.0000000.jpg");
+                "https://insty.test.com/file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg");
     }
 
     @Test
-    void getThumbnailUrl_정상_썸네일이_없고_video_uuid도_null이면_null을_반환한다() {
+    void getThumbnailUrl_에러_연결된_영상이_없어_videoUuid가_null이다() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         UUID videoUuid = null;
 
         // when
-        String thumbnailUrl = courseFileReader.getThumbnailUrl(course, videoUuid);
 
         // then
-        assertThat(thumbnailUrl).isNull();
+        assertThatThrownBy(() -> courseFileReader.getThumbnailUrl(course, videoUuid))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseErrorCode.COURSE_NOT_FOUND_LINKED_VIDEO);
     }
 
     @Test

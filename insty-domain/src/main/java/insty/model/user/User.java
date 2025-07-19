@@ -98,16 +98,24 @@ public class User extends BaseEntity {
     }
 
     // 사용자 정보 수정 객체 생성
-    public void update(String email, String password, String nickname, String introduce) {
+    public void update(String email,String nickname, String introduce) {
         this.email = email;
-        this.password = password;
         this.nickname = nickname;
         this.introduce = introduce;
+    }
+
+    // 비밀번호 변경
+    public void changePassword(String password) {
+        this.password = password;
     }
 
     // 사용자 전환
     public void update(UserType userType) {
         this.userType = userType;
+    }
+
+    public boolean isSocialUser() {
+        return this.socialId != null;
     }
 
     public void update(boolean isEmailAgreed) {

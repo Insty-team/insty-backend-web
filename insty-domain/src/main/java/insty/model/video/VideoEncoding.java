@@ -35,7 +35,7 @@ public class VideoEncoding {
     @Column(nullable = false, length = 10)
     private String format;
 
-    @Column(name = "encoding_s3_key", nullable = false, length = 1000)
+    @Column(name = "encoding_s3_key", nullable = false, length = 500)
     private String encodingS3Key;
 
     @Column(nullable = false, updatable = false)

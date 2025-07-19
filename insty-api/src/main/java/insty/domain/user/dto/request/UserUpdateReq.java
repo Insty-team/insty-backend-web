@@ -13,28 +13,34 @@ public record UserUpdateReq (
         @Email(message = "올바른 이메일 형식이어야 합니다.")
         String email,
 
+        @Schema(description = "닉네임", example = "유재석")
+        @NotBlank(message = "닉네임은 필수입니다.")
+        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
+        @Pattern(regexp = "^[a-zA-Z가-힣0-9]{2,10}$", message = "닉네임은 한글 또는 영문만 허용되며 특수문자는 사용할 수 없습니다.")
+        String nickname,
+
+        @Schema(description = "소개글", example = "안녕하세요 저를 소개합니다.")
+        @Size(max = 4000, message = "소개글은 4000자 이하로 입력 가능합니다.")
+        String introduce,
+
         /*
             (?=.*[A-Za-z])      // 영문이 있나?
             (?=.*\d)            // 숫자가 있나?
             (?=.*[!@#$...])     // 특수문자가 있나?
          */
-        @Schema(description = "비밀번호", example = "abc123!")
-        @NotBlank(message = "비밀번호는 필수입니다.")
+        @Schema(description = "현재 비밀번호", example = "abc123!")
+        @Pattern(
+                regexp = "^$|^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
+                message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
+        )
+        String currentPassword,
+
+        @Schema(description = "수정할 비밀번호", example = "abc1234!")
         @Pattern(
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:'\",.<>/?]).+$",
                 message = "비밀번호는 영문, 숫자, 특수문자를 각각 1개 이상이어야 합니다."
         )
-        String password,
-
-        @Schema(description = "닉네임", example = "유재석")
-        @NotBlank(message = "닉네임은 필수입니다.")
-        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
-        @Pattern(regexp = "^[a-zA-Z가-힣]{1,10}$", message = "닉네임은 한글 또는 영문만 허용되며 특수문자는 사용할 수 없습니다.")
-        String nickname,
-
-        @Schema(description = "소개글", example = "안녕하세요 저를 소개합니다.")
-        @Size(max = 4000, message = "소개글은 4000자 이하로 입력 가능합니다.")
-        String introduce
+        String newPassword
 ) {
 
 }

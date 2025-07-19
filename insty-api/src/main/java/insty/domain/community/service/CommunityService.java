@@ -24,12 +24,15 @@ public interface CommunityService {
 
     CommunityAnswerRes getAnswerDetails(String answerId);
 
-    //불필요해보임
     List<CommunityAnswerRes> getAllAnswers(String questionId);
 
-    CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, MultipartFile imageFile);
+    CommunityAnswerRes saveAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid);
 
-    CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq);
+    CommunityAnswerRes updateAnswer(CommunityAnswerReq communityAnswerReq, List<MultipartFile> imageFiles, String videoUuid);
 
-    void deleteAnswer(CommunityAnswerReq communityAnswerReq);
+    void deleteAnswer(String answerId);
+
+    void acceptAnswer(String questionId, String answerId);
+
+    void unacceptAnswer(String questionId);
 }

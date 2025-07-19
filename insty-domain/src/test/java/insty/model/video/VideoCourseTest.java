@@ -74,6 +74,24 @@ class VideoCourseTest {
     }
 
     @Test
+    void create_에러_fileName이_150자를_초과했다() {
+        // given
+        String fileName = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.mp4";
+        assertThat(fileName.length()).isEqualTo(151);
+
+        UUID uuid = UUID.randomUUID();
+        User user = UserFixtureBuilder.getUserWithId();
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> VideoCourse.create(fileName, uuid, user))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
+    }
+
+    @Test
     void create_에러_uuid가_null이다() {
         // given
         String fileName = "fileName.mp4";

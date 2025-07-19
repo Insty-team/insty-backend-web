@@ -31,7 +31,6 @@ public class CommunityWriter {
     private final CommunityFileRepository communityFileRepository;
     private final CommunityAnswerFileRepository communityAnswerFileRepository;
 
-    // TODO: 첨부파일
     public CommunityQuestion saveQuestion(CommunityQuestion communityQuestion, Course course, User user) {
 
         return communityQuestionRepository.save(communityQuestion);
@@ -43,14 +42,32 @@ public class CommunityWriter {
 
     }
 
+    public List<CommunityAnswerFile> saveCommunityAnswerFiles(List<CommunityAnswerFile> communityAnswerFiles) {
+
+        return communityAnswerFileRepository.saveAll(communityAnswerFiles);
+
+    }
+
     public CommunityAnswerFile saveCommunityAnswerFile(CommunityAnswerFile communityAnswerFile) {
 
         return communityAnswerFileRepository.save(communityAnswerFile);
 
     }
 
+    public void deleteCommunityFiles(List<CommunityFile> communityFiles) {
+
+        communityFileRepository.deleteAll(communityFiles);
+
+    }
+
+    public void deleteCommunityAnswerFiles(List<CommunityAnswerFile> communityAnswerFiles) {
+
+        communityAnswerFileRepository.deleteAll(communityAnswerFiles);
+
+    }
+
     public CommunityQuestion updateQuestion(CommunityQuestion prevCommunityQuestion, CommunityQuestionReq communityQuestionReq, List<MultipartFile> attachments) {
-        //prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), attachments);
+        prevCommunityQuestion.update(communityQuestionReq.title(), communityQuestionReq.content(), prevCommunityQuestion.getAttachments());
         return communityQuestionRepository.save(prevCommunityQuestion);
     }
 
@@ -79,5 +96,15 @@ public class CommunityWriter {
     public void deleteAnswer(CommunityAnswer communityAnswer) {
 
         communityAnswerRepository.delete(communityAnswer);
+    }
+
+    public void acceptAnswer(CommunityQuestion communityQuestion, CommunityAnswer communityAnswer) {
+        communityQuestion.acceptAnswer(communityAnswer);
+        communityQuestionRepository.save(communityQuestion);
+    }
+
+    public void unacceptAnswer(CommunityQuestion communityQuestion) {
+        communityQuestion.unacceptAnswer();
+        communityQuestionRepository.save(communityQuestion);
     }
 }

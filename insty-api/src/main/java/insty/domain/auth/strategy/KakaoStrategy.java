@@ -1,5 +1,6 @@
 package insty.domain.auth.strategy;
 
+import insty.generator.NicknameGenerator;
 import insty.social.kakao.dto.KakaoTokenRes;
 import insty.social.kakao.dto.KakaoUserInfoRes;
 import insty.social.kakao.adapter.KakaoService;
@@ -51,7 +52,7 @@ public class KakaoStrategy implements SocialStrategy {
 
         Long socialId = userProfile.id();       // 소셜 회원 ID
         String email = userProfile.kakaoAccount().email();      // 이메일
-        String nickname = userProfile.kakaoAccount().profile().nickname();      // 닉네임
+        String nickname = NicknameGenerator.generateNickname();
 
         log.info("카카오 로그인 : 사용자 정보 조회 완료 , 소셜 ID : {}", socialId);
 

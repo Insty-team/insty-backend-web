@@ -4,17 +4,16 @@ import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
-import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.implement.UserFileReader;
 import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
-import insty.error.UserErrorCode;
 import insty.model.user.User;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -59,21 +58,15 @@ public class UserService {
     /**
      * 이메일 존재여부 체크
      */
-    public UserDuplicateCheckRes existCheckByEmail(UserEmailCheckReq req) {
-        boolean emailExists = userReader.existCheckByEmail(req.email());
-        boolean isAvailable = !emailExists; // 존재하지 않으면 사용가능
-        String reason = isAvailable ? "사용 가능한 이메일입니다." : UserErrorCode.USER_DUPLICATE_EMAIL.getMessage();
-        return UserDuplicateCheckRes.from(isAvailable, reason);
+    public void existCheckByEmail(UserEmailCheckReq req) {
+        userValidator.validateDuplicateEmail(req.email());
     }
 
     /**
      * 닉네임 존재여부 체크
      */
-    public UserDuplicateCheckRes existsCheckByNickname(UserNicknameCheckReq req) {
-        boolean nicknameExists = userReader.existCheckByNickname(req.nickname());
-        boolean isAvailable = !nicknameExists; // 존재하지 않으면 사용가능
-        String reason = isAvailable ? "사용 가능한 닉네임입니다." : UserErrorCode.USER_DUPLICATE_NICKNAME.getMessage();
-        return UserDuplicateCheckRes.from(isAvailable, reason);
+    public void existsCheckByNickname(UserNicknameCheckReq req) {
+        userValidator.validateDuplicateNickname(req.nickname());
     }
 
 
@@ -90,29 +83,48 @@ public class UserService {
      * 사용자 정보 수정
      */
     public UserDetailRes updateUser(Long userId, UserUpdateReq req, MultipartFile profileImage) {
-        // 내껏을 제회한 유효성 체크
-        userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
-        userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+        User findUser = userReader.getUser(userId);
+        if(findUser.isSocialUser()) {
+            userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+            userValidator.validateRestrictedUpdatesForSocialUser(findUser, req);
 
-        String encodedPassword = bCryptPasswordEncoder.encode(req.password());
-        User updatedUser = userWriter.updateUser(
-                userId,
-                req.email(),
-                encodedPassword,
-                req.nickname(),
-                req.introduce()
-        );
-        Optional<String> savedUrl = userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage);
-        String profileImageUrl = savedUrl.orElseGet(() -> userFileReader.getProfileImageUrl(updatedUser));
+            User updatedUser = userWriter.changeNickname(findUser, req.nickname(), req.introduce());
+            String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
 
-        return UserDetailRes.from(updatedUser, profileImageUrl);
+            return UserDetailRes.from(updatedUser, profileImageUrl);
+        } else {
+            userValidator.validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
+            userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
+            userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
+
+            // TODO 회원 정보 수정 페이지 분리 되면 삭제 예정
+            if(req.currentPassword() != null && req.newPassword() != null) {
+                userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
+                String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
+                userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+                userWriter.changePassword(findUser, encodedPassword);
+            }
+
+
+            User updatedUser = userWriter.updateUser(
+                    findUser,
+                    req.email(),
+                    req.nickname(),
+                    req.introduce()
+            );
+            Optional<String> savedUrl = userFileWriter.saveProfileImageGetUrl(updatedUser, profileImage);
+            String profileImageUrl = savedUrl.orElseGet(() -> userFileReader.getProfileImageUrl(updatedUser));
+
+            return UserDetailRes.from(updatedUser, profileImageUrl);
+        }
     }
 
     /**
      * 사용자 타입 변경
      */
     public UserDetailRes updateUserType(Long userId, UserTypeUpdateReq req) {
-        User updatedUser = userWriter.updateUserByUserType(userId, req.userType());
+        User findUser = userReader.getUser(userId);
+        User updatedUser = userWriter.changeUserType(findUser, req.userType());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
@@ -121,8 +133,24 @@ public class UserService {
      * 사용자 수신 및 약관 동의 여부 변경
      */
     public UserDetailRes updateAgreement(Long userId, UserAgreementUpdateReq req) {
-        User updatedUser = userWriter.updateUserByAgreement(userId, req.isEmailAgree());
+        User findUser = userReader.getUser(userId);
+        User updatedUser = userWriter.changeEmailAgreementStatus(findUser, req.isEmailAgree());
         String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+        return UserDetailRes.from(updatedUser, profileImageUrl);
+    }
+
+    /**
+     *  비밀번호 변경
+     */
+    public UserDetailRes updatePassword(Long userId, UserPasswordUpdateReq req) {
+        User findUser = userReader.getUser(userId);
+        userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
+        userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
+
+        String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
+        User updatedUser = userWriter.changePassword(findUser, encodedPassword);
+        String profileImageUrl = userFileReader.getProfileImageUrl(updatedUser);
+
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 }

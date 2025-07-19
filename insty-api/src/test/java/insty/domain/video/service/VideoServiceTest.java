@@ -11,13 +11,16 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
+import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.repository.UserRepository;
 import insty.domain.video.dto.VideoHlsPlaylistReq;
+import insty.domain.video.dto.VideoThumbnailRes;
 import insty.domain.video.dto.VideoUploadReq;
 import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoAccessManager;
+import insty.domain.video.implement.VideoFileReader;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.implement.VideoWriter;
 import insty.domain.video.repository.VideoAnswerRepository;
@@ -76,6 +79,8 @@ class VideoServiceTest {
     private VideoEncodingRepository videoEncodingRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private VideoFileReader videoFileReader;
 
     @MockitoBean
     private UuidProvider uuidProvider;
@@ -85,6 +90,8 @@ class VideoServiceTest {
     private S3FileManager s3FileManager;
     @MockitoBean
     private CloudFrontSigner cloudFrontSigner;
+    @MockitoBean
+    private AiRequester aiRequester;
     @MockitoBean
     private AppProperties appProperties;
 
@@ -178,6 +185,24 @@ class VideoServiceTest {
         assertThat(videoAnswer.getOriginalFileName()).isEqualTo(fileName);
         assertThat(videoAnswer.getEncodingStatus()).isEqualTo(EncodingStatus.PROCESSING);
         assertThat(videoAnswer.getEncodingAt()).isNotNull();
+    }
+
+    @Test
+    void getThumbnailUrl_정상() {
+        // given
+        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+        // mock
+        when(s3FileManager.doesFileExist(anyString()))
+                .thenReturn(true);
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
+        // when
+        VideoThumbnailRes res = videoService.getThumbnailUrl(fixedUuid);
+
+        // then
+        assertThat(res.thumbnailUrl()).isNotNull();
     }
 
     @Sql(statements = {

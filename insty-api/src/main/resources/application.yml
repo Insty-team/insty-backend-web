@@ -24,6 +24,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    open-in-view: false
 
   data:
     redis:
@@ -87,6 +88,7 @@ aws:
 app:
   domain: ${INSTY_DOMAIN}
   health-check-path: ${HEALTH_CHECK_PATH}
+  ai-api-secret: ${AI_API_SECRET}
 
 logging:
   level:

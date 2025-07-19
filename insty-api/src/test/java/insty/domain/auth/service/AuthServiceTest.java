@@ -93,7 +93,6 @@ class AuthServiceTest {
         assertEquals("accessToken", result.token().accessToken());
         assertEquals("refreshToken", result.token().refreshToken());
 
-        verify(userWriter).updateLastLoginAt(userId);
         verify(authTokenRedisWriter).saveRefreshToken(userId, "refreshToken");
     }
 

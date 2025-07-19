@@ -1,6 +1,7 @@
 package insty.domain.auth.strategy;
 
 import insty.domain.user.repository.UserRepository;
+import insty.generator.NicknameGenerator;
 import insty.model.user.SocialType;
 import insty.model.user.User;
 import insty.model.user.UserType;
@@ -50,7 +51,7 @@ public class GoogleStrategy implements SocialStrategy {
         GoogleUserInfoRes userProfile = googleService.getUserProfile(token.accessToken());
         String socialId = userProfile.id();       // 소셜 회원 ID
         String email = userProfile.email();      // 이메일
-        String nickname = userProfile.name();      // 닉네임
+        String nickname = NicknameGenerator.generateNickname();      // 닉네임
 
         log.info("구글 로그인 : 사용자 정보 조회 완료 , 소셜 ID : {}", socialId);
 

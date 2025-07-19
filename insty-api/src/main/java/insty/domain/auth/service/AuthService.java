@@ -64,8 +64,8 @@ public class AuthService {
         // 인증된 객체
         CustomUserDetails user = (CustomUserDetails) authenticated.getPrincipal();
         // 마지막 로그인 시간 변경 및 유저타입 변경
-        userWriter.updateLastLoginAt(user.getUserId());
-        userWriter.updateUserByUserType(user.getUserId(), req.userType());
+        userWriter.updateLastLoginAt(user.getUser());
+        userWriter.changeUserType(user.getUser(), req.userType());
 
         // 토큰 발급
         UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getUserId(), user.getUserType());
@@ -124,21 +124,21 @@ public class AuthService {
         log.info("{} 로그인 전략 동작", socialName);
 
         // 각 전략에 맞춰 유저 정보 조회
-        User user = socialLoginStrategy.loginBySocial(req.code(), req.userType());
+        User findUser = socialLoginStrategy.loginBySocial(req.code(), req.userType());
 
         // 마지막 로그인 시간 변경 및 유저타입 변경
-        userWriter.updateLastLoginAt(user.getId());
-        userWriter.updateUserByUserType(user.getId(), req.userType());
+        userWriter.updateLastLoginAt(findUser);
+        userWriter.changeUserType(findUser, req.userType());
 
         // 토큰 발급
-        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(user.getId(), user.getUserType());
-        authTokenRedisWriter.saveRefreshToken(user.getId(), token.refreshToken());  // redis에 저장
+        UserAuthTokenDto token = authTokenIssuer.generateUserTokens(findUser.getId(), findUser.getUserType());
+        authTokenRedisWriter.saveRefreshToken(findUser.getId(), token.refreshToken());  // redis에 저장
 
         // 응답 객체 생성
         return AuthUserRes.create(
-                user.getId(),
-                user.getNickname(),
-                user.getUserType(),
+                findUser.getId(),
+                findUser.getNickname(),
+                findUser.getUserType(),
                 token
         );
     }

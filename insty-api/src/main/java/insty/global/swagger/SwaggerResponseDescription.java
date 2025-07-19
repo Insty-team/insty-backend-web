@@ -1,15 +1,31 @@
 package insty.global.swagger;
 
+import static insty.ai.error.AiErrorCode.AI_API_REQUEST_FAILED;
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL;
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL;
+import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED;
+import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND;
+import static insty.error.CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID;
 import static insty.error.CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND;
+import static insty.error.CourseErrorCode.COURSE_CANT_CHANGE;
 import static insty.error.CourseErrorCode.COURSE_NOT_FOUND;
+import static insty.error.CourseErrorCode.COURSE_NOT_FOUND_LINKED_VIDEO;
+import static insty.error.CourseErrorCode.COURSE_THUMBNAIL_INVALID_EXTENSION;
+import static insty.error.CourseErrorCode.COURSE_TOO_MANY_PRACTICE_FILE;
 import static insty.error.UserErrorCode.USER_NOT_FOUND;
+import static insty.error.VideoErrorCode.VIDEO_BASIC_THUMBNAIL_NOT_FOUND;
+import static insty.error.VideoErrorCode.VIDEO_CANT_READ;
 import static insty.error.VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR;
+import static insty.error.VideoErrorCode.VIDEO_ENCODING_FAILED;
+import static insty.error.VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH;
+import static insty.error.VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE;
+import static insty.error.VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT;
 import static insty.error.VideoErrorCode.VIDEO_INVALID_FILE_NAME;
+import static insty.error.VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING;
 import static insty.error.VideoErrorCode.VIDEO_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_TYPE_NOT_MATCH;
+import static insty.s3.error.S3ErrorCode.S3_HEAD_ERROR;
 
 import insty.error.CommonErrorCode;
 import insty.error.ErrorCode;
@@ -40,23 +56,53 @@ public enum SwaggerResponseDescription {
     VIDEO_UPLOAD(new LinkedHashSet<>(Set.of(
             VIDEO_CONTENT_TYPE_ERROR,
             VIDEO_INVALID_FILE_NAME,
-            VIDEO_TYPE_NOT_MATCH
+            VIDEO_TYPE_NOT_MATCH,
+            VIDEO_EXCEED_UPLOAD_LIMIT,
+            USER_NOT_FOUND
+    ))),
+    VIDEO_THUMBNAIL_GET(new LinkedHashSet<>(Set.of(
+            VIDEO_BASIC_THUMBNAIL_NOT_FOUND,
+            S3_HEAD_ERROR
     ))),
     VIDEO_GET(new LinkedHashSet<>(Set.of(
             VIDEO_NOT_FOUND,
+            VIDEO_CANT_READ,
+            VIDEO_ENCODING_FAILED,
+            VIDEO_ENCODING_FAILED_INVALID_LENGTH,
+            VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE,
+            VIDEO_NOT_FINISHED_ENCODING,
             CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL
     ))),
     VIDEO_PREVIEW(new LinkedHashSet<>(Set.of(
             VIDEO_NOT_FOUND,
+            VIDEO_ENCODING_FAILED,
+            VIDEO_ENCODING_FAILED_INVALID_LENGTH,
+            VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE,
+            VIDEO_NOT_FINISHED_ENCODING,
             CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL
     ))),
     // course
-    COURSE_CREATE(new LinkedHashSet<>(Set.of())),
+    COURSE_CREATE(new LinkedHashSet<>(Set.of(
+            COURSE_THUMBNAIL_INVALID_EXTENSION,
+            USER_NOT_FOUND,
+            VIDEO_NOT_FOUND,
+            COURSE_NOT_FOUND_LINKED_VIDEO
+    ))),
     COURSE_UPDATE(new LinkedHashSet<>(Set.of(
-            COURSE_NOT_FOUND
+            COURSE_NOT_FOUND,
+            COURSE_CANT_CHANGE,
+            COURSE_THUMBNAIL_INVALID_EXTENSION,
+            VIDEO_NOT_FOUND,
+            COURSE_NOT_FOUND_LINKED_VIDEO,
+            COURSE_TOO_MANY_PRACTICE_FILE,
+            AI_API_REQUEST_FAILED
     ))),
     COURSE_DELETE(new LinkedHashSet<>(Set.of(
-            COURSE_NOT_FOUND
+            COURSE_NOT_FOUND,
+            COURSE_CANT_CHANGE,
+            VIDEO_NOT_FOUND,
+            COURSE_NOT_FOUND_LINKED_VIDEO,
+            AI_API_REQUEST_FAILED
     ))),
     COURSE_DETAIL(new LinkedHashSet<>(Set.of(
             COURSE_NOT_FOUND
@@ -79,12 +125,24 @@ public enum SwaggerResponseDescription {
     ))),
     COMMUNITY_QUESTION_CREATE(new LinkedHashSet<>(Set.of())),
     COMMUNITY_ANSWER_SEARCH(new LinkedHashSet<>(Set.of())),
-    COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of())),
+    COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of(
+            COMMUNITY_INVALID_VIDEO_UUID
+    ))),
     COMMUNITY_ANSWER_UPDATE(new LinkedHashSet<>(Set.of(
-            COMMUNITY_ANSWER_NOT_FOUND
+            COMMUNITY_ANSWER_NOT_FOUND,
+            COMMUNITY_INVALID_VIDEO_UUID
     ))),
     COMMUNITY_ANSWER_DELETE(new LinkedHashSet<>(Set.of(
             COMMUNITY_ANSWER_NOT_FOUND
+    ))),
+    COMMUNITY_ANSWER_ACCEPT(new LinkedHashSet<>(Set.of(
+            COMMUNITY_QUESTION_NOT_FOUND,
+            COMMUNITY_ANSWER_NOT_FOUND,
+            COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED,
+            COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION
+    ))),
+    COMMUNITY_ANSWER_UNACCEPT(new LinkedHashSet<>(Set.of(
+            COMMUNITY_QUESTION_NOT_FOUND
     )));
 
     private Set<ErrorCode> errorCodeList;

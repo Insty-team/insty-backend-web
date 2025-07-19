@@ -48,6 +48,10 @@ public class CommunityQuestion extends BaseEntity {
     @Builder.Default
     private List<CommunityAnswer> answers = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accepted_answer_id", nullable = true)
+    private CommunityAnswer acceptedAnswer;
+
     @Column(nullable = false)
     private String title;
 
@@ -84,6 +88,25 @@ public class CommunityQuestion extends BaseEntity {
         this.title = title;
         this.content = content;
         this.attachments = attachments;
+        this.updatedAt = Instant.now();
+    }
+
+    public void acceptAnswer(CommunityAnswer answer) {
+        if (this.acceptedAnswer != null) {
+            this.acceptedAnswer.unaccept();
+        }
+        this.acceptedAnswer = answer;
+        this.isAnswered = true;
+        answer.accept();
+        this.updatedAt = Instant.now();
+    }
+
+    public void unacceptAnswer() {
+        if (this.acceptedAnswer != null) {
+            this.acceptedAnswer.unaccept();
+            this.acceptedAnswer = null;
+        }
+        this.isAnswered = false;
         this.updatedAt = Instant.now();
     }
 

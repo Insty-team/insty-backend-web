@@ -5,11 +5,11 @@ import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
+import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
-import insty.domain.user.dto.response.UserDuplicateCheckRes;
 import insty.domain.user.service.UserService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
@@ -57,15 +57,17 @@ public class UserController {
     @Operation(summary = "이메일 중복 체크", description = "이메일이 이미 사용중인지 중복체크를 합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/email/check")
-    public SuccessRes<UserDuplicateCheckRes> emailCheck(@ParameterObject @Validated @ModelAttribute UserEmailCheckReq req) {
-        return SuccessRes.of(userService.existCheckByEmail(req));
+    public SuccessRes<Void> emailCheck(@ParameterObject @Validated @ModelAttribute UserEmailCheckReq req) {
+        userService.existCheckByEmail(req);
+        return SuccessRes.of();
     }
 
     @Operation(summary = "닉네임 중복 체크", description = "닉네임이 이미 사용중인지 중복체크를 합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
     @GetMapping("/nickname/check")
-    public SuccessRes<UserDuplicateCheckRes> nicknameCheck(@ParameterObject @Validated @ModelAttribute UserNicknameCheckReq req) {
-        return SuccessRes.of(userService.existsCheckByNickname(req));
+    public SuccessRes<Void> nicknameCheck(@ParameterObject @Validated @ModelAttribute UserNicknameCheckReq req) {
+        userService.existsCheckByNickname(req);
+        return SuccessRes.of();
     }
 
     @Operation(
@@ -96,6 +98,22 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }
+
+    @Operation(
+            summary = "내 비밀번호 수정 수정",
+            description = "내 비밀번호를 수정합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PatchMapping(value = "/profile/password")
+    public SuccessRes<UserDetailRes> updatePassword(
+            @CurrentUser Long userId,
+            @RequestBody @Validated UserPasswordUpdateReq req) {
+        return SuccessRes.of(userService.updatePassword(userId, req));
+    }
+
+
 
     @Operation(
             summary = "사용자 타입 변경",
