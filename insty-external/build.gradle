@@ -7,6 +7,7 @@ dependencies {
 
     implementation 'org.springframework:spring-webmvc' // MultipartFile 전용
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     implementation platform("software.amazon.awssdk:bom:2.25.28")
     implementation 'software.amazon.awssdk:s3'
