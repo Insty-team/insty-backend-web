@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
+import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.repository.UserRepository;
@@ -89,6 +90,8 @@ class VideoServiceTest {
     private S3FileManager s3FileManager;
     @MockitoBean
     private CloudFrontSigner cloudFrontSigner;
+    @MockitoBean
+    private AiRequester aiRequester;
     @MockitoBean
     private AppProperties appProperties;
 
@@ -194,7 +197,7 @@ class VideoServiceTest {
                 .thenReturn(true);
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
-        
+
         // when
         VideoThumbnailRes res = videoService.getThumbnailUrl(fixedUuid);
 

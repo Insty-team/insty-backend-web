@@ -102,6 +102,7 @@ public class CourseService {
         Course course = courseReader.getCourseById(courseId);
         courseTagWriter.deleteAllCourseTags(course.getId());
         courseFileWriter.deleteAllFiles(course);
+        courseVideoManager.softDeleteCourseVideo(course.getId());
         courseWriter.deleteCourse(course);
     }
 

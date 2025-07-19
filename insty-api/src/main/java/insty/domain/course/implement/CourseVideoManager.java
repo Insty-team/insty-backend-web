@@ -1,10 +1,12 @@
 package insty.domain.course.implement;
 
+import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
 import insty.model.video.VideoCourse;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class CourseVideoManager {
+
+    private final AiRequester aiRequester;
 
     private final VideoCourseRepository videoCourseRepository;
 
@@ -34,7 +38,7 @@ public class CourseVideoManager {
         if (videoUuid == null) {
             return getAttachCourseVideo(course.getId());
         }
-        videoCourseRepository.deleteLogicallyByCourseId(course.getId());
+        softDeleteCourseVideo(course.getId());
         return attachmentCourse(course, videoUuid);
     }
 
@@ -42,5 +46,20 @@ public class CourseVideoManager {
     public VideoCourse getAttachCourseVideo(Long courseId) {
         return videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+    }
+
+    /**
+     * 영상을 찾을 수 없는 경우 작업을 수행하지 않는다.<br> 연결된 강의가 있다면 논리적 삭제하고, AI 벡터 업데이트를 위한 API 호출을 진행한다.
+     *
+     * @param courseId
+     */
+    public void softDeleteCourseVideo(Long courseId) {
+        Optional<VideoCourse> videoCourse = videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false);
+        if (videoCourse.isEmpty()) {
+            return;
+        }
+
+        videoCourseRepository.deleteLogicallyById(videoCourse.get().getId());
+        aiRequester.deleteAiVideoInfo(videoCourse.get().getVideoUuid());
     }
 }
