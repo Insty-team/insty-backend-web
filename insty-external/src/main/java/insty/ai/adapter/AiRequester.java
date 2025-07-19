@@ -18,21 +18,24 @@ public class AiRequester {
     private final WebClient aiApiWebClient;
 
     public void deleteAiVideoInfo(UUID videoUuid) {
-        String apiPath = "/api/v1/ai/videos/" + videoUuid;
         try {
             aiApiWebClient.delete()
-                    .uri(apiPath)
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/api/v1/ai/videos/{videoUuid}")
+                            .build(videoUuid))
                     .retrieve()
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                log.info("AI 통신 - 해당 videoUuid에 대해 처리되지 않았습니다. videoUuid: {}", videoUuid);
+                log.info("AI 통신 오류 - 해당 videoUuid에 대해 처리되지 않았습니다. videoUuid: {}", videoUuid);
             } else {
                 log.error("AI 통신 오류 - deleteAiVideoInfo : videoUuid={}, body={}", videoUuid,
                         e.getResponseBodyAsString(), e);
                 throw new CustomException(AiErrorCode.AI_API_REQUEST_FAILED);
             }
+        } catch (Exception e) {
+            log.error("AI 통신 오류 - deleteAiVideoInfo : videoUuid={}", videoUuid, e);
         }
     }
 }

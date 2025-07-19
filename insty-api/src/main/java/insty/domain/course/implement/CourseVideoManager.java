@@ -48,6 +48,11 @@ public class CourseVideoManager {
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
     }
 
+    /**
+     * 영상을 찾을 수 없는 경우 작업을 수행하지 않는다.<br> 연결된 강의가 있다면 논리적 삭제하고, AI 벡터 업데이트를 위한 API 호출을 진행한다.
+     *
+     * @param courseId
+     */
     public void softDeleteCourseVideo(Long courseId) {
         Optional<VideoCourse> videoCourse = videoCourseRepository.findByCourseIdAndIsDeleted(courseId, false);
         if (videoCourse.isEmpty()) {

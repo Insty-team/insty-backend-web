@@ -148,7 +148,7 @@ class CourseVideoManagerTest {
     }
 
     @Test
-    void softDeleteCourseVideo_에러_영상을_찾을_수_없다() {
+    void softDeleteCourseVideo_정상_영상을_찾을_수_없으면_삭제하지_않는다() {
         // given
         Long courseId = 1L;
 
