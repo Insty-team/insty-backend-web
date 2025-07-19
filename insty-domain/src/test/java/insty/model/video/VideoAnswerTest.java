@@ -57,14 +57,32 @@ class VideoAnswerTest {
     @Test
     void create_에러_fileName이_비었다() {
         // given
-        String content = "  \n\t\r";
+        String fileName = "  \n\t\r";
         UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
         User user = UserFixtureBuilder.getUserWithId();
 
         // when
 
         // then
-        assertThatThrownBy(() -> VideoAnswer.create(content, uuid, user))
+        assertThatThrownBy(() -> VideoAnswer.create(fileName, uuid, user))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_fileName이_150자를_초과했다() {
+        // given
+        String fileName = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.mp4";
+        assertThat(fileName.length()).isEqualTo(151);
+
+        UUID uuid = UUID.randomUUID();
+        User user = UserFixtureBuilder.getUserWithId();
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> VideoAnswer.create(fileName, uuid, user))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_CREATE_ERROR);
