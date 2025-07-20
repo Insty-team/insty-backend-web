@@ -19,42 +19,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CommunityValidator {
 
-    private final CommunityReader communityReader;
-
-    /**
-     * 질문 작성자 검증
-     */
-    public void validateQuestionOwner(Long questionId, Long userId) {
-        CommunityQuestion question = communityReader.getCommunityQuestionDetailsById(questionId);
-        if (!question.getUser().getId().equals(userId)) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED);
-        }
-    }
-
-    /**
-     * 답변 작성자 검증
-     */
-    public void validateAnswerOwner(Long answerId, Long userId) {
-        CommunityAnswer answer = communityReader.getCommunityAnswerById(answerId);
-        if (!answer.getUser().getId().equals(userId)) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED);
-        }
-    }
-
-    /**
-     * 질문 존재 여부 검증
-     */
-    public CommunityQuestion validateQuestionExists(Long questionId) {
-        return communityReader.getCommunityQuestionDetailsById(questionId);
-    }
-
-    /**
-     * 답변 존재 여부 검증
-     */
-    public CommunityAnswer validateAnswerExists(Long answerId) {
-        return communityReader.getCommunityAnswerById(answerId);
-    }
-
     /**
      * 답변이 해당 질문에 속하는지 검증
      */

@@ -13,14 +13,11 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
-import insty.model.user.User;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,99 +27,6 @@ class CommunityValidatorTest {
 
     @InjectMocks
     private CommunityValidator communityValidator;
-
-    @Mock
-    private CommunityReader communityReader;
-
-    @Test
-    void validateQuestionOwner_정상() {
-        // 질문 작성자 검증이 정상 동작한다.
-        // given
-        Long questionId = 1L;
-        Long userId = 1L;
-        CommunityQuestion question = mock(CommunityQuestion.class);
-        User user = mock(User.class);
-        when(communityReader.getCommunityQuestionDetailsById(questionId)).thenReturn(question);
-        when(question.getUser()).thenReturn(user);
-        when(user.getId()).thenReturn(userId);
-        // when & then
-        assertThatCode(() -> communityValidator.validateQuestionOwner(questionId, userId)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void validateQuestionOwner_에러_질문_작성자가_아님() {
-        // 질문 작성자가 아닐 때 예외가 발생한다.
-        // given
-        Long questionId = 1L;
-        Long userId = 1L;
-        Long differentUserId = 2L;
-        CommunityQuestion question = mock(CommunityQuestion.class);
-        User user = mock(User.class);
-        when(communityReader.getCommunityQuestionDetailsById(questionId)).thenReturn(question);
-        when(question.getUser()).thenReturn(user);
-        when(user.getId()).thenReturn(differentUserId);
-        // when & then
-        assertThatThrownBy(() -> communityValidator.validateQuestionOwner(questionId, userId))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED);
-    }
-
-    @Test
-    void validateAnswerOwner_정상() {
-        // 답변 작성자 검증이 정상 동작한다.
-        // given
-        Long answerId = 1L;
-        Long userId = 1L;
-        CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
-        when(communityReader.getCommunityAnswerById(answerId)).thenReturn(answer);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getId()).thenReturn(userId);
-        // when & then
-        assertThatCode(() -> communityValidator.validateAnswerOwner(answerId, userId)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void validateAnswerOwner_에러_답변_작성자가_아님() {
-        // 답변 작성자가 아닐 때 예외가 발생한다.
-        // given
-        Long answerId = 1L;
-        Long userId = 1L;
-        Long differentUserId = 2L;
-        CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
-        when(communityReader.getCommunityAnswerById(answerId)).thenReturn(answer);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getId()).thenReturn(differentUserId);
-        // when & then
-        assertThatThrownBy(() -> communityValidator.validateAnswerOwner(answerId, userId))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED);
-    }
-
-    @Test
-    void validateQuestionExists_정상() {
-        // 질문 존재 여부 검증이 정상 동작한다.
-        // given
-        Long questionId = 1L;
-        CommunityQuestion question = mock(CommunityQuestion.class);
-        when(communityReader.getCommunityQuestionDetailsById(questionId)).thenReturn(question);
-        // when & then
-        assertThatCode(() -> communityValidator.validateQuestionExists(questionId)).doesNotThrowAnyException();
-    }
-
-    @Test
-    void validateAnswerExists_정상() {
-        // 답변 존재 여부 검증이 정상 동작한다.
-        // given
-        Long answerId = 1L;
-        CommunityAnswer answer = mock(CommunityAnswer.class);
-        when(communityReader.getCommunityAnswerById(answerId)).thenReturn(answer);
-        // when & then
-        assertThatCode(() -> communityValidator.validateAnswerExists(answerId)).doesNotThrowAnyException();
-    }
 
     @Test
     void validateAnswerBelongsToQuestion_정상() {

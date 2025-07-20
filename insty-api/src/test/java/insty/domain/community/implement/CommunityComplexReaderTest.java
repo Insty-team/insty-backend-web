@@ -1,12 +1,10 @@
 package insty.domain.community.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
-import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.repository.CommunityQuestionQueryRepository;
 import insty.model.community.CommunityAnswer;
@@ -34,10 +32,6 @@ class CommunityComplexReaderTest {
 
     @Mock
     private CommunityQuestionQueryRepository communityQuestionQueryRepository;
-    @Mock
-    private CommunityReader communityReader;
-    @Mock
-    private CommunityFileManager communityFileManager;
 
     @Test
     void searchQuestions_질문_기본필드_검증() {
