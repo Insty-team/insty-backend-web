@@ -124,8 +124,6 @@ public class CommunityService {
 
         // 질문 엔티티 생성 및 저장
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
-
-        // 첨부 파일 저장 및 FileInfo 변환
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
 
         return CommunityQuestionRes.from(question, fileInfos, null);
@@ -159,9 +157,8 @@ public class CommunityService {
 
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(answer -> {
-                    List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answer.getId());
-                    List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
-                    return CommunityAnswerRes.from(answer,fileInfos);
+                    List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
+                    return CommunityAnswerRes.from(answer, fileInfos);
                 })
                 .toList();
 
@@ -195,8 +192,7 @@ public class CommunityService {
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
 
         // 답변 첨부 파일 조회 및 변환
-        List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answerId);
-        List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
+        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
 
         return CommunityAnswerRes.from(answer, fileInfos);
     }
@@ -216,6 +212,7 @@ public class CommunityService {
 
         // 답변 저장
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
+        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
 
         // 이미지 파일 저장
         communityAnswerFileWriter.saveAnswerImageFiles(answer, imageFiles);
@@ -225,10 +222,6 @@ public class CommunityService {
         if (videoUuidObj != null) {
             // TODO: 영상 파일 저장 로직은 기존대로 유지
         }
-
-        // 저장된 파일 정보 조회 및 응답 생성
-        List<CommunityAnswerFile> answerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answer.getId());
-        List<FileInfo> fileInfos = answerFiles == null ? List.of() : answerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
 
         return CommunityAnswerRes.from(answer, fileInfos);
     }
@@ -264,9 +257,7 @@ public class CommunityService {
             // TODO: 영상 파일 저장 로직은 기존대로 유지
         }
 
-        // 6. 업데이트된 파일 정보 조회 및 응답 생성
-        List<CommunityAnswerFile> updatedAnswerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answerId);
-        List<FileInfo> fileInfos = updatedAnswerFiles == null ? List.of() : updatedAnswerFiles.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
+        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(updatedAnswer);
 
         return CommunityAnswerRes.from(updatedAnswer, fileInfos);
     }
