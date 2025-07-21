@@ -38,13 +38,17 @@ class CommunityAnswerWriterTest {
         // given
         User user = mock(User.class);
         CommunityQuestion question = mock(CommunityQuestion.class);
-        CommunityAnswerCreateReq req = new CommunityAnswerCreateReq(1L, 2L, "content", null);
+        CommunityAnswerCreateReq req = CommunityAnswerCreateReq.builder()
+                .questionId(1L).userId(2L).content("내용")
+                .build();
         when(answerRepository.save(any(CommunityAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         // when
         CommunityAnswer result = writer.saveAnswer(user, question, req);
+
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getContent()).isEqualTo("content");
+        assertThat(result.getContent()).isEqualTo("내용");
         verify(answerRepository).save(any(CommunityAnswer.class));
     }
 
@@ -52,15 +56,19 @@ class CommunityAnswerWriterTest {
     void updateAnswer_정상() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq(id, "content", null);
+        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
+                .answerId(id).content("내용")
+                .build();
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         when(answerRepository.save(any(CommunityAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         // when
         CommunityAnswer result = writer.updateAnswer(id, req);
+
         // then
         assertThat(result).isNotNull();
-        verify(answer).update("content");
+        verify(answer).update("내용");
         verify(answerRepository).save(answer);
     }
 
@@ -68,8 +76,11 @@ class CommunityAnswerWriterTest {
     void updateAnswer_에러_존재하지않음() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq(id, "content", null);
+        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
+                .answerId(id).content("내용")
+                .build();
         when(answerRepository.findById(id)).thenReturn(Optional.empty());
+
         // when & then
         assertThatThrownBy(() -> writer.updateAnswer(id, req))
                 .isInstanceOf(CustomException.class)
@@ -81,9 +92,12 @@ class CommunityAnswerWriterTest {
     void deleteAnswer_정상() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
+
         // when
         writer.deleteAnswer(answer);
+
         // then
         verify(answerRepository).delete(answer);
     }
+
 }

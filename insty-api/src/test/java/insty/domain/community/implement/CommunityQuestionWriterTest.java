@@ -35,14 +35,20 @@ class CommunityQuestionWriterTest {
         // given
         User user = mock(User.class);
         Course course = mock(Course.class);
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(1L, 2L, "title", "content");
-        when(repository.save(any(CommunityQuestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
+                .courseId(1L).userId(2L).title("제목").content("내용")
+                .build();
+
+        when(repository.save(any(CommunityQuestion.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         // when
         CommunityQuestion result = writer.saveQuestion(user, course, req);
+
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getTitle()).isEqualTo("title");
-        assertThat(result.getContent()).isEqualTo("content");
+        assertThat(result.getTitle()).isEqualTo("제목");
+        assertThat(result.getContent()).isEqualTo("내용");
         verify(repository).save(any(CommunityQuestion.class));
     }
 
@@ -50,15 +56,21 @@ class CommunityQuestionWriterTest {
     void updateQuestion_정상() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(id, "title", "content");
+        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
+                .questionId(id).title("제목").content("내용")
+                .build();
+
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(repository.findById(id)).thenReturn(Optional.of(question));
-        when(repository.save(any(CommunityQuestion.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.save(any(CommunityQuestion.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         // when
         CommunityQuestion result = writer.updateQuestion(id, req);
+
         // then
         assertThat(result).isNotNull();
-        verify(question).update("title", "content", question.getAttachments());
+        verify(question).update("제목", "내용", question.getAttachments()); // 제목과 내용으로 업데이트되었는지 확인
         verify(repository).save(question);
     }
 
@@ -66,22 +78,29 @@ class CommunityQuestionWriterTest {
     void updateQuestion_에러_존재하지않음() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(id, "title", "content");
+        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
+                .questionId(id).title("제목").content("내용")
+                .build();
+
         when(repository.findById(id)).thenReturn(Optional.empty());
+
         // when & then
         assertThatThrownBy(() -> writer.updateQuestion(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND); // 질문이 존재하지 않을 때 예외 발생
     }
 
     @Test
     void deleteQuestion_정상() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
+
         // when
         writer.deleteQuestion(question);
+
         // then
-        verify(repository).delete(question);
+        verify(repository).delete(question); // 정상적으로 삭제되었는지 확인
     }
+
 }
