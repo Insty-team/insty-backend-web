@@ -113,11 +113,10 @@ public class CommunityController {
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityAnswerCreateReq communityAnswerCreateReq,
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
-            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
-            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
+    ) {
         
-        return SuccessRes.of(CommunityService.saveAnswer(communityAnswerCreateReq, imageFiles, videoUuid));
+        return SuccessRes.of(CommunityService.saveAnswer(communityAnswerCreateReq, imageFiles));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
@@ -128,11 +127,10 @@ public class CommunityController {
             @PathVariable @NotBlank Long answerId,
             @RequestPart CommunityAnswerUpdateReq communityAnswerUpdateReq,
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
-            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
-            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
+    ) {
         
-        return SuccessRes.of(CommunityService.updateAnswer(answerId, communityAnswerUpdateReq, imageFiles, videoUuid));
+        return SuccessRes.of(CommunityService.updateAnswer(answerId, communityAnswerUpdateReq, imageFiles));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")

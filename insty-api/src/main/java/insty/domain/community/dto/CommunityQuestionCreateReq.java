@@ -1,8 +1,11 @@
 package insty.domain.community.dto;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.UUID;
+import lombok.Builder;
 
-
+@Builder
 public record CommunityQuestionCreateReq(
         @NotNull
         Long courseId,
@@ -11,15 +14,7 @@ public record CommunityQuestionCreateReq(
         @NotNull
         String title,
         @NotNull
-        String content
+        String content,
+        List<UUID> videoUuids
 ) {
-
-        public static CommunityQuestionCreateReq create(
-                Long courseId,
-                Long userId,
-                String title,
-                String content
-        ) {
-            return new CommunityQuestionCreateReq(courseId, userId, title, content);
-        }
 }

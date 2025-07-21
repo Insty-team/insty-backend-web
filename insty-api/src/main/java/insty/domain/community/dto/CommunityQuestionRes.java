@@ -1,6 +1,7 @@
 package insty.domain.community.dto;
 
 import insty.domain.common.FileInfo;
+import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityQuestion;
 
 import java.time.Instant;
@@ -13,14 +14,16 @@ public record CommunityQuestionRes(
         Long courseId,
         String title,
         String content,
-        Instant createdAt,
-        Instant updatedAt,
         List<CommunityAnswerRes> answers,
-        List<FileInfo> attachments
+        List<FileInfo> attachments,
+        List<VideoInfo> videoInfos,
+        Instant createdAt,
+        Instant updatedAt
 ) {
     public static CommunityQuestionRes from(
             CommunityQuestion question,
             List<FileInfo> attachments,
+            List<VideoInfo> videoInfos,
             List<CommunityAnswerRes> answers
     ) {
         return new CommunityQuestionRes(
@@ -28,10 +31,11 @@ public record CommunityQuestionRes(
                 question.getCourse().getId(),
                 question.getTitle(),
                 question.getContent(),
-                question.getCreatedAt(),
-                question.getUpdatedAt(),
                 Optional.ofNullable(answers).orElse(List.of()),
-                Optional.ofNullable(attachments).orElse(List.of())
+                Optional.ofNullable(attachments).orElse(List.of()),
+                videoInfos,
+                question.getCreatedAt(),
+                question.getUpdatedAt()
         );
     }
 }
