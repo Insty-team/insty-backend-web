@@ -53,6 +53,33 @@ public class CommunityAnswerFileWriter {
                 .collect(Collectors.toList());
     }
 
+    public List<FileInfo> updateAnswerImageFiles(CommunityAnswer answer, List<MultipartFile> imageFiles) {
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            return List.of();
+        }
+
+        List<FileCreateReq> fileCreateReqs = imageFiles.stream()
+                .map(file -> new FileCreateReq(
+                        file,
+                        FileContainerType.ANSWER_IMAGE,
+                        answer.getId()
+                ))
+                .collect(Collectors.toList());
+
+        List<File> files = fileWriter.saveFiles(fileCreateReqs);
+
+        // CommunityAnswerFile 생성 및 저장
+        List<CommunityAnswerFile> communityAnswerFiles = files.stream()
+                .map(file -> CommunityAnswerFile.create(answer, file))
+                .collect(Collectors.toList());
+
+        communityAnswerFileRepository.saveAll(communityAnswerFiles);
+
+        return files.stream()
+                .map(file -> FileInfo.from(file, appProperties.getDomain()))
+                .collect(Collectors.toList());
+    }
+
     /**
      * 기존 답변 파일 삭제
      */

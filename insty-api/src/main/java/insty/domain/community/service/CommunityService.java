@@ -130,26 +130,10 @@ public class CommunityService {
         communityValidator.validateQuestionUpdateRequest(req);
         communityValidator.validateFiles(attachments);
 
-        // 기존 질문 조회
-        CommunityQuestion prevQuestion = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
-        List<CommunityFile> existingAttachments = prevQuestion.getAttachments();
-
         // 질문 업데이트
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
-
-        // 첨부 파일 처리
-        List<FileInfo> updatedFileInfos;
-        if (attachments != null && !attachments.isEmpty()) {
-            // 새 파일이 첨부된 경우: 기존 파일 삭제 후 새 파일 저장
-            communityQuestionFileWriter.deleteQuestionFiles(existingAttachments);
-            updatedFileInfos = communityQuestionFileWriter.saveQuestionFiles(updatedQuestion, attachments);
-        } else {
-            // 새 파일이 없는 경우: 기존 파일 유지
-            updatedFileInfos = existingAttachments == null ? List.of() : existingAttachments.stream().map(f -> FileInfo.from(f.getFile(), "")).toList();
-        }
-
-        // todo : 비디오 업데이트 로직
-        List<VideoInfo> videoInfos = null;
+        List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments);
+        List<VideoInfo> videoInfos = null; // todo : 비디오 업데이트 로직
 
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(communityAnswerMapper::toCommunityAnswerRes)
@@ -181,13 +165,9 @@ public class CommunityService {
      * 답변의 모든 정보와 첨부 파일을 포함하여 조회
      */
     public CommunityAnswerRes getAnswerDetails(Long answerId) {
-        // 답변 조회
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
-
-        // 답변 첨부 파일 조회 및 변환
         List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
         VideoInfo videoInfo = communityAnswerVideoManager.getAnswerVideoInfo(answer);
-
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
     }
 
@@ -195,10 +175,10 @@ public class CommunityService {
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
      */
-    public CommunityAnswerRes saveAnswer(CommunityAnswerCreateReq req, List<MultipartFile> imageFiles) {
+    public CommunityAnswerRes saveAnswer(CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
         // 요청 데이터 검증
         communityValidator.validateAnswerCreateRequest(req);
-        communityValidator.validateFiles(imageFiles);
+        communityValidator.validateFiles(attachments);
 
         // 관련 엔티티 조회
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(req.questionId());
@@ -206,13 +186,7 @@ public class CommunityService {
 
         // 답변 저장
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
-        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
-
-        // 이미지 파일 저장
-        communityAnswerFileWriter.saveAnswerImageFiles(answer, imageFiles);
-
-        // 비디오 파일 처리 (UUID 검증 및 저장)
-        // todo : 비디오 유효성 검사?
+        List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerImageFiles(answer, attachments);
         VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
@@ -222,31 +196,17 @@ public class CommunityService {
      * 기존 답변을 수정하고 첨부 파일을 업데이트
      * 새로운 파일이 첨부되면 기존 파일을 삭제하고 새 파일을 저장
      */
-    public CommunityAnswerRes updateAnswer(Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> imageFiles) {
+    public CommunityAnswerRes updateAnswer(Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
         // 요청 데이터 검증
         communityValidator.validateAnswerUpdateRequest(req);
-        communityValidator.validateFiles(imageFiles);
+        communityValidator.validateFiles(attachments);
 
         // 기존 답변 조회 및 수정
-        CommunityAnswer prevAnswer = communityAnswerReader.getCommunityAnswerById(answerId);
-        CommunityAnswer updatedAnswer = communityAnswerWriter.updateAnswer(answerId, req);
+        CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
+        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerImageFiles(answer, attachments);
+        VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
 
-        // 기존 파일 조회
-        List<CommunityAnswerFile> existingAnswerFiles = communityAnswerReader.getCommunityAnswerFilesByAnswerId(answerId);
-
-        // 이미지 파일 처리
-        // todo : 해당 로직 수정
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            // 새 이미지가 첨부된 경우: 기존 파일 삭제 후 새 파일 저장
-            communityAnswerFileWriter.deleteAnswerFiles(existingAnswerFiles);
-            communityAnswerFileWriter.saveAnswerImageFiles(updatedAnswer, imageFiles);
-        }
-
-        // 비디오 파일 처리
-        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(updatedAnswer);
-        VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(updatedAnswer, req.videoUuid());
-
-        return CommunityAnswerRes.from(updatedAnswer, fileInfos, videoInfo);
+        return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
     }
 
     /**

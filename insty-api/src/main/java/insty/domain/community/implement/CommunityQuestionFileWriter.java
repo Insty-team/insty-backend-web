@@ -55,6 +55,36 @@ public class CommunityQuestionFileWriter {
     }
 
     /**
+     * 첨부 파일 업데이트
+     */
+    public List<FileInfo> updateQuestionFiles(CommunityQuestion question, List<MultipartFile> attachments) {
+        if (attachments == null || attachments.isEmpty()) {
+            return List.of();
+        }
+
+        List<FileCreateReq> fileCreateReqs = attachments.stream()
+                .map(file -> new FileCreateReq(
+                        file,
+                        FileContainerType.QUESTION_IMAGE,
+                        question.getId()
+                ))
+                .collect(Collectors.toList());
+
+        List<File> files = fileWriter.saveFiles(fileCreateReqs);
+
+        // CommunityFile 생성 및 저장
+        List<CommunityFile> communityFiles = files.stream()
+                .map(file -> CommunityFile.create(question, file))
+                .collect(Collectors.toList());
+
+        communityFileRepository.saveAll(communityFiles);
+
+        return files.stream()
+                .map(file -> FileInfo.from(file, appProperties.getDomain()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 기존 첨부파일 삭제
      */
     public void deleteQuestionFiles(List<CommunityFile> existingFiles) {
