@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
+import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.error.CommunityErrorCode;
@@ -73,6 +74,24 @@ class CommunityAnswerWriterTest {
     }
 
     @Test
+    void updateAnswer_에러_이미삭제됨() {
+        // given
+        Long id = 1L;
+        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
+                .answerId(id).content("내용")
+                .build();
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
+        when(answer.isDeleted()).thenReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> writer.updateAnswer(id, req))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+    }
+
+    @Test
     void updateAnswer_에러_존재하지않음() {
         // given
         Long id = 1L;
@@ -97,7 +116,7 @@ class CommunityAnswerWriterTest {
         writer.deleteAnswer(answer);
 
         // then
-        verify(answerRepository).delete(answer);
+        verify(answer).markAsDeleted();
     }
 
 }

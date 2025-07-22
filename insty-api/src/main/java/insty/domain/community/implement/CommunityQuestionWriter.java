@@ -33,6 +33,9 @@ public class CommunityQuestionWriter {
     public CommunityQuestion updateQuestion(Long questionId, CommunityQuestionUpdateReq req) {
         CommunityQuestion question = communityQuestionRepository.findById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+        if (question.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+        }
         question.update(req.title(), req.content(), question.getAttachments());
         return communityQuestionRepository.save(question);
     }
@@ -41,6 +44,10 @@ public class CommunityQuestionWriter {
      * 커뮤니티 질문 삭제
      */
     public void deleteQuestion(CommunityQuestion communityQuestion) {
-        communityQuestionRepository.delete(communityQuestion);
+        if (communityQuestion.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+        }
+        communityQuestion.markAsDeleted();
     }
+
 }

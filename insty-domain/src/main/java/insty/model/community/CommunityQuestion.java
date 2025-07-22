@@ -115,4 +115,8 @@ public class CommunityQuestion extends BaseEntity {
         this.isAnswered = false;
     }
 
+    public void markAsDeleted() {
+        isDeleted = true;
+    }
+
 }

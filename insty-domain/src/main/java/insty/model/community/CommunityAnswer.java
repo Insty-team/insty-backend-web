@@ -93,4 +93,8 @@ public class CommunityAnswer extends BaseEntity {
     public void unaccept() {
         this.isAccepted = false;
     }
+
+    public void markAsDeleted() {
+        isDeleted = true;
+    }
 }

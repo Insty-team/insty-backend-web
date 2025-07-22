@@ -36,6 +36,9 @@ public class CommunityAnswerWriter {
     public CommunityAnswer updateAnswer(Long answerId, CommunityAnswerUpdateReq req) {
         CommunityAnswer answer = communityAnswerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+        if (answer.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+        }
         answer.update(req.content());
         return communityAnswerRepository.save(answer);
     }
@@ -44,6 +47,9 @@ public class CommunityAnswerWriter {
      * 커뮤니티 답변 삭제
      */
     public void deleteAnswer(CommunityAnswer communityAnswer) {
-        communityAnswerRepository.delete(communityAnswer);
+        if (communityAnswer.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+        }
+        communityAnswer.markAsDeleted();
     }
 }

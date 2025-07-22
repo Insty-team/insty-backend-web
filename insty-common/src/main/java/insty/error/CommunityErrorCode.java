@@ -19,6 +19,8 @@ public enum CommunityErrorCode implements ErrorCode {
     COMMUNITY_FILE_IS_EMPTY("COMMUNITY_016", "파일이 비어있습니다.", 400),
     COMMUNITY_ALREADY_ACCEPTED_ANSWER("COMMUNITY_017", "이미 채택된 답변이 존재합니다.", 409),
     COMMUNITY_ANSWER_USER_TYPE_INVALID("COMMUNITY_018", "CREATOR의 답변만 채택할 수 있습니다.", 400),
+    COMMUNITY_QUESTION_ALREADY_DELETED("COMMUNITY_019", "이미 삭제된 질문입니다.", 409),
+    COMMUNITY_ANSWER_ALREADY_DELETED("COMMUNITY_020", "이미 삭제된 답변입니다.", 409),
 
     ;
 

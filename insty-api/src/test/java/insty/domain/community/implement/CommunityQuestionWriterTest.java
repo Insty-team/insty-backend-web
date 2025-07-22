@@ -70,7 +70,7 @@ class CommunityQuestionWriterTest {
 
         // then
         assertThat(result).isNotNull();
-        verify(question).update("제목", "내용", question.getAttachments()); // 제목과 내용으로 업데이트되었는지 확인
+        verify(question).update("제목", "내용", question.getAttachments());
         verify(repository).save(question);
     }
 
@@ -88,7 +88,25 @@ class CommunityQuestionWriterTest {
         assertThatThrownBy(() -> writer.updateQuestion(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND); // 질문이 존재하지 않을 때 예외 발생
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
+    }
+
+    @Test
+    void updateQuestion_에러_이미삭제됨() {
+        // given
+        Long id = 1L;
+        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
+                .questionId(id).title("제목").content("내용")
+                .build();
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(repository.findById(id)).thenReturn(Optional.of(question));
+        when(question.isDeleted()).thenReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> writer.updateQuestion(id, req))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
     }
 
     @Test
@@ -100,7 +118,7 @@ class CommunityQuestionWriterTest {
         writer.deleteQuestion(question);
 
         // then
-        verify(repository).delete(question); // 정상적으로 삭제되었는지 확인
+        verify(question).markAsDeleted();
     }
 
 }
