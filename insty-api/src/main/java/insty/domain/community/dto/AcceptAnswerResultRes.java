@@ -1,6 +1,6 @@
 package insty.domain.community.dto;
 
-public record AcceptAnswerResult(
+public record AcceptAnswerResultRes(
         Long answerId,
         boolean accepted
 ) {}

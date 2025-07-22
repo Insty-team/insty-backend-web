@@ -1,6 +1,7 @@
 package insty.domain.community.controller;
 
 import insty.domain.common.SearchRes;
+import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
@@ -147,9 +148,8 @@ public class CommunityController {
     @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
-    public SuccessRes<?> acceptAnswer(@PathVariable @NotBlank Long questionId, @PathVariable @NotBlank Long answerId) {
-        CommunityService.acceptAnswer(questionId, answerId);
-        return SuccessRes.of(null);
+    public SuccessRes<AcceptAnswerResultRes> acceptAnswer(@PathVariable @NotBlank Long questionId, @PathVariable @NotBlank Long answerId) {
+        return SuccessRes.of(CommunityService.acceptAnswer(questionId, answerId));
     }
 
 

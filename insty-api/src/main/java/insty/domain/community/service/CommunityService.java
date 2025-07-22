@@ -264,15 +264,12 @@ public class CommunityService {
      * 질문 작성자가 특정 답변을 채택
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
-    public void acceptAnswer(Long questionId, Long answerId) {
-        // 1. 질문과 답변 조회
+    public AcceptAnswerResultRes acceptAnswer(Long questionId, Long answerId) {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
 
-        // 2. 답변이 해당 질문에 속하는지 검증
         communityValidator.validateAnswerBelongsToQuestion(answer, question);
 
-        // 3. 답변 채택 처리
-        communityAnswerAcceptService.acceptAnswer(question, answer);
+        return communityAnswerAcceptService.acceptAnswer(question, answer);
     }
 }
