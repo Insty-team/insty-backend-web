@@ -12,6 +12,7 @@ public record CommunityQuestionUpdateReq(
         String title,
         @NotNull
         String content,
-        List<UUID> videoUuids
+        List<UUID> videoUuids,
+        List<Long> deleteFileIds
 ) {
 }

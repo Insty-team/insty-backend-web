@@ -1,6 +1,7 @@
 package insty.domain.community.dto;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -9,6 +10,7 @@ public record CommunityAnswerUpdateReq(
         Long answerId,
         @NotNull
         String content,
-        UUID videoUuid
+        UUID videoUuid,
+        List<Long> deleteFileIds
 ) {
 }

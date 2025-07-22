@@ -23,70 +23,47 @@ public class CommunityAnswerFileWriter {
     private final CommunityAnswerFileRepository communityAnswerFileRepository;
     private final AppProperties appProperties;
 
+
+
     /**
      * 답변 이미지 파일 저장
      */
     public List<FileInfo> saveAnswerImageFiles(CommunityAnswer answer, List<MultipartFile> imageFiles) {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return List.of();
-        }
-
-        List<FileCreateReq> fileCreateReqs = imageFiles.stream()
-                .map(file -> new FileCreateReq(
-                        file,
-                        FileContainerType.ANSWER_IMAGE,
-                        answer.getId()
-                ))
-                .collect(Collectors.toList());
-
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-        // CommunityAnswerFile 생성 및 저장
-        List<CommunityAnswerFile> communityAnswerFiles = files.stream()
-                .map(file -> CommunityAnswerFile.create(answer, file))
-                .collect(Collectors.toList());
-
-        communityAnswerFileRepository.saveAll(communityAnswerFiles);
-
-        return files.stream()
-                .map(file -> FileInfo.from(file, appProperties.getDomain()))
-                .collect(Collectors.toList());
-    }
-
-    public List<FileInfo> updateAnswerImageFiles(CommunityAnswer answer, List<MultipartFile> imageFiles) {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return List.of();
-        }
-
-        List<FileCreateReq> fileCreateReqs = imageFiles.stream()
-                .map(file -> new FileCreateReq(
-                        file,
-                        FileContainerType.ANSWER_IMAGE,
-                        answer.getId()
-                ))
-                .collect(Collectors.toList());
-
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-        // CommunityAnswerFile 생성 및 저장
-        List<CommunityAnswerFile> communityAnswerFiles = files.stream()
-                .map(file -> CommunityAnswerFile.create(answer, file))
-                .collect(Collectors.toList());
-
-        communityAnswerFileRepository.saveAll(communityAnswerFiles);
-
-        return files.stream()
-                .map(file -> FileInfo.from(file, appProperties.getDomain()))
-                .collect(Collectors.toList());
+        saveFiles(answer, imageFiles);
+        return communityAnswerFileRepository.findAllByCommunityAnswerId(answer.getId()).stream()
+                .map(caf -> FileInfo.from(caf.getFile(), appProperties.getDomain()))
+                .toList();
     }
 
     /**
-     * 기존 답변 파일 삭제
+     * 답변 파일 업데이트 (삭제/추가 분리)
      */
-    public void deleteAnswerFiles(List<CommunityAnswerFile> existingFiles) {
-        if (existingFiles == null || existingFiles.isEmpty()) {
-            return;
+    public List<FileInfo> updateAnswerImageFiles(CommunityAnswer answer, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
+        // 삭제
+        if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
+            communityAnswerFileRepository.deleteByAnswerIdAndFileIdIn(answer.getId(), deleteFileIds);
         }
-        communityAnswerFileRepository.deleteAll(existingFiles);
+        // 추가
+        saveFiles(answer, addFiles);
+        // 최종 파일 정보 반환
+        return communityAnswerFileRepository.findAllByCommunityAnswerId(answer.getId()).stream()
+                .map(caf -> FileInfo.from(caf.getFile(), appProperties.getDomain()))
+                .toList();
+    }
+
+    /**
+     * 답변 파일 저장 (공통)
+     */
+    private List<CommunityAnswerFile> saveFiles(CommunityAnswer answer, List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) return List.of();
+        List<FileCreateReq> fileCreateReqs = files.stream()
+                .map(file -> new FileCreateReq(file, FileContainerType.ANSWER_IMAGE, answer.getId()))
+                .toList();
+        List<File> savedFiles = fileWriter.saveFiles(fileCreateReqs);
+        List<CommunityAnswerFile> answerFiles = savedFiles.stream()
+                .map(file -> CommunityAnswerFile.create(answer, file))
+                .toList();
+        communityAnswerFileRepository.saveAll(answerFiles);
+        return answerFiles;
     }
 }

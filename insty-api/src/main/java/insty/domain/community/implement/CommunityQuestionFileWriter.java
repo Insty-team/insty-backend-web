@@ -11,7 +11,6 @@ import insty.model.community.CommunityQuestion;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,73 +23,46 @@ public class CommunityQuestionFileWriter {
     private final CommunityFileRepository communityFileRepository;
     private final AppProperties appProperties;
 
+
     /**
-     * 질문 첨부파일 저장
+     * 질문에 첨부된 파일을 저장합니다.
      */
-    public List<FileInfo> saveQuestionFiles(CommunityQuestion question, List<MultipartFile> attachments) {
-        if (attachments == null || attachments.isEmpty()) {
-            return List.of();
-        }
-
-        List<FileCreateReq> fileCreateReqs = attachments.stream()
-                .map(file -> new FileCreateReq(
-                        file,
-                        FileContainerType.QUESTION_IMAGE,
-                        question.getId()
-                ))
-                .collect(Collectors.toList());
-
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-        // CommunityFile 생성 및 저장
-        List<CommunityFile> communityFiles = files.stream()
-                .map(file -> CommunityFile.create(question, file))
-                .collect(Collectors.toList());
-
-        communityFileRepository.saveAll(communityFiles);
-
-        return files.stream()
-                .map(file -> FileInfo.from(file, appProperties.getDomain()))
-                .collect(Collectors.toList());
+    public List<FileInfo> saveQuestionFiles(CommunityQuestion question, List<MultipartFile> addFiles) {
+        saveFiles(question, addFiles);
+        return communityFileRepository.findAllByCommunityQuestionId(question.getId()).stream()
+                .map(cf -> FileInfo.from(cf.getFile(), appProperties.getDomain()))
+                .toList();
     }
 
     /**
-     * 첨부 파일 업데이트
+     * 첨부 파일 업데이트 (삭제&추가)
      */
-    public List<FileInfo> updateQuestionFiles(CommunityQuestion question, List<MultipartFile> attachments) {
-        if (attachments == null || attachments.isEmpty()) {
-            return List.of();
+    public List<FileInfo> updateQuestionFiles(CommunityQuestion question, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
+        // 삭제
+        if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
+            communityFileRepository.deleteByQuestionIdAndFileIdIn(question.getId(), deleteFileIds);
         }
-
-        List<FileCreateReq> fileCreateReqs = attachments.stream()
-                .map(file -> new FileCreateReq(
-                        file,
-                        FileContainerType.QUESTION_IMAGE,
-                        question.getId()
-                ))
-                .collect(Collectors.toList());
-
-        List<File> files = fileWriter.saveFiles(fileCreateReqs);
-
-        // CommunityFile 생성 및 저장
-        List<CommunityFile> communityFiles = files.stream()
-                .map(file -> CommunityFile.create(question, file))
-                .collect(Collectors.toList());
-
-        communityFileRepository.saveAll(communityFiles);
-
-        return files.stream()
-                .map(file -> FileInfo.from(file, appProperties.getDomain()))
-                .collect(Collectors.toList());
+        // 추가
+        saveFiles(question, addFiles);
+        // 최종 파일 정보 반환
+        return communityFileRepository.findAllByCommunityQuestionId(question.getId()).stream()
+                .map(cf -> FileInfo.from(cf.getFile(), appProperties.getDomain()))
+                .toList();
     }
 
     /**
-     * 기존 첨부파일 삭제
+     * 첨부 파일 저장 (공통)
      */
-    public void deleteQuestionFiles(List<CommunityFile> existingFiles) {
-        if (existingFiles == null || existingFiles.isEmpty()) {
-            return;
-        }
-        communityFileRepository.deleteAll(existingFiles);
+    private List<CommunityFile> saveFiles(CommunityQuestion question, List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) return List.of();
+        List<FileCreateReq> fileCreateReqs = files.stream()
+                .map(file -> new FileCreateReq(file, FileContainerType.QUESTION_IMAGE, question.getId()))
+                .toList();
+        List<File> savedFiles = fileWriter.saveFiles(fileCreateReqs);
+        List<CommunityFile> communityFiles = savedFiles.stream()
+                .map(file -> CommunityFile.create(question, file))
+                .toList();
+        communityFileRepository.saveAll(communityFiles);
+        return communityFiles;
     }
 }

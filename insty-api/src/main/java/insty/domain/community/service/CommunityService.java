@@ -132,7 +132,7 @@ public class CommunityService {
 
         // 질문 업데이트
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
-        List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments);
+        List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
         List<VideoInfo> videoInfos = null; // todo : 비디오 업데이트 로직
 
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
@@ -203,7 +203,7 @@ public class CommunityService {
 
         // 기존 답변 조회 및 수정
         CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
-        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerImageFiles(answer, attachments);
+        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerImageFiles(answer, attachments, req.deleteFileIds());
         VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
