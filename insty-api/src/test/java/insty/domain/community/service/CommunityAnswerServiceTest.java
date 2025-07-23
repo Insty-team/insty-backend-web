@@ -10,6 +10,7 @@ import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.user.implement.UserReader;
+import insty.error.CommunityErrorCode;
 import insty.model.community.CommunityAnswer;
 import java.util.List;
 import java.util.Optional;
@@ -853,5 +854,47 @@ class CommunityAnswerServiceTest {
         // 삭제된 답변 채택 시 예외 발생
         assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionId, answerId))
                 .isInstanceOf(CustomException.class);
+    }
+
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (8888, 1, 1, '파일10개답변질문', '내용', false, false, NOW(), NOW());"
+    })
+    @Test
+    void saveAnswer_첨부파일_10개초과_예외() {
+        Long questionId = 8888L;
+        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "답변", null);
+        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, 11)
+                .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
+                .toList();
+        files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, files))
+                .isInstanceOf(insty.exception.CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (8889, 1, 1, '파일10개답변질문2', '내용', false, false, NOW(), NOW());"
+    })
+    @Test
+    void updateAnswer_첨부파일_10개초과_예외() {
+        Long questionId = 8889L;
+        Long answerId = createAnswerAndGetId(questionId, "원본 답변");
+        var updateReq = new CommunityAnswerUpdateReq(answerId, "수정", null, List.of());
+        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, 11)
+                .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
+                .toList();
+        files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, files))
+                .isInstanceOf(insty.exception.CustomException.class);
     }
 }

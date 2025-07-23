@@ -36,14 +36,14 @@ class CommunityAnswerFileWriterTest {
     private AppProperties appProperties;
 
     @Test
-    void saveAnswerImageFiles_첨부파일없음() {
+    void saveAnswerFiles_첨부파일없음() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of());
         // when
-        List<FileInfo> result1 = fileWriter.saveAnswerImageFiles(answer, null);
-        List<FileInfo> result2 = fileWriter.saveAnswerImageFiles(answer, List.of());
+        List<FileInfo> result1 = fileWriter.saveAnswerFiles(answer, null);
+        List<FileInfo> result2 = fileWriter.saveAnswerFiles(answer, List.of());
         // then
         assertThat(result1).isEmpty();
         assertThat(result2).isEmpty();
@@ -51,7 +51,7 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void saveAnswerImageFiles_정상() {
+    void saveAnswerFiles_정상() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -65,7 +65,7 @@ class CommunityAnswerFileWriterTest {
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of(communityAnswerFile));
         when(communityAnswerFile.getFile()).thenReturn(file);
         // when
-        List<FileInfo> result = fileWriter.saveAnswerImageFiles(answer, files);
+        List<FileInfo> result = fileWriter.saveAnswerFiles(answer, files);
         // then
         assertThat(result).hasSize(1);
         verify(fileWriterDep, times(1)).saveFiles(anyList());
@@ -74,7 +74,7 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void updateAnswerImageFiles_정상() {
+    void updateAnswerFiles_정상() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -89,7 +89,7 @@ class CommunityAnswerFileWriterTest {
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of(communityAnswerFile));
         when(communityAnswerFile.getFile()).thenReturn(file);
         // when
-        List<FileInfo> result = fileWriter.updateAnswerImageFiles(answer, addFiles, deleteFileIds);
+        List<FileInfo> result = fileWriter.updateAnswerFiles(answer, addFiles, deleteFileIds);
         // then
         assertThat(result).hasSize(1);
         verify(communityAnswerFileRepository, times(1)).deleteByAnswerIdAndFileIdIn(1L, deleteFileIds);
@@ -99,11 +99,11 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void updateAnswerImageFiles_추가삭제모두없음() {
+    void updateAnswerFiles_추가삭제모두없음() {
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of());
-        List<FileInfo> result = fileWriter.updateAnswerImageFiles(answer, null, null);
+        List<FileInfo> result = fileWriter.updateAnswerFiles(answer, null, null);
         assertThat(result).isEmpty();
         verify(communityAnswerFileRepository, never()).deleteByAnswerIdAndFileIdIn(anyLong(), anyList());
         verify(fileWriterDep, never()).saveFiles(anyList());
@@ -112,7 +112,7 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void updateAnswerImageFiles_추가만있음() {
+    void updateAnswerFiles_추가만있음() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -126,7 +126,7 @@ class CommunityAnswerFileWriterTest {
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of(communityAnswerFile));
         when(communityAnswerFile.getFile()).thenReturn(file);
         // when
-        List<FileInfo> result = fileWriter.updateAnswerImageFiles(answer, addFiles, null);
+        List<FileInfo> result = fileWriter.updateAnswerFiles(answer, addFiles, null);
         // then
         assertThat(result).hasSize(1);
         verify(communityAnswerFileRepository, never()).deleteByAnswerIdAndFileIdIn(anyLong(), anyList());
@@ -136,14 +136,14 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void updateAnswerImageFiles_삭제만있음() {
+    void updateAnswerFiles_삭제만있음() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
         List<Long> deleteFileIds = List.of(2L, 3L);
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of());
         // when
-        List<FileInfo> result = fileWriter.updateAnswerImageFiles(answer, null, deleteFileIds);
+        List<FileInfo> result = fileWriter.updateAnswerFiles(answer, null, deleteFileIds);
         // then
         assertThat(result).isEmpty();
         verify(communityAnswerFileRepository, times(1)).deleteByAnswerIdAndFileIdIn(1L, deleteFileIds);
@@ -153,7 +153,7 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void updateAnswerImageFiles_추가삭제모두있음() {
+    void updateAnswerFiles_추가삭제모두있음() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -168,7 +168,7 @@ class CommunityAnswerFileWriterTest {
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of(communityAnswerFile));
         when(communityAnswerFile.getFile()).thenReturn(file);
         // when
-        List<FileInfo> result = fileWriter.updateAnswerImageFiles(answer, addFiles, deleteFileIds);
+        List<FileInfo> result = fileWriter.updateAnswerFiles(answer, addFiles, deleteFileIds);
         // then
         assertThat(result).hasSize(1);
         verify(communityAnswerFileRepository, times(1)).deleteByAnswerIdAndFileIdIn(1L, deleteFileIds);
@@ -178,7 +178,7 @@ class CommunityAnswerFileWriterTest {
     }
 
     @Test
-    void updateAnswerImageFiles_순서검증() {
+    void updateAnswerFiles_순서검증() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -197,7 +197,7 @@ class CommunityAnswerFileWriterTest {
         when(appProperties.getDomain()).thenReturn("domain");
         when(communityAnswerFileRepository.findAllByCommunityAnswerId(1L)).thenReturn(List.of(cafA, cafC, cafD, cafE));
         // when
-        List<FileInfo> result = fileWriter.updateAnswerImageFiles(
+        List<FileInfo> result = fileWriter.updateAnswerFiles(
                 answer,
                 List.of(mfD, mfE),
                 List.of(2L) // B 삭제
@@ -213,7 +213,7 @@ class CommunityAnswerFileWriterTest {
     @Test
     void updateAnswerImageFiles_answerNull이면예외() {
         // when & then
-        assertThatThrownBy(() -> fileWriter.updateAnswerImageFiles(null, null, null))
+        assertThatThrownBy(() -> fileWriter.updateAnswerFiles(null, null, null))
                 .isInstanceOf(NullPointerException.class);
     }
 }

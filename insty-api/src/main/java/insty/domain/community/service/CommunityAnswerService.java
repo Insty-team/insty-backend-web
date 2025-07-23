@@ -9,7 +9,6 @@ import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerAcceptService;
 import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
-import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
@@ -71,7 +70,7 @@ public class CommunityAnswerService {
         User user = userReader.getUser(req.userId());
 
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
-        List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerImageFiles(answer, attachments);
+        List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerFiles(answer, attachments);
         VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
@@ -85,7 +84,7 @@ public class CommunityAnswerService {
         communityValidator.validateFiles(attachments);
 
         CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
-        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerImageFiles(answer, attachments, req.deleteFileIds());
+        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
         VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);

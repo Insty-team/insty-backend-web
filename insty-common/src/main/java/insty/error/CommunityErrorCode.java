@@ -21,6 +21,7 @@ public enum CommunityErrorCode implements ErrorCode {
     COMMUNITY_ANSWER_USER_TYPE_INVALID("COMMUNITY_018", "CREATOR의 답변만 채택할 수 있습니다.", 400),
     COMMUNITY_QUESTION_ALREADY_DELETED("COMMUNITY_019", "이미 삭제된 질문입니다.", 409),
     COMMUNITY_ANSWER_ALREADY_DELETED("COMMUNITY_020", "이미 삭제된 답변입니다.", 409),
+    COMMUNITY_MAX_FILE_COUNT_EXCEEDED("COMMUNITY_021", "첨부파일은 최대 10개까지 등록할 수 있습니다.", 400),
 
     ;
 

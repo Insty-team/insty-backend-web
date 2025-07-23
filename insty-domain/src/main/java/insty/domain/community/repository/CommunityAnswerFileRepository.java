@@ -17,4 +17,5 @@ public interface CommunityAnswerFileRepository extends JpaRepository<CommunityAn
     @Query("delete from CommunityAnswerFile caf where caf.communityAnswer.id = :answerId and caf.file.id in :fileIds")
     void deleteByAnswerIdAndFileIdIn(Long answerId, List<Long> fileIds);
 
+    int countByCommunityAnswerId(Long communityAnswerId);
 }

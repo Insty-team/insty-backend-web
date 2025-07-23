@@ -15,4 +15,6 @@ public interface CommunityFileRepository extends JpaRepository<CommunityFile, Lo
     @Transactional
     @Query("delete from CommunityFile cf where cf.communityQuestion.id = :questionId and cf.file.id in :fileIds")
     void deleteByQuestionIdAndFileIdIn(Long questionId, List<Long> fileIds);
+
+    int countByCommunityQuestionId(Long questionId);
 }
