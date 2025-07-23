@@ -9,7 +9,8 @@ import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
-import insty.domain.community.service.CommunityService;
+import insty.domain.community.service.CommunityQuestionService;
+import insty.domain.community.service.CommunityAnswerService;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -34,7 +35,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityController {
 
-    private final CommunityService CommunityService;
+    private final CommunityQuestionService communityQuestionService;
+    private final CommunityAnswerService communityAnswerService;
 
     /// ============================== 질문 API  ======================================
 
@@ -44,7 +46,7 @@ public class CommunityController {
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
             @ModelAttribute @Validated CommunityQuestionSearchReq req
     ) {
-        return SuccessRes.of(CommunityService.searchQuestions(req));
+        return SuccessRes.of(communityQuestionService.searchQuestions(req));
     }
 
     @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
@@ -52,7 +54,7 @@ public class CommunityController {
     @GetMapping("/questions/courses/{courseId}")
     public SuccessRes<List<CommunityQuestionRes>> retrieveQuestionsByCourseId(
             @PathVariable @NotBlank Long courseId) {
-        return SuccessRes.of(CommunityService.getQuestionsByCourseId(courseId));
+        return SuccessRes.of(communityQuestionService.getQuestionsByCourseId(courseId));
     }
 
     @Operation(summary = "질문 상세 조회", description = "질문 상세 정보 조회")
@@ -60,7 +62,7 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}")
     public SuccessRes<CommunityQuestionRes> retrieveQuestionDetails(@PathVariable @NotBlank Long questionId) {
-        return SuccessRes.of(CommunityService.getQuestionDetails(questionId));
+        return SuccessRes.of(communityQuestionService.getQuestionDetails(questionId));
     }
 
     @Operation(summary = "질문 작성", description = "새로운 질문 작성")
@@ -71,7 +73,7 @@ public class CommunityController {
             @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(CommunityService.saveQuestion(communityQuestionCreateReq, attachments));
+        return SuccessRes.of(communityQuestionService.saveQuestion(communityQuestionCreateReq, attachments));
     }
 
     @Operation(summary = "질문 수정", description = "질문 수정 (첨부파일 업로드 지원)")
@@ -84,7 +86,7 @@ public class CommunityController {
             @Parameter(description = "질문 첨부파일 (이미지, 코드 파일 등)")
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(CommunityService.updateQuestion(questionId, communityQuestionUpdateReq, attachments));
+        return SuccessRes.of(communityQuestionService.updateQuestion(questionId, communityQuestionUpdateReq, attachments));
     }
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")
@@ -92,7 +94,7 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER')")
     @DeleteMapping("/questions/{questionId}")
     public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank Long questionId) {
-        CommunityService.deleteQuestion(questionId);
+        communityQuestionService.deleteQuestion(questionId);
         return SuccessRes.of(null);
     }
 
@@ -103,7 +105,7 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}/answer")
     public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank Long questionId) {
-        return SuccessRes.of(CommunityService.getAllAnswers(questionId));
+        return SuccessRes.of(communityAnswerService.getAllAnswers(questionId));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
@@ -116,8 +118,7 @@ public class CommunityController {
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
     ) {
-        
-        return SuccessRes.of(CommunityService.saveAnswer(communityAnswerCreateReq, imageFiles));
+        return SuccessRes.of(communityAnswerService.saveAnswer(communityAnswerCreateReq, imageFiles));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
@@ -130,8 +131,7 @@ public class CommunityController {
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
     ) {
-        
-        return SuccessRes.of(CommunityService.updateAnswer(answerId, communityAnswerUpdateReq, imageFiles));
+        return SuccessRes.of(communityAnswerService.updateAnswer(answerId, communityAnswerUpdateReq, imageFiles));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
@@ -139,7 +139,7 @@ public class CommunityController {
     @PreAuthorize("hasRole('CREATOR')")
     @DeleteMapping("/answer/{answerId}")
     public SuccessRes<?> deleteAnswer(@PathVariable @NotBlank Long answerId) {
-        CommunityService.deleteAnswer(answerId);
+        communityAnswerService.deleteAnswer(answerId);
         return SuccessRes.of(null);
     }
 
@@ -149,7 +149,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
     public SuccessRes<AcceptAnswerResultRes> acceptAnswer(@PathVariable @NotBlank Long questionId, @PathVariable @NotBlank Long answerId) {
-        return SuccessRes.of(CommunityService.acceptAnswer(questionId, answerId));
+        return SuccessRes.of(communityAnswerService.acceptAnswer(questionId, answerId));
     }
 
 
