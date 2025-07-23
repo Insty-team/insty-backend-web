@@ -274,4 +274,163 @@ class CommunityQuestionServiceTest {
         assertThat(res).isNotEmpty();
         assertThat(res.get(0).courseId()).isEqualTo(1L);
     }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());"
+    })
+    @Test
+    void saveQuestion_필수값누락_title_예외() {
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, null, "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    void saveQuestion_필수값누락_content_예외() {
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, "제목", null, List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    void saveQuestion_필수값누락_courseId_예외() {
+        var req = new CommunityQuestionCreateReq(null, TEST_USER_ID, "제목", "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    void saveQuestion_필수값누락_userId_예외() {
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, null, "제목", "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());"
+    })
+    @Test
+    void saveQuestion_존재하지않는코스_예외() {
+        var req = new CommunityQuestionCreateReq(99999L, TEST_USER_ID, "제목", "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());"
+    })
+    @Test
+    void getQuestionDetails_존재하지않는질문_예외() {
+        assertThatThrownBy(() -> communityQuestionService.getQuestionDetails(99999L))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    void updateQuestion_필수값누락_title_예외() {
+        var req = new CommunityQuestionUpdateReq(1L, null, "내용", List.of(), List.of());
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1L, req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    void updateQuestion_필수값누락_content_예외() {
+        var req = new CommunityQuestionUpdateReq(1L, "제목", null, List.of(), List.of());
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1L, req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (1001, 1, 1, '동시삭제테스트', '내용', false, false, NOW(), NOW());"
+    })
+    @Test
+    void deleteQuestion_동시삭제_예외() {
+        Long questionId = 1001L;
+        // 첫 번째 삭제
+        communityQuestionService.deleteQuestion(questionId);
+        // 두 번째 삭제 시도
+        assertThatThrownBy(() -> communityQuestionService.deleteQuestion(questionId))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (1002, 1, 1, '동시수정테스트', '내용', false, false, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_동시수정_정상() {
+        Long questionId = 1002L;
+        var req1 = new CommunityQuestionUpdateReq(questionId, "수정1", "내용1", List.of(), List.of());
+        var req2 = new CommunityQuestionUpdateReq(questionId, "수정2", "내용2", List.of(), List.of());
+        var res1 = communityQuestionService.updateQuestion(questionId, req1, List.of());
+        var res2 = communityQuestionService.updateQuestion(questionId, req2, List.of());
+        assertThat(res2.title()).isEqualTo("수정2");
+        assertThat(res2.content()).isEqualTo("내용2");
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (1003, 1, 1, '삭제된질문상세조회', '내용', false, true, NOW(), NOW());"
+    })
+    @Test
+    void getQuestionDetails_삭제된질문_예외() {
+        assertThatThrownBy(() -> communityQuestionService.getQuestionDetails(1003L))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (1004, 1, 1, '삭제된질문수정', '내용', false, true, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_삭제된질문_예외() {
+        var req = new CommunityQuestionUpdateReq(1004L, "수정", "수정", List.of(), List.of());
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1004L, req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (1005, 1, 1, '빈제목테스트', '내용', false, false, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_빈제목_예외() {
+        var req = new CommunityQuestionUpdateReq(1005L, "", "수정", List.of(), List.of());
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1005L, req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    void updateQuestion_빈내용_예외() {
+        var req = new CommunityQuestionUpdateReq(1005L, "수정", "", List.of(), List.of());
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1005L, req, List.of()))
+                .isInstanceOf(CustomException.class);
+    }
 }
