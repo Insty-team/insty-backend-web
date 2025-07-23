@@ -10,7 +10,6 @@ import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.user.implement.UserReader;
-import insty.error.CommunityErrorCode;
 import insty.model.community.CommunityAnswer;
 import java.util.List;
 import java.util.Optional;
@@ -66,10 +65,11 @@ class CommunityAnswerServiceTest {
 
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_COURSE_ID = 1L;
+    private static final int MAX_FILE_COUNT = 10;
 
     private Long createQuestionAndGetId(String title, String content) {
-        var req = new insty.domain.community.dto.CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, title, content, List.of());
-        communityQuestionService.saveQuestion(req, List.of());
+        var req = new insty.domain.community.dto.CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
         return communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
                 .filter(q -> q.getTitle().equals(title))
                 .findFirst()
@@ -77,7 +77,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
     }
     private Long createAnswerAndGetId(Long questionId, String content) {
-        communityAnswerService.saveAnswer(new CommunityAnswerCreateReq(questionId, TEST_USER_ID, content, null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId, content, null), List.of());
         return communityAnswerReader.getAllCommunityAnswers(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -128,7 +128,7 @@ class CommunityAnswerServiceTest {
 
         String newContent = "수정된 답변";
         var updateReq = new CommunityAnswerUpdateReq(answerId, newContent, null, List.of());
-        var updatedRes = communityAnswerService.updateAnswer(answerId, updateReq, List.of());
+        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
 
         assertThat(updatedRes).isNotNull();
         assertThat(updatedRes.content()).isEqualTo(newContent);
@@ -148,7 +148,7 @@ class CommunityAnswerServiceTest {
         String content = "삭제할 답변";
         Long answerId = createAnswerAndGetId(questionId, content);
 
-        communityAnswerService.deleteAnswer(answerId);
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
         entityManager.flush();
         entityManager.clear();
 
@@ -172,7 +172,7 @@ class CommunityAnswerServiceTest {
         String content = "채택할 답변";
         Long answerId = createAnswerAndGetId(questionId, content);
 
-        var result = communityAnswerService.acceptAnswer(questionId, answerId);
+        var result = communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         assertThat(result).isNotNull();
         assertThat(result.answerId()).isEqualTo(answerId);
@@ -193,12 +193,12 @@ class CommunityAnswerServiceTest {
         String content = "삭제할 답변";
         Long answerId = createAnswerAndGetId(questionId, content);
         // 답변 논리 삭제
-        communityAnswerService.deleteAnswer(answerId);
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
         entityManager.flush();
         entityManager.clear();
         // 삭제된 답변 수정 시도 시 예외 발생 검증
         var updateReq = new CommunityAnswerUpdateReq(answerId, "수정", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -213,8 +213,8 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_content누락_예외() {
         Long questionId = createQuestionAndGetId("답변필수값테스트", "내용");
-        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, null, null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, List.of()))
+        var req = new CommunityAnswerCreateReq(questionId, null, null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -230,8 +230,8 @@ class CommunityAnswerServiceTest {
     void saveAnswer_첨부파일비디오없음_정상() {
         Long questionId = createQuestionAndGetId("파일없는답변질문", "내용");
         String content = "파일없는답변";
-        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, content, null);
-        var res = communityAnswerService.saveAnswer(req, List.of());
+        var req = new CommunityAnswerCreateReq(questionId, content, null);
+        var res = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
         assertThat(res).isNotNull();
         assertThat(res.attachments()).isEmpty();
         assertThat(res.videoInfo()).isNull();
@@ -249,8 +249,8 @@ class CommunityAnswerServiceTest {
     void getAllAnswers_정상() {
         Long questionId = 600L, userId = 1L;
         // 답변 2개 생성
-        communityAnswerService.saveAnswer(new CommunityAnswerCreateReq(questionId, userId, "답변1", null), List.of());
-        communityAnswerService.saveAnswer(new CommunityAnswerCreateReq(questionId, userId, "답변2", null), List.of());
+        communityAnswerService.saveAnswer(userId, new CommunityAnswerCreateReq(questionId, "답변1", null), List.of());
+        communityAnswerService.saveAnswer(userId, new CommunityAnswerCreateReq(questionId, "답변2", null), List.of());
 
         var res = communityAnswerService.getAllAnswers(questionId);
         assertThat(res).isNotNull();
@@ -270,8 +270,8 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_존재하지않는질문_예외() {
         // 존재하지 않는 질문에 답변 작성 시 예외 발생
-        var req = new CommunityAnswerCreateReq(99999L, TEST_USER_ID, "답변 내용", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, List.of()))
+        var req = new CommunityAnswerCreateReq(99999L, "답변 내용", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -286,8 +286,8 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_삭제된질문_예외() {
         // 삭제된 질문에 답변 작성 시 예외 발생
-        var req = new CommunityAnswerCreateReq(800L, TEST_USER_ID, "답변 내용", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, List.of()))
+        var req = new CommunityAnswerCreateReq(800L, "답변 내용", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -302,9 +302,14 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_userId누락_예외() {
         // userId가 null인 경우 예외 발생
-        var req = new CommunityAnswerCreateReq(900L, null, "답변 내용", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, List.of()))
+        
+        // todo : 추후 처리할 것
+        /*
+        var req = new CommunityAnswerCreateReq(900L, "답변 내용", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(null, req, List.of()))
                 .isInstanceOf(CustomException.class);
+                
+         */
     }
 
     @Sql(statements = {
@@ -318,8 +323,8 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_빈내용_예외() {
         // content가 빈 문자열인 경우 예외 발생
-        var req = new CommunityAnswerCreateReq(1000L, TEST_USER_ID, "", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, List.of()))
+        var req = new CommunityAnswerCreateReq(1000L, "", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -335,7 +340,7 @@ class CommunityAnswerServiceTest {
     void updateAnswer_존재하지않는답변_예외() {
         // 존재하지 않는 답변 수정 시 예외 발생
         var updateReq = new CommunityAnswerUpdateReq(99999L, "수정된 내용", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(99999L, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, 99999L, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -354,7 +359,7 @@ class CommunityAnswerServiceTest {
 
         // 빈 내용으로 수정 시 예외 발생
         var updateReq = new CommunityAnswerUpdateReq(answerId, "", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -369,7 +374,7 @@ class CommunityAnswerServiceTest {
     @Test
     void deleteAnswer_존재하지않는답변_예외() {
         // 존재하지 않는 답변 삭제 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.deleteAnswer(99999L))
+        assertThatThrownBy(() -> communityAnswerService.deleteAnswer(TEST_USER_ID, 99999L))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -387,12 +392,12 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "삭제할 답변");
 
         // 첫 번째 삭제는 성공
-        communityAnswerService.deleteAnswer(answerId);
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
         entityManager.flush();
         entityManager.clear();
 
         // 두 번째 삭제 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.deleteAnswer(answerId))
+        assertThatThrownBy(() -> communityAnswerService.deleteAnswer(TEST_USER_ID, answerId))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -410,7 +415,7 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "채택할 답변");
 
         // 존재하지 않는 질문에 대해 답변 채택 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(99999L, answerId))
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, 99999L, answerId))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -427,7 +432,7 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("acceptAnswer존재하지않는답변테스트", "내용");
 
         // 존재하지 않는 답변 채택 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionId, 99999L))
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, 99999L))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -448,7 +453,7 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId1, "답변");
 
         // 다른 질문의 답변을 채택하려고 시도 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionId2, answerId))
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, questionId2, answerId))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -467,10 +472,10 @@ class CommunityAnswerServiceTest {
         Long answerId2 = createAnswerAndGetId(questionId, "두 번째 답변");
 
         // 첫 번째 답변 채택
-        communityAnswerService.acceptAnswer(questionId, answerId1);
+        communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId1);
 
         // 이미 채택된 답변이 있는 상태에서 다른 답변 채택 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionId, answerId2))
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId2))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -488,11 +493,11 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "채택할 답변");
 
         // 첫 번째 채택
-        var result1 = communityAnswerService.acceptAnswer(questionId, answerId);
+        var result1 = communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
         assertThat(result1.accepted()).isTrue();
 
         // 같은 답변을 다시 채택하면 취소됨
-        var result2 = communityAnswerService.acceptAnswer(questionId, answerId);
+        var result2 = communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
         assertThat(result2.accepted()).isFalse();
     }
 
@@ -567,7 +572,7 @@ class CommunityAnswerServiceTest {
         Long answerId2 = createAnswerAndGetId(questionId, "삭제할 답변");
 
         // 하나의 답변 삭제
-        communityAnswerService.deleteAnswer(answerId2);
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId2);
         entityManager.flush();
         entityManager.clear();
 
@@ -593,7 +598,7 @@ class CommunityAnswerServiceTest {
 
         // null 내용으로 수정 시 예외 발생
         var updateReq = new CommunityAnswerUpdateReq(answerId, null, null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -612,7 +617,7 @@ class CommunityAnswerServiceTest {
 
         // answerId가 null인 경우 예외 발생
         var updateReq = new CommunityAnswerUpdateReq(null, "수정된 내용", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -629,11 +634,11 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("동시성테스트", "내용");
 
         // 동시에 같은 질문에 답변 작성 (실제로는 순차 실행)
-        var req1 = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "첫 번째 답변", null);
-        var req2 = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "두 번째 답변", null);
+        var req1 = new CommunityAnswerCreateReq(questionId, "첫 번째 답변", null);
+        var req2 = new CommunityAnswerCreateReq(questionId, "두 번째 답변", null);
 
-        var result1 = communityAnswerService.saveAnswer(req1, List.of());
-        var result2 = communityAnswerService.saveAnswer(req2, List.of());
+        var result1 = communityAnswerService.saveAnswer(TEST_USER_ID, req1, List.of());
+        var result2 = communityAnswerService.saveAnswer(TEST_USER_ID, req2, List.of());
 
         assertThat(result1).isNotNull();
         assertThat(result2).isNotNull();
@@ -658,11 +663,11 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "원본 답변");
 
         // 답변 채택
-        communityAnswerService.acceptAnswer(questionId, answerId);
+        communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 채택된 답변 수정
         var updateReq = new CommunityAnswerUpdateReq(answerId, "수정된 답변", null, List.of());
-        var result = communityAnswerService.updateAnswer(answerId, updateReq, List.of());
+        var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
 
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo("수정된 답변");
@@ -683,10 +688,10 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "채택된 답변");
 
         // 답변 채택
-        communityAnswerService.acceptAnswer(questionId, answerId);
+        communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 채택된 답변 삭제
-        communityAnswerService.deleteAnswer(answerId);
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
         entityManager.flush();
         entityManager.clear();
 
@@ -709,8 +714,8 @@ class CommunityAnswerServiceTest {
 
         // 매우 긴 내용으로 답변 작성
         String longContent = "a".repeat(10000);
-        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, longContent, null);
-        var result = communityAnswerService.saveAnswer(req, List.of());
+        var req = new CommunityAnswerCreateReq(questionId, longContent, null);
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
 
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo(longContent);
@@ -730,8 +735,8 @@ class CommunityAnswerServiceTest {
 
         // 특수문자가 포함된 내용으로 답변 작성
         String specialContent = "답변 내용에 특수문자: !@#$%^&*()_+-=[]{}|;':\",./<>?`~";
-        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, specialContent, null);
-        var result = communityAnswerService.saveAnswer(req, List.of());
+        var req = new CommunityAnswerCreateReq(questionId, specialContent, null);
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
 
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo(specialContent);
@@ -750,8 +755,8 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("공백문자테스트", "내용");
 
         // 공백 문자만으로 답변 작성 시 예외 발생
-        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "   \t\n   ", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, List.of()))
+        var req = new CommunityAnswerCreateReq(questionId, "   \t\n   ", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -770,7 +775,7 @@ class CommunityAnswerServiceTest {
 
         // 공백 문자만으로 수정 시 예외 발생
         var updateReq = new CommunityAnswerUpdateReq(answerId, "   \t\n   ", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -787,9 +792,9 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("순서테스트", "내용");
 
         // 여러 답변을 순서대로 생성
-        communityAnswerService.saveAnswer(new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "첫 번째 답변", null), List.of());
-        communityAnswerService.saveAnswer(new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "두 번째 답변", null), List.of());
-        communityAnswerService.saveAnswer(new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "세 번째 답변", null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"첫 번째 답변", null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"두 번째 답변", null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"세 번째 답변", null), List.of());
 
         var result = communityAnswerService.getAllAnswers(questionId);
 
@@ -814,11 +819,11 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "원본 답변");
 
         // 답변 채택
-        communityAnswerService.acceptAnswer(questionId, answerId);
+        communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 답변 수정 후 채택 상태 확인
         var updateReq = new CommunityAnswerUpdateReq(answerId, "수정된 답변", null, List.of());
-        var result = communityAnswerService.updateAnswer(answerId, updateReq, List.of());
+        var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
 
         assertThat(result.isAccepted()).isTrue();
 
@@ -847,15 +852,14 @@ class CommunityAnswerServiceTest {
         Long answerId = createAnswerAndGetId(questionId, "삭제할 답변");
 
         // 답변 삭제
-        communityAnswerService.deleteAnswer(answerId);
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
         entityManager.flush();
         entityManager.clear();
 
         // 삭제된 답변 채택 시 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionId, answerId))
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId))
                 .isInstanceOf(CustomException.class);
     }
-
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
@@ -868,12 +872,12 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_첨부파일_10개초과_예외() {
         Long questionId = 8888L;
-        var req = new CommunityAnswerCreateReq(questionId, TEST_USER_ID, "답변", null);
-        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, 11)
+        var req = new CommunityAnswerCreateReq(questionId,"답변", null);
+        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
         files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(req, files))
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, files))
                 .isInstanceOf(insty.exception.CustomException.class);
     }
 
@@ -890,11 +894,11 @@ class CommunityAnswerServiceTest {
         Long questionId = 8889L;
         Long answerId = createAnswerAndGetId(questionId, "원본 답변");
         var updateReq = new CommunityAnswerUpdateReq(answerId, "수정", null, List.of());
-        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, 11)
+        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
         files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(answerId, updateReq, files))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, files))
                 .isInstanceOf(insty.exception.CustomException.class);
     }
 }

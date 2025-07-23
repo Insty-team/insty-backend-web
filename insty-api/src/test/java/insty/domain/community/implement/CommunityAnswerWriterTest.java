@@ -40,7 +40,7 @@ class CommunityAnswerWriterTest {
         User user = mock(User.class);
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswerCreateReq req = CommunityAnswerCreateReq.builder()
-                .questionId(1L).userId(2L).content("내용")
+                .questionId(1L).content("내용")
                 .build();
         when(answerRepository.save(any(CommunityAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 

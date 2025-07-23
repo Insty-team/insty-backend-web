@@ -62,12 +62,12 @@ public class CommunityAnswerService {
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
      */
-    public CommunityAnswerRes saveAnswer(CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
+    public CommunityAnswerRes saveAnswer(Long userId, CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateAnswerCreateRequest(req);
         communityValidator.validateFiles(attachments);
 
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(req.questionId());
-        User user = userReader.getUser(req.userId());
+        User user = userReader.getUser(userId);
 
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
         List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerFiles(answer, attachments);
@@ -79,7 +79,7 @@ public class CommunityAnswerService {
     /**
      * 기존 답변을 수정하고 첨부 파일을 업데이트
      */
-    public CommunityAnswerRes updateAnswer(Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
+    public CommunityAnswerRes updateAnswer(Long userId, Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateAnswerUpdateRequest(req);
         communityValidator.validateFiles(attachments);
 
@@ -93,7 +93,7 @@ public class CommunityAnswerService {
     /**
      * 답변과 관련된 모든 데이터(첨부 파일 등)를 함께 삭제
      */
-    public void deleteAnswer(Long answerId) {
+    public void deleteAnswer(Long userId, Long answerId) {
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityAnswerWriter.deleteAnswer(answer);
     }
@@ -102,7 +102,7 @@ public class CommunityAnswerService {
      * 질문 작성자가 특정 답변을 채택
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
-    public AcceptAnswerResultRes acceptAnswer(Long questionId, Long answerId) {
+    public AcceptAnswerResultRes acceptAnswer(Long userId, Long questionId, Long answerId) {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateAnswerBelongsToQuestion(answer, question);

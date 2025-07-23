@@ -11,6 +11,7 @@ import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.service.CommunityQuestionService;
 import insty.domain.community.service.CommunityAnswerService;
+import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -42,7 +43,7 @@ public class CommunityController {
 
     @Operation(summary = "커뮤니티 질문 검색", description = "강의 목록을 조회한다")
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/questions/search")
+    @GetMapping("/questions")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
             @ModelAttribute @Validated CommunityQuestionSearchReq req
     ) {
@@ -70,10 +71,11 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionRes> createQuestion(
+            @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityQuestionService.saveQuestion(communityQuestionCreateReq, attachments));
+        return SuccessRes.of(communityQuestionService.saveQuestion(userId, communityQuestionCreateReq, attachments));
     }
 
     @Operation(summary = "질문 수정", description = "질문 수정 (첨부파일 업로드 지원)")
@@ -81,20 +83,24 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER')")
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionRes> updateQuestion(
+            @CurrentUser Long userId,
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityQuestionUpdateReq communityQuestionUpdateReq,
             @Parameter(description = "질문 첨부파일 (이미지, 코드 파일 등)")
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityQuestionService.updateQuestion(questionId, communityQuestionUpdateReq, attachments));
+        return SuccessRes.of(communityQuestionService.updateQuestion(userId, questionId, communityQuestionUpdateReq, attachments));
     }
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
     @PreAuthorize("hasRole('LEARNER')")
     @DeleteMapping("/questions/{questionId}")
-    public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank Long questionId) {
-        communityQuestionService.deleteQuestion(questionId);
+    public SuccessRes<?> deleteQuestion(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long questionId
+    ) {
+        communityQuestionService.deleteQuestion(userId, questionId);
         return SuccessRes.of(null);
     }
 
@@ -113,12 +119,13 @@ public class CommunityController {
     @PreAuthorize("hasRole('CREATOR')")
     @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
+            @CurrentUser Long userId,
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityAnswerCreateReq communityAnswerCreateReq,
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityAnswerService.saveAnswer(communityAnswerCreateReq, imageFiles));
+        return SuccessRes.of(communityAnswerService.saveAnswer(userId, communityAnswerCreateReq, attachments));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
@@ -126,20 +133,24 @@ public class CommunityController {
     @PreAuthorize("hasRole('CREATOR')")
     @PatchMapping(value = "/answer/{answer_id}/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> updateAnswer(
+            @CurrentUser Long userId,
             @PathVariable @NotBlank Long answerId,
             @RequestPart CommunityAnswerUpdateReq communityAnswerUpdateReq,
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
     ) {
-        return SuccessRes.of(communityAnswerService.updateAnswer(answerId, communityAnswerUpdateReq, imageFiles));
+        return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, imageFiles));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
     @PreAuthorize("hasRole('CREATOR')")
     @DeleteMapping("/answer/{answerId}")
-    public SuccessRes<?> deleteAnswer(@PathVariable @NotBlank Long answerId) {
-        communityAnswerService.deleteAnswer(answerId);
+    public SuccessRes<?> deleteAnswer(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long answerId
+    ) {
+        communityAnswerService.deleteAnswer(userId, answerId);
         return SuccessRes.of(null);
     }
 
@@ -148,8 +159,12 @@ public class CommunityController {
     @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
-    public SuccessRes<AcceptAnswerResultRes> acceptAnswer(@PathVariable @NotBlank Long questionId, @PathVariable @NotBlank Long answerId) {
-        return SuccessRes.of(communityAnswerService.acceptAnswer(questionId, answerId));
+    public SuccessRes<AcceptAnswerResultRes> acceptAnswer(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long questionId,
+            @PathVariable @NotBlank Long answerId
+    ) {
+        return SuccessRes.of(communityAnswerService.acceptAnswer(userId, questionId, answerId));
     }
 
 

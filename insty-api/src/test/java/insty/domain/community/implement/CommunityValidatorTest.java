@@ -66,7 +66,7 @@ class CommunityValidatorTest {
         // 질문 생성 요청 데이터 검증이 정상 동작한다.
         // given
         CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(1L).userId(1L).title("제목").content("내용")
+                .courseId(1L).title("제목").content("내용")
                 .build();
 
         // when & then
@@ -79,7 +79,7 @@ class CommunityValidatorTest {
         // 제목이 빈문자열이면 예외를 발생시킨다.
         // given
         CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(1L).userId(1L).title("   ").content("내용")
+                .courseId(1L).title("   ").content("내용")
                 .build();
 
         // when & then
@@ -94,7 +94,7 @@ class CommunityValidatorTest {
         // 내용이 없을 때 예외가 발생한다.
         // given
         CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(1L).userId(1L).title("제목").content(null)
+                .courseId(1L).title("제목").content(null)
                 .build();
 
         // when & then
@@ -109,7 +109,7 @@ class CommunityValidatorTest {
         // 강의ID가 없을 때 예외가 발생한다.
         // given
         CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(null).userId(1L).title("제목").content("내용")
+                .courseId(null).title("제목").content("내용")
                 .build();
 
         // when & then
@@ -117,21 +117,6 @@ class CommunityValidatorTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_COURSE_ID_IS_REQUIRED);
-    }
-
-    @Test
-    void validateQuestionCreateRequest_에러_사용자ID가_없음() {
-        // 사용자ID가 없을 때 예외가 발생한다.
-        // given
-        CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(1L).userId(null).title("제목").content("내용")
-                .build();
-
-        // when & then
-        assertThatThrownBy(() -> communityValidator.validateQuestionCreateRequest(req))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_USER_ID_IS_REQUIRED);
     }
 
     @Test
@@ -192,7 +177,7 @@ class CommunityValidatorTest {
         // 답변 생성 요청 데이터 검증이 정상 동작한다.
         // given
         CommunityAnswerCreateReq req = CommunityAnswerCreateReq.builder()
-                .questionId(1L).userId(1L).content("답변 내용")
+                .questionId(1L).content("답변 내용")
                 .build();
 
         // when & then
@@ -205,7 +190,7 @@ class CommunityValidatorTest {
         // 내용이 없을 때 예외가 발생한다.
         // given
         CommunityAnswerCreateReq req = CommunityAnswerCreateReq.builder()
-                .questionId(1L).userId(1L).content(null)
+                .questionId(1L).content(null)
                 .build();
 
         // when & then
@@ -213,21 +198,6 @@ class CommunityValidatorTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
-    }
-
-    @Test
-    void validateAnswerCreateRequest_에러_사용자ID가_없음() {
-        // 사용자ID가 없을 때 예외가 발생한다.
-        // given
-        CommunityAnswerCreateReq req = CommunityAnswerCreateReq.builder()
-                .questionId(1L).userId(null).content("답변 내용")
-                .build();
-
-        // when & then
-        assertThatThrownBy(() -> communityValidator.validateAnswerCreateRequest(req))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_USER_ID_IS_REQUIRED);
     }
 
     @Test

@@ -41,9 +41,6 @@ public class CommunityValidator {
         if (req.courseId() == null) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_COURSE_ID_IS_REQUIRED);
         }
-        if (req.userId() == null) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_USER_ID_IS_REQUIRED);
-        }
     }
 
     /**
@@ -65,9 +62,6 @@ public class CommunityValidator {
     public void validateAnswerCreateRequest(CommunityAnswerCreateReq req) {
         if (req.content() == null || req.content().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
-        }
-        if (req.userId() == null) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_USER_ID_IS_REQUIRED);
         }
     }
 

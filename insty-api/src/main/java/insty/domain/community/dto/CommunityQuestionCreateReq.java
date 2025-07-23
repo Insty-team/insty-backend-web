@@ -10,8 +10,6 @@ public record CommunityQuestionCreateReq(
         @NotNull
         Long courseId,
         @NotNull
-        Long userId,
-        @NotNull
         String title,
         @NotNull
         String content,

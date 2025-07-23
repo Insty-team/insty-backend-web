@@ -80,12 +80,12 @@ public class CommunityQuestionService {
     /**
      * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
      */
-    public CommunityQuestionRes saveQuestion(CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
+    public CommunityQuestionRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateQuestionCreateRequest(req);
         communityValidator.validateFiles(attachments);
 
         Course course = courseReader.getCourseById(req.courseId());
-        User user = userReader.getUser(req.userId());
+        User user = userReader.getUser(userId);
 
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
@@ -97,7 +97,7 @@ public class CommunityQuestionService {
     /**
      * 기존 질문을 수정하고 첨부 파일을 업데이트
      */
-    public CommunityQuestionRes updateQuestion(Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
+    public CommunityQuestionRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateQuestionUpdateRequest(req);
         communityValidator.validateFiles(attachments);
 
@@ -114,7 +114,7 @@ public class CommunityQuestionService {
     /**
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
      */
-    public void deleteQuestion(Long questionId) {
+    public void deleteQuestion(Long userId, Long questionId) {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
         communityQuestionWriter.deleteQuestion(question);
     }

@@ -36,7 +36,7 @@ class CommunityQuestionWriterTest {
         User user = mock(User.class);
         Course course = mock(Course.class);
         CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(1L).userId(2L).title("제목").content("내용")
+                .courseId(1L).title("제목").content("내용")
                 .build();
 
         when(repository.save(any(CommunityQuestion.class)))

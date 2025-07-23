@@ -10,7 +10,6 @@ import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.user.implement.UserReader;
-import insty.error.CommunityErrorCode;
 import insty.model.community.CommunityQuestion;
 import java.util.List;
 import java.util.Optional;
@@ -59,10 +58,11 @@ class CommunityQuestionServiceTest {
 
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_COURSE_ID = 1L;
+    private static final int MAX_FILE_COUNT = 10;
 
     private Long createQuestionAndGetId(String title, String content) {
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, title, content, List.of());
-        communityQuestionService.saveQuestion(req, List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
         return communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
                 .filter(q -> q.getTitle().equals(title))
                 .findFirst()
@@ -81,23 +81,21 @@ class CommunityQuestionServiceTest {
     @Test
     void createQuestion_정상() {
         // given
-        Long userId = 1L;
-        Long courseId = 1L;
         String title = "질문 제목";
         String content = "질문 내용";
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(courseId, userId, title, content, List.of());
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
 
         // when
-        CommunityQuestionRes res = communityQuestionService.saveQuestion(req, List.of());
+        CommunityQuestionRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
 
         // then
         assertThat(res).isNotNull();
         assertThat(res.title()).isEqualTo(title);
         assertThat(res.content()).isEqualTo(content);
-        assertThat(res.userId()).isEqualTo(userId);
+        assertThat(res.userId()).isEqualTo(TEST_USER_ID);
 
         // 질문 id를 title로 찾아서 조회
-        Long questionId = communityQuestionReader.getAllCommunityQuestionsByCourseId(courseId).stream()
+        Long questionId = communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
                 .filter(q -> q.getTitle().equals(title))
                 .findFirst()
                 .map(insty.model.community.CommunityQuestion::getId)
@@ -149,7 +147,7 @@ class CommunityQuestionServiceTest {
         CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
 
         // when
-        CommunityQuestionRes res = communityQuestionService.updateQuestion(questionId, req, List.of());
+        CommunityQuestionRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(res).isNotNull();
@@ -173,7 +171,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 30L;
 
         // when
-        communityQuestionService.deleteQuestion(questionId);
+        communityQuestionService.deleteQuestion(TEST_USER_ID, questionId);
         entityManager.flush();
         entityManager.clear();
 
@@ -196,9 +194,9 @@ class CommunityQuestionServiceTest {
         // given
         Long questionId = 80L;
         // 1차 삭제
-        communityQuestionService.deleteQuestion(questionId);
+        communityQuestionService.deleteQuestion(TEST_USER_ID, questionId);
         // 2차 삭제 시도
-        assertThatThrownBy(() -> communityQuestionService.deleteQuestion(questionId))
+        assertThatThrownBy(() -> communityQuestionService.deleteQuestion(TEST_USER_ID, questionId))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -214,12 +212,12 @@ class CommunityQuestionServiceTest {
     void updateQuestion_이미삭제된질문_예외() {
         Long questionId = 120L;
         // 논리 삭제
-        communityQuestionService.deleteQuestion(questionId);
+        communityQuestionService.deleteQuestion(TEST_USER_ID, questionId);
         entityManager.flush();
         entityManager.clear();
         // 삭제된 질문 수정 시도 시 예외 발생 검증
         var updateReq = new CommunityQuestionUpdateReq(questionId, "수정된 제목", "수정된 내용", List.of(), List.of());
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(questionId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, questionId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -234,8 +232,8 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_첨부파일비디오없음_정상() {
         String title = "파일없는질문", content = "내용";
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, title, content, List.of());
-        var res = communityQuestionService.saveQuestion(req, List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        var res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
         assertThat(res).isNotNull();
         assertThat(res.attachments()).isEmpty();
         assertThat(res.videoInfos()).isNull(); // 또는 .isEmpty() 등 실제 반환값에 따라
@@ -284,29 +282,30 @@ class CommunityQuestionServiceTest {
     })
     @Test
     void saveQuestion_필수값누락_title_예외() {
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, null, "내용", List.of());
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, null, "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
     @Test
     void saveQuestion_필수값누락_content_예외() {
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, "제목", null, List.of());
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", null, List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
     @Test
     void saveQuestion_필수값누락_courseId_예외() {
-        var req = new CommunityQuestionCreateReq(null, TEST_USER_ID, "제목", "내용", List.of());
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+        var req = new CommunityQuestionCreateReq(null, "제목", "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
     @Test
     void saveQuestion_필수값누락_userId_예외() {
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, null, "제목", "내용", List.of());
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+        // userId가 null인 경우 서비스 호출 시 null 전달
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(null, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -316,8 +315,8 @@ class CommunityQuestionServiceTest {
     })
     @Test
     void saveQuestion_존재하지않는코스_예외() {
-        var req = new CommunityQuestionCreateReq(99999L, TEST_USER_ID, "제목", "내용", List.of());
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, List.of()))
+        var req = new CommunityQuestionCreateReq(99999L, "제목", "내용", List.of());
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -336,14 +335,14 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_필수값누락_title_예외() {
         var req = new CommunityQuestionUpdateReq(1L, null, "내용", List.of(), List.of());
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1L, req, List.of()))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
     @Test
     void updateQuestion_필수값누락_content_예외() {
         var req = new CommunityQuestionUpdateReq(1L, "제목", null, List.of(), List.of());
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1L, req, List.of()))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -359,9 +358,9 @@ class CommunityQuestionServiceTest {
     void deleteQuestion_동시삭제_예외() {
         Long questionId = 1001L;
         // 첫 번째 삭제
-        communityQuestionService.deleteQuestion(questionId);
+        communityQuestionService.deleteQuestion(TEST_USER_ID, questionId);
         // 두 번째 삭제 시도
-        assertThatThrownBy(() -> communityQuestionService.deleteQuestion(questionId))
+        assertThatThrownBy(() -> communityQuestionService.deleteQuestion(TEST_USER_ID, questionId))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -378,8 +377,8 @@ class CommunityQuestionServiceTest {
         Long questionId = 1002L;
         var req1 = new CommunityQuestionUpdateReq(questionId, "수정1", "내용1", List.of(), List.of());
         var req2 = new CommunityQuestionUpdateReq(questionId, "수정2", "내용2", List.of(), List.of());
-        var res1 = communityQuestionService.updateQuestion(questionId, req1, List.of());
-        var res2 = communityQuestionService.updateQuestion(questionId, req2, List.of());
+        var res1 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req1, List.of());
+        var res2 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req2, List.of());
         assertThat(res2.title()).isEqualTo("수정2");
         assertThat(res2.content()).isEqualTo("내용2");
     }
@@ -409,7 +408,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_삭제된질문_예외() {
         var req = new CommunityQuestionUpdateReq(1004L, "수정", "수정", List.of(), List.of());
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1004L, req, List.of()))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1004L, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -424,17 +423,16 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_빈제목_예외() {
         var req = new CommunityQuestionUpdateReq(1005L, "", "수정", List.of(), List.of());
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1005L, req, List.of()))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1005L, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
     @Test
     void updateQuestion_빈내용_예외() {
         var req = new CommunityQuestionUpdateReq(1005L, "수정", "", List.of(), List.of());
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(1005L, req, List.of()))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1005L, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
-
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
@@ -445,13 +443,13 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_첨부파일_10개초과_예외() {
         String title = "첨부파일10개초과", content = "내용";
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, TEST_USER_ID, title, content, List.of());
-        // 11개의 mock 파일 생성
-        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, 11)
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        // (MAX_FILE_COUNT+1)개의 mock 파일 생성
+        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
         files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(req, files))
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, files))
                 .isInstanceOf(insty.exception.CustomException.class);
     }
 
@@ -466,15 +464,12 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_첨부파일_10개초과_예외() {
         Long questionId = 9999L;
-        // 이미 8개 파일이 있다고 가정하고 3개 추가 시도
         var req = new CommunityQuestionUpdateReq(questionId, "수정", "수정", List.of(), List.of());
-        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, 3)
+        List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
         files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
-        // DB에 8개 파일 insert 필요 (생략, 실제 환경에서는 fixture나 별도 insert 필요)
-        // 여기서는 예시로만 작성
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(questionId, req, files))
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, files))
                 .isInstanceOf(insty.exception.CustomException.class);
     }
 }
