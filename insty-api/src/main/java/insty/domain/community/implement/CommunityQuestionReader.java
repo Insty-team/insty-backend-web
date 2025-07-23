@@ -31,7 +31,22 @@ public class CommunityQuestionReader {
      * 커뮤니티 질문 상세조회
      */
     public CommunityQuestion getCommunityQuestionDetailsById(Long questionId) {
-        return  communityQuestionRepository.findById(questionId)
+        CommunityQuestion question = communityQuestionRepository.findById(questionId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+
+        // 삭제된 질문인지 검증
+        if (question.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+        }
+
+        return question;
+    }
+
+    /**
+     * 삭제된 질문을 포함한 커뮤니티 질문 상세조회
+     */
+    public CommunityQuestion getCommunityQuestionDetailsByIdIncludingDeleted(Long questionId) {
+        return communityQuestionRepository.findById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
     }
 }

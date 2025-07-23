@@ -24,6 +24,20 @@ public class CommunityAnswerReader {
      * 커뮤니티 답변 조회
      */
     public CommunityAnswer getCommunityAnswerById(Long answerId) {
+        CommunityAnswer answer = communityAnswerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+
+        if (answer.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+        }
+
+        return answer;
+    }
+
+    /**
+     * 삭제된 답변도 포함하여 커뮤니티 답변 조회
+     */
+    public CommunityAnswer getCommunityAnswerByIdIncludingDeleted(Long answerId) {
         return communityAnswerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
     }
