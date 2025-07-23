@@ -36,7 +36,7 @@ public class CommunityQuestionVideoManager {
      */
     public List<VideoInfo> getAnswerVideoInfos(CommunityQuestion question){
         
-        List<VideoInfo> videoInfos = new ArrayList<>();
+        List<VideoInfo> videoInfos = null; // = new ArrayList<>();
 
         // todo : question의 비디오 추출
         

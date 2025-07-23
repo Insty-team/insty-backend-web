@@ -33,7 +33,7 @@ public class CommunityAnswerVideoManager {
     public VideoInfo getAnswerVideoInfo(CommunityAnswer answer){
 
         // todo : 비디로 파일 변환
-        VideoInfo videoInfo = new VideoInfo(VideoType.ANSWER, UUID.randomUUID(), "vidieo-original-name");
+        VideoInfo videoInfo = null; // new VideoInfo(VideoType.ANSWER, UUID.randomUUID(), "vidieo-original-name");
         // todo : 실재 로직으로 수정
 
 
