@@ -1,0 +1,6 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${INSTY_MAIL_USERNAME}
+    password: ${INSTY_MAIL_PASSWORD}
