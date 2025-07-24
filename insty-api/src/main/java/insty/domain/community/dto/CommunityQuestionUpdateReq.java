@@ -7,6 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record CommunityQuestionUpdateReq(
+        @NotNull
         Long questionId,
         @NotNull
         String title,

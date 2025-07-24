@@ -42,6 +42,7 @@ public class CommunityController {
     /// ============================== 질문 API  ======================================
 
     @Operation(summary = "커뮤니티 질문 검색", description = "일반 질문 목록을 조회한다")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
@@ -51,6 +52,7 @@ public class CommunityController {
     }
 
     @Operation(summary = "유저 별 커뮤니티 질문 검색", description = "러너가 작성한 질문 목록을 조회한다")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
     @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/questions/my")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByUser(
@@ -61,6 +63,7 @@ public class CommunityController {
     }
 
     @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_COURSE_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/courses/{courseId}")
     public SuccessRes<List<CommunityQuestionRes>> retrieveQuestionsByCourseId(
@@ -126,7 +129,7 @@ public class CommunityController {
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
-    @PreAuthorize("hasRole('CREATOR')")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
             @CurrentUser Long userId,
@@ -140,7 +143,7 @@ public class CommunityController {
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
-    @PreAuthorize("hasRole('CREATOR')")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping(value = "/answer/{answer_id}/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> updateAnswer(
             @CurrentUser Long userId,
@@ -154,7 +157,7 @@ public class CommunityController {
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
-    @PreAuthorize("hasRole('CREATOR')")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @DeleteMapping("/answer/{answerId}")
     public SuccessRes<?> deleteAnswer(
             @CurrentUser Long userId,
@@ -168,6 +171,7 @@ public class CommunityController {
 
     @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
+    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
     public SuccessRes<AcceptAnswerResultRes> acceptAnswer(
             @CurrentUser Long userId,
