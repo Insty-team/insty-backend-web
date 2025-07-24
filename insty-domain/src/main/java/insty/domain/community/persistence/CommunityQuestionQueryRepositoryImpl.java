@@ -54,6 +54,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
                 courseIdEq(filter.courseId()),
                 isAnsweredEq(filter.isAnswered()),
                 keywordContains(filter.keyword()),
+                userIdEq(filter.userId()),
                 communityQuestion.isDeleted.eq(false)
         };
     }
@@ -64,6 +65,10 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
 
     private BooleanExpression isAnsweredEq(Boolean isAnswered) {
         return isAnswered != null ? communityQuestion.isAnswered.eq(isAnswered) : null;
+    }
+
+    private BooleanExpression userIdEq(Long userId) {
+        return userId != null ? communityQuestion.user.id.eq(userId) : null;
     }
 
     private BooleanExpression keywordContains(String keyword) {

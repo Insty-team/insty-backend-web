@@ -54,6 +54,23 @@ public class CommunityQuestionService {
     }
 
     /**
+     * User(러너)가 작성한 커뮤니티 질문을 검색
+     */
+    public SearchRes<CommunityQuestionRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId){
+        PaginationReq paginationReq = req.toPaginationReq();
+        CommunityQuestionSearchFilter filter = req.toSearchFilterWithUser(userId);
+        String sort = req.sort();
+
+        List<CommunityQuestion> questions = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
+                .map(communityQuestionMapper::toCommunityQuestionRes)
+                .toList();
+
+        PaginationRes paginationRes = communityComplexReader.countSearchQuestions(paginationReq, filter);
+        return SearchRes.from(paginationRes, communityQuestionRes);
+    }
+
+    /**
      * 특정 코스의 질문 목록 조회
      */
     public List<CommunityQuestionRes> getQuestionsByCourseId(Long courseId) {

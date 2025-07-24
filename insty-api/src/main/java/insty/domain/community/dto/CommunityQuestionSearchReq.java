@@ -18,6 +18,9 @@ public record CommunityQuestionSearchReq(
         return new PaginationReq(page, pageSize);
     }
     public CommunityQuestionSearchFilter toSearchFilter() {
-        return new CommunityQuestionSearchFilter(courseId, isAnswered, keyword);
+        return new CommunityQuestionSearchFilter(courseId, isAnswered, keyword, null);
+    }
+    public CommunityQuestionSearchFilter toSearchFilterWithUser(Long userId) {
+        return new CommunityQuestionSearchFilter(courseId, isAnswered, keyword, userId);
     }
 }

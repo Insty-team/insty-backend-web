@@ -41,13 +41,23 @@ public class CommunityController {
 
     /// ============================== 질문 API  ======================================
 
-    @Operation(summary = "커뮤니티 질문 검색", description = "강의 목록을 조회한다")
+    @Operation(summary = "커뮤니티 질문 검색", description = "일반 질문 목록을 조회한다")
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
             @ModelAttribute @Validated CommunityQuestionSearchReq req
     ) {
         return SuccessRes.of(communityQuestionService.searchQuestions(req));
+    }
+
+    @Operation(summary = "유저 별 커뮤니티 질문 검색", description = "러너가 작성한 질문 목록을 조회한다")
+    @PreAuthorize("hasRole('LEARNER')")
+    @GetMapping("/questions/my")
+    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByUser(
+            @CurrentUser Long userId,
+            @ModelAttribute @Validated CommunityQuestionSearchReq req
+    ) {
+        return SuccessRes.of(communityQuestionService.searchQuestionsByUserId(req, userId));
     }
 
     @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
