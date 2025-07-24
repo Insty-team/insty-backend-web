@@ -39,7 +39,7 @@ class CommunityComplexReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null);
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null, null);
         String sort = "createdAt:desc";
 
         CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "질문1", "내용1");
@@ -63,7 +63,7 @@ class CommunityComplexReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null);
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null, null);
         String sort = "createdAt:desc";
         CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(2L, "질문2", "내용2");
         CommunityFile file = CommunityFile.create(question, FileFixtureBuilder.getCourseThumbnailWithId());
@@ -91,7 +91,7 @@ class CommunityComplexReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null);
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null, null);
         String sort = "createdAt:desc";
 
         CommunityQuestion q1 = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "질문1", "내용1");
@@ -117,7 +117,7 @@ class CommunityComplexReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(1L, true, "테스트");
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(1L, true, "테스트", null);
         PaginationRes paginationRes = new PaginationRes(1, 1, 1, 10);
         when(communityQuestionQueryRepository.countSearchQuestions(paginationReq, filter))
                 .thenReturn(paginationRes);
