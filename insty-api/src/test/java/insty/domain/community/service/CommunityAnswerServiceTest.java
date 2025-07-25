@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.domain.community.dto.CommunityAnswerCreateReq;
-import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerWriter;
@@ -78,7 +77,7 @@ class CommunityAnswerServiceTest {
     }
     private Long createAnswerAndGetId(Long questionId, String content) {
         communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId, content, null), List.of());
-        return communityAnswerReader.getAllCommunityAnswers(questionId).stream()
+        return communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
                 .map(insty.model.community.CommunityAnswer::getId)

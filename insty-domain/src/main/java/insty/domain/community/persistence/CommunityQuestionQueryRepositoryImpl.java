@@ -1,6 +1,7 @@
 package insty.domain.community.persistence;
 
-import static insty.model.community.QCommunityQuestion.communityQuestion;
+import insty.model.community.QCommunityQuestion;
+import insty.model.user.QUser;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -16,6 +17,10 @@ import java.util.List;
 @Repository
 public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupport implements
         CommunityQuestionQueryRepository {
+
+    QCommunityQuestion communityQuestion = QCommunityQuestion.communityQuestion;
+    QUser user = QUser.user;
+
     public CommunityQuestionQueryRepositoryImpl() {
         super(CommunityQuestion.class);
     }
@@ -26,6 +31,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
     @Override
     public List<CommunityQuestion> searchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter, String sort) {
         JPAQuery<CommunityQuestion> query = selectFrom(communityQuestion)
+                .join(communityQuestion.user, user).fetchJoin()
                 .where(searchConditions(filter))
                 .orderBy(createOrderSpecifier(sort))
                 .offset(paginationReq.getOffset())

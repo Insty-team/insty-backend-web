@@ -27,8 +27,20 @@ class CommunityAnswerReaderTest {
     private CommunityAnswerReader reader;
     @Mock
     private CommunityAnswerRepository answerRepository;
-    @Mock
-    private CommunityAnswerFileRepository fileRepository;
+
+    @Test
+    void getAllCommunityAnswers_ByQuestionId_정상() {
+        Long questionId = 1L;
+        CommunityAnswer a1 = mock(CommunityAnswer.class);
+        CommunityAnswer a2 = mock(CommunityAnswer.class);
+
+        // 실제 서비스에서 호출하는 메서드 이름으로 변경
+        when(answerRepository.findAllWithDetailsByCommunityQuestionId(questionId)).thenReturn(List.of(a1, a2));
+
+        List<CommunityAnswer> result = reader.getAllCommunityAnswersByQuestionId(questionId);
+
+        assertThat(result).containsExactly(a1, a2);
+    }
 
     @Test
     void getCommunityAnswerById_정상() {
@@ -54,29 +66,5 @@ class CommunityAnswerReaderTest {
                 .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND);
     }
 
-    @Test
-    void getAllCommunityAnswers_정상() {
-        // given
-        Long questionId = 1L;
-        CommunityAnswer a1 = mock(CommunityAnswer.class);
-        CommunityAnswer a2 = mock(CommunityAnswer.class);
-        when(answerRepository.findAllByCommunityQuestionId(questionId)).thenReturn(List.of(a1, a2));
-        // when
-        List<CommunityAnswer> result = reader.getAllCommunityAnswers(questionId);
-        // then
-        assertThat(result).containsExactly(a1, a2);
-    }
 
-    @Test
-    void getCommunityAnswerFilesByAnswerId_정상() {
-        // given
-        Long answerId = 1L;
-        CommunityAnswerFile f1 = mock(CommunityAnswerFile.class);
-        CommunityAnswerFile f2 = mock(CommunityAnswerFile.class);
-        when(fileRepository.findAllByCommunityAnswerId(answerId)).thenReturn(List.of(f1, f2));
-        // when
-        List<CommunityAnswerFile> result = reader.getCommunityAnswerFilesByAnswerId(answerId);
-        // then
-        assertThat(result).containsExactly(f1, f2);
-    }
 }

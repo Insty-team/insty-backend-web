@@ -42,10 +42,18 @@ public class CommunityAnswerService {
      * 특정 질문에 달린 모든 답변을 상세 정보와 함께 조회
      */
     public List<CommunityAnswerRes> getAllAnswers(Long questionId) {
-        return communityAnswerReader.getAllCommunityAnswers(questionId).stream()
-                .map(answer -> getAnswerDetails(answer.getId()))
+        List<CommunityAnswer> answers = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
+        List<CommunityAnswerRes> answerRes = answers.stream()
+                .map(answer -> CommunityAnswerRes.from(
+                        answer,
+                        communityAnswerFileReader.getAnswerFileInfos(answer),
+                        communityAnswerVideoManager.getAnswerVideoInfo(answer)
+                ))
                 .toList();
+
+        return answerRes;
     }
+
 
     /**
      * 답변의 모든 정보와 첨부 파일을 포함하여 조회

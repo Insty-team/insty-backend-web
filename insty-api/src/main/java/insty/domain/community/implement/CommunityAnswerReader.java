@@ -16,12 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class CommunityAnswerReader {
-
     private final CommunityAnswerRepository communityAnswerRepository;
-    private final CommunityAnswerFileRepository communityAnswerFileRepository;
 
     /**
-     * 커뮤니티 답변 조회
+     * 커뮤니티 답변에 따른 모든 질문 조회
+     */
+    public List<CommunityAnswer> getAllCommunityAnswersByQuestionId(Long questionId) {
+        return communityAnswerRepository.findAllWithDetailsByCommunityQuestionId(questionId);
+    }
+
+    /**
+     * 커뮤니티 답변 상세 조회
      */
     public CommunityAnswer getCommunityAnswerById(Long answerId) {
         CommunityAnswer answer = communityAnswerRepository.findById(answerId)
@@ -40,19 +45,5 @@ public class CommunityAnswerReader {
     public CommunityAnswer getCommunityAnswerByIdIncludingDeleted(Long answerId) {
         return communityAnswerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
-    }
-
-    /**
-     * 커뮤니티 답변에 따른 모든 질문 조회
-     */
-    public List<CommunityAnswer> getAllCommunityAnswers(Long questionId) {
-        return communityAnswerRepository.findAllByCommunityQuestionId(questionId);
-    }
-
-    /**
-     * 커뮤니티 질문에 모든 파일 조회
-     */
-    public List<CommunityAnswerFile> getCommunityAnswerFilesByAnswerId(Long answerId) {
-        return communityAnswerFileRepository.findAllByCommunityAnswerId(answerId);
     }
 }
