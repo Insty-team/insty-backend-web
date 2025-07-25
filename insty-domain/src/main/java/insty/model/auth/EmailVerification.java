@@ -6,8 +6,10 @@ import static insty.error.AuthErrorCode.INVALID_TOKEN_CODE;
 
 import insty.exception.CustomException;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @EqualsAndHashCode(of = "email")
@@ -20,6 +22,12 @@ public class EmailVerification {
     private final String email;
     private String token;
     private boolean verified;
+
+    private EmailVerification() {
+        this.email = null;
+        this.token = null;
+        this.verified = false;
+    }
 
     private EmailVerification(String email, String token) {
         if (email == null || email.isBlank()) {
