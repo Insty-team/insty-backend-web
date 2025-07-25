@@ -106,7 +106,7 @@ class CommunityAnswerServiceTest {
                 .orElse(null);
 
         assertThat(res).isNotNull();
-        assertThat(res.userId()).isEqualTo(TEST_USER_ID);
+        assertThat(res.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(res.content()).isEqualTo(content);
         assertThat(res.isAccepted()).isFalse();
         assertThat(res.attachments()).isEmpty();
@@ -532,7 +532,7 @@ class CommunityAnswerServiceTest {
         var result = communityAnswerService.getAnswerDetails(answerId);
 
         assertThat(result).isNotNull();
-        assertThat(result.userId()).isEqualTo(TEST_USER_ID);
+        assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.content()).isEqualTo("상세 조회할 답변");
         assertThat(result.isAccepted()).isFalse();
         assertThat(result.attachments()).isEmpty();

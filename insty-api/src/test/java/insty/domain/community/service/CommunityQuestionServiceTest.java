@@ -92,7 +92,7 @@ class CommunityQuestionServiceTest {
         assertThat(res).isNotNull();
         assertThat(res.title()).isEqualTo(title);
         assertThat(res.content()).isEqualTo(content);
-        assertThat(res.userId()).isEqualTo(TEST_USER_ID);
+        assertThat(res.user().id()).isEqualTo(TEST_USER_ID);
 
         // 질문 id를 title로 찾아서 조회
         Long questionId = communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
@@ -126,7 +126,7 @@ class CommunityQuestionServiceTest {
         assertThat(res).isNotNull();
         assertThat(res.title()).isEqualTo("상세조회 제목");
         assertThat(res.content()).isEqualTo("상세조회 내용");
-        assertThat(res.userId()).isEqualTo(1L);
+        assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
     }
 
@@ -153,7 +153,7 @@ class CommunityQuestionServiceTest {
         assertThat(res).isNotNull();
         assertThat(res.title()).isEqualTo(newTitle);
         assertThat(res.content()).isEqualTo(newContent);
-        assertThat(res.userId()).isEqualTo(1L);
+        assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
     }
 

@@ -3,6 +3,7 @@ package insty.domain.community.dto;
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityAnswer;
+import insty.model.user.User;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record CommunityAnswerRes(
-        Long userId,
+        CommunityUserRes user,
         String content,
         List<FileInfo> attachments,
         VideoInfo videoInfo,
@@ -25,7 +26,7 @@ public record CommunityAnswerRes(
             VideoInfo videoInfo
     ) {
         return new CommunityAnswerRes(
-                answer.getUser().getId(),
+                CommunityUserRes.from(answer.getUser()),
                 answer.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 videoInfo,
