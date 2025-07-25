@@ -184,4 +184,33 @@ class CommunityQuestionReaderTest {
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
     }
+
+    @Test
+    void getCommunityQuestionDetailsById_에러_삭제된질문() {
+        // given
+        Long id = 1L;
+        CommunityQuestion deletedQuestion = mock(CommunityQuestion.class);
+        when(deletedQuestion.isDeleted()).thenReturn(true);
+        when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.of(deletedQuestion));
+
+        // when & then
+        assertThatThrownBy(() -> reader.getCommunityQuestionDetailsById(id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+    }
+
+    @Test
+    void getCommunityQuestionDetailsByIdIncludingDeleted_정상() {
+        // given
+        Long id = 1L;
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(repository.findById(id)).thenReturn(Optional.of(question));
+
+        // when
+        CommunityQuestion result = reader.getCommunityQuestionDetailsByIdIncludingDeleted(id);
+
+        // then
+        assertThat(result).isEqualTo(question);
+    }
 }

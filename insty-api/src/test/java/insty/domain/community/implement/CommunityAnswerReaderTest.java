@@ -66,5 +66,34 @@ class CommunityAnswerReaderTest {
                 .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND);
     }
 
+    @Test
+    void getCommunityAnswerById_에러_삭제된답변() {
+        // given
+        Long id = 1L;
+        CommunityAnswer deletedAnswer = mock(CommunityAnswer.class);
+        when(deletedAnswer.isDeleted()).thenReturn(true);
+        when(answerRepository.findById(id)).thenReturn(Optional.of(deletedAnswer));
+
+        // when & then
+        assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+    }
+
+    @Test
+    void getCommunityAnswerByIdIncludingDeleted_정상() {
+        // given
+        Long id = 1L;
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
+
+        // when
+        CommunityAnswer result = reader.getCommunityAnswerByIdIncludingDeleted(id);
+
+        // then
+        assertThat(result).isEqualTo(answer);
+    }
+
 
 }
