@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface EmailVerificationControllerDocs {
 
     @Operation(summary = "이메일 인증", description = "요청한 메일로 이메일 인증 번호가 전달됩니다.")
-    SuccessRes<Void> sendVerification(EmailSendReq req);
+    SuccessRes<String> sendVerification(EmailSendReq req);
 
     @Operation(summary = "이메일 인증 확인", description = "이메일과 인증코드로 확인을 합니다.")
-    SuccessRes<Void> verifyEmailCode(EmailVerifyReq req);
+    SuccessRes<String> verifyEmailCode(EmailVerifyReq req);
 }
