@@ -1,9 +1,9 @@
 package insty.domain.auth.controller;
 
-import insty.domain.auth.controller.docs.VerificationControllerDocs;
+import insty.domain.auth.controller.docs.EmailVerificationControllerDocs;
 import insty.domain.auth.dto.request.EmailSendReq;
 import insty.domain.auth.dto.request.EmailVerifyReq;
-import insty.domain.auth.dto.response.EmailSendRes;
+import insty.domain.auth.service.EmailVerificationService;
 import insty.global.response.SuccessRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
-public class VerificationController implements VerificationControllerDocs {
+public class EmailVerificationController implements EmailVerificationControllerDocs {
+
+    private final EmailVerificationService emailVerificationService;
 
     @PostMapping("/email-verification/send")
     public SuccessRes<Void> sendEmailVerification(@Valid @RequestBody EmailSendReq req) {
-        // todo: 기능 구현
+        emailVerificationService.sendVerification(req.email());
         return SuccessRes.of();
     }
 
