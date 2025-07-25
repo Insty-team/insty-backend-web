@@ -70,17 +70,14 @@ oauth:
 
 
 aws:
-  region:
-    static: ${AWS_REGION}
+  region: ${AWS_REGION}
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
   s3:
     file:
       bucket: ${AWS_S3_FILE_BUCKET}
-      access-key: ${AWS_S3_FILE_ACCESS_KEY}
-      secret-key: ${AWS_S3_FILE_SECRET_KEY}
     video:
       upload-bucket: ${AWS_S3_VIDEO_UPLOAD_BUCKET}
-      access-key: ${AWS_S3_VIDEO_ACCESS_KEY}
-      secret-key: ${AWS_S3_VIDEO_SECRET_KEY}
   cloudfront:
     key-pair-id: ${AWS_CLOUDFRONT_KEY_PAIR_ID}
     private-key-path: ${AWS_CLOUDFRONT_PRIVATE_KEY_PATH}
