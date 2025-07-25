@@ -31,7 +31,6 @@ public class CommunityQuestionService {
     private final CommunityQuestionVideoManager communityQuestionVideoManager;
     private final CommunityAnswerMapper communityAnswerMapper;
     private final CommunityQuestionMapper communityQuestionMapper;
-    private final CommunityComplexReader communityComplexReader;
     private final CommunityValidator communityValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
@@ -44,12 +43,12 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toSearchFilter();
         String sort = req.sort();
 
-        List<CommunityQuestion> questions = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestion> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(communityQuestionMapper::toCommunityQuestionRes)
                 .toList();
 
-        PaginationRes paginationRes = communityComplexReader.countSearchQuestions(paginationReq, filter);
+        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
         return SearchRes.from(paginationRes, communityQuestionRes);
     }
 
@@ -61,12 +60,12 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toSearchFilterWithUser(userId);
         String sort = req.sort();
 
-        List<CommunityQuestion> questions = communityComplexReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestion> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(communityQuestionMapper::toCommunityQuestionRes)
                 .toList();
 
-        PaginationRes paginationRes = communityComplexReader.countSearchQuestions(paginationReq, filter);
+        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
         return SearchRes.from(paginationRes, communityQuestionRes);
     }
 
@@ -74,15 +73,18 @@ public class CommunityQuestionService {
      * 특정 코스의 질문 목록 조회
      */
     public List<CommunityQuestionRes> getQuestionsByCourseId(Long courseId) {
-        return communityQuestionReader.getAllCommunityQuestionsByCourseId(courseId).stream()
-                .map(q -> getQuestionDetails(q.getId()))
+        List<CommunityQuestion> questions = communityQuestionReader.getAllCommunityQuestionsByCourseId(courseId);
+        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
+                .map(communityQuestionMapper::toCommunityQuestionRes)
                 .toList();
+
+        return communityQuestionRes;
     }
 
     /**
      * 질문 상세 조회 (첨부 파일 포함)
      */
-    public CommunityQuestionRes getQuestionDetails(Long questionId) {
+    public CommunityQuestionDetailsRes getQuestionDetails(Long questionId) {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
 
         List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
@@ -91,13 +93,13 @@ public class CommunityQuestionService {
                 .map(communityAnswerMapper::toCommunityAnswerRes)
                 .toList();
 
-        return CommunityQuestionRes.from(question, questionFileInfos, videoInfos, answers);
+        return CommunityQuestionDetailsRes.from(question, questionFileInfos, videoInfos, answers);
     }
 
     /**
      * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
      */
-    public CommunityQuestionRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
+    public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateQuestionCreateRequest(req);
         communityValidator.validateFiles(attachments);
 
@@ -108,13 +110,13 @@ public class CommunityQuestionService {
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
         List<VideoInfo> videoInfos = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuids());
 
-        return CommunityQuestionRes.from(question, fileInfos, videoInfos, null);
+        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfos, null);
     }
 
     /**
      * 기존 질문을 수정하고 첨부 파일을 업데이트
      */
-    public CommunityQuestionRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
+    public CommunityQuestionDetailsRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateQuestionUpdateRequest(req);
         communityValidator.validateFiles(attachments);
 
@@ -125,7 +127,7 @@ public class CommunityQuestionService {
                 .map(communityAnswerMapper::toCommunityAnswerRes)
                 .toList();
 
-        return CommunityQuestionRes.from(updatedQuestion, updatedFileInfos, videoInfos, answers);
+        return CommunityQuestionDetailsRes.from(updatedQuestion, updatedFileInfos, videoInfos, answers);
     }
 
     /**

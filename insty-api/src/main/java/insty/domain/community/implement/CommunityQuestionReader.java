@@ -1,5 +1,9 @@
 package insty.domain.community.implement;
 
+import insty.domain.common.dto.PaginationReq;
+import insty.domain.common.dto.PaginationRes;
+import insty.domain.community.dto.CommunityQuestionSearchFilter;
+import insty.domain.community.repository.CommunityQuestionQueryRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
@@ -15,7 +19,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityQuestionReader {
 
     private final CommunityQuestionRepository communityQuestionRepository;
+    private final CommunityQuestionQueryRepository communityQuestionQueryRepository;
 
+    /**
+     * 필터, 검색 조건, 정렬을 기준으로 검색
+     */
+    public List<CommunityQuestion> searchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter, String sort) {
+        return communityQuestionQueryRepository.searchQuestions(paginationReq, filter, sort);
+    }
+
+    /**
+     * 총 검색 개수
+     */
+    public PaginationRes countSearchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter) {
+        return communityQuestionQueryRepository.countSearchQuestions(paginationReq, filter);
+    }
+
+    /**
+     * 모든 커뮤니티 질문 조회 (가급적 쓰지 말것)
+     * @return
+     */
     public List<CommunityQuestion> getAllCommunityQuestions() {
         return communityQuestionRepository.findAll();
     }

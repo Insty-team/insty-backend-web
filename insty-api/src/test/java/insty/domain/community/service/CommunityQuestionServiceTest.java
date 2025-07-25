@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.domain.community.dto.CommunityQuestionCreateReq;
-import insty.domain.community.dto.CommunityQuestionRes;
+import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.implement.CommunityQuestionReader;
@@ -86,7 +86,7 @@ class CommunityQuestionServiceTest {
         CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
 
         // when
-        CommunityQuestionRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
+        CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
 
         // then
         assertThat(res).isNotNull();
@@ -120,7 +120,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 10L;
 
         // when
-        CommunityQuestionRes res = communityQuestionService.getQuestionDetails(questionId);
+        CommunityQuestionDetailsRes res = communityQuestionService.getQuestionDetails(questionId);
 
         // then
         assertThat(res).isNotNull();
@@ -147,7 +147,7 @@ class CommunityQuestionServiceTest {
         CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
 
         // when
-        CommunityQuestionRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
+        CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(res).isNotNull();

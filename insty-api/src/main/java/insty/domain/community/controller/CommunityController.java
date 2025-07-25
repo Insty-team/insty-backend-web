@@ -6,6 +6,7 @@ import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
+import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
@@ -66,7 +67,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}")
-    public SuccessRes<CommunityQuestionRes> retrieveQuestionDetails(@PathVariable @NotBlank Long questionId) {
+    public SuccessRes<CommunityQuestionDetailsRes> retrieveQuestionDetails(@PathVariable @NotBlank Long questionId) {
         return SuccessRes.of(communityQuestionService.getQuestionDetails(questionId));
     }
 
@@ -74,7 +75,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessRes<CommunityQuestionRes> createQuestion(
+    public SuccessRes<CommunityQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
@@ -86,7 +87,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
     @PreAuthorize("hasRole('LEARNER')")
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessRes<CommunityQuestionRes> updateQuestion(
+    public SuccessRes<CommunityQuestionDetailsRes> updateQuestion(
             @CurrentUser Long userId,
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityQuestionUpdateReq communityQuestionUpdateReq,
