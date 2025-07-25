@@ -99,7 +99,7 @@ class CommunityAnswerServiceTest {
         String content = "답변 내용";
         Long answerId = createAnswerAndGetId(questionId, content);
 
-        var res = communityAnswerService.getAllAnswers(questionId).stream()
+        var res = communityAnswerService.getAllAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.content().equals(content))
                 .findFirst()
                 .orElse(null);
@@ -245,13 +245,13 @@ class CommunityAnswerServiceTest {
                     "VALUES (600, 1, 1, '답변목록질문', '내용', false, false, NOW(), NOW());"
     })
     @Test
-    void getAllAnswers_정상() {
+    void getAllAnswers_ByQuestionId_정상() {
         Long questionId = 600L, userId = 1L;
         // 답변 2개 생성
         communityAnswerService.saveAnswer(userId, new CommunityAnswerCreateReq(questionId, "답변1", null), List.of());
         communityAnswerService.saveAnswer(userId, new CommunityAnswerCreateReq(questionId, "답변2", null), List.of());
 
-        var res = communityAnswerService.getAllAnswers(questionId);
+        var res = communityAnswerService.getAllAnswersByQuestionId(questionId);
         assertThat(res).isNotNull();
         assertThat(res).hasSize(2);
         assertThat(res.get(0).content()).isIn("답변1", "답변2");
@@ -547,10 +547,10 @@ class CommunityAnswerServiceTest {
                     "VALUES (2200, 1, 1, '빈답변목록테스트', '내용', false, false, NOW(), NOW());"
     })
     @Test
-    void getAllAnswers_빈목록_정상() {
+    void getAllAnswers_ByQuestionId_빈목록_정상() {
         Long questionId = createQuestionAndGetId("빈답변목록테스트", "내용");
 
-        var result = communityAnswerService.getAllAnswers(questionId);
+        var result = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
@@ -565,7 +565,7 @@ class CommunityAnswerServiceTest {
                     "VALUES (2300, 1, 1, '삭제된답변제외테스트', '내용', false, false, NOW(), NOW());"
     })
     @Test
-    void getAllAnswers_삭제된답변제외_정상() {
+    void getAllAnswers_ByQuestionId_삭제된답변제외_정상() {
         Long questionId = createQuestionAndGetId("삭제된답변제외테스트", "내용");
         Long answerId1 = createAnswerAndGetId(questionId, "유지할 답변");
         Long answerId2 = createAnswerAndGetId(questionId, "삭제할 답변");
@@ -575,7 +575,7 @@ class CommunityAnswerServiceTest {
         entityManager.flush();
         entityManager.clear();
 
-        var result = communityAnswerService.getAllAnswers(questionId);
+        var result = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
@@ -644,7 +644,7 @@ class CommunityAnswerServiceTest {
         assertThat(result1.content()).isEqualTo("첫 번째 답변");
         assertThat(result2.content()).isEqualTo("두 번째 답변");
 
-        var allAnswers = communityAnswerService.getAllAnswers(questionId);
+        var allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
         assertThat(allAnswers).hasSize(2);
     }
 
@@ -695,7 +695,7 @@ class CommunityAnswerServiceTest {
         entityManager.clear();
 
         // 삭제된 답변은 조회되지 않아야 함
-        var allAnswers = communityAnswerService.getAllAnswers(questionId);
+        var allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
         assertThat(allAnswers).isEmpty();
     }
 
@@ -787,7 +787,7 @@ class CommunityAnswerServiceTest {
                     "VALUES (3300, 1, 1, '순서테스트', '내용', false, false, NOW(), NOW());"
     })
     @Test
-    void getAllAnswers_생성순서대로정렬_정상() {
+    void getAllAnswers_ByQuestionId_생성순서대로정렬_정상() {
         Long questionId = createQuestionAndGetId("순서테스트", "내용");
 
         // 여러 답변을 순서대로 생성
@@ -795,7 +795,7 @@ class CommunityAnswerServiceTest {
         communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"두 번째 답변", null), List.of());
         communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"세 번째 답변", null), List.of());
 
-        var result = communityAnswerService.getAllAnswers(questionId);
+        var result = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
         assertThat(result).hasSize(3);
         // 생성 순서대로 정렬되어야 함 (실제 구현에 따라 다를 수 있음)
@@ -827,7 +827,7 @@ class CommunityAnswerServiceTest {
         assertThat(result.isAccepted()).isTrue();
 
         // 전체 답변 목록에서도 채택 상태 확인
-        var allAnswers = communityAnswerService.getAllAnswers(questionId);
+        var allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
         var acceptedAnswer = allAnswers.stream()
                 .filter(answer -> answer.content().equals("수정된 답변"))
                 .findFirst()

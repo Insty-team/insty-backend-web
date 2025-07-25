@@ -166,7 +166,7 @@ class CommunityQuestionReaderTest {
         // given
         Long id = 1L;
         CommunityQuestion q = mock(CommunityQuestion.class);
-        when(repository.findById(id)).thenReturn(Optional.of(q));
+        when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.of(q));
         // when
         CommunityQuestion result = reader.getCommunityQuestionDetailsById(id);
         // then
@@ -177,7 +177,7 @@ class CommunityQuestionReaderTest {
     void getCommunityQuestionDetailsById_에러_존재하지않음() {
         // given
         Long id = 1L;
-        when(repository.findById(id)).thenReturn(Optional.empty());
+        when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.empty());
         // when & then
         assertThatThrownBy(() -> reader.getCommunityQuestionDetailsById(id))
                 .isInstanceOf(CustomException.class)

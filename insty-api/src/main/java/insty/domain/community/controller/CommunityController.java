@@ -116,7 +116,7 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}/answer")
     public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank Long questionId) {
-        return SuccessRes.of(communityAnswerService.getAllAnswers(questionId));
+        return SuccessRes.of(communityAnswerService.getAllAnswersByQuestionId(questionId));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")

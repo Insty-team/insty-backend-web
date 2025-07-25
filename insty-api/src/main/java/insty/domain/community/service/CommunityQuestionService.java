@@ -10,6 +10,7 @@ import insty.domain.community.dto.*;
 import insty.domain.community.implement.*;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
+import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -34,6 +35,8 @@ public class CommunityQuestionService {
     private final CommunityValidator communityValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
+
+    private final CommunityAnswerService communityAnswerService;
 
     /**
      * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
@@ -89,9 +92,7 @@ public class CommunityQuestionService {
 
         List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
         List<VideoInfo> videoInfos = communityQuestionVideoManager.getAnswerVideoInfos(question);
-        List<CommunityAnswerRes> answers = question.getAnswers().stream()
-                .map(communityAnswerMapper::toCommunityAnswerRes)
-                .toList();
+        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
         return CommunityQuestionDetailsRes.from(question, questionFileInfos, videoInfos, answers);
     }
