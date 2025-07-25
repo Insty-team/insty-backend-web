@@ -26,4 +26,8 @@ public class EmailVerificationReader {
         return findOptionalByEmail(email)
             .orElseThrow(() -> new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST));
     }
+
+    public boolean existsByEmail(String email) {
+        return redisService.find(email).isPresent();
+    }
 }
