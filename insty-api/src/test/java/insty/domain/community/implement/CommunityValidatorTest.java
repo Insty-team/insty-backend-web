@@ -9,15 +9,20 @@ import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
+import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import insty.model.user.User;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +32,127 @@ class CommunityValidatorTest {
 
     @InjectMocks
     private CommunityValidator communityValidator;
+    @Mock
+    private CommunityQuestionRepository communityQuestionRepository;
+    @Mock
+    private CommunityAnswerRepository communityAnswerRepository;
+
+    @Test
+    void validateQuestionExists_정상() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(question.isDeleted()).thenReturn(false);
+        when(communityQuestionRepository.findById(1L)).thenReturn(Optional.of(question));
+        // when & then
+        assertThatCode(() -> communityValidator.validateQuestionExists(1L))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateQuestionExists_에러_존재하지않음() {
+        when(communityQuestionRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> communityValidator.validateQuestionExists(1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
+    }
+
+    @Test
+    void validateQuestionExists_에러_삭제됨() {
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(question.isDeleted()).thenReturn(true);
+        when(communityQuestionRepository.findById(1L)).thenReturn(Optional.of(question));
+
+        assertThatThrownBy(() -> communityValidator.validateQuestionExists(1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+    }
+
+    @Test
+    void validateAnswerExists_정상() {
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answer.isDeleted()).thenReturn(false);
+        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.of(answer));
+
+        assertThatCode(() -> communityValidator.validateAnswerExists(1L))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateAnswerExists_에러_존재하지않음() {
+        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> communityValidator.validateAnswerExists(1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND);
+    }
+
+    @Test
+    void validateAnswerExists_에러_삭제됨() {
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answer.isDeleted()).thenReturn(true);
+        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.of(answer));
+
+        assertThatThrownBy(() -> communityValidator.validateAnswerExists(1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+    }
+
+    @Test
+    void validateQuestionAuthor_정상() {
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(10L);
+        when(question.getUser()).thenReturn(user);
+        when(communityQuestionRepository.findById(1L)).thenReturn(Optional.of(question));
+
+        assertThatCode(() -> communityValidator.validateQuestionAuthor(10L, 1L))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateQuestionAuthor_에러_작성자_아님() {
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(99L);
+        when(question.getUser()).thenReturn(user);
+        when(communityQuestionRepository.findById(1L)).thenReturn(Optional.of(question));
+
+        assertThatThrownBy(() -> communityValidator.validateQuestionAuthor(10L, 1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_NOT_QUESTION_AUTHOR);
+    }
+
+    @Test
+    void validateAnswerAuthor_정상() {
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(10L);
+        when(answer.getUser()).thenReturn(user);
+        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.of(answer));
+
+        assertThatCode(() -> communityValidator.validateAnswerAuthor(10L, 1L))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateAnswerAuthor_에러_작성자_아님() {
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(99L);
+        when(answer.getUser()).thenReturn(user);
+        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.of(answer));
+
+        assertThatThrownBy(() -> communityValidator.validateAnswerAuthor(10L, 1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_NOT_ANSWER_AUTHOR);
+    }
 
     @Test
     void validateAnswerBelongsToQuestion_정상() {

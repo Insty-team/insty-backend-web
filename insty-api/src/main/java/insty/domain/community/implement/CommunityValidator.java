@@ -4,6 +4,8 @@ import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
+import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
@@ -18,6 +20,57 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CommunityValidator {
+
+    private final CommunityQuestionRepository communityQuestionRepository;
+    private final CommunityAnswerRepository communityAnswerRepository;
+
+    /**
+     * 질문 ID가 유효한지 검증 (존재 여부 + 삭제 여부 확인)
+     */
+    public void validateQuestionExists(Long questionId) {
+        CommunityQuestion question = communityQuestionRepository.findById(questionId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+
+        if (question.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+        }
+    }
+
+    /**
+     * 답변 ID가 유효한지 검증 (존재 여부 + 삭제 여부 확인)
+     */
+    public void validateAnswerExists(Long answerId) {
+        CommunityAnswer answer = communityAnswerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+
+        if (answer.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+        }
+    }
+
+    /**
+     * 질문 작성자 검증
+     */
+    public void validateQuestionAuthor(Long userId, Long questionId) {
+        CommunityQuestion question = communityQuestionRepository.findById(questionId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+        Long authorId = question.getUser().getId();
+        if (!authorId.equals(userId)) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_NOT_QUESTION_AUTHOR);
+        }
+    }
+
+    /**
+     * 답변 작성자 검증
+     */
+    public void validateAnswerAuthor(Long userId, Long answerId) {
+        CommunityAnswer question = communityAnswerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+        Long authorId = question.getUser().getId();
+        if (!authorId.equals(userId)) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_NOT_ANSWER_AUTHOR);
+        }
+    }
 
     /**
      * 답변이 해당 질문에 속하는지 검증

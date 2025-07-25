@@ -42,6 +42,7 @@ public class CommunityAnswerService {
      * 특정 질문에 달린 모든 답변을 상세 정보와 함께 조회
      */
     public List<CommunityAnswerRes> getAllAnswersByQuestionId(Long questionId) {
+        communityValidator.validateQuestionExists(questionId);
         List<CommunityAnswer> answers = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
         List<CommunityAnswerRes> answerRes = answers.stream()
                 .map(answer -> CommunityAnswerRes.from(
@@ -90,6 +91,7 @@ public class CommunityAnswerService {
     public CommunityAnswerRes updateAnswer(Long userId, Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateAnswerUpdateRequest(req);
         communityValidator.validateFiles(attachments);
+        communityValidator.validateAnswerAuthor(userId, answerId);
 
         CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
         List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
@@ -102,6 +104,7 @@ public class CommunityAnswerService {
      * 답변과 관련된 모든 데이터(첨부 파일 등)를 함께 삭제
      */
     public void deleteAnswer(Long userId, Long answerId) {
+        communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityAnswerWriter.deleteAnswer(answer);
     }
@@ -111,6 +114,7 @@ public class CommunityAnswerService {
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
     public AcceptAnswerResultRes acceptAnswer(Long userId, Long questionId, Long answerId) {
+        communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateAnswerBelongsToQuestion(answer, question);

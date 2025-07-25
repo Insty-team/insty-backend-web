@@ -120,6 +120,7 @@ public class CommunityQuestionService {
     public CommunityQuestionDetailsRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateQuestionUpdateRequest(req);
         communityValidator.validateFiles(attachments);
+        communityValidator.validateQuestionAuthor(userId, questionId);
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
         List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
@@ -135,7 +136,9 @@ public class CommunityQuestionService {
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
      */
     public void deleteQuestion(Long userId, Long questionId) {
+        communityValidator.validateQuestionAuthor(userId, questionId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        // todo : 전부 자동 삭제를 보장하는가?
         communityQuestionWriter.deleteQuestion(question);
     }
 }
