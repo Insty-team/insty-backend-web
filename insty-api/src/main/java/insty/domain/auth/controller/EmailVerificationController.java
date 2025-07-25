@@ -20,13 +20,14 @@ public class EmailVerificationController implements EmailVerificationControllerD
     private final EmailVerificationService emailVerificationService;
 
     @PostMapping("/email-verification/send")
-    public SuccessRes<Void> sendEmailVerification(@Valid @RequestBody EmailSendReq req) {
+    public SuccessRes<Void> sendVerification(@Valid @RequestBody EmailSendReq req) {
         emailVerificationService.sendVerification(req.email());
         return SuccessRes.of();
     }
 
     @PostMapping("/email-verification/verify")
-    public SuccessRes<Void> verifyEmailVerification(@Valid @RequestBody EmailVerifyReq req) {
+    public SuccessRes<Void> verifyEmailCode(@Valid @RequestBody EmailVerifyReq req) {
+        emailVerificationService.verifyEmailCode(req.email(), req.code());
         return SuccessRes.of();
     }
 }

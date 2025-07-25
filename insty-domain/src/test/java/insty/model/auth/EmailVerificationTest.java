@@ -55,50 +55,47 @@ class EmailVerificationTest {
     @Test
     void 이메일_인증_정보_재발급시_토큰이_변경되고_인증되지_않은_상태가_된다() {
         // given
-        EmailVerification emailVerification = EmailVerification.create("test@insty.com", length -> "prevToken");
-        String prevToken = emailVerification.getToken();
-        emailVerification.verify();
+        EmailVerification existingVerification = EmailVerification.create("test@insty.com", length -> "prevToken");
+        String prevToken = existingVerification.getToken();
 
         // when
-        emailVerification.reissue(length -> "newToken");
-        
-        // then
-        assertThat(emailVerification.getToken()).isNotEqualTo(prevToken);
-        assertThat(emailVerification.isVerified()).isFalse();
-    }
-    
-    @Test
-    void 유효한_토큰으로_비교_시_true를_반환한다() {
-        // given
-        EmailVerification emailVerification = EmailVerification.create("test@insty.com", length -> "validToken");
-        
-        // when
-        boolean result = emailVerification.hasSameToken("validToken");
+        EmailVerification newVerification = existingVerification.reissue(length -> "newToken");
 
         // then
-        assertThat(result).isTrue();
+        assertThat(newVerification.getToken()).isNotEqualTo(prevToken);
     }
-    
+
     @Test
-    void 유효하지_않은_토큰으로_비교_시_false를_반환한다() {
+    void 유효한_토큰으로_검증_시_verified_상태가_된다() {
         // given
         EmailVerification emailVerification = EmailVerification.create("test@insty.com", length -> "validToken");
-        
+
         // when
-        boolean result = emailVerification.hasSameToken("invalidToken");
-        
+        emailVerification.verify("validToken");
+
         // then
-        assertThat(result).isFalse();
+        assertThat(emailVerification.isVerified()).isTrue();
     }
-    
+
+    @Test
+    void 유효하지_않은_토큰일_경우_예외가_발생한다() {
+        // given
+        EmailVerification emailVerification = EmailVerification.create("test@insty.com", length -> "validToken");
+
+        // when & then
+        assertThatThrownBy(() -> emailVerification.verify("inValidToken"))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.INVALID_TOKEN_CODE);
+    }
+
     @Test
     void 이미_검증된_토큰일_경우_예외가_발생한다() {
         // given
         EmailVerification emailVerification = EmailVerification.create("test@insty.com", length -> "validToken");
-        emailVerification.verify();
+        emailVerification.verify("validToken");
         
         // when & then
-        assertThatThrownBy(() -> emailVerification.hasSameToken("validToken"))
+        assertThatThrownBy(() -> emailVerification.verify("validToken"))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.ALREADY_VERIFIES_EMAIL);
     }
