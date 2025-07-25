@@ -5,7 +5,6 @@ import insty.domain.auth.implement.emailverification.EmailVerificationWriter;
 import insty.model.auth.EmailVerification;
 import insty.model.auth.SimpleTokenGenerator;
 import insty.model.auth.TokenGenerator;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,13 +22,20 @@ public class EmailVerificationService {
 
     @Transactional
     public void sendVerification(@NotNull String email) {
-        EmailVerification emailVerification = emailVerificationReader.findByEmail(email)
-            .map(present -> {
-                present.reissue(tokenGenerator);
-                return present;
-            })
+        EmailVerification emailVerification = emailVerificationReader.findOptionalByEmail(email)
+            .map(present -> present.reissue(tokenGenerator))
             .orElse(EmailVerification.create(email, tokenGenerator));
 
-        emailVerificationWriter.sendVerification(emailVerification);
+        // todo: email 보내기
+
+        emailVerificationWriter.save(emailVerification);
+    }
+
+    @Transactional
+    public void verifyEmailCode(@NotNull String email, @NotNull String code) {
+        EmailVerification emailVerification = emailVerificationReader.findByEmail(email);
+        emailVerification.verify(code);
+
+        emailVerificationWriter.save(emailVerification);
     }
 }

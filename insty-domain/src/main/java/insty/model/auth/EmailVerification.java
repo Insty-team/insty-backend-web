@@ -2,6 +2,7 @@ package insty.model.auth;
 
 import static insty.error.AuthErrorCode.ALREADY_VERIFIES_EMAIL;
 import static insty.error.AuthErrorCode.INVALID_EMAIL_FORMAT;
+import static insty.error.AuthErrorCode.INVALID_TOKEN_CODE;
 
 import insty.exception.CustomException;
 import java.util.regex.Pattern;
@@ -37,19 +38,18 @@ public class EmailVerification {
         return new EmailVerification(email, token);
     }
 
-    public boolean hasSameToken(String inputToken) {
+    public EmailVerification reissue(TokenGenerator tokenGenerator) {
+        String newToken = tokenGenerator.generate(TOKEN_LENGTH);
+        return new EmailVerification(this.email, newToken);
+    }
+
+    public void verify(String inputToken) {
         if (this.verified) {
             throw new CustomException(ALREADY_VERIFIES_EMAIL);
         }
-        return token.equals(inputToken);
-    }
-
-    public void reissue(TokenGenerator tokenGenerator) {
-        this.token = tokenGenerator.generate(TOKEN_LENGTH);
-        this.verified = false;
-    }
-
-    public void verify() {
+        if (!token.equals(inputToken)) {
+            throw new CustomException(INVALID_TOKEN_CODE);
+        }
         verified = true;
     }
 }

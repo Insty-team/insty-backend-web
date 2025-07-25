@@ -17,8 +17,7 @@ public class EmailVerificationWriter {
 
     private final RedisService redisService;
 
-    public void sendVerification(EmailVerification emailVerification) {
-        // todo: email 보내기
+    public void save(EmailVerification emailVerification) {
         String jsonValue = StringObjectMapper.toJson(emailVerification);
         redisService.save(emailVerification.getEmail(), jsonValue, EMAIL_VERIFICATION_TIMEOUT);
     }

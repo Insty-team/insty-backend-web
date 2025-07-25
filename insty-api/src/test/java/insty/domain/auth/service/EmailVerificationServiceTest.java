@@ -2,6 +2,7 @@ package insty.domain.auth.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,20 +37,35 @@ class EmailVerificationServiceTest {
         emailVerificationService.sendVerification("email@email.com");
 
         // then
-        verify(emailVerificationWriter).sendVerification(any(EmailVerification.class));
+        verify(emailVerificationWriter).save(any(EmailVerification.class));
     }
 
     @Test
-    void 이메일_인증_정보가_있을_때_인증메일을_전송하면_기존_정보로_재발급하고_전송한다() {
+    void 이메일_인증_정보가_존재한다면_인증메일을_전송시_인증_정보를_재발급하고_전송한다() {
         // given
-        EmailVerification mock = mock(EmailVerification.class);
-        when(emailVerificationReader.findByEmail(anyString())).thenReturn(Optional.of(mock));
+        EmailVerification existingVerification = mock(EmailVerification.class);
+        when(emailVerificationReader.findOptionalByEmail(anyString())).thenReturn(Optional.of(existingVerification));
+        EmailVerification newVerification = mock(EmailVerification.class);
+        when(existingVerification.reissue(any(TokenGenerator.class))).thenReturn(newVerification);
 
         // when
         emailVerificationService.sendVerification("email@email.com");
 
         // then
-        verify(mock).reissue(any(TokenGenerator.class));
-        verify(emailVerificationWriter).sendVerification(any(EmailVerification.class));
+        verify(emailVerificationWriter).save(newVerification);
+    }
+
+    @Test
+    void 이메일_정보와_인증_코드가_주어지면_인증_검증을_한다() {
+        // given
+        EmailVerification existingVerification = mock(EmailVerification.class);
+        when(emailVerificationReader.findByEmail(anyString())).thenReturn(existingVerification);
+
+        // when
+        emailVerificationService.verifyEmailCode("email@email.com", "code");
+
+        // then
+        verify(existingVerification).verify(eq("code"));
+        verify(emailVerificationWriter).save(existingVerification);
     }
 }
