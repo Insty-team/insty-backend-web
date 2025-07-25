@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.auth.implement.emailverification.EmailVerificationWriter;
+import insty.mail.MailHelper;
 import insty.model.auth.EmailVerification;
 import insty.model.auth.TokenGenerator;
 import java.util.Optional;
@@ -27,6 +28,9 @@ class EmailVerificationServiceTest {
     @Mock
     private EmailVerificationReader emailVerificationReader;
 
+    @Mock
+    private MailHelper mailHelper;
+
     @InjectMocks
     private EmailVerificationService emailVerificationService;
 
@@ -37,6 +41,7 @@ class EmailVerificationServiceTest {
         emailVerificationService.sendVerification("email@email.com");
 
         // then
+        verify(mailHelper).sendVerificationCode(eq("email@email.com"), anyString(), anyString());
         verify(emailVerificationWriter).save(any(EmailVerification.class));
     }
 
@@ -47,11 +52,13 @@ class EmailVerificationServiceTest {
         when(emailVerificationReader.findOptionalByEmail(anyString())).thenReturn(Optional.of(existingVerification));
         EmailVerification newVerification = mock(EmailVerification.class);
         when(existingVerification.reissue(any(TokenGenerator.class))).thenReturn(newVerification);
+        when(newVerification.getToken()).thenReturn("token");
 
         // when
         emailVerificationService.sendVerification("email@email.com");
 
         // then
+        verify(mailHelper).sendVerificationCode(eq("email@email.com"), anyString(), eq("token"));
         verify(emailVerificationWriter).save(newVerification);
     }
 
