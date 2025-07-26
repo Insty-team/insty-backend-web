@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class VideoCourse extends BaseEntity {
+public class VideoCourse extends BaseEntity implements BaseVideo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
