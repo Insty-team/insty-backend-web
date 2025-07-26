@@ -11,6 +11,7 @@ import insty.domain.video.implement.VideoFileReader;
 import insty.domain.video.implement.VideoReader;
 import insty.domain.video.implement.VideoValidator;
 import insty.domain.video.strategy.VideoStrategyFactory;
+import insty.domain.video.strategy.VideoValidateStrategy;
 import insty.model.user.User;
 import insty.model.video.BaseVideo;
 import insty.model.video.VideoEncoding;
@@ -37,7 +38,8 @@ public class VideoService {
 
     public VideoUploadRes getPreSignedURLForVideoUpload(VideoType videoType, Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
-//        videoStrategyFactory.getValidateStrategy(videoType).validateUploadable(userId); TODO - 개발 편의를 위해 비활성화
+//        videoStrategyFactory.getValidateStrategy(videoType)
+//          .validateUploadable(userId); TODO - 개발 편의를 위해 비활성화
 
         User user = userReader.getUser(userId);
         BaseVideo video = videoStrategyFactory.getWriteStrategy(videoType).saveVideo(req, user);
@@ -51,8 +53,9 @@ public class VideoService {
     }
 
     public Map<String, String> getVideoCookieMap(Long userId, VideoHlsPlaylistReq req) {
-//        videoValidator.validateReadable(userId, req.type(), req.id()); TODO - 개발 편의를 위해 비활성화
-        videoValidator.verifyEncodingCompletedAndDeleted(req.type(), req.id());
+        VideoValidateStrategy validateStrategy = videoStrategyFactory.getValidateStrategy(req.type());
+//        validateStrategy.validateReadable(userId, req.id()); TODO - 개발 편의를 위해 비활성화
+        validateStrategy.verifyEncodingCompletedAndDeleted(req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
@@ -62,7 +65,8 @@ public class VideoService {
     }
 
     public Map<String, String> getPreviewCookieMap(VideoHlsPlaylistReq req) {
-        videoValidator.verifyEncodingCompletedAndDeleted(req.type(), req.id());
+        videoStrategyFactory.getValidateStrategy(req.type())
+                .verifyEncodingCompletedAndDeleted(req.id());
 
         UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
