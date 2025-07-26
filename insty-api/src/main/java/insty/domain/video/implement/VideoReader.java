@@ -34,7 +34,7 @@ public class VideoReader {
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         }
         if (videoType.equals(VideoType.ANSWER)) {
-            return videoAnswerRepository.findVideoUuidByCommunityQuestionId(parentId)
+            return videoAnswerRepository.findVideoUuidByCommunityAnswerId(parentId)
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         }
         throw new CustomException(VideoErrorCode.VIDEO_NOT_FOUND);

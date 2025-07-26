@@ -79,7 +79,7 @@ class VideoReaderTest {
         Long parentId = 1L;
 
         // mock
-        when(videoAnswerRepository.findVideoUuidByCommunityQuestionId(parentId))
+        when(videoAnswerRepository.findVideoUuidByCommunityAnswerId(parentId))
                 .thenReturn(Optional.empty());
 
         // when
