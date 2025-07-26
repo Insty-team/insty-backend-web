@@ -19,6 +19,8 @@ public interface VideoQuestionRepository extends JpaRepository<VideoQuestion, Lo
 
     Optional<VideoQuestion> findByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
 
+    List<VideoQuestion> findAllByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
+
     @Modifying
     @Query("UPDATE VideoQuestion vq SET vq.isDeleted = true WHERE vq.id = :id")
     void deleteLogicallyById(@Param("id") Long id);

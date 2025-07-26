@@ -24,7 +24,7 @@ public class CommunityQuestionMapper {
         return CommunityQuestionDetailsRes.from(
                 question,
                 communityQuestionFileReader.getQuestionFileInfos(question),
-                communityQuestionVideoManager.getAnswerVideoInfos(question),
+                communityQuestionVideoManager.getQuestionVideoInfos(question),
                 question.getAnswers().stream().map(answerMapper::toCommunityAnswerRes).toList()
         );
     }

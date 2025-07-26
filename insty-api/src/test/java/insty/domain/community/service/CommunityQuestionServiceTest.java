@@ -14,6 +14,7 @@ import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityQuestion;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -94,7 +95,7 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // saveQuestion 관련 테스트들 (고도화)
+    // saveQuestion 관련 테스트들  
     // ========================================
 
     @Sql(statements = {
@@ -121,7 +122,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().nickname()).isEqualTo("user");
         assertThat(res.courseId()).isEqualTo(TEST_COURSE_ID);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
         assertThat(res.answers()).isEmpty();
         assertThat(res.createdAt()).isNotNull();
         assertThat(res.updatedAt()).isNotNull();
@@ -229,8 +230,96 @@ class CommunityQuestionServiceTest {
         // then
         assertThat(res).isNotNull();
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
     }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void saveQuestion_비디오UUID포함_정상() {
+        // given
+        String title = "비디오 UUID가 포함된 질문";
+        String content = "비디오 UUID가 포함된 질문 내용";
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of(videoUuid));
+
+        // when
+        CommunityQuestionDetailsRes result = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.title()).isEqualTo(title);
+        assertThat(result.content()).isEqualTo(content);
+        assertThat(result.videoInfos()).hasSize(1);
+        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(videoUuid);
+        assertThat(result.videoInfos().get(0).originFileName()).isEqualTo("test_video.mp4");
+    }
+
+
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (4, '00000000-0000-0000-0000-000000000004', 'test_video4.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000004/test_video4.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void saveQuestion_비디오와첨부파일모두포함_정상() {
+        // given
+        String title = "비디오와 첨부파일이 모두 포함된 질문";
+        String content = "비디오와 첨부파일이 모두 포함된 질문 내용";
+        UUID videoUuid1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID videoUuid2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of(videoUuid1, videoUuid2));
+
+        // when
+        CommunityQuestionDetailsRes result = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.title()).isEqualTo(title);
+        assertThat(result.content()).isEqualTo(content);
+        assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
+        assertThat(result.user().nickname()).isEqualTo("user");
+        assertThat(result.courseId()).isEqualTo(TEST_COURSE_ID);
+        assertThat(result.attachments()).isEmpty();
+        assertThat(result.videoInfos()).hasSize(2);
+        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(videoUuid1);
+        assertThat(result.videoInfos().get(1).videoUuid()).isEqualTo(videoUuid2);
+        assertThat(result.answers()).isEmpty();
+        assertThat(result.createdAt()).isNotNull();
+        assertThat(result.updatedAt()).isNotNull();
+
+        // DB에서 질문 조회하여 검증
+        Long questionId = communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
+                .filter(q -> q.getTitle().equals(title))
+                .findFirst()
+                .map(insty.model.community.CommunityQuestion::getId)
+                .orElseThrow();
+        CommunityQuestion savedQuestion = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        assertThat(savedQuestion).isNotNull();
+        assertThat(savedQuestion.getTitle()).isEqualTo(title);
+        assertThat(savedQuestion.getContent()).isEqualTo(content);
+        assertThat(savedQuestion.getUser().getId()).isEqualTo(TEST_USER_ID);
+        assertThat(savedQuestion.getCourse().getId()).isEqualTo(TEST_COURSE_ID);
+        assertThat(savedQuestion.isAnswered()).isFalse();
+        assertThat(savedQuestion.isDeleted()).isFalse();
+    }
+
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
@@ -266,7 +355,7 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // saveQuestion 예외 케이스들 (고도화)
+    // saveQuestion 예외 케이스들  
     // ========================================
 
     @Test
@@ -442,7 +531,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
         assertThat(res.answers()).isEmpty();
         assertThat(res.createdAt()).isNotNull();
         assertThat(res.updatedAt()).isNotNull();
@@ -477,7 +566,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
         assertThat(res.answers()).hasSize(2);
 
         // 답변 검증
@@ -524,7 +613,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).hasSize(2);
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
         assertThat(res.answers()).isEmpty();
 
         // 첨부파일 검증
@@ -567,7 +656,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
         assertThat(res.answers()).isEmpty();
     }
 
@@ -598,7 +687,7 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // updateQuestion 관련 테스트들 (고도화)
+    // updateQuestion 관련 테스트들  
     // ========================================
 
     @Sql(statements = {
@@ -628,7 +717,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().nickname()).isEqualTo("user");
         assertThat(res.courseId()).isEqualTo(TEST_COURSE_ID);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isNull();
+        assertThat(res.videoInfos()).isEmpty();
         assertThat(res.answers()).isEmpty();
         assertThat(res.createdAt()).isNotNull();
         assertThat(res.updatedAt()).isNotNull();
@@ -757,6 +846,78 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (51, 1, 1, '비디오업데이트질문', '비디오업데이트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 51, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_비디오UUID업데이트_정상() {
+        // given
+        Long questionId = 51L;
+        String newTitle = "비디오가 업데이트된 질문";
+        String newContent = "비디오가 업데이트된 질문 내용";
+        UUID newVideoUuid1 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        UUID newVideoUuid2 = UUID.fromString("00000000-0000-0000-0000-000000000003");
+        UUID deleteVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(newVideoUuid1, newVideoUuid2), List.of(deleteVideoUuid), List.of());
+
+        // when
+        CommunityQuestionDetailsRes result = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.title()).isEqualTo(newTitle);
+        assertThat(result.content()).isEqualTo(newContent);
+        assertThat(result.videoInfos()).hasSize(2);
+        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(newVideoUuid1);
+        assertThat(result.videoInfos().get(1).videoUuid()).isEqualTo(newVideoUuid2);
+        assertThat(result.videoInfos().stream().map(v -> v.videoUuid()).toList()).doesNotContain(deleteVideoUuid);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (53, 1, 1, '복합업데이트질문', '복합업데이트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 53, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_비디오와첨부파일모두업데이트_정상() {
+        // given
+        Long questionId = 53L;
+        String newTitle = "비디오와 첨부파일이 모두 업데이트된 질문";
+        String newContent = "비디오와 첨부파일이 모두 업데이트된 질문 내용";
+        UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        UUID deleteVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(newVideoUuid), List.of(deleteVideoUuid), List.of());
+
+        // when
+        CommunityQuestionDetailsRes result = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.title()).isEqualTo(newTitle);
+        assertThat(result.content()).isEqualTo(newContent);
+        assertThat(result.videoInfos()).hasSize(1);
+        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(newVideoUuid);
+        assertThat(result.videoInfos().stream().map(v -> v.videoUuid()).toList()).doesNotContain(deleteVideoUuid);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
                     "VALUES (1006, 1, 1, '동일내용수정테스트', '기존 내용', false, false, NOW(), NOW());"
     })
     @Test
@@ -814,7 +975,7 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // updateQuestion 예외 케이스들 (고도화)
+    // updateQuestion 예외 케이스들  
     // ========================================
 
     @Test
@@ -967,10 +1128,6 @@ class CommunityQuestionServiceTest {
                 .isInstanceOf(CustomException.class);
     }
 
-
-
-
-
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
                     "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
@@ -1019,10 +1176,6 @@ class CommunityQuestionServiceTest {
 
     // ========================================
     // deleteQuestion 관련 테스트들
-    // ========================================
-
-    // ========================================
-    // deleteQuestion 관련 테스트들 (고도화)
     // ========================================
 
     @Sql(statements = {

@@ -95,7 +95,7 @@ public class CommunityQuestionService {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
 
         List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
-        List<VideoInfo> videoInfos = communityQuestionVideoManager.getAnswerVideoInfos(question);
+        List<VideoInfo> videoInfos = communityQuestionVideoManager.getQuestionVideoInfos(question);
         List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
         return CommunityQuestionDetailsRes.from(question, questionFileInfos, videoInfos, answers);
@@ -114,7 +114,7 @@ public class CommunityQuestionService {
 
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
-        List<VideoInfo> videoInfos = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuids());
+        List<VideoInfo> videoInfos = communityQuestionVideoManager.saveQuestionVideos(question, req.videoUuids());
 
         return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfos, null);
     }
@@ -129,7 +129,7 @@ public class CommunityQuestionService {
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
         List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
-        List<VideoInfo> videoInfos = null; // todo : 비디오 업데이트 로직
+        List<VideoInfo> videoInfos = communityQuestionVideoManager.updateQuestionVideos(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(communityAnswerMapper::toCommunityAnswerRes)
                 .toList();
@@ -143,7 +143,6 @@ public class CommunityQuestionService {
     public void deleteQuestion(Long userId, Long questionId) {
         communityValidator.validateQuestionAuthor(userId, questionId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
-        // todo : 전부 자동 삭제를 보장하는가?
         communityQuestionWriter.deleteQuestion(question);
     }
 }

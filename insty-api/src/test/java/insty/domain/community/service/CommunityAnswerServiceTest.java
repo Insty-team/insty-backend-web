@@ -1041,14 +1041,16 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (41, 1, 1, '비디오답변질문', '비디오답변질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (41, 1, 1, '비디오답변질문', '비디오답변질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void saveAnswer_비디오UUID포함_정상() {
         // given
         Long questionId = 41L;
         String content = "비디오가 포함된 답변";
-        UUID videoUuid = UUID.randomUUID();
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
         var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
 
         // when
@@ -1123,14 +1125,16 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (43, 1, 1, '복합답변질문', '복합답변질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (43, 1, 1, '복합답변질문', '복합답변질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void saveAnswer_비디오와첨부파일모두포함_정상() {
         // given
         Long questionId = 43L;
         String content = "비디오와 첨부파일이 모두 포함된 답변";
-        UUID videoUuid = UUID.randomUUID();
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
         var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
 
         // Mock 첨부파일 생성
@@ -1378,7 +1382,9 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (51, 1, 1, '비디오업데이트질문', '비디오업데이트질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (51, 1, 1, '비디오업데이트질문', '비디오업데이트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_비디오UUID업데이트_정상() {
@@ -1394,7 +1400,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String newContent = "비디오가 추가된 답변";
-        UUID videoUuid = UUID.randomUUID();
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000003");
         var updateReq = new CommunityAnswerUpdateReq(newContent, videoUuid, List.of());
 
         // when
@@ -1478,7 +1484,9 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (53, 1, 1, '복합업데이트질문', '복합업데이트질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (53, 1, 1, '복합업데이트질문', '복합업데이트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (4, '00000000-0000-0000-0000-000000000004', 'test_video4.mp4', 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000004/test_video4.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_비디오와첨부파일모두업데이트_정상() {
@@ -1494,7 +1502,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String newContent = "비디오와 첨부파일이 모두 업데이트된 답변";
-        UUID videoUuid = UUID.randomUUID();
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000004");
         var updateReq = new CommunityAnswerUpdateReq(newContent, videoUuid, List.of());
 
         // Mock 첨부파일 생성
