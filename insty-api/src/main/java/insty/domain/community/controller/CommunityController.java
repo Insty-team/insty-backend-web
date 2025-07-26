@@ -53,9 +53,9 @@ public class CommunityController {
     }
 
     @Operation(summary = "강좌 별 커뮤니티 질문 검색", description = "특정 강좌에 작성된 질문 목록을 조회한다")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
-    @PreAuthorize("hasRole('LEARNER')")
-    @GetMapping("/questions/{course_id}")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_COURSE_SEARCH)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/questions/course/{courseId}")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByCourse(
             @PathVariable @NotBlank Long course_id,
             @ModelAttribute @Validated CommunityQuestionSearchReq req
@@ -147,7 +147,7 @@ public class CommunityController {
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PatchMapping(value = "/answer/{answer_id}/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/answer/{answerId}/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> updateAnswer(
             @CurrentUser Long userId,
             @PathVariable @NotBlank Long answerId,
