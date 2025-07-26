@@ -11,6 +11,7 @@ import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.user.implement.UserReader;
+import insty.error.CommunityErrorCode;
 import insty.model.community.CommunityQuestion;
 import java.util.List;
 import java.util.Optional;
@@ -974,6 +975,45 @@ class CommunityQuestionServiceTest {
         assertThat(finalQuestion.getContent()).isEqualTo("최종 내용");
     }
 
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (61, 1, 1, '비디오제한테스트질문2', '비디오제한테스트질문2 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 61, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 61, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_비디오2개로제한_정상() {
+        // given
+        String title = "비디오 2개 제한 테스트";
+        String content = "비디오 2개 제한 테스트 내용";
+        UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000003");
+        UUID deleteVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var req = CommunityQuestionUpdateReq.builder()
+                .title(title)
+                .content(content)
+                .videoUuids(List.of(newVideoUuid))
+                .deleteVideoUuids(List.of(deleteVideoUuid))
+                .deleteFileIds(List.of())
+                .build();
+
+        // when
+        CommunityQuestionDetailsRes result = communityQuestionService.updateQuestion(TEST_USER_ID, 61L, req, List.of());
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.title()).isEqualTo(title);
+        assertThat(result.content()).isEqualTo(content);
+        assertThat(result.videoInfos()).hasSize(2);
+    }
+
     // ========================================
     // updateQuestion 예외 케이스들  
     // ========================================
@@ -1137,7 +1177,7 @@ class CommunityQuestionServiceTest {
                     "VALUES (9999, 1, 1, '파일10개테스트', '내용', false, false, NOW(), NOW());"
     })
     @Test
-    void updateQuestion_첨부파일_10개초과_예외() {
+    void updateQuestion_첨부파일_초과_예외() {
         // given - 10개를 초과하는 첨부파일
         Long questionId = 9999L;
         var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
@@ -1172,6 +1212,62 @@ class CommunityQuestionServiceTest {
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of(emptyFile)))
                 .isInstanceOf(insty.exception.CustomException.class);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());"
+    })
+    @Test
+    void saveQuestion_비디오_초과_예외() {
+        // given
+        String title = "비디오 초과 질문";
+        String content = "비디오 초과 질문 내용";
+        UUID videoUuid1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID videoUuid2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        UUID videoUuid3 = UUID.fromString("00000000-0000-0000-0000-000000000003");
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of(videoUuid1, videoUuid2, videoUuid3));
+
+        // when & then
+        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (60, 1, 1, '비디오제한테스트질문', '비디오제한테스트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 60, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 60, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void updateQuestion_비디오_초과_예외() {
+        // given
+        String title = "비디오 초과 업데이트";
+        String content = "비디오 초과 업데이트 내용";
+        UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000003");
+        var req = CommunityQuestionUpdateReq.builder()
+                .title(title)
+                .content(content)
+                .videoUuids(List.of(newVideoUuid))
+                .deleteVideoUuids(List.of())
+                .deleteFileIds(List.of())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 60L, req, List.of()))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
     }
 
     // ========================================

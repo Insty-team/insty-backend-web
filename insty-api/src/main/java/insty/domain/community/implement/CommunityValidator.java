@@ -23,6 +23,9 @@ public class CommunityValidator {
 
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
+    private final CommunityQuestionVideoManager communityQuestionVideoManager;
+
+    private static final int MAX_VIDEO_COUNT = 2;
 
     /**
      * 질문 ID가 유효한지 검증 (존재 여부 + 삭제 여부 확인)
@@ -118,6 +121,40 @@ public class CommunityValidator {
             return UUID.fromString(videoUuid);
         } catch (IllegalArgumentException e) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_UUID);
+        }
+    }
+
+    /**
+     * 질문 생성 시 비디오 개수 제한 검증
+     */
+    public void validateQuestionVideoCount(List<UUID> videoUuids) {
+        if (videoUuids != null && videoUuids.size() > MAX_VIDEO_COUNT) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
+        }
+    }
+
+    /**
+     * 질문 업데이트 시 비디오 개수 제한 검증
+     */
+    public void validateQuestionVideoCountForUpdate(CommunityQuestion question, List<UUID> addVideoUuids, List<UUID> deleteVideoUuids) {
+        // 기존 비디오 개수 계산 (삭제되지 않은 것만)
+        long existingVideoCount = communityQuestionVideoManager.getExistingVideoCount(question);
+
+        // 추가할 비디오 개수
+        int addCount = addVideoUuids != null ? addVideoUuids.size() : 0;
+
+        // 삭제할 비디오 개수
+        int deleteCount = deleteVideoUuids != null ? deleteVideoUuids.size() : 0;
+
+        // 최종 비디오 개수 = 기존 개수 + 추가 개수 - 삭제 개수
+        long finalVideoCount = existingVideoCount + addCount - deleteCount;
+
+        if (finalVideoCount > MAX_VIDEO_COUNT) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
+        }
+
+        if (finalVideoCount < 0) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_OPERATION);
         }
     }
 }

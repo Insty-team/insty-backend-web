@@ -107,7 +107,7 @@ public class CommunityQuestionService {
     public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
-
+        communityValidator.validateQuestionVideoCount(req.videoUuids());
 
         Course course = courseReader.getCourseById(req.courseId());
         User user = userReader.getUser(userId);
@@ -128,6 +128,8 @@ public class CommunityQuestionService {
         communityValidator.validateQuestionAuthor(userId, questionId);
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
+        communityValidator.validateQuestionVideoCountForUpdate(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());
+
         List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
         List<VideoInfo> videoInfos = communityQuestionVideoManager.updateQuestionVideos(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
@@ -143,6 +145,7 @@ public class CommunityQuestionService {
     public void deleteQuestion(Long userId, Long questionId) {
         communityValidator.validateQuestionAuthor(userId, questionId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        // todo : 전부 자동 삭제를 보장하는가?
         communityQuestionWriter.deleteQuestion(question);
     }
 }

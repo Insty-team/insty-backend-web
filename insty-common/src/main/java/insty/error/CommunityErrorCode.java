@@ -24,6 +24,8 @@ public enum CommunityErrorCode implements ErrorCode {
     COMMUNITY_MAX_FILE_COUNT_EXCEEDED("COMMUNITY_021", "첨부파일은 최대 10개까지 등록할 수 있습니다.", 400),
     COMMUNITY_NOT_QUESTION_AUTHOR("COMMUNITY_022", "질문 작성자가 아닙니다.", 403),
     COMMUNITY_NOT_ANSWER_AUTHOR("COMMUNITY_023", "답변 작성자가 아닙니다.", 403),
+    COMMUNITY_VIDEO_COUNT_EXCEEDED("COMMUNITY_024", "비디오는 최대 2개까지 등록할 수 있습니다.", 400),
+    COMMUNITY_INVALID_VIDEO_OPERATION("COMMUNITY_025", "잘못된 비디오 작업입니다.", 400),
 
     ;
 

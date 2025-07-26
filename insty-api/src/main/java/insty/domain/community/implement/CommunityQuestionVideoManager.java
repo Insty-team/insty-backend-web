@@ -99,7 +99,7 @@ public class CommunityQuestionVideoManager {
      */
     public void softDeleteQuestionVideo(Long questionId) {
         Optional<VideoQuestion> videoQuestion = videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(questionId, false);
-        if (videoQuestion.isEmpty()) {
+        if (videoQuestion.isEmpty() || videoQuestion.get().isDeleted()) {
             return;
         }
 
@@ -119,5 +119,12 @@ public class CommunityQuestionVideoManager {
         }
 
         return videoInfos;
+    }
+
+    /**
+     * 질문의 기존 비디오 개수 반환 (삭제되지 않은 것만)
+     */
+    public long getExistingVideoCount(CommunityQuestion question) {
+        return videoQuestionRepository.findAllByCommunityQuestionIdAndIsDeleted(question.getId(), false).size();
     }
 }
