@@ -4,6 +4,9 @@ import java.util.UUID;
 
 public class VideoUtils {
 
+    /**
+     * AI에서도 사용하므로, 상수 변경 시 AI에도 알려줘야 합니다.
+     */
     private static final String VIDEO_BASIC_THUMBNAIL_DIRECTORY = "file/VIDEO_BASIC_THUMBNAIL";
     private static final String VIDEO_BASIC_THUMBNAIL_NAME = "basic_thumbnail.jpg";
 

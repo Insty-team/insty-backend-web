@@ -3,7 +3,7 @@ package insty.model.video;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
-import insty.model.course.Course;
+import insty.model.community.CommunityQuestion;
 import insty.model.user.User;
 import insty.util.FileUtils;
 import jakarta.persistence.Column;
@@ -28,12 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Entity
-@Table(name = "video_courses", schema = "web_service")
+@Table(name = "video_questions", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class VideoCourse extends BaseEntity implements BaseVideo {
+public class VideoQuestion extends BaseEntity implements BaseVideo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +43,8 @@ public class VideoCourse extends BaseEntity implements BaseVideo {
     private UUID videoUuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @JoinColumn(name = "community_question_id")
+    private CommunityQuestion communityQuestion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -69,24 +69,18 @@ public class VideoCourse extends BaseEntity implements BaseVideo {
 
     private Instant encodingAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 100)
-    private AnalysisStatus analysisStatus;
-
-    private Instant analysisAt;
-
     @Builder.Default
     @Column(nullable = false)
     private boolean isDeleted = false;
 
 
-    public static VideoCourse create(String fileName, UUID uuid, User user) {
+    public static VideoQuestion create(String fileName, UUID uuid, User user) {
         validateCreate(fileName, uuid, user);
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         String s3BucketKey = getS3BucketKey(fileName, uuid);
 
-        return VideoCourse.builder()
+        return VideoQuestion.builder()
                 .videoUuid(uuid)
                 .user(user)
                 .s3Key(s3BucketKey)
@@ -94,7 +88,6 @@ public class VideoCourse extends BaseEntity implements BaseVideo {
                 .originalFileName(fileName)
                 .encodingStatus(EncodingStatus.PROCESSING)
                 .encodingAt(Instant.now()) // 비용 문제로 영상 삽입 시 인코딩 시작했다고 가정
-                .analysisStatus(AnalysisStatus.WAITING)
                 .build();
     }
 
@@ -122,15 +115,11 @@ public class VideoCourse extends BaseEntity implements BaseVideo {
      *
      * @param fileName 파일명 fileName.mp4
      * @param uuid
-     * @return vod/COURSE/mp4/uuid/fileName.mp4
+     * @return vod/QUESTION/mp4/uuid/fileName.mp4
      */
     private static String getS3BucketKey(String fileName, UUID uuid) {
         String extension = FileUtils.extractExtension(fileName)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
-        return "vod/" + VideoType.COURSE + "/" + extension + "/" + uuid + "/" + fileName;
-    }
-
-    public void updateCourse(Course course) {
-        this.course = course;
+        return "vod/" + VideoType.QUESTION + "/" + extension + "/" + uuid + "/" + fileName;
     }
 }

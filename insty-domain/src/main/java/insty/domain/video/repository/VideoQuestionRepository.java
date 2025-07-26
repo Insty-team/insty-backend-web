@@ -1,6 +1,6 @@
 package insty.domain.video.repository;
 
-import insty.model.video.VideoAnswer;
+import insty.model.video.VideoQuestion;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -9,16 +9,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface VideoAnswerRepository extends JpaRepository<VideoAnswer, Long> {
+public interface VideoQuestionRepository extends JpaRepository<VideoQuestion, Long> {
 
-    Optional<VideoAnswer> findByVideoUuid(UUID videoUuid);
+    Optional<VideoQuestion> findByVideoUuid(UUID videoUuid);
 
-    @Query("SELECT va.videoUuid FROM VideoAnswer va WHERE va.communityAnswer.id = :communityAnswerId AND va.isDeleted = false")
-    Optional<UUID> findVideoUuidByCommunityAnswerId(@Param("communityAnswerId") Long communityAnswerId);
+    @Query("SELECT va.videoUuid FROM VideoQuestion va WHERE va.communityQuestion.id = :communityQuestionId AND va.isDeleted = false")
+    Optional<UUID> findVideoUuidByCommunityQuestionId(@Param("communityQuestionId") Long communityQuestionId);
 
-    Optional<VideoAnswer> findByCommunityAnswerIdAndIsDeleted(Long communityAnswerId, boolean isDeleted);
+    Optional<VideoQuestion> findByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
 
-    @Query("SELECT va.duration FROM VideoAnswer va "
+    @Query("SELECT va.duration FROM VideoQuestion va "
             + "WHERE va.encodingStatus != 'FAILED' AND va.user.id = :userId AND va.encodingAt >= :encodingAt")
     List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
                                                                        @Param("encodingAt") Instant encodingAt);
