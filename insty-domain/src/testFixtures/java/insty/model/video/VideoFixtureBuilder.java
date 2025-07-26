@@ -19,4 +19,11 @@ public class VideoFixtureBuilder {
         ReflectionTestUtils.setField(videoAnswer, "id", 1L);
         return videoAnswer;
     }
+
+    public static VideoQuestion getVideoQuestionWithIdAndUser() {
+        User user = UserFixtureBuilder.getUserWithId();
+        VideoQuestion videoQuestion = VideoQuestionFixture.getVideoQuestion(user);
+        ReflectionTestUtils.setField(videoQuestion, "id", 1L);
+        return videoQuestion;
+    }
 }

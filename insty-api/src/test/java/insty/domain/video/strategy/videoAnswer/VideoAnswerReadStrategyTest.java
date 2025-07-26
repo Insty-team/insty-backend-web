@@ -1,14 +1,12 @@
-package insty.domain.video.implement;
+package insty.domain.video.strategy.videoAnswer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import insty.domain.video.repository.VideoEncodingRepository;
+import insty.domain.video.repository.VideoAnswerRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
-import insty.model.video.VideoEncoding;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -20,43 +18,44 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class VideoReaderTest {
+class VideoAnswerReadStrategyTest {
 
     @InjectMocks
-    private VideoReader videoReader;
+    private VideoAnswerReadStrategy videoAnswerReadStrategy;
 
     @Mock
-    private VideoEncodingRepository videoEncodingRepository;
+    private VideoAnswerRepository videoAnswerRepository;
 
     @Test
-    void getVideoEncoding_정상() {
+    void getVideoUuid_정상() {
         // given
-        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        Long parentId = 1L;
 
         // mock
-        when(videoEncodingRepository.findByVideoUuid(fixedUuid))
-                .thenReturn(Optional.of(mock(VideoEncoding.class)));
+        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        when(videoAnswerRepository.findVideoUuidByCommunityAnswerId(parentId))
+                .thenReturn(Optional.of(fixedUuid));
 
         // when
-        VideoEncoding videoEncoding = videoReader.getVideoEncoding(fixedUuid);
+        UUID videoUuid = videoAnswerReadStrategy.getVideoUuid(parentId);
 
         // then
-        assertThat(videoEncoding).isNotNull();
+        assertThat(videoUuid).isEqualTo(fixedUuid);
     }
 
     @Test
-    void getVideoEncoding_에러_존재하지_않는_인코딩영상() {
+    void getVideoUuid_에러_존재하지_않는_답변영상() {
         // given
-        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        Long parentId = 1L;
 
         // mock
-        when(videoEncodingRepository.findByVideoUuid(fixedUuid))
+        when(videoAnswerRepository.findVideoUuidByCommunityAnswerId(parentId))
                 .thenReturn(Optional.empty());
 
         // when
 
         // then
-        assertThatThrownBy(() -> videoReader.getVideoEncoding(fixedUuid))
+        assertThatThrownBy(() -> videoAnswerReadStrategy.getVideoUuid(parentId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_NOT_FOUND);

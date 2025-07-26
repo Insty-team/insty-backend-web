@@ -1,5 +1,5 @@
 package insty.model.video;
 
 public enum VideoType {
-    COURSE, ANSWER
+    COURSE, ANSWER, QUESTION
 }
