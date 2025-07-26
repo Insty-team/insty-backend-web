@@ -8,12 +8,11 @@ import lombok.Builder;
 @Builder
 public record CommunityQuestionUpdateReq(
         @NotNull
-        Long questionId,
-        @NotNull
         String title,
         @NotNull
         String content,
         List<UUID> videoUuids,
+        List<UUID> deleteVideoUuids,
         List<Long> deleteFileIds
 ) {
 }

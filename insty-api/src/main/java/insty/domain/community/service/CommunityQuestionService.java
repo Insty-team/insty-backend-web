@@ -101,8 +101,9 @@ public class CommunityQuestionService {
      * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
      */
     public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateQuestionCreateRequest(req);
+        communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
+
 
         Course course = courseReader.getCourseById(req.courseId());
         User user = userReader.getUser(userId);
@@ -118,7 +119,7 @@ public class CommunityQuestionService {
      * 기존 질문을 수정하고 첨부 파일을 업데이트
      */
     public CommunityQuestionDetailsRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateQuestionUpdateRequest(req, questionId);
+        communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validateQuestionAuthor(userId, questionId);
 

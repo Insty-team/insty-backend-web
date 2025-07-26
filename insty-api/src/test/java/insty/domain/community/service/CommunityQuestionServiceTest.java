@@ -287,16 +287,6 @@ class CommunityQuestionServiceTest {
     }
 
     @Test
-    void saveQuestion_필수값누락_courseId_예외() {
-        // given - courseId가 null인 경우
-        var req = new CommunityQuestionCreateReq(null, "제목", "내용", List.of());
-
-        // when & then
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
-                .isInstanceOf(CustomException.class);
-    }
-
-    @Test
     void saveQuestion_필수값누락_userId_예외() {
         // given - userId가 null인 경우
         var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "내용", List.of());
@@ -622,7 +612,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 20L;
         String newTitle = "수정된 제목";
         String newContent = "수정된 내용";
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(),List.of(),List.of());
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -663,8 +653,8 @@ class CommunityQuestionServiceTest {
     void updateQuestion_동시수정_정상() {
         // given - 동시에 여러 번 수정
         Long questionId = 1002L;
-        var req1 = new CommunityQuestionUpdateReq(questionId, "수정1", "내용1", List.of(), List.of());
-        var req2 = new CommunityQuestionUpdateReq(questionId, "수정2", "내용2", List.of(), List.of());
+        var req1 = new CommunityQuestionUpdateReq( "수정1", "내용1", List.of(),List.of(), List.of());
+        var req2 = new CommunityQuestionUpdateReq("수정2", "내용2", List.of(),List.of(), List.of());
 
         // when
         var res1 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req1, List.of());
@@ -696,7 +686,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1003L;
         String newTitle = "긴 내용으로 수정된 제목";
         String newContent = "이것은 매우 긴 질문 내용으로 수정된 것입니다. ".repeat(100); // 충분히 긴 내용
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -722,7 +712,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1004L;
         String newTitle = "특수문자 제목!@#$%^&*()";
         String newContent = "내용에 특수문자가 포함되어 있습니다: !@#$%^&*()_+-=[]{}|;':\",./<>?";
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -747,7 +737,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1005L;
         String newTitle = "한글로 수정된 제목입니다";
         String newContent = "한글로 작성된 질문 내용으로 수정되었습니다. 안녕하세요!";
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -772,7 +762,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1006L;
         String newTitle = "기존 내용"; // 동일한 내용
         String newContent = "기존 내용"; // 동일한 내용
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(questionId, newTitle, newContent, List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -797,19 +787,19 @@ class CommunityQuestionServiceTest {
         Long questionId = 1007L;
 
         // 첫 번째 수정
-        var req1 = new CommunityQuestionUpdateReq(questionId, "두 번째 제목", "두 번째 내용", List.of(), List.of());
+        var req1 = new CommunityQuestionUpdateReq( "두 번째 제목", "두 번째 내용", List.of(), List.of(), List.of());
         var res1 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req1, List.of());
         assertThat(res1.title()).isEqualTo("두 번째 제목");
         assertThat(res1.content()).isEqualTo("두 번째 내용");
 
         // 두 번째 수정
-        var req2 = new CommunityQuestionUpdateReq(questionId, "세 번째 제목", "세 번째 내용", List.of(), List.of());
+        var req2 = new CommunityQuestionUpdateReq("세 번째 제목", "세 번째 내용", List.of(), List.of(), List.of());
         var res2 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req2, List.of());
         assertThat(res2.title()).isEqualTo("세 번째 제목");
         assertThat(res2.content()).isEqualTo("세 번째 내용");
 
         // 세 번째 수정
-        var req3 = new CommunityQuestionUpdateReq(questionId, "최종 제목", "최종 내용", List.of(), List.of());
+        var req3 = new CommunityQuestionUpdateReq("최종 제목", "최종 내용", List.of(), List.of(), List.of());
         var res3 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req3, List.of());
         assertThat(res3.title()).isEqualTo("최종 제목");
         assertThat(res3.content()).isEqualTo("최종 내용");
@@ -827,7 +817,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_필수값누락_title_예외() {
         // given - title이 null인 경우
-        var req = new CommunityQuestionUpdateReq(1L, null, "내용", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( null, "내용", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -837,17 +827,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_필수값누락_content_예외() {
         // given - content가 null인 경우
-        var req = new CommunityQuestionUpdateReq(1L, "제목", null, List.of(), List.of());
-
-        // when & then
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
-                .isInstanceOf(CustomException.class);
-    }
-
-    @Test
-    void updateQuestion_필수값누락_questionId_예외() {
-        // given - questionId가 null인 경우
-        var req = new CommunityQuestionUpdateReq(null, "제목", "내용", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "제목", null, List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -857,7 +837,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_빈제목_예외() {
         // given - title이 빈 문자열인 경우
-        var req = new CommunityQuestionUpdateReq(1L, "", "내용", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("", "내용", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -867,7 +847,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_공백제목_예외() {
         // given - title이 공백만 있는 경우
-        var req = new CommunityQuestionUpdateReq(1L, "   ", "내용", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("   ", "내용", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -877,7 +857,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_빈내용_예외() {
         // given - content가 빈 문자열인 경우
-        var req = new CommunityQuestionUpdateReq(1L, "제목", "", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("제목", "", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -887,7 +867,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_공백내용_예외() {
         // given - content가 공백만 있는 경우
-        var req = new CommunityQuestionUpdateReq(1L, "제목", "   ", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "제목", "   ", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -911,7 +891,7 @@ class CommunityQuestionServiceTest {
         entityManager.clear();
 
         // when & then - 삭제된 질문 수정 시도 시 예외 발생 검증
-        var updateReq = new CommunityQuestionUpdateReq(questionId, "수정된 제목", "수정된 내용", List.of(), List.of());
+        var updateReq = new CommunityQuestionUpdateReq( "수정된 제목", "수정된 내용", List.of(), List.of(), List.of());
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, questionId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -927,7 +907,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_삭제된질문_예외() {
         // given - 이미 삭제된 질문
-        var req = new CommunityQuestionUpdateReq(1008L, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1008L, req, List.of()))
@@ -947,7 +927,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_다른사용자질문수정_예외() {
         // given - 다른 사용자의 질문을 수정하려고 시도
-        var req = new CommunityQuestionUpdateReq(1009L, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
 
         // when & then - 다른 사용자의 질문 수정 시도 시 예외 발생
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1009L, req, List.of()))
@@ -957,7 +937,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_존재하지않는질문_예외() {
         // given - 존재하지 않는 질문 ID
-        var req = new CommunityQuestionUpdateReq(99999L, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 99999L, req, List.of()))
@@ -967,7 +947,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_존재하지않는사용자_예외() {
         // given - 존재하지 않는 사용자 ID
-        var req = new CommunityQuestionUpdateReq(1L, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("수정", "수정", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(99999L, 1L, req, List.of()))
@@ -977,7 +957,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_questionId불일치_예외() {
         // given - 요청의 questionId와 경로 변수의 questionId가 불일치
-        var req = new CommunityQuestionUpdateReq(999L, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1000,7 +980,7 @@ class CommunityQuestionServiceTest {
     void updateQuestion_첨부파일_10개초과_예외() {
         // given - 10개를 초과하는 첨부파일
         Long questionId = 9999L;
-        var req = new CommunityQuestionUpdateReq(questionId, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
         List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
@@ -1023,7 +1003,7 @@ class CommunityQuestionServiceTest {
     void updateQuestion_빈첨부파일_예외() {
         // given - 빈 첨부파일이 포함된 경우
         Long questionId = 1010L;
-        var req = new CommunityQuestionUpdateReq(questionId, "수정", "수정", List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("수정", "수정", List.of(), List.of(), List.of());
 
         // 빈 파일 mock 생성
         org.springframework.web.multipart.MultipartFile emptyFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);

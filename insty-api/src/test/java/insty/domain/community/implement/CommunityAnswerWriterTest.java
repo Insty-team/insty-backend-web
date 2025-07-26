@@ -58,7 +58,7 @@ class CommunityAnswerWriterTest {
         // given
         Long id = 1L;
         CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
-                .answerId(id).content("내용")
+                .content("내용")
                 .build();
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
@@ -78,7 +78,7 @@ class CommunityAnswerWriterTest {
         // given
         Long id = 1L;
         CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
-                .answerId(id).content("내용")
+                .content("내용")
                 .build();
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
@@ -96,7 +96,7 @@ class CommunityAnswerWriterTest {
         // given
         Long id = 1L;
         CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
-                .answerId(id).content("내용")
+                .content("내용")
                 .build();
         when(answerRepository.findById(id)).thenReturn(Optional.empty());
 

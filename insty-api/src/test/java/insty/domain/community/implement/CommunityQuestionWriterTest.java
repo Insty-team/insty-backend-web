@@ -57,7 +57,7 @@ class CommunityQuestionWriterTest {
         // given
         Long id = 1L;
         CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
-                .questionId(id).title("제목").content("내용")
+                .title("제목").content("내용")
                 .build();
 
         CommunityQuestion question = mock(CommunityQuestion.class);
@@ -79,7 +79,7 @@ class CommunityQuestionWriterTest {
         // given
         Long id = 1L;
         CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
-                .questionId(id).title("제목").content("내용")
+                .title("제목").content("내용")
                 .build();
 
         when(repository.findById(id)).thenReturn(Optional.empty());
@@ -96,7 +96,7 @@ class CommunityQuestionWriterTest {
         // given
         Long id = 1L;
         CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
-                .questionId(id).title("제목").content("내용")
+                .title("제목").content("내용")
                 .build();
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(repository.findById(id)).thenReturn(Optional.of(question));

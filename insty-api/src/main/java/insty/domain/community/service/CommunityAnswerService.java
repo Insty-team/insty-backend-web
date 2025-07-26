@@ -72,7 +72,7 @@ public class CommunityAnswerService {
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
      */
     public CommunityAnswerRes saveAnswer(Long userId, CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateAnswerCreateRequest(req);
+        communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(req.questionId());
@@ -89,7 +89,7 @@ public class CommunityAnswerService {
      * 기존 답변을 수정하고 첨부 파일을 업데이트
      */
     public CommunityAnswerRes updateAnswer(Long userId, Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateAnswerUpdateRequest(req, answerId);
+        communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validateAnswerAuthor(userId, answerId);
 

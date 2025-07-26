@@ -187,7 +187,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String newContent = "수정된 답변";
-        var updateReq = new CommunityAnswerUpdateReq(answerId, newContent, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(newContent, null, List.of());
 
         // when
         var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
@@ -288,7 +288,7 @@ class CommunityAnswerServiceTest {
         entityManager.flush();
         entityManager.clear();
         // 삭제된 답변 수정 시도 시 예외 발생 검증
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "수정", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정", null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -499,7 +499,7 @@ class CommunityAnswerServiceTest {
     @Test
     void updateAnswer_존재하지않는답변_예외() {
         // 존재하지 않는 답변 수정 시 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(99999L, "수정된 내용", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정된 내용", null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, 99999L, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -815,7 +815,7 @@ class CommunityAnswerServiceTest {
         communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 채택된 답변 수정
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "수정된 답변", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정된 답변", null, List.of());
         var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
 
         assertThat(result).isNotNull();
@@ -935,7 +935,7 @@ class CommunityAnswerServiceTest {
         communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 답변 수정 후 채택 상태 확인
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "수정된 답변", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정된 답변", null, List.of());
         var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
 
         assertThat(result.isAccepted()).isTrue();
@@ -1006,7 +1006,7 @@ class CommunityAnswerServiceTest {
     void updateAnswer_첨부파일_10개초과_예외() {
         Long questionId = 8889L;
         Long answerId = createAnswerAndGetId(questionId, "원본 답변");
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "수정", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정", null, List.of());
         List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
@@ -1392,7 +1392,7 @@ class CommunityAnswerServiceTest {
 
         String newContent = "비디오가 추가된 답변";
         UUID videoUuid = UUID.randomUUID();
-        var updateReq = new CommunityAnswerUpdateReq(answerId, newContent, videoUuid, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(newContent, videoUuid, List.of());
 
         // when
         var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
@@ -1434,7 +1434,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String newContent = "첨부파일이 추가된 답변";
-        var updateReq = new CommunityAnswerUpdateReq(answerId, newContent, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(newContent, null, List.of());
 
         // Mock 첨부파일 생성
         var mockFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
@@ -1492,7 +1492,7 @@ class CommunityAnswerServiceTest {
 
         String newContent = "비디오와 첨부파일이 모두 업데이트된 답변";
         UUID videoUuid = UUID.randomUUID();
-        var updateReq = new CommunityAnswerUpdateReq(answerId, newContent, videoUuid, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(newContent, videoUuid, List.of());
 
         // Mock 첨부파일 생성
         var mockFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
@@ -1549,7 +1549,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String longContent = "a".repeat(10000); // 매우 긴 내용
-        var updateReq = new CommunityAnswerUpdateReq(answerId, longContent, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(longContent, null, List.of());
 
         // when
         var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
@@ -1592,7 +1592,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String specialContent = "수정된 답변에 특수문자: !@#$%^&*()_+-=[]{}|;':\",./<>?`~ 한글도 포함";
-        var updateReq = new CommunityAnswerUpdateReq(answerId, specialContent, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(specialContent, null, List.of());
 
         // when
         var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
@@ -1634,7 +1634,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String newContent = "다른 사용자가 수정하려는 답변";
-        var updateReq = new CommunityAnswerUpdateReq(answerId, newContent, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(newContent, null, List.of());
         Long differentUserId = 999L; // 존재하지 않는 다른 사용자 ID
 
         // when & then - 다른 사용자가 답변을 수정하려고 시도하면 예외 발생
@@ -1664,7 +1664,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // 동일한 내용으로 업데이트
-        var updateReq = new CommunityAnswerUpdateReq(answerId, content, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(content, null, List.of());
 
         // when
         var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
@@ -1711,17 +1711,17 @@ class CommunityAnswerServiceTest {
 
         // 첫 번째 업데이트
         String firstUpdate = "첫 번째 수정";
-        var updateReq1 = new CommunityAnswerUpdateReq(answerId, firstUpdate, null, List.of());
+        var updateReq1 = new CommunityAnswerUpdateReq(firstUpdate, null, List.of());
         var result1 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq1, List.of());
 
         // 두 번째 업데이트
         String secondUpdate = "두 번째 수정";
-        var updateReq2 = new CommunityAnswerUpdateReq(answerId, secondUpdate, null, List.of());
+        var updateReq2 = new CommunityAnswerUpdateReq(secondUpdate, null, List.of());
         var result2 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq2, List.of());
 
         // 세 번째 업데이트
         String thirdUpdate = "세 번째 수정";
-        var updateReq3 = new CommunityAnswerUpdateReq(answerId, thirdUpdate, null, List.of());
+        var updateReq3 = new CommunityAnswerUpdateReq( thirdUpdate, null, List.of());
         var result3 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq3, List.of());
 
         // then
@@ -1766,7 +1766,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // when & then - 빈 내용으로 수정 시 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("", null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -1793,34 +1793,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // when & then - null 내용으로 수정 시 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(answerId, null, null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
-                .isInstanceOf(CustomException.class);
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (61, 1, 1, 'answerId누락예외질문', 'answerId누락예외질문 내용', false, false, NOW(), NOW());"
-    })
-    @Test
-    void updateAnswer_answerId누락_예외() {
-        // given
-        Long questionId = 61L;
-        String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
-        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
-                .filter(a -> a.getContent().equals(content))
-                .findFirst()
-                .map(insty.model.community.CommunityAnswer::getId)
-                .orElseThrow();
-
-        // when & then - answerId가 null인 경우 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(null, "수정된 내용", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(null, null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -1847,7 +1820,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // when & then - 공백 문자만으로 수정 시 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "   \t\n   ", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq( "   \t\n   ", null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -1874,35 +1847,8 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // when & then - userId가 null인 경우 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(answerId, "수정된 내용", null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq( "수정된 내용", null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(null, answerId, updateReq, List.of()))
-                .isInstanceOf(CustomException.class);
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (64, 1, 1, 'answerId불일치예외질문', 'answerId불일치예외질문 내용', false, false, NOW(), NOW());"
-    })
-    @Test
-    void updateAnswer_answerId불일치_예외() {
-        // given
-        Long questionId = 64L;
-        String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
-        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
-                .filter(a -> a.getContent().equals(content))
-                .findFirst()
-                .map(insty.model.community.CommunityAnswer::getId)
-                .orElseThrow();
-
-        // when & then - updateReq의 answerId와 메서드 파라미터의 answerId가 다른 경우 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq(999L, "수정된 내용", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 }
