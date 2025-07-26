@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
+import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.repository.UserRepository;
@@ -21,16 +22,25 @@ import insty.domain.video.dto.VideoUploadRes;
 import insty.domain.video.implement.VideoAccessManager;
 import insty.domain.video.implement.VideoFileReader;
 import insty.domain.video.implement.VideoValidator;
-import insty.domain.video.implement.VideoWriter;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.domain.video.repository.VideoEncodingRepository;
+import insty.domain.video.repository.VideoQuestionRepository;
+import insty.domain.video.strategy.VideoStrategyFactory;
+import insty.domain.video.strategy.videoAnswer.VideoAnswerReadStrategy;
+import insty.domain.video.strategy.videoAnswer.VideoAnswerValidateStrategy;
+import insty.domain.video.strategy.videoAnswer.VideoAnswerWriteStrategy;
+import insty.domain.video.strategy.videoCourse.VideoCourseReadStrategy;
+import insty.domain.video.strategy.videoCourse.VideoCourseValidateStrategy;
+import insty.domain.video.strategy.videoCourse.VideoCourseWriteStrategy;
+import insty.domain.video.strategy.videoQuestion.VideoQuestionReadStrategy;
+import insty.domain.video.strategy.videoQuestion.VideoQuestionValidateStrategy;
+import insty.domain.video.strategy.videoQuestion.VideoQuestionWriteStrategy;
 import insty.global.property.AppProperties;
 import insty.model.user.User;
 import insty.model.user.UserFixture;
 import insty.model.video.AnalysisStatus;
 import insty.model.video.EncodingStatus;
-import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoType;
 import insty.s3.adapter.S3FileManager;
@@ -63,15 +73,36 @@ class VideoServiceTest {
     private VideoService videoService;
 
     @Autowired
-    private VideoValidator videoValidator;
+    private VideoStrategyFactory videoStrategyFactory;
     @Autowired
-    private VideoWriter videoWriter;
+    private VideoCourseReadStrategy videoCourseReadStrategy;
+    @Autowired
+    private VideoQuestionReadStrategy videoQuestionReadStrategy;
+    @Autowired
+    private VideoAnswerReadStrategy videoAnswerReadStrategy;
+    @Autowired
+    private VideoCourseValidateStrategy videoCourseValidateStrategy;
+    @Autowired
+    private VideoQuestionValidateStrategy videoQuestionValidateStrategy;
+    @Autowired
+    private VideoAnswerValidateStrategy videoAnswerValidateStrategy;
+    @Autowired
+    private VideoCourseWriteStrategy videoCourseWriteStrategy;
+    @Autowired
+    private VideoQuestionWriteStrategy videoQuestionWriteStrategy;
+    @Autowired
+    private VideoAnswerWriteStrategy videoAnswerWriteStrategy;
+
+    @Autowired
+    private VideoValidator videoValidator;
     @Autowired
     private VideoAccessManager videoAccessManager;
     @Autowired
     private UserReader userReader;
     @Autowired
     private VideoCourseRepository videoCourseRepository;
+    @Autowired
+    private VideoQuestionRepository videoQuestionRepository;
     @Autowired
     private VideoAnswerRepository videoAnswerRepository;
     @Autowired
@@ -90,11 +121,14 @@ class VideoServiceTest {
     @MockitoBean
     private CloudFrontSigner cloudFrontSigner;
     @MockitoBean
+    private AiRequester aiRequester;
+    @MockitoBean
     private AppProperties appProperties;
 
     @Test
-    void getPreSignedURLForCourseVideoUpload_정상() {
+    void getPreSignedURLForVideoUpload_정상() {
         // given
+        VideoType videoType = VideoType.COURSE;
         String fileName = "fileName.mp4";
         String contentType = "video/mp4";
         VideoUploadReq req = new VideoUploadReq(fileName, contentType);
@@ -106,7 +140,7 @@ class VideoServiceTest {
         when(uuidProvider.generate())
                 .thenReturn(fixedUuid);
 
-        String s3Key = "vod/" + VideoType.COURSE + "/mp4/" + fixedUuid + "/" + fileName;
+        String s3Key = "vod/" + videoType + "/mp4/" + fixedUuid + "/" + fileName;
         String presignedUrl = "https://s3.ap-northeast-2.amazonaws.com/test-bucket/" + s3Key + "?...";
         Instant expiredAt = Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES));
         when(s3UrlIssuer.generatePresignedUrl(anyString(), anyString()))
@@ -116,7 +150,7 @@ class VideoServiceTest {
                 ));
 
         // when
-        VideoUploadRes res = videoService.getPreSignedURLForCourseVideoUpload(user.getId(), req);
+        VideoUploadRes res = videoService.getPreSignedURLForVideoUpload(videoType, user.getId(), req);
 
         // then
         assertThat(res).isNotNull();
@@ -140,51 +174,6 @@ class VideoServiceTest {
     }
 
     @Test
-    void getPreSignedURLForAnswerVideoUpload_정상() {
-        // given
-        String fileName = "fileName.mp4";
-        String contentType = "video/mp4";
-        VideoUploadReq req = new VideoUploadReq(fileName, contentType);
-        User user = UserFixture.getUser();
-        user = userRepository.save(user);
-
-        // mock
-        UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        when(uuidProvider.generate())
-                .thenReturn(fixedUuid);
-
-        String s3Key = "vod/" + VideoType.ANSWER + "/mp4/" + fixedUuid + "/" + fileName;
-        String presignedUrl = "https://s3.ap-northeast-2.amazonaws.com/test-bucket/" + s3Key + "?...";
-        Instant expiredAt = Instant.now().plus(Duration.ofMinutes(S3Constants.UPLOAD_URL_EXPIRATION_MINUTES));
-        when(s3UrlIssuer.generatePresignedUrl(anyString(), anyString()))
-                .thenReturn(new PresignedUrlDto(
-                        presignedUrl,
-                        expiredAt
-                ));
-
-        // when
-        VideoUploadRes res = videoService.getPreSignedURLForAnswerVideoUpload(user.getId(), req);
-
-        // then
-        assertThat(res).isNotNull();
-        assertThat(res.uuid()).isEqualTo(fixedUuid);
-        assertThat(res.uploadUrl()).isEqualTo(presignedUrl);
-        assertThat(res.expiredAt()).isEqualTo(expiredAt);
-
-        Optional<VideoAnswer> optional = videoAnswerRepository.findByVideoUuid(fixedUuid);
-        assertThat(optional).isPresent();
-
-        VideoAnswer videoAnswer = optional.get();
-        assertThat(videoAnswer.getId()).isNotNull();
-        assertThat(videoAnswer.getVideoUuid()).isEqualTo(fixedUuid);
-        assertThat(videoAnswer.getS3Key()).isEqualTo(s3Key);
-        assertThat(videoAnswer.getExtension()).isEqualTo("mp4");
-        assertThat(videoAnswer.getOriginalFileName()).isEqualTo(fileName);
-        assertThat(videoAnswer.getEncodingStatus()).isEqualTo(EncodingStatus.PROCESSING);
-        assertThat(videoAnswer.getEncodingAt()).isNotNull();
-    }
-
-    @Test
     void getThumbnailUrl_정상() {
         // given
         UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -194,7 +183,7 @@ class VideoServiceTest {
                 .thenReturn(true);
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
-        
+
         // when
         VideoThumbnailRes res = videoService.getThumbnailUrl(fixedUuid);
 

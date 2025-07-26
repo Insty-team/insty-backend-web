@@ -23,18 +23,18 @@ public class UserValidator {
      * 사용자 이메일 중복 체크
      */
     public void validateDuplicateEmail(String email) {
-        userRepository.findByEmailAndSocialIdIsNull(email).ifPresent((user) -> {
+        if (userRepository.existsByEmail(email)) {
             throw new CustomException(UserErrorCode.USER_DUPLICATE_EMAIL);
-        });
+        }
     }
 
     /**
      * 사용자 닉네임 중복 체크
      */
     public void validateDuplicateNickname(String nickname) {
-        userRepository.findByNickname(nickname).ifPresent((user) -> {
+        if(userRepository.existsByNickname(nickname)) {
             throw new CustomException(UserErrorCode.USER_DUPLICATE_NICKNAME);
-        });
+        };
     }
 
     /**

@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class VideoCourse extends BaseEntity {
+public class VideoCourse extends BaseEntity implements BaseVideo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,13 +50,13 @@ public class VideoCourse extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String s3Key;
 
     @Column(nullable = false, length = 10)
     private String extension;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String originalFileName;
 
     @Builder.Default
@@ -101,6 +101,10 @@ public class VideoCourse extends BaseEntity {
     private static void validateCreate(String fileName, UUID uuid, User user) {
         if (fileName == null || fileName.trim().isEmpty()) {
             log.error("생성 오류 - fileName : 비었음");
+            throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
+        }
+        if (fileName.length() > 150) {
+            log.error("생성 오류 - fileName : 150자가 초과됨");
             throw new CustomException(VideoErrorCode.VIDEO_CREATE_ERROR);
         }
         if (uuid == null) {

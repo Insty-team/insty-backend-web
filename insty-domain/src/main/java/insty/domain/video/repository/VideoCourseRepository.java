@@ -20,8 +20,8 @@ public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> 
     Optional<VideoCourse> findByCourseIdAndIsDeleted(Long courseId, boolean isDeleted);
 
     @Modifying
-    @Query("UPDATE VideoCourse vc SET vc.isDeleted = true WHERE vc.course.id = :courseId")
-    void deleteLogicallyByCourseId(@Param("courseId") Long courseId);
+    @Query("UPDATE VideoCourse vc SET vc.isDeleted = true WHERE vc.id = :id")
+    void deleteLogicallyById(@Param("id") Long id);
 
     @Query("SELECT vc.duration FROM VideoCourse vc "
             + "WHERE vc.encodingStatus != 'FAILED' AND vc.user.id = :userId AND vc.encodingAt >= :encodingAt")
