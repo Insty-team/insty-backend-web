@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +18,10 @@ public interface VideoQuestionRepository extends JpaRepository<VideoQuestion, Lo
     Optional<UUID> findVideoUuidByCommunityQuestionId(@Param("communityQuestionId") Long communityQuestionId);
 
     Optional<VideoQuestion> findByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
+
+    @Modifying
+    @Query("UPDATE VideoQuestion vq SET vq.isDeleted = true WHERE vq.id = :id")
+    void deleteLogicallyById(@Param("id") Long id);
 
     @Query("SELECT va.duration FROM VideoQuestion va "
             + "WHERE va.encodingStatus != 'FAILED' AND va.user.id = :userId AND va.encodingAt >= :encodingAt")
