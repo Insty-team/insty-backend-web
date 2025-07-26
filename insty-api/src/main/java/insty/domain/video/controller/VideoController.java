@@ -53,6 +53,17 @@ public class VideoController {
         return SuccessRes.of(videoService.getPreSignedURLForCourseVideoUpload(userId, req));
     }
 
+    @Operation(summary = "질문 영상 업로드", description = "질문 영상을 업로드하기 위한 URL을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
+    @PreAuthorize("hasRole('LEARNER')")
+    @PostMapping("/upload/question")
+    public SuccessRes<VideoUploadRes> uploadQuestion(
+            @CurrentUser Long userId,
+            @RequestBody @Validated VideoUploadReq req
+    ) {
+        return SuccessRes.of(videoService.getPreSignedURLForQuestionVideoUpload(userId, req));
+    }
+
     @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")

@@ -2,9 +2,11 @@ package insty.domain.video.implement;
 
 import static insty.constants.VideoConstants.VIDEO_ANSWER_UPLOAD_MINUTES_LIMIT;
 import static insty.constants.VideoConstants.VIDEO_COURSE_UPLOAD_MINUTES_LIMIT;
+import static insty.constants.VideoConstants.VIDEO_QUESTION_UPLOAD_MINUTES_LIMIT;
 
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
+import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.video.EncodingStatus;
@@ -31,6 +33,7 @@ public class VideoValidator {
     );
 
     private final VideoCourseRepository videoCourseRepository;
+    private final VideoQuestionRepository videoQuestionRepository;
     private final VideoAnswerRepository videoAnswerRepository;
 
     /**
@@ -65,6 +68,19 @@ public class VideoValidator {
                 .mapToInt(Integer::intValue)
                 .sum();
         if (durationSum >= VIDEO_COURSE_UPLOAD_MINUTES_LIMIT * 60) {
+            throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+        }
+    }
+
+    public void validateVideoQuestionUploadable(Long userId) {
+        Instant startOfToday = DateUtils.getStartOfTodayInKorea();
+
+        int durationSum = videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
+                        startOfToday)
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+        if (durationSum >= VIDEO_QUESTION_UPLOAD_MINUTES_LIMIT * 60) {
             throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
         }
     }

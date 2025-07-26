@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
+import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.video.EncodingStatus;
@@ -34,6 +35,8 @@ class VideoValidatorTest {
 
     @Mock
     private VideoCourseRepository videoCourseRepository;
+    @Mock
+    private VideoQuestionRepository videoQuestionRepository;
     @Mock
     private VideoAnswerRepository videoAnswerRepository;
 
@@ -124,6 +127,40 @@ class VideoValidatorTest {
 
         // then
         assertThatThrownBy(() -> videoValidator.validateVideoCourseUploadable(userId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
+    }
+
+    @Test
+    void validateVideoQuestionUploadable_정상_오늘_생성한_영상_총_길이가_5분_미만이다() {
+        // given
+        Long userId = 1L;
+
+        // mock
+        when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+                .thenReturn(List.of(60, 239));
+
+        // when
+
+        // then
+        assertThatCode(() -> videoValidator.validateVideoQuestionUploadable(userId))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void validateVideoQuestionUploadable_에러_오늘_생성한_영상_총_길이가_5분_이상이다() {
+        // given
+        Long userId = 1L;
+
+        // mock
+        when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+                .thenReturn(List.of(60, 240));
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoValidator.validateVideoQuestionUploadable(userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
