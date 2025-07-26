@@ -57,7 +57,8 @@ public class VideoService {
 //        validateStrategy.validateReadable(userId, req.id()); TODO - 개발 편의를 위해 비활성화
         validateStrategy.verifyEncodingCompletedAndDeleted(req.id());
 
-        UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
+        UUID videoUuid = videoStrategyFactory.getReadStrategy(req.type())
+                .getVideoUuid(req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
 
         return videoAccessManager.getSignedCookieMap(videoEncoding.getEncodingVideoDirectoryPath(),
@@ -68,7 +69,8 @@ public class VideoService {
         videoStrategyFactory.getValidateStrategy(req.type())
                 .verifyEncodingCompletedAndDeleted(req.id());
 
-        UUID videoUuid = videoReader.getVideoUuid(req.type(), req.id());
+        UUID videoUuid = videoStrategyFactory.getReadStrategy(req.type())
+                .getVideoUuid(req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
 
         return videoAccessManager.getSignedCookieMap(videoEncoding.getPreviewVideoDirectoryPath(),
