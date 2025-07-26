@@ -1139,7 +1139,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_키워드검색_정상() {
         // given
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, "검색질문", null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("검색질문")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1166,7 +1170,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_페이지네이션_정상() {
         // given
-        var req = new CommunityQuestionSearchReq(1, 2, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(2)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1192,7 +1199,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_답변완료필터_정상() {
         // given - 답변 완료된 질문만 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, true, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .isAnswered(true)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1216,7 +1227,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_답변미완료필터_정상() {
         // given - 답변 미완료된 질문만 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, false, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .isAnswered(false)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1233,31 +1248,6 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (411, 1, 1, '질문1', '내용1', false, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (412, 1, 1, '질문2', '내용2', false, false, NOW(), NOW());"
-    })
-    @Test
-    void searchQuestions_코스필터_정상() {
-        // given - 특정 코스의 질문만 검색
-        var req = new CommunityQuestionSearchReq(1, 10, 1L, null, null, null);
-
-        // when
-        var res = communityQuestionService.searchQuestions(req);
-
-        // then
-        assertThat(res).isNotNull();
-        assertThat(res.items()).hasSize(2);
-        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
-        assertThat(res.items().get(1).courseId()).isEqualTo(1L);
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
                     "VALUES (413, 1, 1, '질문1', '내용1', false, false, DATEADD('SECOND', -10, NOW()), DATEADD('SECOND', -10, NOW()));",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
                     "VALUES (414, 1, 1, '질문2', '내용2', false, false, NOW(), NOW());"
@@ -1265,7 +1255,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_정렬_최신순_정상() {
         // given - 최신순 정렬
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, null, "createdAt");
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .sort("createdAt")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1291,7 +1285,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_정렬_제목순_정상() {
         // given - 제목순 정렬
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, null, "title");
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .sort("title")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1307,7 +1305,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_빈결과_정상() {
         // given - 존재하지 않는 키워드로 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, "존재하지않는키워드", null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("존재하지않는키워드")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1331,7 +1333,13 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_복합조건_정상() {
         // given - 여러 조건을 조합한 검색
-        var req = new CommunityQuestionSearchReq(1, 10, 1L, false, "질문", "createdAt");
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .isAnswered(false)
+                .search("질문")
+                .sort("createdAt")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1339,7 +1347,6 @@ class CommunityQuestionServiceTest {
         // then
         assertThat(res).isNotNull();
         assertThat(res.items()).hasSize(2);
-        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
         assertThat(res.items().get(0).title()).contains("질문");
     }
 
@@ -1370,7 +1377,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_사용자별필터링_정상() {
         // given - 사용자1의 질문만 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1401,7 +1411,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_다른사용자질문제외_정상() {
         // given - 사용자1의 질문만 검색 (사용자2의 질문은 제외되어야 함)
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1435,7 +1448,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_키워드와사용자필터조합_정상() {
         // given - 사용자1의 질문 중에서 "질문1" 키워드로 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, "질문1", null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("질문1")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1466,7 +1483,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_답변완료필터와사용자필터조합_정상() {
         // given - 사용자1의 답변 완료된 질문만 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, true, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .isAnswered(true)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1497,7 +1518,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_페이지네이션과사용자필터조합_정상() {
         // given - 사용자1의 질문을 페이지 크기 1로 검색
-        var req = new CommunityQuestionSearchReq(1, 1, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(1)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1515,7 +1539,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_존재하지않는사용자_빈결과_정상() {
         // given - 존재하지 않는 사용자의 질문 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 99999L);
@@ -1541,7 +1568,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_사용자정보정확성검증_정상() {
         // given - 사용자1의 질문 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1571,7 +1601,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestionsByUserId_다른사용자키워드검색시빈결과_정상() {
         // given - 사용자1의 질문에서 사용자2의 키워드로 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, "사용자2", null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("사용자2")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestionsByUserId(req, 1L);
@@ -1597,7 +1631,10 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_페이지네이션_두번째페이지_정상() {
         // given - 두 번째 페이지 요청
-        var req = new CommunityQuestionSearchReq(2, 2, null, null, null, null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(2)
+                .pageSize(2)
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1623,7 +1660,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_대소문자구분없음_정상() {
         // given - 대소문자가 다른 키워드로 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, "질문", null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("질문")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1648,7 +1689,11 @@ class CommunityQuestionServiceTest {
     @Test
     void searchQuestions_특수문자포함_정상() {
         // given - 특수문자가 포함된 키워드로 검색
-        var req = new CommunityQuestionSearchReq(1, 10, null, null, "질문", null);
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("질문")
+                .build();
 
         // when
         var res = communityQuestionService.searchQuestions(req);
@@ -1663,7 +1708,6 @@ class CommunityQuestionServiceTest {
     // ========================================
     // getQuestionsByCourseId 관련 테스트들
     // ========================================
-
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
                     "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
@@ -1673,17 +1717,163 @@ class CommunityQuestionServiceTest {
                     "VALUES (500, 1, 1, '목록질문', '내용', false, false, NOW(), NOW());"
     })
     @Test
-    void getQuestionsByCourseId_정상() {
-        var res = communityQuestionService.getQuestionsByCourseId(1L);
+    void searchQuestionsByCourseId_정상() {
+        // given
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .build();
+
+        // when
+        var res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
+
+        // then
         assertThat(res).isNotNull();
-        assertThat(res).isNotEmpty();
-        assertThat(res.get(0).courseId()).isEqualTo(1L);
+        assertThat(res.items()).isNotEmpty();
+        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
+        assertThat(res.pagination().totalItems()).isEqualTo(1);
     }
 
     @Test
-    void getQuestionsByCourseId_존재하지않는코스_정상() {
-        var res = communityQuestionService.getQuestionsByCourseId(99999L);
+    void searchQuestionsByCourseId_존재하지않는코스_정상() {
+        // given
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .build();
+
+        // when
+        var res = communityQuestionService.searchQuestionsByCourseId(req, 99999L);
+
+        // then
         assertThat(res).isNotNull();
-        assertThat(res).isEmpty();
+        assertThat(res.items()).isEmpty();
+        assertThat(res.pagination().totalItems()).isEqualTo(0);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (2, 1, '다른 코스', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (501, 1, 1, '질문1', '내용1', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (502, 1, 1, '질문2', '내용2', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (503, 2, 1, '다른코스질문', '내용3', false, false, NOW(), NOW());"
+    })
+    @Test
+    void searchQuestionsByCourseId_페이지네이션_정상() {
+        // given - 페이지 크기 1로 설정
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(1)
+                .build();
+
+        // when
+        var res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.items()).hasSize(1);
+        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
+        assertThat(res.pagination().totalItems()).isEqualTo(2);
+        assertThat(res.pagination().totalPages()).isEqualTo(2);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (504, 1, 1, '답변완료질문', '내용1', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (505, 1, 1, '답변미완료질문', '내용2', false, false, NOW(), NOW());"
+    })
+    @Test
+    void searchQuestionsByCourseId_답변상태필터_정상() {
+        // given - 답변 완료된 질문만 검색
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .isAnswered(true)
+                .build();
+
+        // when
+        var res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.items()).hasSize(1);
+        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
+        assertThat(res.items().get(0).isAnswered()).isTrue();
+        assertThat(res.pagination().totalItems()).isEqualTo(1);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (506, 1, 1, '키워드질문', '내용1', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (507, 1, 1, '일반질문', '내용2', false, false, NOW(), NOW());"
+    })
+    @Test
+    void searchQuestionsByCourseId_키워드검색_정상() {
+        // given - 키워드로 검색
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .search("키워드")
+                .build();
+
+        // when
+        var res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.items()).hasSize(1);
+        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
+        assertThat(res.items().get(0).title()).contains("키워드");
+        assertThat(res.pagination().totalItems()).isEqualTo(1);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (508, 1, 1, '질문1', '내용1', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (509, 1, 1, '질문2', '내용2', true, false, NOW(), NOW());"
+    })
+    @Test
+    void searchQuestionsByCourseId_복합조건검색_정상() {
+        // given - 여러 조건을 조합한 검색
+        var req = CommunityQuestionSearchReq.builder()
+                .page(1)
+                .pageSize(10)
+                .isAnswered(false)
+                .keyword("질문")
+                .sort("createdAt")
+                .build();
+
+        // when
+        var res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.items()).hasSize(1);
+        assertThat(res.items().get(0).courseId()).isEqualTo(1L);
+        assertThat(res.items().get(0).isAnswered()).isFalse();
+        assertThat(res.items().get(0).title()).contains("질문");
+        assertThat(res.pagination().totalItems()).isEqualTo(1);
     }
 }

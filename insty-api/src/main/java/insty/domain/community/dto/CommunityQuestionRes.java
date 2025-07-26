@@ -15,6 +15,7 @@ public record CommunityQuestionRes(
         Long courseId,
         String title,
         String content,
+        Boolean isAnswered,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -26,6 +27,7 @@ public record CommunityQuestionRes(
                 question.getCourse().getId(),
                 question.getTitle(),
                 question.getContent(),
+                question.isAnswered(),
                 question.getCreatedAt(),
                 question.getUpdatedAt()
         );

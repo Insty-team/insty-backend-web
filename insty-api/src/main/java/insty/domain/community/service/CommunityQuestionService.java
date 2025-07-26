@@ -10,7 +10,6 @@ import insty.domain.community.dto.*;
 import insty.domain.community.implement.*;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
-import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -75,13 +74,18 @@ public class CommunityQuestionService {
     /**
      * 특정 코스의 질문 목록 조회
      */
-    public List<CommunityQuestionRes> getQuestionsByCourseId(Long courseId) {
-        List<CommunityQuestion> questions = communityQuestionReader.getAllCommunityQuestionsByCourseId(courseId);
+    public SearchRes<CommunityQuestionRes> searchQuestionsByCourseId(CommunityQuestionSearchReq req, Long courseId) {
+        PaginationReq paginationReq = req.toPaginationReq();
+        CommunityQuestionSearchFilter filter = req.toSearchFilterWithCourseId(courseId);
+        String sort = req.sort();
+
+        List<CommunityQuestion> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(communityQuestionMapper::toCommunityQuestionRes)
                 .toList();
 
-        return communityQuestionRes;
+        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
+        return SearchRes.from(paginationRes, communityQuestionRes);
     }
 
     /**

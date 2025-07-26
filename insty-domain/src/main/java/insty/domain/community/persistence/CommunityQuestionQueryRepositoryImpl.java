@@ -59,7 +59,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
         return new BooleanExpression[] {
                 courseIdEq(filter.courseId()),
                 isAnsweredEq(filter.isAnswered()),
-                keywordContains(filter.keyword()),
+                queryContains(filter.query()),
                 userIdEq(filter.userId()),
                 communityQuestion.isDeleted.eq(false)
         };
@@ -77,9 +77,9 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
         return userId != null ? communityQuestion.user.id.eq(userId) : null;
     }
 
-    private BooleanExpression keywordContains(String keyword) {
-        if (keyword == null || keyword.isBlank()) return null;
-        return communityQuestion.title.containsIgnoreCase(keyword)
-                .or(communityQuestion.content.containsIgnoreCase(keyword));
+    private BooleanExpression queryContains(String query) {
+        if (query == null || query.isBlank()) return null;
+        return communityQuestion.title.containsIgnoreCase(query)
+                .or(communityQuestion.content.containsIgnoreCase(query));
     }
 }

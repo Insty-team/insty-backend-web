@@ -45,17 +45,28 @@ public class CommunityController {
     @Operation(summary = "커뮤니티 질문 검색", description = "일반 질문 목록을 조회한다")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/questions/search")
+    @GetMapping("/questions")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
             @ModelAttribute @Validated CommunityQuestionSearchReq req
     ) {
         return SuccessRes.of(communityQuestionService.searchQuestions(req));
     }
 
+    @Operation(summary = "강좌 별 커뮤니티 질문 검색", description = "특정 강좌에 작성된 질문 목록을 조회한다")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
+    @PreAuthorize("hasRole('LEARNER')")
+    @GetMapping("/questions/{course_id}")
+    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByCourse(
+            @PathVariable @NotBlank Long course_id,
+            @ModelAttribute @Validated CommunityQuestionSearchReq req
+    ) {
+        return SuccessRes.of(communityQuestionService.searchQuestionsByCourseId(req, course_id));
+    }
+
     @Operation(summary = "유저 별 커뮤니티 질문 검색", description = "러너가 작성한 질문 목록을 조회한다")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
     @PreAuthorize("hasRole('LEARNER')")
-    @GetMapping("/questions/my/search")
+    @GetMapping("/questions/my")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByUser(
             @CurrentUser Long userId,
             @ModelAttribute @Validated CommunityQuestionSearchReq req
