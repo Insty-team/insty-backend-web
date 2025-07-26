@@ -17,6 +17,7 @@ import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
+import insty.model.video.VideoType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class VideoController {
             @CurrentUser Long userId,
             @RequestBody @Validated VideoUploadReq req
     ) {
-        return SuccessRes.of(videoService.getPreSignedURLForCourseVideoUpload(userId, req));
+        return SuccessRes.of(videoService.getPreSignedURLForVideoUpload(VideoType.COURSE, userId, req));
     }
 
     @Operation(summary = "질문 영상 업로드", description = "질문 영상을 업로드하기 위한 URL을 제공받는다.")
@@ -61,7 +62,7 @@ public class VideoController {
             @CurrentUser Long userId,
             @RequestBody @Validated VideoUploadReq req
     ) {
-        return SuccessRes.of(videoService.getPreSignedURLForQuestionVideoUpload(userId, req));
+        return SuccessRes.of(videoService.getPreSignedURLForVideoUpload(VideoType.QUESTION, userId, req));
     }
 
     @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
@@ -72,7 +73,7 @@ public class VideoController {
             @CurrentUser Long userId,
             @RequestBody @Validated VideoUploadReq req
     ) {
-        return SuccessRes.of(videoService.getPreSignedURLForAnswerVideoUpload(userId, req));
+        return SuccessRes.of(videoService.getPreSignedURLForVideoUpload(VideoType.ANSWER, userId, req));
     }
 
     @Operation(summary = "영상 썸네일 조회", description = "영상에 대한 썸네일을 제공받는다.")

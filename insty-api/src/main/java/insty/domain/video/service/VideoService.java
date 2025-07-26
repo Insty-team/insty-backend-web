@@ -10,12 +10,11 @@ import insty.domain.video.implement.VideoAccessManager;
 import insty.domain.video.implement.VideoFileReader;
 import insty.domain.video.implement.VideoReader;
 import insty.domain.video.implement.VideoValidator;
-import insty.domain.video.implement.VideoWriter;
+import insty.domain.video.strategy.VideoStrategyFactory;
 import insty.model.user.User;
-import insty.model.video.VideoAnswer;
-import insty.model.video.VideoCourse;
+import insty.model.video.BaseVideo;
 import insty.model.video.VideoEncoding;
-import insty.model.video.VideoQuestion;
+import insty.model.video.VideoType;
 import insty.s3.dto.PresignedUrlDto;
 import java.util.Map;
 import java.util.UUID;
@@ -28,41 +27,22 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VideoService {
 
+    private final VideoStrategyFactory videoStrategyFactory;
+
     private final VideoValidator videoValidator;
-    private final VideoWriter videoWriter;
     private final VideoReader videoReader;
     private final VideoAccessManager videoAccessManager;
     private final UserReader userReader;
     private final VideoFileReader videoFileReader;
 
-    public VideoUploadRes getPreSignedURLForCourseVideoUpload(Long userId, VideoUploadReq req) {
+    public VideoUploadRes getPreSignedURLForVideoUpload(VideoType videoType, Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
-//        videoValidator.validateVideoCourseUploadable(userId); TODO - 개발 편의를 위해 비활성화
+//        videoStrategyFactory.getValidateStrategy(videoType).validateUploadable(userId); TODO - 개발 편의를 위해 비활성화
 
         User user = userReader.getUser(userId);
-        VideoCourse videoCourse = videoWriter.saveVideoCourse(req, user);
-        PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(videoCourse.getS3Key(), req.contentType());
-        return VideoUploadRes.from(videoCourse.getVideoUuid(), presignedUrlDto);
-    }
-
-    public VideoUploadRes getPreSignedURLForQuestionVideoUpload(Long userId, VideoUploadReq req) {
-        videoValidator.validateContentType(req.fileName(), req.contentType());
-//        videoValidator.validateVideoQuestionUploadable(userId); TODO - 개발 편의를 위해 비활성화
-
-        User user = userReader.getUser(userId);
-        VideoQuestion videoQuestion = videoWriter.saveVideoQuestion(req, user);
-        PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(videoQuestion.getS3Key(), req.contentType());
-        return VideoUploadRes.from(videoQuestion.getVideoUuid(), presignedUrlDto);
-    }
-
-    public VideoUploadRes getPreSignedURLForAnswerVideoUpload(Long userId, VideoUploadReq req) {
-        videoValidator.validateContentType(req.fileName(), req.contentType());
-//        videoValidator.validateVideoAnswerUploadable(userId); TODO - 개발 편의를 위해 비활성화
-
-        User user = userReader.getUser(userId);
-        VideoAnswer videoAnswer = videoWriter.saveVideoAnswer(req, user);
-        PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(videoAnswer.getS3Key(), req.contentType());
-        return VideoUploadRes.from(videoAnswer.getVideoUuid(), presignedUrlDto);
+        BaseVideo video = videoStrategyFactory.getWriteStrategy(videoType).saveVideo(req, user);
+        PresignedUrlDto presignedUrlDto = videoAccessManager.getUploadInfo(video.getS3Key(), req.contentType());
+        return VideoUploadRes.from(video.getVideoUuid(), presignedUrlDto);
     }
 
     public VideoThumbnailRes getThumbnailUrl(UUID videoUuid) {
