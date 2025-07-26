@@ -126,7 +126,7 @@ public class VideoValidator {
             return;
         }
         if (videoType == VideoType.ANSWER) {
-            VideoAnswer videoAnswer = videoAnswerRepository.findByCommunityQuestionIdAndIsDeleted(courseId, false)
+            VideoAnswer videoAnswer = videoAnswerRepository.findByCommunityAnswerIdAndIsDeleted(courseId, false)
                     .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
             if (videoAnswer.getEncodingStatus() == EncodingStatus.FAILED) {
                 throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED);

@@ -3,6 +3,7 @@ package insty.model.video;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
+import insty.model.community.CommunityAnswer;
 import insty.model.user.User;
 import insty.util.FileUtils;
 import jakarta.persistence.Column;
@@ -41,8 +42,9 @@ public class VideoAnswer extends BaseEntity {
     @Column(nullable = false, unique = true)
     private UUID videoUuid;
 
-    // TODO - 커뮤니티 답변 테이블 추가 시 객체로 변경
-    private Long communityQuestionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "community_answer_id")
+    private CommunityAnswer communityAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
