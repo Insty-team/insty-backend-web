@@ -12,6 +12,7 @@ import insty.exception.CustomException;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoAnswer;
 import insty.model.video.VideoCourse;
+import insty.model.video.VideoQuestion;
 import insty.model.video.VideoType;
 import insty.util.DateUtils;
 import insty.util.FileUtils;
@@ -107,6 +108,13 @@ public class VideoValidator {
             // 추가 검증
             throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
         }
+        if (videoType == VideoType.QUESTION) {
+            if (videoQuestionRepository.existsByIdAndUserId(videoId, userId)) {
+                return;
+            }
+            // 추가 검증
+            throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        }
         if (videoType == VideoType.ANSWER) {
             if (videoAnswerRepository.existsByIdAndUserId(videoId, userId)) {
                 return;
@@ -137,6 +145,23 @@ public class VideoValidator {
                 throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE);
             }
             if (videoCourse.getEncodingStatus() != EncodingStatus.COMPLETED) {
+                throw new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+            }
+            return;
+        }
+        if (videoType == VideoType.QUESTION) {
+            VideoQuestion videoQuestion = videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(courseId, false)
+                    .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+            if (videoQuestion.getEncodingStatus() == EncodingStatus.FAILED) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED);
+            }
+            if (videoQuestion.getEncodingStatus() == EncodingStatus.FAILED_INVALID_VIDEO_LENGTH) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH);
+            }
+            if (videoQuestion.getEncodingStatus() == EncodingStatus.FAILED_NOT_FOUND_VOICE) {
+                throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE);
+            }
+            if (videoQuestion.getEncodingStatus() != EncodingStatus.COMPLETED) {
                 throw new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
             }
             return;

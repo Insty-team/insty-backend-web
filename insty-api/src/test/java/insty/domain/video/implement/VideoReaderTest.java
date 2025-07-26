@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.domain.video.repository.VideoEncodingRepository;
+import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.video.VideoEncoding;
@@ -30,6 +31,8 @@ class VideoReaderTest {
 
     @Mock
     private VideoCourseRepository videoCourseRepository;
+    @Mock
+    private VideoQuestionRepository videoQuestionRepository;
     @Mock
     private VideoAnswerRepository videoAnswerRepository;
     @Mock
@@ -61,6 +64,25 @@ class VideoReaderTest {
 
         // mock
         when(videoCourseRepository.findVideoUuidByCourseId(parentId))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> videoReader.getVideoUuid(videoType, parentId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_NOT_FOUND);
+    }
+
+    @Test
+    void getVideoUuid_에러_존재하지_않는_질문영상() {
+        // given
+        VideoType videoType = VideoType.QUESTION;
+        Long parentId = 1L;
+
+        // mock
+        when(videoQuestionRepository.findVideoUuidByCommunityQuestionId(parentId))
                 .thenReturn(Optional.empty());
 
         // when
