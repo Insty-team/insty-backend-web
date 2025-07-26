@@ -96,13 +96,13 @@ class VideoValidatorTest {
     }
 
     @Test
-    void validateVideoCourseUploadable_정상_오늘_생성한_영상_총_길이가_20분_미만이다() {
+    void validateVideoCourseUploadable_정상_오늘_생성한_영상_총_길이가_30분_미만이다() {
         // given
         Long userId = 1L;
 
         // mock
         when(videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
-                .thenReturn(List.of(60, 1000, 139));
+                .thenReturn(List.of(60, 1600, 139));
 
         // when
 
@@ -112,13 +112,13 @@ class VideoValidatorTest {
     }
 
     @Test
-    void validateVideoCourseUploadable_에러_오늘_생성한_영상_총_길이가_20분_이상이다() {
+    void validateVideoCourseUploadable_에러_오늘_생성한_영상_총_길이가_30분_이상이다() {
         // given
         Long userId = 1L;
 
         // mock
         when(videoCourseRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
-                .thenReturn(List.of(60, 1000, 140));
+                .thenReturn(List.of(60, 1600, 140));
 
         // when
 
