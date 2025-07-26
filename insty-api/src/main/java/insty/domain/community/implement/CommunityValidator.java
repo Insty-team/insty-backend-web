@@ -99,13 +99,20 @@ public class CommunityValidator {
     /**
      * 질문 수정 요청 데이터 검증
      */
-    public void validateQuestionUpdateRequest(CommunityQuestionUpdateReq req) {
+    public void validateQuestionUpdateRequest(CommunityQuestionUpdateReq req, Long questionId) {
         // todo : id 검증
+        if (req.questionId() == null) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
+        }
         if (req.title() == null || req.title().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_TITLE_IS_REQUIRED);
         }
         if (req.content() == null || req.content().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
+        }
+        // questionId 불일치 검증
+        if (!questionId.equals(req.questionId())) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
         }
     }
 
@@ -121,7 +128,7 @@ public class CommunityValidator {
     /**
      * 답변 수정 요청 데이터 검증
      */
-    public void validateAnswerUpdateRequest(CommunityAnswerUpdateReq req) {
+    public void validateAnswerUpdateRequest(CommunityAnswerUpdateReq req, Long answerId) {
         // todo : 수정하고자하는 답변 ID 누락
         if (req.answerId() == null) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
@@ -129,7 +136,10 @@ public class CommunityValidator {
         if (req.content() == null || req.content().trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
         }
-
+        // answerId 불일치 검증
+        if (!answerId.equals(req.answerId())) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
+        }
     }
 
     /**

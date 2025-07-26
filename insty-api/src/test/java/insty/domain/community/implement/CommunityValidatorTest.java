@@ -253,7 +253,7 @@ class CommunityValidatorTest {
                 .questionId(1L).title("제목").content("내용")
                 .build();
         // when & then
-        assertThatCode(() -> communityValidator.validateQuestionUpdateRequest(req)).doesNotThrowAnyException();
+        assertThatCode(() -> communityValidator.validateQuestionUpdateRequest(req, 1L)).doesNotThrowAnyException();
     }
 
     @Test
@@ -264,7 +264,7 @@ class CommunityValidatorTest {
                 .questionId(1L).title(null).content("내용")
                 .build();
         // when & then
-        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req))
+        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req, 1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_TITLE_IS_REQUIRED);
@@ -278,7 +278,7 @@ class CommunityValidatorTest {
                 .questionId(1L).title("   ").content("내용")
                 .build();
         // when & then
-        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req))
+        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req, 1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_TITLE_IS_REQUIRED);
@@ -292,10 +292,38 @@ class CommunityValidatorTest {
                 .questionId(1L).title("제목").content(null)
                 .build();
         // when & then
-        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req))
+        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req, 1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
+    }
+
+    @Test
+    void validateQuestionUpdateRequest_에러_questionId가_없음() {
+        // questionId가 없을 때 예외가 발생한다.
+        // given
+        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
+                .questionId(null).title("제목").content("내용")
+                .build();
+        // when & then
+        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req, 1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
+    }
+
+    @Test
+    void validateQuestionUpdateRequest_에러_questionId불일치() {
+        // questionId가 불일치할 때 예외가 발생한다.
+        // given
+        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
+                .questionId(1L).title("제목").content("내용")
+                .build();
+        // when & then
+        assertThatThrownBy(() -> communityValidator.validateQuestionUpdateRequest(req, 2L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
     }
 
     @Test
@@ -335,7 +363,7 @@ class CommunityValidatorTest {
                 .build();
 
         // when & then
-        assertThatCode(() -> communityValidator.validateAnswerUpdateRequest(req))
+        assertThatCode(() -> communityValidator.validateAnswerUpdateRequest(req, 1L))
                 .doesNotThrowAnyException();
     }
 
@@ -348,7 +376,7 @@ class CommunityValidatorTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> communityValidator.validateAnswerUpdateRequest(req))
+        assertThatThrownBy(() -> communityValidator.validateAnswerUpdateRequest(req, 1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED);
@@ -363,7 +391,22 @@ class CommunityValidatorTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> communityValidator.validateAnswerUpdateRequest(req))
+        assertThatThrownBy(() -> communityValidator.validateAnswerUpdateRequest(req, 1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
+    }
+
+    @Test
+    void validateAnswerUpdateRequest_에러_answerId불일치() {
+        // answerId가 불일치할 때 예외가 발생한다.
+        // given
+        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
+                .answerId(1L).content("답변 내용")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> communityValidator.validateAnswerUpdateRequest(req, 2L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);

@@ -118,7 +118,7 @@ public class CommunityQuestionService {
      * 기존 질문을 수정하고 첨부 파일을 업데이트
      */
     public CommunityQuestionDetailsRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateQuestionUpdateRequest(req);
+        communityValidator.validateQuestionUpdateRequest(req, questionId);
         communityValidator.validateFiles(attachments);
         communityValidator.validateQuestionAuthor(userId, questionId);
 

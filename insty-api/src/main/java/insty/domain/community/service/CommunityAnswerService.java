@@ -89,7 +89,7 @@ public class CommunityAnswerService {
      * 기존 답변을 수정하고 첨부 파일을 업데이트
      */
     public CommunityAnswerRes updateAnswer(Long userId, Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateAnswerUpdateRequest(req);
+        communityValidator.validateAnswerUpdateRequest(req, answerId);
         communityValidator.validateFiles(attachments);
         communityValidator.validateAnswerAuthor(userId, answerId);
 
