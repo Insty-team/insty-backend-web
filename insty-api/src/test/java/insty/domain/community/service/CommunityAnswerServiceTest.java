@@ -3,6 +3,7 @@ package insty.domain.community.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import insty.ai.adapter.AiRequester;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerReader;
@@ -63,6 +64,8 @@ class CommunityAnswerServiceTest {
     private CloudFrontSigner cloudFrontSigner;
     @MockitoBean
     private AppProperties appProperties;
+    @MockitoBean
+    private AiRequester aiRequester;
 
     @BeforeEach
     void setUp() {
