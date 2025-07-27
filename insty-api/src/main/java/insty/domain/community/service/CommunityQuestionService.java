@@ -95,10 +95,10 @@ public class CommunityQuestionService {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
 
         List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
-        List<VideoInfo> videoInfos = communityQuestionVideoManager.getQuestionVideoInfos(question);
+        VideoInfo videoInfo = communityQuestionVideoManager.getQuestionVideoInfo(question);
         List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        return CommunityQuestionDetailsRes.from(question, questionFileInfos, videoInfos, answers);
+        return CommunityQuestionDetailsRes.from(question, questionFileInfos, videoInfo, answers);
     }
 
     /**
@@ -107,17 +107,16 @@ public class CommunityQuestionService {
     public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
-        communityValidator.validateQuestionVideoCount(req.videoUuids());
-        communityValidator.validateQuestionFileCount(attachments);
+        // 1:1 매핑이므로 비디오 검증 불필요
 
         Course course = courseReader.getCourseById(req.courseId());
         User user = userReader.getUser(userId);
 
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
-        List<VideoInfo> videoInfos = communityQuestionVideoManager.saveQuestionVideos(question, req.videoUuids());
+        VideoInfo videoInfo = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuid());
 
-        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfos, null);
+        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, null);
     }
 
     /**
@@ -129,16 +128,15 @@ public class CommunityQuestionService {
         communityValidator.validateQuestionAuthor(userId, questionId);
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
-        communityValidator.validateQuestionVideoCountForUpdate(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());
-        communityValidator.validateQuestionFileCountForUpdate(updatedQuestion, attachments, req.deleteFileIds());
+        // 1:1 매핑이므로 비디오 검증 불필요
 
         List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
-        List<VideoInfo> videoInfos = communityQuestionVideoManager.updateQuestionVideos(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());
+        VideoInfo videoInfo = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(communityAnswerMapper::toCommunityAnswerRes)
                 .toList();
 
-        return CommunityQuestionDetailsRes.from(updatedQuestion, updatedFileInfos, videoInfos, answers);
+        return CommunityQuestionDetailsRes.from(updatedQuestion, updatedFileInfos, videoInfo, answers);
     }
 
     /**

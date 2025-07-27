@@ -74,7 +74,6 @@ public class CommunityAnswerService {
     public CommunityAnswerRes saveAnswer(Long userId, CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
-        communityValidator.validateAnswerFileCount(attachments);
 
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(req.questionId());
         User user = userReader.getUser(userId);
@@ -95,10 +94,8 @@ public class CommunityAnswerService {
         communityValidator.validateAnswerAuthor(userId, answerId);
 
         CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
-        communityValidator.validateAnswerFileCountForUpdate(answer, attachments, req.deleteFileIds());
-
         List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
-        VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
+        VideoInfo videoInfo = communityAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
     }

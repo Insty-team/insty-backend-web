@@ -13,6 +13,6 @@ public record CommunityQuestionCreateReq(
         String title,
         @NotNull
         String content,
-        List<UUID> videoUuids
+        UUID videoUuid
 ) {
 }

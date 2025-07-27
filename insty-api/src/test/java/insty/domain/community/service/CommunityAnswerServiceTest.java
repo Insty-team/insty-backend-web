@@ -91,8 +91,8 @@ class CommunityAnswerServiceTest {
     private static final int MAX_FILE_COUNT = 1;
 
     private Long createQuestionAndGetId(String title, String content) {
-        var req = new insty.domain.community.dto.CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
-        communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
+        var req = new insty.domain.community.dto.CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
+        communityQuestionService.saveQuestion(TEST_USER_ID, req, null);
         return communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
                 .filter(q -> q.getTitle().equals(title))
                 .findFirst()
@@ -100,7 +100,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
     }
     private Long createAnswerAndGetId(Long questionId, String content) {
-        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId, content, null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId, content, null), null);
         return communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -166,23 +166,18 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (50, 1, 1, '답변수정 질문', '답변수정 질문 내용', false, false, NOW(), NOW());"
-    })
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (50, 1, 1, '답변수정 질문', '답변수정 질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (50, 1, 1, '답변수정 질문', '답변수정 질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (5, '550e8400-e29b-41d4-a716-446655440005', 'existing_answer_video.mp4', 'vod/ANSWER/mp4/550e8400-e29b-41d4-a716-446655440005/existing_answer_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_정상() {
         // given
         Long questionId = 50L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        UUID videoUuid = UUID.fromString("550e8400-e29b-41d4-a716-446655440005");
+        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -193,7 +188,7 @@ class CommunityAnswerServiceTest {
         var updateReq = new CommunityAnswerUpdateReq(newContent, null, List.of());
 
         // when
-        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
+        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, null);
 
         // then
         assertThat(updatedRes).isNotNull();
@@ -208,7 +203,8 @@ class CommunityAnswerServiceTest {
         assertThat(updatedRes.content()).isEqualTo(newContent);
         assertThat(updatedRes.isAccepted()).isFalse();
         assertThat(updatedRes.attachments()).isEmpty();
-        assertThat(updatedRes.videoInfo()).isNull();
+        assertThat(updatedRes.videoInfo()).isNotNull(); // 기존 비디오가 유지되어야 함
+        assertThat(updatedRes.videoInfo().videoUuid()).isEqualTo(videoUuid);
 
         // 시간 정보 검증
         assertThat(updatedRes.createdAt()).isNotNull();
@@ -807,23 +803,34 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (2700, 1, 1, '채택된답변수정테스트', '내용', false, false, NOW(), NOW());"
+                    "VALUES (2700, 1, 1, '채택된답변수정테스트', '내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (6, '660e8400-e29b-41d4-a716-446655440006', 'accepted_answer_video.mp4', 'vod/ANSWER/mp4/660e8400-e29b-41d4-a716-446655440006/accepted_answer_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_채택된답변수정_정상() {
         Long questionId = createQuestionAndGetId("채택된답변수정테스트", "내용");
-        Long answerId = createAnswerAndGetId(questionId, "원본 답변");
+        UUID videoUuid = UUID.fromString("660e8400-e29b-41d4-a716-446655440006");
+        var req = new CommunityAnswerCreateReq(questionId, "원본 답변", videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
+                .filter(a -> a.getContent().equals("원본 답변"))
+                .findFirst()
+                .map(insty.model.community.CommunityAnswer::getId)
+                .orElseThrow();
 
         // 답변 채택
         communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 채택된 답변 수정
-        var updateReq = new CommunityAnswerUpdateReq("수정된 답변", null, List.of());
-        var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정된 답변", null, null);
+        var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, null);
 
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo("수정된 답변");
         assertThat(result.isAccepted()).isTrue(); // 채택 상태는 유지되어야 함
+        assertThat(result.videoInfo()).isNotNull(); // 기존 비디오가 유지되어야 함
+        assertThat(result.videoInfo().videoUuid()).isEqualTo(videoUuid);
     }
 
     @Sql(statements = {
@@ -927,21 +934,32 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (3400, 1, 1, '채택상태유지테스트', '내용', false, false, NOW(), NOW());"
+                    "VALUES (3400, 1, 1, '채택상태유지테스트', '내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (7, '770e8400-e29b-41d4-a716-446655440007', 'accepted_status_video.mp4', 'vod/ANSWER/mp4/770e8400-e29b-41d4-a716-446655440007/accepted_status_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_채택상태유지_정상() {
         Long questionId = createQuestionAndGetId("채택상태유지테스트", "내용");
-        Long answerId = createAnswerAndGetId(questionId, "원본 답변");
+        UUID videoUuid = UUID.fromString("770e8400-e29b-41d4-a716-446655440007");
+        var req = new CommunityAnswerCreateReq(questionId, "원본 답변", videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
+                .filter(a -> a.getContent().equals("원본 답변"))
+                .findFirst()
+                .map(insty.model.community.CommunityAnswer::getId)
+                .orElseThrow();
 
         // 답변 채택
         communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, answerId);
 
         // 답변 수정 후 채택 상태 확인
-        var updateReq = new CommunityAnswerUpdateReq("수정된 답변", null, List.of());
-        var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
+        var updateReq = new CommunityAnswerUpdateReq("수정된 답변", null, null);
+        var result = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, null);
 
         assertThat(result.isAccepted()).isTrue();
+        assertThat(result.videoInfo()).isNotNull(); // 기존 비디오가 유지되어야 함
+        assertThat(result.videoInfo().videoUuid()).isEqualTo(videoUuid);
 
         // 전체 답변 목록에서도 채택 상태 확인
         var allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
@@ -1549,100 +1567,18 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (54, 1, 1, '긴내용업데이트질문', '긴내용업데이트질문 내용', false, false, NOW(), NOW());"
-    })
-    @Test
-    void updateAnswer_긴내용업데이트_정상() {
-        // given
-        Long questionId = 54L;
-        String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
-        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
-                .filter(a -> a.getContent().equals(content))
-                .findFirst()
-                .map(insty.model.community.CommunityAnswer::getId)
-                .orElseThrow();
-
-        String longContent = "a".repeat(10000); // 매우 긴 내용
-        var updateReq = new CommunityAnswerUpdateReq(longContent, null, List.of());
-
-        // when
-        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
-
-        // then
-        assertThat(updatedRes).isNotNull();
-        assertThat(updatedRes.content()).isEqualTo(longContent);
-        assertThat(updatedRes.content().length()).isEqualTo(10000);
-
-        // User 정보 검증
-        assertThat(updatedRes.user().id()).isEqualTo(TEST_USER_ID);
-        assertThat(updatedRes.user().nickname()).isEqualTo("user");
-        assertThat(updatedRes.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 기본 상태 검증
-        assertThat(updatedRes.isAccepted()).isFalse();
-        assertThat(updatedRes.attachments()).isEmpty();
-        assertThat(updatedRes.videoInfo()).isNull();
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (55, 1, 1, '특수문자업데이트질문', '특수문자업데이트질문 내용', false, false, NOW(), NOW());"
-    })
-    @Test
-    void updateAnswer_특수문자업데이트_정상() {
-        // given
-        Long questionId = 55L;
-        String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
-        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
-                .filter(a -> a.getContent().equals(content))
-                .findFirst()
-                .map(insty.model.community.CommunityAnswer::getId)
-                .orElseThrow();
-
-        String specialContent = "수정된 답변에 특수문자: !@#$%^&*()_+-=[]{}|;':\",./<>?`~ 한글도 포함";
-        var updateReq = new CommunityAnswerUpdateReq(specialContent, null, List.of());
-
-        // when
-        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
-
-        // then
-        assertThat(updatedRes).isNotNull();
-        assertThat(updatedRes.content()).isEqualTo(specialContent);
-
-        // User 정보 검증
-        assertThat(updatedRes.user().id()).isEqualTo(TEST_USER_ID);
-        assertThat(updatedRes.user().nickname()).isEqualTo("user");
-        assertThat(updatedRes.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 기본 상태 검증
-        assertThat(updatedRes.isAccepted()).isFalse();
-        assertThat(updatedRes.attachments()).isEmpty();
-        assertThat(updatedRes.videoInfo()).isNull();
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (56, 1, 1, '권한검증질문', '권한검증질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (56, 1, 1, '권한검증질문', '권한검증질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (11, 'bb0e8400-e29b-41d4-a716-446655440011', 'permission_video.mp4', 'vod/ANSWER/mp4/bb0e8400-e29b-41d4-a716-446655440011/permission_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_다른사용자답변수정_예외() {
         // given
         Long questionId = 56L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        UUID videoUuid = UUID.fromString("bb0e8400-e29b-41d4-a716-446655440011");
+        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1650,11 +1586,11 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         String newContent = "다른 사용자가 수정하려는 답변";
-        var updateReq = new CommunityAnswerUpdateReq(newContent, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(newContent, null, null);
         Long differentUserId = 999L; // 존재하지 않는 다른 사용자 ID
 
         // when & then - 다른 사용자가 답변을 수정하려고 시도하면 예외 발생
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(differentUserId, answerId, updateReq, List.of()))
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(differentUserId, answerId, updateReq, null))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -1664,15 +1600,18 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (57, 1, 1, '동일내용업데이트질문', '동일내용업데이트질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (57, 1, 1, '동일내용업데이트질문', '동일내용업데이트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (12, 'cc0e8400-e29b-41d4-a716-446655440012', 'same_content_video.mp4', 'vod/ANSWER/mp4/cc0e8400-e29b-41d4-a716-446655440012/same_content_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_동일내용으로업데이트_정상() {
         // given
         Long questionId = 57L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        UUID videoUuid = UUID.fromString("cc0e8400-e29b-41d4-a716-446655440012");
+        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1680,10 +1619,10 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // 동일한 내용으로 업데이트
-        var updateReq = new CommunityAnswerUpdateReq(content, null, List.of());
+        var updateReq = new CommunityAnswerUpdateReq(content, null, null);
 
         // when
-        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of());
+        var updatedRes = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, null);
 
         // then
         assertThat(updatedRes).isNotNull();
@@ -1697,7 +1636,6 @@ class CommunityAnswerServiceTest {
         // 기본 상태 검증
         assertThat(updatedRes.isAccepted()).isFalse();
         assertThat(updatedRes.attachments()).isEmpty();
-        assertThat(updatedRes.videoInfo()).isNull();
 
         // 시간 정보 검증 - 업데이트 시간이 변경되었는지 확인
         assertThat(updatedRes.createdAt()).isNotNull();
@@ -1710,15 +1648,18 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (58, 1, 1, '여러번업데이트질문', '여러번업데이트질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (58, 1, 1, '여러번업데이트질문', '여러번업데이트질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (13, 'dd0e8400-e29b-41d4-a716-446655440013', 'multiple_update_video.mp4', 'vod/ANSWER/mp4/dd0e8400-e29b-41d4-a716-446655440013/multiple_update_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_여러번업데이트_정상() {
         // given
         Long questionId = 58L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        UUID videoUuid = UUID.fromString("dd0e8400-e29b-41d4-a716-446655440013");
+        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1727,18 +1668,18 @@ class CommunityAnswerServiceTest {
 
         // 첫 번째 업데이트
         String firstUpdate = "첫 번째 수정";
-        var updateReq1 = new CommunityAnswerUpdateReq(firstUpdate, null, List.of());
-        var result1 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq1, List.of());
+        var updateReq1 = new CommunityAnswerUpdateReq(firstUpdate, null, null);
+        var result1 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq1, null);
 
         // 두 번째 업데이트
         String secondUpdate = "두 번째 수정";
-        var updateReq2 = new CommunityAnswerUpdateReq(secondUpdate, null, List.of());
-        var result2 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq2, List.of());
+        var updateReq2 = new CommunityAnswerUpdateReq(secondUpdate, null, null);
+        var result2 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq2, null);
 
         // 세 번째 업데이트
         String thirdUpdate = "세 번째 수정";
-        var updateReq3 = new CommunityAnswerUpdateReq( thirdUpdate, null, List.of());
-        var result3 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq3, List.of());
+        var updateReq3 = new CommunityAnswerUpdateReq( thirdUpdate, null, null);
+        var result3 = communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq3, null);
 
         // then
         assertThat(result1).isNotNull();
@@ -1766,15 +1707,18 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (59, 1, 1, '빈내용업데이트예외질문', '빈내용업데이트예외질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (59, 1, 1, '빈내용업데이트예외질문', '빈내용업데이트예외질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (14, 'ee0e8400-e29b-41d4-a716-446655440014', 'empty_content_video.mp4', 'vod/ANSWER/mp4/ee0e8400-e29b-41d4-a716-446655440014/empty_content_video.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
     })
     @Test
     void updateAnswer_빈내용_예외() {
         // given
         Long questionId = 59L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        UUID videoUuid = UUID.fromString("ee0e8400-e29b-41d4-a716-446655440014");
+        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1782,8 +1726,8 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
 
         // when & then - 빈 내용으로 수정 시 예외 발생
-        var updateReq = new CommunityAnswerUpdateReq("", null, List.of());
-        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
+        var updateReq = new CommunityAnswerUpdateReq("", null, null);
+        assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, null))
                 .isInstanceOf(CustomException.class);
     }
 

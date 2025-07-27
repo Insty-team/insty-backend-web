@@ -14,14 +14,14 @@ public record CommunityQuestionDetailsRes(
         String content,
         List<CommunityAnswerRes> answers,
         List<FileInfo> attachments,
-        List<VideoInfo> videoInfos,
+        VideoInfo videoInfo,
         Instant createdAt,
         Instant updatedAt
 ) {
     public static CommunityQuestionDetailsRes from(
             CommunityQuestion question,
             List<FileInfo> attachments,
-            List<VideoInfo> videoInfos,
+            VideoInfo videoInfo,
             List<CommunityAnswerRes> answers
     ) {
         return new CommunityQuestionDetailsRes(
@@ -31,7 +31,7 @@ public record CommunityQuestionDetailsRes(
                 question.getContent(),
                 Optional.ofNullable(answers).orElse(List.of()),
                 Optional.ofNullable(attachments).orElse(List.of()),
-                videoInfos,
+                videoInfo,
                 question.getCreatedAt(),
                 question.getUpdatedAt()
         );

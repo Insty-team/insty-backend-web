@@ -86,8 +86,8 @@ class CommunityQuestionServiceTest {
     private static final int MAX_FILE_COUNT = 2;
 
     private Long createQuestionAndGetId(String title, String content) {
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
-        communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
+        communityQuestionService.saveQuestion(TEST_USER_ID, req, null);
         return communityQuestionReader.getAllCommunityQuestionsByCourseId(TEST_COURSE_ID).stream()
                 .filter(q -> q.getTitle().equals(title))
                 .findFirst()
@@ -96,7 +96,7 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // saveQuestion 관련 테스트들  
+    // saveQuestion 관련 테스트들
     // ========================================
 
     @Sql(statements = {
@@ -110,7 +110,7 @@ class CommunityQuestionServiceTest {
         // given
         String title = "질문 제목";
         String content = "질문 내용";
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -123,7 +123,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().nickname()).isEqualTo("user");
         assertThat(res.courseId()).isEqualTo(TEST_COURSE_ID);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
         assertThat(res.answers()).isEmpty();
         assertThat(res.createdAt()).isNotNull();
         assertThat(res.updatedAt()).isNotNull();
@@ -155,7 +155,7 @@ class CommunityQuestionServiceTest {
         // given - 긴 내용의 질문
         String title = "긴 내용 질문";
         String content = "이것은 매우 긴 질문 내용입니다. ".repeat(100); // 충분히 긴 내용
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -179,7 +179,7 @@ class CommunityQuestionServiceTest {
         // given - 특수문자가 포함된 질문
         String title = "특수문자 질문!@#$%^&*()";
         String content = "내용에 특수문자가 포함되어 있습니다: !@#$%^&*()_+-=[]{}|;':\",./<>?";
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -201,7 +201,7 @@ class CommunityQuestionServiceTest {
         // given - 한글이 포함된 질문
         String title = "한글 질문 제목입니다";
         String content = "한글로 작성된 질문 내용입니다. 안녕하세요!";
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -223,7 +223,7 @@ class CommunityQuestionServiceTest {
         // given - 첨부파일이 없는 질문
         String title = "첨부파일 없는 질문";
         String content = "첨부파일이 없는 질문 내용";
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -231,7 +231,7 @@ class CommunityQuestionServiceTest {
         // then
         assertThat(res).isNotNull();
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
     }
 
     @Sql(statements = {
@@ -248,7 +248,7 @@ class CommunityQuestionServiceTest {
         String title = "비디오 UUID가 포함된 질문";
         String content = "비디오 UUID가 포함된 질문 내용";
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of(videoUuid));
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, videoUuid);
 
         // when
         CommunityQuestionDetailsRes result = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -257,9 +257,8 @@ class CommunityQuestionServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.title()).isEqualTo(title);
         assertThat(result.content()).isEqualTo(content);
-        assertThat(result.videoInfos()).hasSize(1);
-        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(videoUuid);
-        assertThat(result.videoInfos().get(0).originFileName()).isEqualTo("test_video.mp4");
+        assertThat(result.videoInfo().videoUuid()).isEqualTo(videoUuid);
+        
     }
 
 
@@ -283,9 +282,8 @@ class CommunityQuestionServiceTest {
         // given
         String title = "비디오와 첨부파일이 모두 포함된 질문";
         String content = "비디오와 첨부파일이 모두 포함된 질문 내용";
-        UUID videoUuid1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        UUID videoUuid2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of(videoUuid1, videoUuid2));
+        UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, videoUuid);
 
         // when
         CommunityQuestionDetailsRes result = communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of());
@@ -298,9 +296,7 @@ class CommunityQuestionServiceTest {
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.courseId()).isEqualTo(TEST_COURSE_ID);
         assertThat(result.attachments()).isEmpty();
-        assertThat(result.videoInfos()).hasSize(2);
-        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(videoUuid1);
-        assertThat(result.videoInfos().get(1).videoUuid()).isEqualTo(videoUuid2);
+        assertThat(result.videoInfo().videoUuid()).isEqualTo(videoUuid);
         assertThat(result.answers()).isEmpty();
         assertThat(result.createdAt()).isNotNull();
         assertThat(result.updatedAt()).isNotNull();
@@ -335,8 +331,8 @@ class CommunityQuestionServiceTest {
         String title2 = "두 번째 질문";
         String content = "질문 내용";
 
-        CommunityQuestionCreateReq req1 = new CommunityQuestionCreateReq(TEST_COURSE_ID, title1, content, List.of());
-        CommunityQuestionCreateReq req2 = new CommunityQuestionCreateReq(TEST_COURSE_ID, title2, content, List.of());
+        CommunityQuestionCreateReq req1 = new CommunityQuestionCreateReq(TEST_COURSE_ID, title1, content, null);
+        CommunityQuestionCreateReq req2 = new CommunityQuestionCreateReq(TEST_COURSE_ID, title2, content, null);
 
         // when
         CommunityQuestionDetailsRes res1 = communityQuestionService.saveQuestion(TEST_USER_ID, req1, List.of());
@@ -356,13 +352,13 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // saveQuestion 예외 케이스들  
+    // saveQuestion 예외 케이스들
     // ========================================
 
     @Test
     void saveQuestion_필수값누락_title_예외() {
         // given - title이 null인 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, null, "내용", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, null, "내용", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -372,7 +368,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_필수값누락_content_예외() {
         // given - content가 null인 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", null, List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -382,7 +378,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_필수값누락_userId_예외() {
         // given - userId가 null인 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "내용", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "내용", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(null, req, List.of()))
@@ -392,7 +388,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_빈제목_예외() {
         // given - title이 빈 문자열인 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "", "내용", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "", "내용", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -402,7 +398,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_공백제목_예외() {
         // given - title이 공백만 있는 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "   ", "내용", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "   ", "내용", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -412,7 +408,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_빈내용_예외() {
         // given - content가 빈 문자열인 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -422,7 +418,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_공백내용_예외() {
         // given - content가 공백만 있는 경우
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "   ", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "   ", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -436,7 +432,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_존재하지않는코스_예외() {
         // given - 존재하지 않는 courseId
-        var req = new CommunityQuestionCreateReq(99999L, "제목", "내용", List.of());
+        var req = new CommunityQuestionCreateReq(99999L, "제목", "내용", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
@@ -453,7 +449,7 @@ class CommunityQuestionServiceTest {
     void saveQuestion_첨부파일_10개초과_예외() {
         // given - 10개를 초과하는 첨부파일
         String title = "첨부파일10개초과", content = "내용";
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // (MAX_FILE_COUNT+1)개의 mock 파일 생성
         List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
@@ -476,7 +472,7 @@ class CommunityQuestionServiceTest {
     void saveQuestion_빈첨부파일_예외() {
         // given - 빈 첨부파일이 포함된 경우
         String title = "빈첨부파일테스트", content = "내용";
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, null);
 
         // 빈 파일 mock 생성
         org.springframework.web.multipart.MultipartFile emptyFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
@@ -496,7 +492,7 @@ class CommunityQuestionServiceTest {
     @Test
     void saveQuestion_존재하지않는사용자_예외() {
         // given - 존재하지 않는 userId
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "내용", List.of());
+        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, "제목", "내용", null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.saveQuestion(99999L, req, List.of()))
@@ -532,7 +528,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
         assertThat(res.answers()).isEmpty();
         assertThat(res.createdAt()).isNotNull();
         assertThat(res.updatedAt()).isNotNull();
@@ -567,7 +563,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
         assertThat(res.answers()).hasSize(2);
 
         // 답변 검증
@@ -614,7 +610,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).hasSize(2);
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
         assertThat(res.answers()).isEmpty();
 
         // 첨부파일 검증
@@ -657,7 +653,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.courseId()).isEqualTo(1L);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
         assertThat(res.answers()).isEmpty();
     }
 
@@ -688,7 +684,7 @@ class CommunityQuestionServiceTest {
     }
 
     // ========================================
-    // updateQuestion 관련 테스트들  
+    // updateQuestion 관련 테스트들
     // ========================================
 
     @Sql(statements = {
@@ -705,7 +701,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 20L;
         String newTitle = "수정된 제목";
         String newContent = "수정된 내용";
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(),List.of(),List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, null, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -718,7 +714,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.user().nickname()).isEqualTo("user");
         assertThat(res.courseId()).isEqualTo(TEST_COURSE_ID);
         assertThat(res.attachments()).isEmpty();
-        assertThat(res.videoInfos()).isEmpty();
+        assertThat(res.videoInfo()).isNull();
         assertThat(res.answers()).isEmpty();
         assertThat(res.createdAt()).isNotNull();
         assertThat(res.updatedAt()).isNotNull();
@@ -746,8 +742,8 @@ class CommunityQuestionServiceTest {
     void updateQuestion_동시수정_정상() {
         // given - 동시에 여러 번 수정
         Long questionId = 1002L;
-        var req1 = new CommunityQuestionUpdateReq( "수정1", "내용1", List.of(),List.of(), List.of());
-        var req2 = new CommunityQuestionUpdateReq("수정2", "내용2", List.of(),List.of(), List.of());
+        var req1 = new CommunityQuestionUpdateReq( "수정1", "내용1", null, null);
+        var req2 = new CommunityQuestionUpdateReq("수정2", "내용2", null, null);
 
         // when
         var res1 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req1, List.of());
@@ -779,7 +775,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1003L;
         String newTitle = "긴 내용으로 수정된 제목";
         String newContent = "이것은 매우 긴 질문 내용으로 수정된 것입니다. ".repeat(100); // 충분히 긴 내용
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, null, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -805,7 +801,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1004L;
         String newTitle = "특수문자 제목!@#$%^&*()";
         String newContent = "내용에 특수문자가 포함되어 있습니다: !@#$%^&*()_+-=[]{}|;':\",./<>?";
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, null, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -830,7 +826,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1005L;
         String newTitle = "한글로 수정된 제목입니다";
         String newContent = "한글로 작성된 질문 내용으로 수정되었습니다. 안녕하세요!";
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, null, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -862,9 +858,7 @@ class CommunityQuestionServiceTest {
         String newTitle = "비디오가 업데이트된 질문";
         String newContent = "비디오가 업데이트된 질문 내용";
         UUID newVideoUuid1 = UUID.fromString("00000000-0000-0000-0000-000000000002");
-        UUID newVideoUuid2 = UUID.fromString("00000000-0000-0000-0000-000000000003");
-        UUID deleteVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        var req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(newVideoUuid1, newVideoUuid2), List.of(deleteVideoUuid), List.of());
+        var req = new CommunityQuestionUpdateReq(newTitle, newContent, newVideoUuid1, List.of());
 
         // when
         CommunityQuestionDetailsRes result = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -873,10 +867,7 @@ class CommunityQuestionServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.title()).isEqualTo(newTitle);
         assertThat(result.content()).isEqualTo(newContent);
-        assertThat(result.videoInfos()).hasSize(2);
-        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(newVideoUuid1);
-        assertThat(result.videoInfos().get(1).videoUuid()).isEqualTo(newVideoUuid2);
-        assertThat(result.videoInfos().stream().map(v -> v.videoUuid()).toList()).doesNotContain(deleteVideoUuid);
+        assertThat(result.videoInfo().videoUuid()).isEqualTo(newVideoUuid1);
     }
 
     @Sql(statements = {
@@ -898,8 +889,7 @@ class CommunityQuestionServiceTest {
         String newTitle = "비디오와 첨부파일이 모두 업데이트된 질문";
         String newContent = "비디오와 첨부파일이 모두 업데이트된 질문 내용";
         UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
-        UUID deleteVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        var req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(newVideoUuid), List.of(deleteVideoUuid), List.of());
+        var req = new CommunityQuestionUpdateReq(newTitle, newContent, newVideoUuid, List.of());
 
         // when
         CommunityQuestionDetailsRes result = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -908,9 +898,7 @@ class CommunityQuestionServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.title()).isEqualTo(newTitle);
         assertThat(result.content()).isEqualTo(newContent);
-        assertThat(result.videoInfos()).hasSize(1);
-        assertThat(result.videoInfos().get(0).videoUuid()).isEqualTo(newVideoUuid);
-        assertThat(result.videoInfos().stream().map(v -> v.videoUuid()).toList()).doesNotContain(deleteVideoUuid);
+        assertThat(result.videoInfo().videoUuid()).isEqualTo(newVideoUuid);
     }
 
     @Sql(statements = {
@@ -927,7 +915,7 @@ class CommunityQuestionServiceTest {
         Long questionId = 1006L;
         String newTitle = "기존 내용"; // 동일한 내용
         String newContent = "기존 내용"; // 동일한 내용
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, List.of(), List.of(), List.of());
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq(newTitle, newContent, null, null);
 
         // when
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of());
@@ -952,19 +940,19 @@ class CommunityQuestionServiceTest {
         Long questionId = 1007L;
 
         // 첫 번째 수정
-        var req1 = new CommunityQuestionUpdateReq( "두 번째 제목", "두 번째 내용", List.of(), List.of(), List.of());
+        var req1 = new CommunityQuestionUpdateReq( "두 번째 제목", "두 번째 내용", null, null);
         var res1 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req1, List.of());
         assertThat(res1.title()).isEqualTo("두 번째 제목");
         assertThat(res1.content()).isEqualTo("두 번째 내용");
 
         // 두 번째 수정
-        var req2 = new CommunityQuestionUpdateReq("세 번째 제목", "세 번째 내용", List.of(), List.of(), List.of());
+        var req2 = new CommunityQuestionUpdateReq("세 번째 제목", "세 번째 내용", null, null);
         var res2 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req2, List.of());
         assertThat(res2.title()).isEqualTo("세 번째 제목");
         assertThat(res2.content()).isEqualTo("세 번째 내용");
 
         // 세 번째 수정
-        var req3 = new CommunityQuestionUpdateReq("최종 제목", "최종 내용", List.of(), List.of(), List.of());
+        var req3 = new CommunityQuestionUpdateReq("최종 제목", "최종 내용", null, null);
         var res3 = communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req3, List.of());
         assertThat(res3.title()).isEqualTo("최종 제목");
         assertThat(res3.content()).isEqualTo("최종 내용");
@@ -975,53 +963,14 @@ class CommunityQuestionServiceTest {
         assertThat(finalQuestion.getContent()).isEqualTo("최종 내용");
     }
 
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (61, 1, 1, '비디오제한테스트질문2', '비디오제한테스트질문2 내용', false, false, NOW(), NOW());",
-            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 61, false, NOW(), NOW());",
-            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
-                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 61, false, NOW(), NOW());",
-            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
-                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
-    })
-    @Test
-    void updateQuestion_비디오2개로제한_정상() {
-        // given
-        String title = "비디오 2개 제한 테스트";
-        String content = "비디오 2개 제한 테스트 내용";
-        UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000003");
-        UUID deleteVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        var req = CommunityQuestionUpdateReq.builder()
-                .title(title)
-                .content(content)
-                .videoUuids(List.of(newVideoUuid))
-                .deleteVideoUuids(List.of(deleteVideoUuid))
-                .deleteFileIds(List.of())
-                .build();
-
-        // when
-        CommunityQuestionDetailsRes result = communityQuestionService.updateQuestion(TEST_USER_ID, 61L, req, List.of());
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.title()).isEqualTo(title);
-        assertThat(result.content()).isEqualTo(content);
-        assertThat(result.videoInfos()).hasSize(2);
-    }
-
     // ========================================
-    // updateQuestion 예외 케이스들  
+    // updateQuestion 예외 케이스들
     // ========================================
 
     @Test
     void updateQuestion_필수값누락_title_예외() {
         // given - title이 null인 경우
-        var req = new CommunityQuestionUpdateReq( null, "내용", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( null, "내용", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1031,7 +980,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_필수값누락_content_예외() {
         // given - content가 null인 경우
-        var req = new CommunityQuestionUpdateReq( "제목", null, List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "제목", null, null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1041,7 +990,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_빈제목_예외() {
         // given - title이 빈 문자열인 경우
-        var req = new CommunityQuestionUpdateReq("", "내용", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("", "내용", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1051,7 +1000,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_공백제목_예외() {
         // given - title이 공백만 있는 경우
-        var req = new CommunityQuestionUpdateReq("   ", "내용", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("   ", "내용", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1061,7 +1010,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_빈내용_예외() {
         // given - content가 빈 문자열인 경우
-        var req = new CommunityQuestionUpdateReq("제목", "", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("제목", "", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1071,7 +1020,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_공백내용_예외() {
         // given - content가 공백만 있는 경우
-        var req = new CommunityQuestionUpdateReq( "제목", "   ", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "제목", "   ", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1095,7 +1044,7 @@ class CommunityQuestionServiceTest {
         entityManager.clear();
 
         // when & then - 삭제된 질문 수정 시도 시 예외 발생 검증
-        var updateReq = new CommunityQuestionUpdateReq( "수정된 제목", "수정된 내용", List.of(), List.of(), List.of());
+        var updateReq = new CommunityQuestionUpdateReq( "수정된 제목", "수정된 내용", null, null);
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, questionId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
     }
@@ -1111,7 +1060,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_삭제된질문_예외() {
         // given - 이미 삭제된 질문
-        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1008L, req, List.of()))
@@ -1131,7 +1080,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_다른사용자질문수정_예외() {
         // given - 다른 사용자의 질문을 수정하려고 시도
-        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", null, null);
 
         // when & then - 다른 사용자의 질문 수정 시도 시 예외 발생
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1009L, req, List.of()))
@@ -1141,7 +1090,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_존재하지않는질문_예외() {
         // given - 존재하지 않는 질문 ID
-        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 99999L, req, List.of()))
@@ -1151,7 +1100,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_존재하지않는사용자_예외() {
         // given - 존재하지 않는 사용자 ID
-        var req = new CommunityQuestionUpdateReq("수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("수정", "수정", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(99999L, 1L, req, List.of()))
@@ -1161,7 +1110,7 @@ class CommunityQuestionServiceTest {
     @Test
     void updateQuestion_questionId불일치_예외() {
         // given - 요청의 questionId와 경로 변수의 questionId가 불일치
-        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", null, null);
 
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 1L, req, List.of()))
@@ -1180,7 +1129,7 @@ class CommunityQuestionServiceTest {
     void updateQuestion_첨부파일_초과_예외() {
         // given - 10개를 초과하는 첨부파일
         Long questionId = 9999L;
-        var req = new CommunityQuestionUpdateReq( "수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq( "수정", "수정", null, null);
         List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
@@ -1203,7 +1152,7 @@ class CommunityQuestionServiceTest {
     void updateQuestion_빈첨부파일_예외() {
         // given - 빈 첨부파일이 포함된 경우
         Long questionId = 1010L;
-        var req = new CommunityQuestionUpdateReq("수정", "수정", List.of(), List.of(), List.of());
+        var req = new CommunityQuestionUpdateReq("수정", "수정", null, null);
 
         // 빈 파일 mock 생성
         org.springframework.web.multipart.MultipartFile emptyFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
@@ -1212,62 +1161,6 @@ class CommunityQuestionServiceTest {
         // when & then
         assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, questionId, req, List.of(emptyFile)))
                 .isInstanceOf(insty.exception.CustomException.class);
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());"
-    })
-    @Test
-    void saveQuestion_비디오_초과_예외() {
-        // given
-        String title = "비디오 초과 질문";
-        String content = "비디오 초과 질문 내용";
-        UUID videoUuid1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        UUID videoUuid2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
-        UUID videoUuid3 = UUID.fromString("00000000-0000-0000-0000-000000000003");
-        var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of(videoUuid1, videoUuid2, videoUuid3));
-
-        // when & then
-        assertThatThrownBy(() -> communityQuestionService.saveQuestion(TEST_USER_ID, req, List.of()))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (60, 1, 1, '비디오제한테스트질문', '비디오제한테스트질문 내용', false, false, NOW(), NOW());",
-            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'test_video.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000001/test_video.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 60, false, NOW(), NOW());",
-            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
-                    "VALUES (2, '00000000-0000-0000-0000-000000000002', 'test_video2.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000002/test_video2.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, 60, false, NOW(), NOW());",
-            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
-                    "VALUES (3, '00000000-0000-0000-0000-000000000003', 'test_video3.mp4', 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000003/test_video3.mp4', 'mp4', 0, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
-    })
-    @Test
-    void updateQuestion_비디오_초과_예외() {
-        // given
-        String title = "비디오 초과 업데이트";
-        String content = "비디오 초과 업데이트 내용";
-        UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000003");
-        var req = CommunityQuestionUpdateReq.builder()
-                .title(title)
-                .content(content)
-                .videoUuids(List.of(newVideoUuid))
-                .deleteVideoUuids(List.of())
-                .deleteFileIds(List.of())
-                .build();
-
-        // when & then
-        assertThatThrownBy(() -> communityQuestionService.updateQuestion(TEST_USER_ID, 60L, req, List.of()))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
     }
 
     // ========================================

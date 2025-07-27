@@ -33,12 +33,14 @@ public class CommunityAnswerVideoManager {
      * 기존 답변 영상은 가상삭제하고, 새로운 답변 영상을 답변과 연결한다
      * videoUuid가 null이면 기존에 연결된 영상을 반환한다
      */
-    public VideoAnswer updateAndGetLinkedVideo(CommunityAnswer answer, UUID videoUuid) {
+    public VideoInfo updateAndGetLinkedVideo(CommunityAnswer answer, UUID videoUuid) {
         if (videoUuid == null) {
-            return getAttachAnswerVideo(answer.getId());
+            Optional<VideoAnswer> existingVideo = videoAnswerRepository.findByCommunityAnswerIdAndIsDeleted(answer.getId(), false);
+            return existingVideo.map(VideoInfo::of).orElse(null);
         }
         softDeleteAnswerVideo(answer.getId());
-        return attachmentAnswer(answer, videoUuid);
+        VideoAnswer newVideo = attachmentAnswer(answer, videoUuid);
+        return VideoInfo.of(newVideo);
     }
 
     @Transactional(readOnly = true)
