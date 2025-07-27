@@ -108,6 +108,7 @@ public class CommunityQuestionService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validateQuestionVideoCount(req.videoUuids());
+        communityValidator.validateQuestionFileCount(attachments);
 
         Course course = courseReader.getCourseById(req.courseId());
         User user = userReader.getUser(userId);
@@ -129,6 +130,7 @@ public class CommunityQuestionService {
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
         communityValidator.validateQuestionVideoCountForUpdate(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());
+        communityValidator.validateQuestionFileCountForUpdate(updatedQuestion, attachments, req.deleteFileIds());
 
         List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
         List<VideoInfo> videoInfos = communityQuestionVideoManager.updateQuestionVideos(updatedQuestion, req.videoUuids(), req.deleteVideoUuids());

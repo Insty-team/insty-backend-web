@@ -88,7 +88,7 @@ class CommunityAnswerServiceTest {
 
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_COURSE_ID = 1L;
-    private static final int MAX_FILE_COUNT = 10;
+    private static final int MAX_FILE_COUNT = 1;
 
     private Long createQuestionAndGetId(String title, String content) {
         var req = new insty.domain.community.dto.CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());
@@ -1252,26 +1252,22 @@ class CommunityAnswerServiceTest {
         String content = "여러 첨부파일이 포함된 답변";
         var req = new CommunityAnswerCreateReq(questionId, content, null);
 
-        // Mock 첨부파일들 생성
-        var mockFile1 = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
-        org.mockito.Mockito.when(mockFile1.isEmpty()).thenReturn(false);
-        org.mockito.Mockito.when(mockFile1.getOriginalFilename()).thenReturn("test1.jpg");
-        org.mockito.Mockito.when(mockFile1.getContentType()).thenReturn("image/jpeg");
-        org.mockito.Mockito.when(mockFile1.getSize()).thenReturn(1024L);
+        // MAX_ANSWER_FILE_COUNT만큼 Mock 첨부파일들 동적 생성
+        List<org.springframework.web.multipart.MultipartFile> attachments = new java.util.ArrayList<>();
+        String[] fileExtensions = {"jpg", "png", "pdf", "doc", "txt", "zip", "mp4", "avi", "gif", "bmp", "xlsx", "pptx", "mp3", "wav", "mov"};
+        String[] expectedContentTypes = {"image/jpeg", "image/png", "application/pdf", "application/msword", "text/plain", "application/zip", "video/mp4", "video/avi", "image/gif", "image/bmp", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "audio/mpeg", "audio/wav", "video/quicktime"};
 
-        var mockFile2 = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
-        org.mockito.Mockito.when(mockFile2.isEmpty()).thenReturn(false);
-        org.mockito.Mockito.when(mockFile2.getOriginalFilename()).thenReturn("test2.png");
-        org.mockito.Mockito.when(mockFile2.getContentType()).thenReturn("image/png");
-        org.mockito.Mockito.when(mockFile2.getSize()).thenReturn(2048L);
+        // CommunityValidator의 MAX_ANSWER_FILE_COUNT 값 사용
+        int maxFileCount = MAX_FILE_COUNT;
 
-        var mockFile3 = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
-        org.mockito.Mockito.when(mockFile3.isEmpty()).thenReturn(false);
-        org.mockito.Mockito.when(mockFile3.getOriginalFilename()).thenReturn("test3.pdf");
-        org.mockito.Mockito.when(mockFile3.getContentType()).thenReturn("application/pdf");
-        org.mockito.Mockito.when(mockFile3.getSize()).thenReturn(5120L);
-
-        List<org.springframework.web.multipart.MultipartFile> attachments = List.of(mockFile1, mockFile2, mockFile3);
+        for (int i = 0; i < maxFileCount; i++) {
+            var mockFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
+            org.mockito.Mockito.when(mockFile.isEmpty()).thenReturn(false);
+            org.mockito.Mockito.when(mockFile.getOriginalFilename()).thenReturn("test" + (i + 1) + "." + fileExtensions[i]);
+            org.mockito.Mockito.when(mockFile.getContentType()).thenReturn(expectedContentTypes[i]);
+            org.mockito.Mockito.when(mockFile.getSize()).thenReturn((long) (1024 * (i + 1)));
+            attachments.add(mockFile);
+        }
 
         // when
         var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, attachments);
@@ -1279,17 +1275,26 @@ class CommunityAnswerServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo(content);
-        assertThat(result.attachments()).hasSize(3);
+        assertThat(result.attachments()).hasSize(maxFileCount); // MAX_ANSWER_FILE_COUNT
 
         // 각 첨부파일 검증
         var fileNames = result.attachments().stream().map(insty.domain.common.FileInfo::name).toList();
-        assertThat(fileNames).containsExactlyInAnyOrder("test1.jpg", "test2.png", "test3.pdf");
+        assertThat(fileNames).hasSize(maxFileCount);
+        for (int i = 0; i < maxFileCount; i++) {
+            assertThat(fileNames).contains("test" + (i + 1) + "." + fileExtensions[i]);
+        }
 
-        var contentTypes = result.attachments().stream().map(insty.domain.common.FileInfo::contentType).toList();
-        assertThat(contentTypes).containsExactlyInAnyOrder("image/jpeg", "image/png", "application/pdf");
+        var resultContentTypes = result.attachments().stream().map(insty.domain.common.FileInfo::contentType).toList();
+        assertThat(resultContentTypes).hasSize(maxFileCount);
+        for (int i = 0; i < maxFileCount; i++) {
+            assertThat(resultContentTypes).contains(expectedContentTypes[i]);
+        }
 
         var sizes = result.attachments().stream().map(insty.domain.common.FileInfo::size).toList();
-        assertThat(sizes).containsExactlyInAnyOrder(1024L, 2048L, 5120L);
+        assertThat(sizes).hasSize(maxFileCount);
+        for (int i = 0; i < maxFileCount; i++) {
+            assertThat(sizes).contains((long) (1024 * (i + 1)));
+        }
 
         // User 정보 검증
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);

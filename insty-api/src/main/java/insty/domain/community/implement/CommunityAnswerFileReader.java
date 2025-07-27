@@ -1,6 +1,7 @@
 package insty.domain.community.implement;
 
 import insty.domain.common.FileInfo;
+import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityAnswerFileReader {
 
     private final AppProperties appProperties;
+    private final CommunityAnswerFileRepository communityAnswerFileRepository;
 
     /**
      * 답변의 첨부파일 정보를 FileInfo로 반환
@@ -27,5 +29,12 @@ public class CommunityAnswerFileReader {
         return files.stream()
                 .map(file -> FileInfo.from(file.getFile(), appProperties.getDomain()))
                 .toList();
+    }
+
+    /**
+     * 답변의 현재 파일 개수 반환
+     */
+    public int getCurrentFileCount(Long answerId) {
+        return communityAnswerFileRepository.countByCommunityAnswerId(answerId);
     }
 }

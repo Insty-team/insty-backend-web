@@ -83,7 +83,7 @@ class CommunityQuestionServiceTest {
 
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_COURSE_ID = 1L;
-    private static final int MAX_FILE_COUNT = 10;
+    private static final int MAX_FILE_COUNT = 2;
 
     private Long createQuestionAndGetId(String title, String content) {
         var req = new CommunityQuestionCreateReq(TEST_COURSE_ID, title, content, List.of());

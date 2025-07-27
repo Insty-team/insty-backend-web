@@ -24,14 +24,10 @@ public class CommunityQuestionFileWriter {
     private final CommunityFileRepository communityFileRepository;
     private final AppProperties appProperties;
 
-    // todo : 필요시 설정 값으로 이동
-    private final int MAX_FILE_COUNT = 10;
-
     /**
      * 질문에 첨부된 파일을 저장합니다.
      */
     public List<FileInfo> saveQuestionFiles(CommunityQuestion question, List<MultipartFile> addFiles) {
-        checkMaxFileCount(question, addFiles, List.of());
         saveFiles(question, addFiles);
         return communityFileRepository.findAllByCommunityQuestionId(question.getId()).stream()
                 .map(cf -> FileInfo.from(cf.getFile(), appProperties.getDomain()))
@@ -42,7 +38,6 @@ public class CommunityQuestionFileWriter {
      * 첨부 파일 업데이트 (삭제&추가)
      */
     public List<FileInfo> updateQuestionFiles(CommunityQuestion question, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
-        checkMaxFileCount(question, addFiles, deleteFileIds);
         // 삭제
         if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
             communityFileRepository.deleteByQuestionIdAndFileIdIn(question.getId(), deleteFileIds);
@@ -71,17 +66,4 @@ public class CommunityQuestionFileWriter {
         return communityFiles;
     }
 
-
-    /**
-     * 최대 파일 개수 제한
-     */
-    private void checkMaxFileCount(CommunityQuestion question, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
-        int currentCount = communityFileRepository.countByCommunityQuestionId(question.getId());
-        int addCount = (addFiles == null) ? 0 : (int) addFiles.stream().filter(f -> f != null && !f.isEmpty()).count();
-        int deleteCount = (deleteFileIds == null) ? 0 : deleteFileIds.size();
-        int finalCount = currentCount - deleteCount + addCount;
-        if (finalCount > MAX_FILE_COUNT) {
-            throw new insty.exception.CustomException(CommunityErrorCode.COMMUNITY_MAX_FILE_COUNT_EXCEEDED);
-        }
-    }
 }

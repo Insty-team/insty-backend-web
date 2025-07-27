@@ -24,8 +24,13 @@ public class CommunityValidator {
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
     private final CommunityQuestionVideoManager communityQuestionVideoManager;
+    private final CommunityQuestionFileReader communityQuestionFileReader;
+    private final CommunityAnswerFileReader communityAnswerFileReader;
 
-    private static final int MAX_VIDEO_COUNT = 2;
+    private static final int MAX_QUESTION_VIDEO_COUNT = 2;
+    private static final int MAX_ANSWER_VIDEO_COUNT = 1;
+    private static final int MAX_QUESTION_FILE_COUNT = 2;
+    private static final int MAX_ANSWER_FILE_COUNT = 1;
 
     /**
      * 질문 ID가 유효한지 검증 (존재 여부 + 삭제 여부 확인)
@@ -128,7 +133,7 @@ public class CommunityValidator {
      * 질문 생성 시 비디오 개수 제한 검증
      */
     public void validateQuestionVideoCount(List<UUID> videoUuids) {
-        if (videoUuids != null && videoUuids.size() > MAX_VIDEO_COUNT) {
+        if (videoUuids != null && videoUuids.size() > MAX_QUESTION_VIDEO_COUNT) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
         }
     }
@@ -149,12 +154,74 @@ public class CommunityValidator {
         // 최종 비디오 개수 = 기존 개수 + 추가 개수 - 삭제 개수
         long finalVideoCount = existingVideoCount + addCount - deleteCount;
 
-        if (finalVideoCount > MAX_VIDEO_COUNT) {
+        if (finalVideoCount > MAX_QUESTION_VIDEO_COUNT) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_VIDEO_COUNT_EXCEEDED);
         }
 
         if (finalVideoCount < 0) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_INVALID_VIDEO_OPERATION);
+        }
+    }
+
+    /**
+     * 질문 생성 시 파일 개수 제한 검증
+     */
+    public void validateQuestionFileCount(List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+
+        int fileCount = (int) files.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .count();
+
+        if (fileCount > MAX_QUESTION_FILE_COUNT) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_MAX_FILE_COUNT_EXCEEDED);
+        }
+    }
+
+    /**
+     * 질문 업데이트 시 파일 개수 제한 검증
+     */
+    public void validateQuestionFileCountForUpdate(CommunityQuestion question, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
+        int currentCount = communityQuestionFileReader.getCurrentFileCount(question.getId());
+        int addCount = (addFiles == null) ? 0 : (int) addFiles.stream().filter(f -> f != null && !f.isEmpty()).count();
+        int deleteCount = (deleteFileIds == null) ? 0 : deleteFileIds.size();
+        int finalCount = currentCount - deleteCount + addCount;
+
+        if (finalCount > MAX_QUESTION_FILE_COUNT) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_MAX_FILE_COUNT_EXCEEDED);
+        }
+    }
+
+    /**
+     * 답변 생성 시 파일 개수 제한 검증
+     */
+    public void validateAnswerFileCount(List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+
+        int fileCount = (int) files.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .count();
+
+        if (fileCount > MAX_ANSWER_FILE_COUNT) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_MAX_FILE_COUNT_EXCEEDED);
+        }
+    }
+
+    /**
+     * 답변 업데이트 시 파일 개수 제한 검증
+     */
+    public void validateAnswerFileCountForUpdate(CommunityAnswer answer, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
+        int currentCount = communityAnswerFileReader.getCurrentFileCount(answer.getId());
+        int addCount = (addFiles == null) ? 0 : (int) addFiles.stream().filter(f -> f != null && !f.isEmpty()).count();
+        int deleteCount = (deleteFileIds == null) ? 0 : deleteFileIds.size();
+        int finalCount = currentCount - deleteCount + addCount;
+
+        if (finalCount > MAX_ANSWER_FILE_COUNT) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_MAX_FILE_COUNT_EXCEEDED);
         }
     }
 }
