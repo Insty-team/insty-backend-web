@@ -2,12 +2,14 @@ package insty.domain.user.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
@@ -20,6 +22,8 @@ import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
+import insty.error.AuthErrorCode;
+import insty.exception.CustomException;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.user.UserType;
@@ -47,6 +51,8 @@ class UserServiceTest {
     private UserFileWriter userFileWriter;
     @Mock
     private UserFileReader userFileReader;
+    @Mock
+    private EmailVerificationReader emailVerificationReader;
 
     @InjectMocks
     private UserService userService;
@@ -62,6 +68,8 @@ class UserServiceTest {
 
         when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
         when(userWriter.save(req.email(), encodedPassword, req.nickname())).thenReturn(savedUser);
+        when(emailVerificationReader.existsByEmail(req.email())).thenReturn(true);
+        
         // when
         UserCreateRes result = userService.signup(req);
         // then
@@ -76,7 +84,17 @@ class UserServiceTest {
         assertThat(result.userType()).isEqualTo(savedUser.getUserType());
     }
 
-
+    @Test
+    void 회원가입시_인증하지_않은_이메일이라면_예외가_발생한다() {
+        // given
+        UserCreateReq req = new UserCreateReq("test@example.com", "plainPassword", "nickname");
+        when(emailVerificationReader.existsByEmail(any())).thenReturn(false);
+        
+        // when & then
+        assertThatThrownBy(() -> userService.signup(req))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
+    }
 
     @Test
     void 사용자_상세정보_조회에_성공한다() {

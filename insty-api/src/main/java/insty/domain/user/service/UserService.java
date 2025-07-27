@@ -1,5 +1,6 @@
 package insty.domain.user.service;
 
+import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
@@ -14,6 +15,9 @@ import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
+import insty.error.AuthErrorCode;
+import insty.error.UserErrorCode;
+import insty.exception.CustomException;
 import insty.model.user.User;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +42,15 @@ public class UserService {
     // 유저파일
     private final UserFileWriter userFileWriter;
     private final UserFileReader userFileReader;
+    private final EmailVerificationReader emailVerificationReader;
 
     /**
      * 이메일 회원가입
      */
     public UserCreateRes signup(UserCreateReq req) {
+        if (!emailVerificationReader.existsByEmail(req.email())) {
+            throw new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
+        }
         // 중복 체크
         userValidator.validateDuplicateEmail(req.email());
         userValidator.validateDuplicateNickname(req.nickname());
