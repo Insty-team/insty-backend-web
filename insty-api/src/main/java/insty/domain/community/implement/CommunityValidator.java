@@ -1,21 +1,16 @@
 package insty.domain.community.implement;
 
-import insty.domain.community.dto.CommunityAnswerCreateReq;
-import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.community.dto.CommunityQuestionCreateReq;
-import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

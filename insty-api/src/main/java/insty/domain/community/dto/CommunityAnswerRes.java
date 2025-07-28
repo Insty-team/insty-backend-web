@@ -3,9 +3,6 @@ package insty.domain.community.dto;
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityAnswer;
-import insty.model.user.User;
-import jakarta.validation.constraints.NotNull;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

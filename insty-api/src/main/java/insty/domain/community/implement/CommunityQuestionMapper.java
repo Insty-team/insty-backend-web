@@ -2,8 +2,6 @@ package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionRes;
-import insty.domain.community.dto.CommunityQuestionUpdateReq;
-import insty.domain.community.dto.CommunityUserRes;
 import insty.model.community.CommunityQuestion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -4,7 +4,6 @@ import insty.domain.common.FileCreateReq;
 import insty.domain.common.FileInfo;
 import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.domain.file.implement.FileWriter;
-import insty.error.CommunityErrorCode;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;

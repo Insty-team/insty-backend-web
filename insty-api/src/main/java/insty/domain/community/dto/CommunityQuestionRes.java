@@ -1,14 +1,7 @@
 package insty.domain.community.dto;
 
-import insty.domain.common.FileInfo;
-import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityQuestion;
-
-import insty.model.user.User;
 import java.time.Instant;
-import java.util.List;
-
-import java.util.Optional;
 
 public record CommunityQuestionRes(
         CommunityUserRes user,

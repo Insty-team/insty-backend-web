@@ -1,15 +1,22 @@
 package insty.domain.community.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import insty.domain.common.FileInfo;
 import insty.domain.community.repository.CommunityQuestionFileRepository;
 import insty.domain.file.implement.FileWriter;
 import insty.global.property.AppProperties;
-import insty.model.community.CommunityQuestionFile;
 import insty.model.community.CommunityQuestion;
+import insty.model.community.CommunityQuestionFile;
 import insty.model.file.File;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -20,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)

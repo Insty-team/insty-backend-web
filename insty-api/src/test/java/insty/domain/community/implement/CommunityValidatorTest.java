@@ -5,10 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import insty.domain.community.dto.CommunityAnswerCreateReq;
-import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.community.dto.CommunityQuestionCreateReq;
-import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;

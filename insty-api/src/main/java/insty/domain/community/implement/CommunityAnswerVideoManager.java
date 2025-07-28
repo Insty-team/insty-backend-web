@@ -7,7 +7,6 @@ import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.video.VideoAnswer;
-import insty.model.video.VideoType;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

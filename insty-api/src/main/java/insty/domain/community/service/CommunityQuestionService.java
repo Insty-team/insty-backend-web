@@ -6,8 +6,21 @@ import insty.domain.common.SearchRes;
 import insty.domain.common.VideoInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
-import insty.domain.community.dto.*;
-import insty.domain.community.implement.*;
+import insty.domain.community.dto.CommunityAnswerRes;
+import insty.domain.community.dto.CommunityQuestionCreateReq;
+import insty.domain.community.dto.CommunityQuestionDetailsRes;
+import insty.domain.community.dto.CommunityQuestionRes;
+import insty.domain.community.dto.CommunityQuestionSearchFilter;
+import insty.domain.community.dto.CommunityQuestionSearchReq;
+import insty.domain.community.dto.CommunityQuestionUpdateReq;
+import insty.domain.community.implement.CommunityAnswerMapper;
+import insty.domain.community.implement.CommunityQuestionFileReader;
+import insty.domain.community.implement.CommunityQuestionFileWriter;
+import insty.domain.community.implement.CommunityQuestionMapper;
+import insty.domain.community.implement.CommunityQuestionReader;
+import insty.domain.community.implement.CommunityQuestionVideoManager;
+import insty.domain.community.implement.CommunityQuestionWriter;
+import insty.domain.community.implement.CommunityValidator;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityQuestion;
@@ -18,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import insty.domain.community.dto.CommunityAnswerRes;
 
 @Service
 @Transactional

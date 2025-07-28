@@ -6,7 +6,6 @@ import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityQuestion;
-import insty.model.video.VideoAnswer;
 import insty.model.video.VideoQuestion;
 import java.util.Optional;
 import java.util.UUID;

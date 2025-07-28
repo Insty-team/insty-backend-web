@@ -3,11 +3,14 @@ package insty.model.community.id;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import jakarta.persistence.Embeddable;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.Serializable;
 import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Embeddable

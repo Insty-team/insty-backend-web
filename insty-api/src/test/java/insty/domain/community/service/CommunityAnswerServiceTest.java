@@ -4,13 +4,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.ai.adapter.AiRequester;
+import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
+import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.domain.user.implement.UserReader;
+import insty.exception.CustomException;
+import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
+import insty.s3.adapter.S3FileManager;
+import insty.s3.adapter.S3UrlIssuer;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,14 +31,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
-import insty.exception.CustomException;
-import insty.s3.adapter.S3FileManager;
-import insty.s3.adapter.S3UrlIssuer;
-import insty.cloudfront.adapter.CloudFrontSigner;
-import insty.global.property.AppProperties;
-import insty.domain.community.repository.CommunityAnswerRepository;
-import insty.domain.community.repository.CommunityQuestionRepository;
-import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @ActiveProfiles("test")

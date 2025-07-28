@@ -1,12 +1,10 @@
 package insty.domain.community.implement;
 
 
-import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAnswerFile;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
