@@ -387,8 +387,8 @@ class CommunityAnswerServiceTest {
                     "VALUES (1, 1, 650, '첨부파일있는답변', null, NOW(), NOW(), false, false);",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) " +
                     "VALUES (200, 'ANSWER_IMAGE', 1, 'answer_file1.jpg', 'original_answer_file1.jpg', 'image/jpeg', 1024, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (id, answer_id, file_id, created_at, updated_at) " +
-                    "VALUES (1, 1, 200, NOW(), NOW());"
+            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) " +
+                    "VALUES (1, 200, NOW(), NOW());"
     })
     @Test
     void getAllAnswers_ByQuestionId_첨부파일포함_정상() {
@@ -669,8 +669,8 @@ class CommunityAnswerServiceTest {
                     "VALUES (2101, 1, 2101, '첨부파일있는답변상세조회', null, NOW(), NOW(), false, false);",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) " +
                     "VALUES (2101, 'ANSWER_IMAGE', 2101, 'answer_detail_file1.jpg', 'original_answer_detail_file1.jpg', 'image/jpeg', 2048, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (id, answer_id, file_id, created_at, updated_at) " +
-                    "VALUES (2101, 2101, 2101, NOW(), NOW());"
+            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) " +
+                    "VALUES (2101, 2101, NOW(), NOW());"
     })
     @Test
     void getAnswerDetails_첨부파일포함_정상() {
