@@ -2,6 +2,8 @@ package insty.model.community;
 
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
+import insty.model.BaseEntity;
+import insty.model.community.id.CommunityQuestionFileId;
 import insty.model.file.File;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,12 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Entity
-@Table(name = "community_answers_attachments", schema = "web_service")
+@Table(name = "community_answers_files", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityAnswerFile {
+public class CommunityAnswerFile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -35,7 +35,7 @@ public class CommunityAnswer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    private User user;
 
     @Column(nullable = false)
     private String content;

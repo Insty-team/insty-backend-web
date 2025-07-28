@@ -39,14 +39,14 @@ public class CommunityQuestion extends BaseEntity {
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @Builder.Default
-    private List<CommunityFile> attachments = new ArrayList<>();
+    private List<CommunityQuestionFile> attachments = new ArrayList<>();
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @Builder.Default
     private List<CommunityAnswer> answers = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "accepted_answer_id", nullable = true)
+    @JoinColumn(name = "accepted_answer_id")
     private CommunityAnswer acceptedAnswer;
 
     @Column(nullable = false)
@@ -92,7 +92,7 @@ public class CommunityQuestion extends BaseEntity {
         }
     }
 
-    public void update(String title, String content, List<CommunityFile> attachments) {
+    public void update(String title, String content, List<CommunityQuestionFile> attachments) {
         this.title = title;
         this.content = content;
         this.attachments = attachments;

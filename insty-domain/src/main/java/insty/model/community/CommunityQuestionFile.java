@@ -1,34 +1,25 @@
 package insty.model.community;
 
 import insty.error.CommunityErrorCode;
-import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
-import insty.model.community.id.CommunityFileId;
-import insty.model.course.Course;
+import insty.model.community.id.CommunityQuestionFileId;
 import insty.model.file.File;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
-import java.time.Instant;
 
 @Slf4j
 @Entity
-@Table(name = "community_attachments", schema = "web_service")
+@Table(name = "community_question_files", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityFile extends BaseEntity {
+public class CommunityQuestionFile extends BaseEntity {
 
     @EmbeddedId
-    private CommunityFileId communityFileId;
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
+    private CommunityQuestionFileId communityQuestionFileId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionId")
@@ -40,10 +31,10 @@ public class CommunityFile extends BaseEntity {
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
-    public static CommunityFile create(CommunityQuestion communityQuestion, File file) {
+    public static CommunityQuestionFile create(CommunityQuestion communityQuestion, File file) {
         validateCreate(communityQuestion, file);
-        return CommunityFile.builder()
-                .communityFileId(CommunityFileId.create(communityQuestion.getId(), file.getId()))
+        return CommunityQuestionFile.builder()
+                .communityQuestionFileId(CommunityQuestionFileId.create(communityQuestion.getId(), file.getId()))
                 .communityQuestion(communityQuestion)
                 .file(file)
                 .build();

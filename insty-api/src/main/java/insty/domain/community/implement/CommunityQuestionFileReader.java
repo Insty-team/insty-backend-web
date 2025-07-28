@@ -1,9 +1,9 @@
 package insty.domain.community.implement;
 
 import insty.domain.common.FileInfo;
-import insty.domain.community.repository.CommunityFileRepository;
+import insty.domain.community.repository.CommunityQuestionFileRepository;
 import insty.global.property.AppProperties;
-import insty.model.community.CommunityFile;
+import insty.model.community.CommunityQuestionFile;
 import insty.model.community.CommunityQuestion;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityQuestionFileReader {
 
     private final AppProperties appProperties;
-    private final CommunityFileRepository communityFileRepository;
+    private final CommunityQuestionFileRepository communityQuestionFileRepository;
 
     /**
      * 질문의 첨부파일 정보를 FileInfo로 반환
      */
     public List<FileInfo> getQuestionFileInfos(CommunityQuestion question) {
-        List<CommunityFile> files = question.getAttachments();
+        List<CommunityQuestionFile> files = question.getAttachments();
         if (files == null || files.isEmpty()) {
             return List.of();
         }
@@ -36,6 +36,6 @@ public class CommunityQuestionFileReader {
      * 질문의 현재 파일 개수 반환
      */
     public int getCurrentFileCount(Long questionId) {
-        return communityFileRepository.countByCommunityQuestionId(questionId);
+        return communityQuestionFileRepository.countByCommunityQuestionId(questionId);
     }
 }

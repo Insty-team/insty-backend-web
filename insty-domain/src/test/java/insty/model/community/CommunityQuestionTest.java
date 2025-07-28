@@ -184,7 +184,7 @@ class CommunityQuestionTest {
         CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
         String title = "수정된 제목";
         String content = "수정된 내용";
-        List<CommunityFile> attachments = new ArrayList<>();
+        List<CommunityQuestionFile> attachments = new ArrayList<>();
 
         // when
         communityQuestion.update(title, content, attachments);

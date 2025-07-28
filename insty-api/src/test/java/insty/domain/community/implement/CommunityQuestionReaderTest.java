@@ -13,7 +13,7 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFixtureBuilder;
-import insty.model.community.CommunityFile;
+import insty.model.community.CommunityQuestionFile;
 import insty.model.community.CommunityQuestion;
 import insty.model.community.CommunityQuestionFixtureBuilder;
 import insty.model.file.FileFixtureBuilder;
@@ -72,7 +72,7 @@ class CommunityQuestionReaderTest {
         CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null, null, null);
         String sort = "createdAt:desc";
         CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(2L, "질문2", "내용2");
-        CommunityFile file = CommunityFile.create(question, FileFixtureBuilder.getCourseThumbnailWithId());
+        CommunityQuestionFile file = CommunityQuestionFile.create(question, FileFixtureBuilder.getCourseThumbnailWithId());
         ReflectionTestUtils.setField(question, "attachments", List.of(file));
         CommunityAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question, 200L, "답변내용");
         ReflectionTestUtils.setField(question, "answers", List.of(answer));

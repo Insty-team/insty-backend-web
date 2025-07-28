@@ -590,9 +590,9 @@ class CommunityQuestionServiceTest {
                     "VALUES (2, 'stored2.png', 'test2.png', 'image/png', 2048, 'QUESTION_IMAGE', 12, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
                     "VALUES (12, 1, 1, '첨부파일있는질문', '첨부파일있는질문 내용', false, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_attachments (question_id, file_id, created_at, updated_at) " +
+            "INSERT INTO web_service.community_question_files (question_id, file_id, created_at, updated_at) " +
                     "VALUES (12, 1, NOW(), NOW());",
-            "INSERT INTO web_service.community_attachments (question_id, file_id, created_at, updated_at) " +
+            "INSERT INTO web_service.community_question_files (question_id, file_id, created_at, updated_at) " +
                     "VALUES (12, 2, NOW(), NOW());"
     })
     @Test
