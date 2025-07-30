@@ -15,6 +15,7 @@ import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerReader;
+import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
 import insty.domain.community.implement.CommunityQuestionMapper;
@@ -50,7 +51,7 @@ public class CommunityQuestionService {
     private final UserReader userReader;
 
     private final CommunityAnswerService communityAnswerService;
-    private final CommunityAnswerReader communityAnswerReader;
+    private final CommunityAnswerWriter communityAnswerWriter;
 
     /**
      * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
@@ -160,7 +161,7 @@ public class CommunityQuestionService {
         communityValidator.validateQuestionAuthor(userId, questionId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         for(CommunityAnswer answer : question.getAnswers()){
-            communityAnswerService.deleteAnswer(userId, answer.getId());
+            communityAnswerWriter.deleteAnswer(answer);
         }
         communityQuestionVideoManager.softDeleteQuestionVideo(questionId);
         communityQuestionWriter.deleteQuestion(question);
