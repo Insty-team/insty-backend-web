@@ -133,7 +133,7 @@ class CommunityQuestionServiceTest {
                 .findFirst()
                 .map(insty.model.community.CommunityQuestion::getId)
                 .orElseThrow();
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         assertThat(question).isNotNull();
         assertThat(question.getTitle()).isEqualTo(title);
         assertThat(question.getContent()).isEqualTo(content);
@@ -306,7 +306,7 @@ class CommunityQuestionServiceTest {
                 .findFirst()
                 .map(insty.model.community.CommunityQuestion::getId)
                 .orElseThrow();
-        CommunityQuestion savedQuestion = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion savedQuestion = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         assertThat(savedQuestion).isNotNull();
         assertThat(savedQuestion.getTitle()).isEqualTo(title);
         assertThat(savedQuestion.getContent()).isEqualTo(content);
@@ -719,7 +719,7 @@ class CommunityQuestionServiceTest {
         assertThat(res.updatedAt()).isNotNull();
 
         // DB에서 질문 조회하여 검증
-        CommunityQuestion updatedQuestion = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion updatedQuestion = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         assertThat(updatedQuestion).isNotNull();
         assertThat(updatedQuestion.getTitle()).isEqualTo(newTitle);
         assertThat(updatedQuestion.getContent()).isEqualTo(newContent);
@@ -755,7 +755,7 @@ class CommunityQuestionServiceTest {
         assertThat(res2.content()).isEqualTo("내용2");
 
         // 최종 상태 확인
-        CommunityQuestion finalQuestion = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion finalQuestion = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         assertThat(finalQuestion.getTitle()).isEqualTo("수정2");
         assertThat(finalQuestion.getContent()).isEqualTo("내용2");
     }
@@ -957,7 +957,7 @@ class CommunityQuestionServiceTest {
         assertThat(res3.content()).isEqualTo("최종 내용");
 
         // 최종 상태 확인
-        CommunityQuestion finalQuestion = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion finalQuestion = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         assertThat(finalQuestion.getTitle()).isEqualTo("최종 제목");
         assertThat(finalQuestion.getContent()).isEqualTo("최종 내용");
     }

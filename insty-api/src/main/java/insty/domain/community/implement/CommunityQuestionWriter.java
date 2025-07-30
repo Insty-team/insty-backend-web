@@ -47,6 +47,7 @@ public class CommunityQuestionWriter {
         if (communityQuestion.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
         }
+        communityQuestion.removeAllFiles();
         communityQuestion.markAsDeleted();
     }
 

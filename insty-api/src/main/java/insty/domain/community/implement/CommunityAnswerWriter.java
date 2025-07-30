@@ -50,6 +50,7 @@ public class CommunityAnswerWriter {
         if (communityAnswer.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
         }
+        communityAnswer.removeAllFiles();
         communityAnswer.markAsDeleted();
     }
 }

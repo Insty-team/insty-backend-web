@@ -162,31 +162,31 @@ class CommunityQuestionReaderTest {
     }
 
     @Test
-    void getCommunityQuestionDetailsById_정상() {
+    void getCommunityQuestionWithFilesById_정상() {
         // given
         Long id = 1L;
         CommunityQuestion q = mock(CommunityQuestion.class);
         when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.of(q));
         // when
-        CommunityQuestion result = reader.getCommunityQuestionDetailsById(id);
+        CommunityQuestion result = reader.getCommunityQuestionWithFilesById(id);
         // then
         assertThat(result).isEqualTo(q);
     }
 
     @Test
-    void getCommunityQuestionDetailsById_에러_존재하지않음() {
+    void getCommunityQuestionWithFilesById_에러_존재하지않음() {
         // given
         Long id = 1L;
         when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.empty());
         // when & then
-        assertThatThrownBy(() -> reader.getCommunityQuestionDetailsById(id))
+        assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
     }
 
     @Test
-    void getCommunityQuestionDetailsById_에러_삭제된질문() {
+    void getCommunityQuestionWithFilesById_에러_삭제된질문() {
         // given
         Long id = 1L;
         CommunityQuestion deletedQuestion = mock(CommunityQuestion.class);
@@ -194,14 +194,14 @@ class CommunityQuestionReaderTest {
         when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.of(deletedQuestion));
 
         // when & then
-        assertThatThrownBy(() -> reader.getCommunityQuestionDetailsById(id))
+        assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
     }
 
     @Test
-    void getCommunityQuestionDetailsByIdIncludingDeleted_정상() {
+    void getCommunityQuestionWithFilesByIdIncludingDeleted_정상() {
         // given
         Long id = 1L;
         CommunityQuestion question = mock(CommunityQuestion.class);

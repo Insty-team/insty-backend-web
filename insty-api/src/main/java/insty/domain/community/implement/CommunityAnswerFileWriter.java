@@ -11,6 +11,7 @@ import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,21 +37,15 @@ public class CommunityAnswerFileWriter {
      * 답변 파일 업데이트 (삭제/추가 분리)
      */
     public List<FileInfo> updateAnswerFiles(CommunityAnswer answer, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
-        // 삭제
         if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
             communityAnswerFileRepository.deleteByAnswerIdAndFileIdIn(answer.getId(), deleteFileIds);
         }
-        // 추가
         saveFiles(answer, addFiles);
-        // 최종 파일 정보 반환
         return communityAnswerFileRepository.findAllByCommunityAnswerId(answer.getId()).stream()
                 .map(caf -> FileInfo.from(caf.getFile(), appProperties.getDomain()))
                 .toList();
     }
 
-    /**
-     * 답변 파일 저장 (공통)
-     */
     private List<CommunityAnswerFile> saveFiles(CommunityAnswer answer, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) return List.of();
         List<FileCreateReq> fileCreateReqs = files.stream()

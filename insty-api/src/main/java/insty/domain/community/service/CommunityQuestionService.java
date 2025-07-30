@@ -14,6 +14,7 @@ import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.implement.CommunityAnswerMapper;
+import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
 import insty.domain.community.implement.CommunityQuestionMapper;
@@ -23,6 +24,7 @@ import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
+import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -48,6 +50,7 @@ public class CommunityQuestionService {
     private final UserReader userReader;
 
     private final CommunityAnswerService communityAnswerService;
+    private final CommunityAnswerReader communityAnswerReader;
 
     /**
      * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
@@ -104,7 +107,7 @@ public class CommunityQuestionService {
      * 질문 상세 조회 (첨부 파일 포함)
      */
     public CommunityQuestionDetailsRes getQuestionDetails(Long questionId) {
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
 
         List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
         VideoInfo videoInfo = communityQuestionVideoManager.getQuestionVideoInfo(question);
@@ -119,7 +122,6 @@ public class CommunityQuestionService {
     public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
-        // 1:1 매핑이므로 비디오 검증 불필요
 
         Course course = courseReader.getCourseById(req.courseId());
         User user = userReader.getUser(userId);
@@ -153,11 +155,14 @@ public class CommunityQuestionService {
 
     /**
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
+     * (질문 삭제는 자주 불리지 않으니 N+1문제는 허용한다. - why?) 복잡한 설계 X)
      */
     public void deleteQuestion(Long userId, Long questionId) {
         communityValidator.validateQuestionAuthor(userId, questionId);
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
-        // todo : 전부 자동 삭제를 보장하는가?
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        for(CommunityAnswer answer : question.getAnswers()){
+            communityAnswerService.deleteAnswer(userId, answer.getId());
+        }
         communityQuestionWriter.deleteQuestion(question);
     }
 }

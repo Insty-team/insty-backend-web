@@ -37,13 +37,10 @@ public class CommunityQuestionFileWriter {
      * 첨부 파일 업데이트 (삭제&추가)
      */
     public List<FileInfo> updateQuestionFiles(CommunityQuestion question, List<MultipartFile> addFiles, List<Long> deleteFileIds) {
-        // 삭제
         if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
             communityQuestionFileRepository.deleteByQuestionIdAndFileIdIn(question.getId(), deleteFileIds);
         }
-        // 추가
         saveFiles(question, addFiles);
-        // 최종 파일 정보 반환
         return communityQuestionFileRepository.findAllByCommunityQuestionId(question.getId()).stream()
                 .map(cf -> FileInfo.from(cf.getFile(), appProperties.getDomain()))
                 .toList();

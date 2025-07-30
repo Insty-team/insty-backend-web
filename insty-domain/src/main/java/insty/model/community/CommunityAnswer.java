@@ -104,6 +104,11 @@ public class CommunityAnswer extends BaseEntity {
         this.isAccepted = false;
     }
 
+    public void removeAllFiles() {
+        this.answerImage = null;
+        this.attachments.clear();
+    }
+
     public void markAsDeleted() {
         isDeleted = true;
     }

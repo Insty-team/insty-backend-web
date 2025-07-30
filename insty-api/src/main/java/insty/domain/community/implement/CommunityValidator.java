@@ -18,12 +18,9 @@ public class CommunityValidator {
 
     private final CommunityQuestionRepository communityQuestionRepository;
     private final CommunityAnswerRepository communityAnswerRepository;
-    private final CommunityQuestionVideoManager communityQuestionVideoManager;
     private final CommunityQuestionFileReader communityQuestionFileReader;
     private final CommunityAnswerFileReader communityAnswerFileReader;
 
-    private static final int MAX_QUESTION_VIDEO_COUNT = 2;
-    private static final int MAX_ANSWER_VIDEO_COUNT = 1;
     private static final int MAX_QUESTION_FILE_COUNT = 2;
     private static final int MAX_ANSWER_FILE_COUNT = 1;
 

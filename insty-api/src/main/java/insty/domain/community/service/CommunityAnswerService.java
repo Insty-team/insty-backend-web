@@ -75,7 +75,7 @@ public class CommunityAnswerService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(req.questionId());
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(req.questionId());
         User user = userReader.getUser(userId);
 
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
@@ -115,7 +115,7 @@ public class CommunityAnswerService {
      */
     public AcceptAnswerResultRes acceptAnswer(Long userId, Long questionId, Long answerId) {
         communityValidator.validateAnswerAuthor(userId, answerId);
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionDetailsById(questionId);
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateAnswerBelongsToQuestion(answer, question);
         return communityAnswerAcceptService.acceptAnswer(question, answer);

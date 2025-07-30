@@ -51,19 +51,28 @@ public class CommunityQuestionReader {
     }
 
     /**
-     * 커뮤니티 질문 상세조회
+     * 커뮤니티 질문과 첨부파일을 포함한 결과
+     * (파일 포함 & 질문 미포함)
      */
-    public CommunityQuestion getCommunityQuestionDetailsById(Long questionId) {
-        // todo : 관련 엔티티까지 전부 조회, N+1문제 방지
-        //  (단 Answer는 join 제외 : Why? answerService를 사용하면 되고, fetch join을 한다해도 6중 join으로 복잡하고 메모리 사용량도 늘어남)
+    public CommunityQuestion getCommunityQuestionWithFilesById(Long questionId) {
         CommunityQuestion question = communityQuestionRepository.findWithCourseUserAttachmentsById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
-
-        // 삭제된 질문인지 검증
         if (question.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
         }
+        return question;
+    }
 
+    /**
+     * 커뮤니티 질문과 답변 리스트를 포함한 결과
+     * (파일 미포함 & 질문 미포함 - 질문 파일은 미포함)
+     */
+    public CommunityQuestion getCommunityQuestionWithAnswerById(Long questionId){
+        CommunityQuestion question = communityQuestionRepository.findWithCourseUserAttachmentsById(questionId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+        if (question.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+        }
         return question;
     }
 
