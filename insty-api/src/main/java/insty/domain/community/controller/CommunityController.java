@@ -1,10 +1,18 @@
 package insty.domain.community.controller;
 
-import insty.domain.community.dto.CommunityAnswerReq;
+import insty.domain.common.SearchRes;
+import insty.domain.community.dto.AcceptAnswerResultRes;
+import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
-import insty.domain.community.dto.CommunityQuestionReq;
+import insty.domain.community.dto.CommunityAnswerUpdateReq;
+import insty.domain.community.dto.CommunityQuestionCreateReq;
+import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionRes;
-import insty.domain.community.service.CommunityService;
+import insty.domain.community.dto.CommunityQuestionSearchReq;
+import insty.domain.community.dto.CommunityQuestionUpdateReq;
+import insty.domain.community.service.CommunityAnswerService;
+import insty.domain.community.service.CommunityQuestionService;
+import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
@@ -14,13 +22,21 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Tag(name = "커뮤니티 API")
 @RestController
@@ -28,115 +44,152 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityController {
 
-    private final CommunityService communityService;
+    private final CommunityQuestionService communityQuestionService;
+    private final CommunityAnswerService communityAnswerService;
+
+    /// ============================== 질문 API  ======================================
+
+    @Operation(summary = "커뮤니티 질문 검색", description = "일반 질문 목록을 조회한다")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_SEARCH)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/questions")
+    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestions(
+            @ModelAttribute @Validated CommunityQuestionSearchReq req
+    ) {
+        return SuccessRes.of(communityQuestionService.searchQuestions(req));
+    }
+
+    @Operation(summary = "강좌 별 커뮤니티 질문 검색", description = "특정 강좌에 작성된 질문 목록을 조회한다")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_COURSE_SEARCH)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/questions/course/{courseId}")
+    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByCourse(
+            @PathVariable @NotBlank Long course_id,
+            @ModelAttribute @Validated CommunityQuestionSearchReq req
+    ) {
+        return SuccessRes.of(communityQuestionService.searchQuestionsByCourseId(req, course_id));
+    }
+
+    @Operation(summary = "유저 별 커뮤니티 질문 검색", description = "러너가 작성한 질문 목록을 조회한다")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
+    @PreAuthorize("hasRole('LEARNER')")
+    @GetMapping("/questions/my")
+    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByUser(
+            @CurrentUser Long userId,
+            @ModelAttribute @Validated CommunityQuestionSearchReq req
+    ) {
+        return SuccessRes.of(communityQuestionService.searchQuestionsByUserId(req, userId));
+    }
 
     @Operation(summary = "질문 상세 조회", description = "질문 상세 정보 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}")
-    public SuccessRes<CommunityQuestionRes> retrieveQuestionDetails(@PathVariable @NotBlank String questionId) {
-        return SuccessRes.of(communityService.getQuestionDetails(questionId));
-    }
-
-    @Operation(summary = "강의 영상 별 질문 목록 조회", description = "강의 영상 별 질문 리스트 조회 및 검색 조회")
-    @GetMapping("/questions/courses/{courseId}")
-    public SuccessRes<List<CommunityQuestionRes>> retrieveQuestionsByCourseId(
-            @PathVariable @NotBlank String courseId) {
-        return SuccessRes.of(communityService.getQuestionsByCourseId(courseId));
-    }
-
-    @Operation(summary = "모든 질문 검색", description = "강의 커뮤니티에서 모든 질문 리스트 조회")
-    @GetMapping("/questions/search")
-    public SuccessRes<List<CommunityQuestionRes>> retrieveAllQuestions() {
-        return SuccessRes.of(communityService.getAllQuestions());
+    public SuccessRes<CommunityQuestionDetailsRes> retrieveQuestionDetails(@PathVariable @NotBlank Long questionId) {
+        return SuccessRes.of(communityQuestionService.getQuestionDetails(questionId));
     }
 
     @Operation(summary = "질문 작성", description = "새로운 질문 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
+    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessRes<CommunityQuestionRes> createQuestion(
-            @RequestPart("communityQuestionReq") @Validated CommunityQuestionReq communityQuestionReq,
+    public SuccessRes<CommunityQuestionDetailsRes> createQuestion(
+            @CurrentUser Long userId,
+            @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityService.saveQuestion(communityQuestionReq, attachments));
+        return SuccessRes.of(communityQuestionService.saveQuestion(userId, communityQuestionCreateReq, attachments));
     }
 
     @Operation(summary = "질문 수정", description = "질문 수정 (첨부파일 업로드 지원)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
+    @PreAuthorize("hasRole('LEARNER')")
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessRes<CommunityQuestionRes> updateQuestion(
-            @PathVariable @NotBlank String questionId,
-            @RequestPart CommunityQuestionReq communityQuestionReq,
+    public SuccessRes<CommunityQuestionDetailsRes> updateQuestion(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long questionId,
+            @RequestPart CommunityQuestionUpdateReq communityQuestionUpdateReq,
             @Parameter(description = "질문 첨부파일 (이미지, 코드 파일 등)")
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityService.updateQuestion(communityQuestionReq, attachments));
+        return SuccessRes.of(communityQuestionService.updateQuestion(userId, questionId, communityQuestionUpdateReq, attachments));
     }
 
     @Operation(summary = "질문 삭제", description = "질문 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
+    @PreAuthorize("hasRole('LEARNER')")
     @DeleteMapping("/questions/{questionId}")
-    public SuccessRes<?> deleteQuestion(@PathVariable @NotBlank String questionId) {
-        communityService.deleteQuestion(questionId);
+    public SuccessRes<?> deleteQuestion(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long questionId
+    ) {
+        communityQuestionService.deleteQuestion(userId, questionId);
         return SuccessRes.of(null);
     }
 
-    @Operation(summary = "댓글 조회", description = "질문에 대한 모든 댓글 조회")
+    /// ============================== 답변 API  ======================================
+
+    @Operation(summary = "답변 조회", description = "질문에 대한 모든 댓글 조회")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}/answer")
-    public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank String questionId) {
-        return SuccessRes.of(communityService.getAllAnswers(questionId));
+    public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotBlank Long questionId) {
+        return SuccessRes.of(communityAnswerService.getAllAnswersByQuestionId(questionId));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/questions/{questionId}/answer")
     public SuccessRes<CommunityAnswerRes> createAnswer(
+            @CurrentUser Long userId,
             @PathVariable @NotBlank Long questionId,
-            @RequestPart CommunityAnswerReq communityAnswerReq,
+            @RequestPart CommunityAnswerCreateReq communityAnswerCreateReq,
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
-            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
-            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
-        
-        return SuccessRes.of(communityService.saveAnswer(communityAnswerReq, imageFiles, videoUuid));
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> attachments
+    ) {
+        return SuccessRes.of(communityAnswerService.saveAnswer(userId, communityAnswerCreateReq, attachments));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
-    @PatchMapping(value = "/questions/{question_id}/answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PatchMapping(value = "/answer/{answerId}/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> updateAnswer(
-            @PathVariable @NotBlank String question_id,
-            @RequestPart CommunityAnswerReq communityAnswerReq,
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long answerId,
+            @RequestPart CommunityAnswerUpdateReq communityAnswerUpdateReq,
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles,
-            @Parameter(description = "영상 UUID (video 도메인의 업로드 API로 먼저 업로드 후 받은 UUID)")
-            @RequestPart(value = "videoUuid", required = false) String videoUuid) {
-        
-        return SuccessRes.of(communityService.updateAnswer(communityAnswerReq, imageFiles, videoUuid));
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
+    ) {
+        return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, imageFiles));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
-    @DeleteMapping("/questions/{question_id}/answer/{answerId}")
-    public SuccessRes<?> deleteAnswer(@PathVariable @NotBlank String question_id, @PathVariable @NotBlank String answerId) {
-        communityService.deleteAnswer(answerId);
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @DeleteMapping("/answer/{answerId}")
+    public SuccessRes<?> deleteAnswer(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long answerId
+    ) {
+        communityAnswerService.deleteAnswer(userId, answerId);
         return SuccessRes.of(null);
     }
+
+    /// ============================== 답변 채택 API  ======================================
 
     @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
+    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
-    public SuccessRes<?> acceptAnswer(@PathVariable @NotBlank String questionId, @PathVariable @NotBlank String answerId) {
-        communityService.acceptAnswer(questionId, answerId);
-        return SuccessRes.of(null);
+    public SuccessRes<AcceptAnswerResultRes> acceptAnswer(
+            @CurrentUser Long userId,
+            @PathVariable @NotBlank Long questionId,
+            @PathVariable @NotBlank Long answerId
+    ) {
+        return SuccessRes.of(communityAnswerService.acceptAnswer(userId, questionId, answerId));
     }
 
-    @Operation(summary = "답변 채택 해제", description = "질문 작성자가 채택된 답변을 해제")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UNACCEPT)
-    @DeleteMapping("/questions/{questionId}/answer/accept")
-    public SuccessRes<?> unacceptAnswer(@PathVariable @NotBlank String questionId) {
-        communityService.unacceptAnswer(questionId);
-        return SuccessRes.of(null);
-    }
 
 }
