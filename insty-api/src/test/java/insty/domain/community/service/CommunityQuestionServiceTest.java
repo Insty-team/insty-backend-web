@@ -10,9 +10,12 @@ import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.implement.CommunityQuestionReader;
+import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
+import insty.domain.community.repository.CommunityQuestionFileRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.domain.user.implement.UserReader;
+import insty.domain.video.repository.VideoQuestionRepository;
 import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityQuestion;
@@ -48,6 +51,10 @@ class CommunityQuestionServiceTest {
     private UserReader userReader;
     @Autowired
     private CommunityQuestionRepository communityQuestionRepository;
+    @Autowired
+    private CommunityQuestionFileRepository communityQuestionFileRepository;
+    @Autowired
+    private VideoQuestionRepository videoQuestionRepository;
     @Autowired
     private EntityManager entityManager;
     @MockitoBean
@@ -1256,6 +1263,43 @@ class CommunityQuestionServiceTest {
         // 두 번째 삭제 시도
         assertThatThrownBy(() -> communityQuestionService.deleteQuestion(TEST_USER_ID, questionId))
                 .isInstanceOf(CustomException.class);
+    }
+
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (100, 1, 1, '첨부파일/비디오 삭제 테스트', '내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.files (id, name, original_name, content_type, size, container_type, container_id, created_at, updated_at) " +
+                    "VALUES (10, 'file1.jpg', 'file1.jpg', 'image/jpeg', 1000, 'QUESTION_IMAGE', 100, NOW(), NOW());",
+            "INSERT INTO web_service.community_question_files (question_id, file_id, created_at, updated_at) " +
+                    "VALUES (100, 10, NOW(), NOW());",
+            "INSERT INTO web_service.video_questions (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_question_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (20, '11111111-1111-1111-1111-111111111111', 'video.mp4', 'vod/QUESTION/mp4/11111111-1111-1111-1111-111111111111/video.mp4', 'mp4', 10, 'COMPLETED', NOW(), 1, 100, false, NOW(), NOW());"
+    })
+    @Test
+    void deleteQuestion_첨부파일_비디오_삭제_정상() {
+        Long questionId = 100L;
+        communityQuestionService.deleteQuestion(TEST_USER_ID, questionId);
+        entityManager.flush();
+        entityManager.clear();
+
+        // 질문 논리 삭제 확인
+        var questionOpt = communityQuestionRepository.findById(questionId);
+        assertThat(questionOpt).isPresent();
+        assertThat(questionOpt.get().isDeleted()).isTrue();
+
+        // 첨부파일 논리 삭제(매핑 row 삭제) 확인
+        var files = communityQuestionFileRepository.findAllByCommunityQuestionId(questionId);
+        assertThat(files).isEmpty();
+
+        // 비디오 논리 삭제 확인
+        var video = videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(questionId, true);
+        assertThat(video).isPresent();
+        assertThat(video.get().isDeleted()).isTrue();
     }
 
     // ========================================

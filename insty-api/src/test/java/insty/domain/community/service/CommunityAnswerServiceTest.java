@@ -13,6 +13,7 @@ import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.domain.user.implement.UserReader;
+import insty.domain.video.repository.VideoAnswerRepository;
 import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
@@ -66,6 +67,8 @@ class CommunityAnswerServiceTest {
     private AppProperties appProperties;
     @MockitoBean
     private AiRequester aiRequester;
+    @Autowired
+    private VideoAnswerRepository videoAnswerRepository;
 
     @BeforeEach
     void setUp() {
@@ -128,25 +131,18 @@ class CommunityAnswerServiceTest {
 
         // then
         assertThat(result).isNotNull();
-
-        // User 정보 전체 검증
         assertThat(result.user()).isNotNull();
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 답변 내용 검증
         assertThat(result.content()).isEqualTo(content);
         assertThat(result.isAccepted()).isFalse();
         assertThat(result.attachments()).isEmpty();
         assertThat(result.videoInfo()).isNull();
-
-        // 시간 정보 검증
         assertThat(result.createdAt()).isNotNull();
         assertThat(result.updatedAt()).isNotNull();
         assertThat(result.createdAt()).isEqualTo(result.updatedAt()); // 생성 시에는 같아야 함
 
-        // DB에서 실제 저장 확인
         var savedAnswer = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -192,26 +188,19 @@ class CommunityAnswerServiceTest {
 
         // then
         assertThat(updatedRes).isNotNull();
-
-        // User 정보 검증
         assertThat(updatedRes.user()).isNotNull();
         assertThat(updatedRes.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(updatedRes.user().nickname()).isEqualTo("user");
         assertThat(updatedRes.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 답변 내용 검증
         assertThat(updatedRes.content()).isEqualTo(newContent);
         assertThat(updatedRes.isAccepted()).isFalse();
         assertThat(updatedRes.attachments()).isEmpty();
         assertThat(updatedRes.videoInfo()).isNotNull(); // 기존 비디오가 유지되어야 함
         assertThat(updatedRes.videoInfo().videoUuid()).isEqualTo(videoUuid);
-
-        // 시간 정보 검증
         assertThat(updatedRes.createdAt()).isNotNull();
         assertThat(updatedRes.updatedAt()).isNotNull();
         assertThat(updatedRes.updatedAt()).isAfterOrEqualTo(updatedRes.createdAt());
 
-        // DB에서 실제 수정 확인
         var savedAnswer = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getId().equals(answerId))
                 .findFirst()
@@ -230,10 +219,14 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
                     "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
             "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (60, 1, 1, '답변삭제 질문', '답변삭제 질문 내용', false, false, NOW(), NOW());"
+                    "VALUES (60, 1, 1, '답변삭제 질문', '답변삭제 질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) " +
+                    "VALUES (300, 'ANSWER_IMAGE', 1, 'delete_test_file1.jpg', 'original_delete_test_file1.jpg', 'image/jpeg', 1024, NOW(), NOW());",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) " +
+                    "VALUES (301, 'ANSWER_IMAGE', 1, 'delete_test_file2.png', 'original_delete_test_file2.png', 'image/png', 2048, NOW(), NOW());"
     })
     @Test
-    void deleteAnswer_정상() {
+    void deleteAnswer_첨부파일포함_정상() {
         Long questionId = createQuestionAndGetId("답변삭제 질문", "답변삭제 질문 내용");
         String content = "삭제할 답변";
         Long answerId = createAnswerAndGetId(questionId, content);
@@ -242,10 +235,75 @@ class CommunityAnswerServiceTest {
         entityManager.flush();
         entityManager.clear();
 
-        // then: 논리 삭제 후 DB에서 직접 조회하여 isDeleted=true 검증
         Optional<CommunityAnswer> answerOpt = communityAnswerRepository.findById(answerId);
         assertThat(answerOpt).isPresent();
         assertThat(answerOpt.get().isDeleted()).isTrue();
+        assertThat(answerOpt.get().getAttachments()).isEmpty();
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (61, 1, 1, '일반답변삭제 질문', '일반답변삭제 질문 내용', false, false, NOW(), NOW());"
+    })
+    @Test
+    void deleteAnswer_일반답변_정상() {
+        Long questionId = createQuestionAndGetId("일반답변삭제 질문", "일반답변삭제 질문 내용");
+        String content = "삭제할 일반 답변";
+        Long answerId = createAnswerAndGetId(questionId, content);
+
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
+        entityManager.flush();
+        entityManager.clear();
+
+        Optional<CommunityAnswer> answerOpt = communityAnswerRepository.findById(answerId);
+        assertThat(answerOpt).isPresent();
+        assertThat(answerOpt.get().isDeleted()).isTrue();
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
+                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
+                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
+            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
+                    "VALUES (62, 1, 1, '비디오답변삭제 질문', '비디오답변삭제 질문 내용', false, false, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, original_file_name, s3key, extension, duration, encoding_status, encoding_at, user_id, community_answer_id, is_deleted, created_at, updated_at) " +
+                    "VALUES (15, 'ff0e8400-e29b-41d4-a716-446655440015', 'delete_video_answer.mp4', 'vod/ANSWER/mp4/ff0e8400-e29b-41d4-a716-446655440015/delete_video_answer.mp4', 'mp4', 120, 'COMPLETED', NOW(), 1, null, false, NOW(), NOW());"
+    })
+    @Test
+    void deleteAnswer_비디오포함_정상() {
+        Long questionId = createQuestionAndGetId("비디오답변삭제 질문", "비디오답변삭제 질문 내용");
+        String content = "삭제할 비디오 답변";
+        UUID videoUuid = UUID.fromString("ff0e8400-e29b-41d4-a716-446655440015");
+        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
+                .filter(a -> a.getContent().equals(content))
+                .findFirst()
+                .map(insty.model.community.CommunityAnswer::getId)
+                .orElseThrow();
+
+        communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
+        entityManager.flush();
+        entityManager.clear();
+
+        Optional<CommunityAnswer> answerOpt = communityAnswerRepository.findById(answerId);
+        assertThat(answerOpt).isPresent();
+        assertThat(answerOpt.get().isDeleted()).isTrue();
+
+        assertThat(answerOpt.get().getAnswerImage()).isNull();
+        assertThat(answerOpt.get().getAttachments()).isEmpty();
+
+        var videoAnswer = videoAnswerRepository.findByCommunityAnswerIdAndIsDeleted(answerId, false);
+        assertThat(videoAnswer).isEmpty();
+
+        var deletedVideoAnswer = videoAnswerRepository.findByCommunityAnswerIdAndIsDeleted(answerId, true);
+        assertThat(deletedVideoAnswer).isPresent();
+        assertThat(deletedVideoAnswer.get().isDeleted()).isTrue();
     }
 
     @Sql(statements = {
@@ -282,11 +340,11 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("답변삭제테스트 질문", "답변삭제테스트 질문 내용");
         String content = "삭제할 답변";
         Long answerId = createAnswerAndGetId(questionId, content);
-        // 답변 논리 삭제
+
         communityAnswerService.deleteAnswer(TEST_USER_ID, answerId);
         entityManager.flush();
         entityManager.clear();
-        // 삭제된 답변 수정 시도 시 예외 발생 검증
+
         var updateReq = new CommunityAnswerUpdateReq("수정", null, List.of());
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(TEST_USER_ID, answerId, updateReq, List.of()))
                 .isInstanceOf(CustomException.class);
@@ -349,27 +407,20 @@ class CommunityAnswerServiceTest {
 
         var res = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        // 기본 검증
         assertThat(res).isNotNull();
         assertThat(res).hasSize(2);
 
-        // 각 답변의 내용 검증
         var answer1 = res.stream().filter(a -> a.content().equals("답변1")).findFirst().orElse(null);
         var answer2 = res.stream().filter(a -> a.content().equals("답변2")).findFirst().orElse(null);
 
         assertThat(answer1).isNotNull();
         assertThat(answer2).isNotNull();
-
-        // User 정보 검증
         assertThat(answer1.user()).isNotNull();
         assertThat(answer1.user().id()).isEqualTo(userId);
         assertThat(answer1.user().nickname()).isEqualTo("user");
-
         assertThat(answer2.user()).isNotNull();
         assertThat(answer2.user().id()).isEqualTo(userId);
         assertThat(answer2.user().nickname()).isEqualTo("user");
-
-        // 첨부파일 정보 검증 (현재는 첨부파일이 없는 상태)
         assertThat(answer1.attachments()).isEmpty();
         assertThat(answer2.attachments()).isEmpty();
         assertThat(answer1.videoInfo()).isNull();
@@ -396,19 +447,14 @@ class CommunityAnswerServiceTest {
 
         var res = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        // 기본 검증
         assertThat(res).isNotNull();
         assertThat(res).hasSize(1);
 
         var answer = res.get(0);
         assertThat(answer.content()).isEqualTo("첨부파일있는답변");
-
-        // User 정보 검증
         assertThat(answer.user()).isNotNull();
         assertThat(answer.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(answer.user().nickname()).isEqualTo("user");
-
-        // 첨부파일 정보 검증
         assertThat(answer.attachments()).isNotEmpty();
         assertThat(answer.attachments()).hasSize(1);
 
@@ -448,27 +494,6 @@ class CommunityAnswerServiceTest {
         var req = new CommunityAnswerCreateReq(800L, "답변 내용", null);
         assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
                 .isInstanceOf(CustomException.class);
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) " +
-                    "VALUES (1, 'user@example.com', 'user', 'pw', null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, is_show, is_deleted, created_at, updated_at) " +
-                    "VALUES (1, 1, '테스트 강의', '설명', 10000, 0, 0, '초보자', true, false, NOW(), NOW());",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, is_answered, is_deleted, created_at, updated_at) " +
-                    "VALUES (900, 1, 1, 'userId누락테스트', '내용', false, false, NOW(), NOW());"
-    })
-    @Test
-    void saveAnswer_userId누락_예외() {
-        // userId가 null인 경우 예외 발생
-
-        // todo : 추후 처리할 것
-        /*
-        var req = new CommunityAnswerCreateReq(900L, "답변 내용", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(null, req, List.of()))
-                .isInstanceOf(CustomException.class);
-
-         */
     }
 
     @Sql(statements = {
@@ -556,7 +581,6 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("acceptAnswer테스트", "내용");
         Long answerId = createAnswerAndGetId(questionId, "채택할 답변");
 
-        // 존재하지 않는 질문에 대해 답변 채택 시 예외 발생
         assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, 99999L, answerId))
                 .isInstanceOf(CustomException.class);
     }
@@ -573,7 +597,6 @@ class CommunityAnswerServiceTest {
     void acceptAnswer_존재하지않는답변_예외() {
         Long questionId = createQuestionAndGetId("acceptAnswer존재하지않는답변테스트", "내용");
 
-        // 존재하지 않는 답변 채택 시 예외 발생
         assertThatThrownBy(() -> communityAnswerService.acceptAnswer(TEST_USER_ID, questionId, 99999L))
                 .isInstanceOf(CustomException.class);
     }
@@ -679,21 +702,17 @@ class CommunityAnswerServiceTest {
         var result = communityAnswerService.getAnswerDetails(answerId);
 
         assertThat(result).isNotNull();
-        // User 정보 검증
         assertThat(result.user()).isNotNull();
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isNotNull();
-        // 답변 정보 검증
         assertThat(result.content()).isEqualTo("첨부파일있는답변상세조회");
         assertThat(result.isAccepted()).isFalse();
-        // 첨부파일 정보 검증
         assertThat(result.attachments()).hasSize(1);
         var attachment = result.attachments().get(0);
         assertThat(attachment.name()).isEqualTo("original_answer_detail_file1.jpg");
         assertThat(attachment.contentType()).isEqualTo("image/jpeg");
         assertThat(attachment.size()).isEqualTo(2048);
-        // 비디오 정보 검증 (없는 경우)
         assertThat(result.videoInfo()).isNull();
     }
 
@@ -713,17 +732,13 @@ class CommunityAnswerServiceTest {
         var result = communityAnswerService.getAnswerDetails(answerId);
 
         assertThat(result).isNotNull();
-        // User 정보 검증
         assertThat(result.user()).isNotNull();
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isNotNull();
-        // 답변 정보 검증
         assertThat(result.content()).isEqualTo("상세 조회할 답변");
         assertThat(result.isAccepted()).isFalse();
-        // 첨부파일 정보 검증 (없는 경우)
         assertThat(result.attachments()).isEmpty();
-        // 비디오 정보 검증 (없는 경우)
         assertThat(result.videoInfo()).isNull();
     }
 
@@ -1077,14 +1092,11 @@ class CommunityAnswerServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo(content);
-        assertThat(result.videoInfo()).isNotNull(); // 비디오 정보가 생성되어야 함
+        assertThat(result.videoInfo()).isNotNull();
 
-        // User 정보 검증
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 기본 상태 검증
         assertThat(result.isAccepted()).isFalse();
         assertThat(result.attachments()).isEmpty();
     }
@@ -1126,13 +1138,9 @@ class CommunityAnswerServiceTest {
         assertThat(attachment.name()).isEqualTo("test.jpg");
         assertThat(attachment.contentType()).isEqualTo("image/jpeg");
         assertThat(attachment.size()).isEqualTo(1024L);
-
-        // User 정보 검증
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 기본 상태 검증
         assertThat(result.isAccepted()).isFalse();
         assertThat(result.videoInfo()).isNull();
     }
@@ -1178,13 +1186,9 @@ class CommunityAnswerServiceTest {
         assertThat(attachment.name()).isEqualTo("test.png");
         assertThat(attachment.contentType()).isEqualTo("image/png");
         assertThat(attachment.size()).isEqualTo(2048L);
-
-        // User 정보 검증
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 기본 상태 검증
         assertThat(result.isAccepted()).isFalse();
     }
 
@@ -1270,12 +1274,11 @@ class CommunityAnswerServiceTest {
         String content = "여러 첨부파일이 포함된 답변";
         var req = new CommunityAnswerCreateReq(questionId, content, null);
 
-        // MAX_ANSWER_FILE_COUNT만큼 Mock 첨부파일들 동적 생성
+        // MAX_ANSWER_FILE_COUNT만큼 Mock 첨부파일들 생성
         List<org.springframework.web.multipart.MultipartFile> attachments = new java.util.ArrayList<>();
         String[] fileExtensions = {"jpg", "png", "pdf", "doc", "txt", "zip", "mp4", "avi", "gif", "bmp", "xlsx", "pptx", "mp3", "wav", "mov"};
         String[] expectedContentTypes = {"image/jpeg", "image/png", "application/pdf", "application/msword", "text/plain", "application/zip", "video/mp4", "video/avi", "image/gif", "image/bmp", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "audio/mpeg", "audio/wav", "video/quicktime"};
 
-        // CommunityValidator의 MAX_ANSWER_FILE_COUNT 값 사용
         int maxFileCount = MAX_FILE_COUNT;
 
         for (int i = 0; i < maxFileCount; i++) {
@@ -1295,7 +1298,6 @@ class CommunityAnswerServiceTest {
         assertThat(result.content()).isEqualTo(content);
         assertThat(result.attachments()).hasSize(maxFileCount); // MAX_ANSWER_FILE_COUNT
 
-        // 각 첨부파일 검증
         var fileNames = result.attachments().stream().map(insty.domain.common.FileInfo::name).toList();
         assertThat(fileNames).hasSize(maxFileCount);
         for (int i = 0; i < maxFileCount; i++) {
@@ -1314,12 +1316,10 @@ class CommunityAnswerServiceTest {
             assertThat(sizes).contains((long) (1024 * (i + 1)));
         }
 
-        // User 정보 검증
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
 
-        // 기본 상태 검증
         assertThat(result.isAccepted()).isFalse();
         assertThat(result.videoInfo()).isNull();
     }
@@ -1346,13 +1346,9 @@ class CommunityAnswerServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo(content);
         assertThat(result.attachments()).isEmpty();
-
-        // User 정보 검증
         assertThat(result.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result.user().nickname()).isEqualTo("user");
         assertThat(result.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
-
-        // 기본 상태 검증
         assertThat(result.isAccepted()).isFalse();
         assertThat(result.videoInfo()).isNull();
     }
@@ -1434,12 +1430,10 @@ class CommunityAnswerServiceTest {
         assertThat(updatedRes.content()).isEqualTo(newContent);
         assertThat(updatedRes.videoInfo()).isNotNull(); // 비디오 정보가 생성되어야 함
 
-        // User 정보 검증
         assertThat(updatedRes.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(updatedRes.user().nickname()).isEqualTo("user");
         assertThat(updatedRes.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
 
-        // 기본 상태 검증
         assertThat(updatedRes.isAccepted()).isFalse();
         assertThat(updatedRes.attachments()).isEmpty();
     }
@@ -1468,7 +1462,6 @@ class CommunityAnswerServiceTest {
         String newContent = "첨부파일이 추가된 답변";
         var updateReq = new CommunityAnswerUpdateReq(newContent, null, List.of());
 
-        // Mock 첨부파일 생성
         var mockFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
         org.mockito.Mockito.when(mockFile.isEmpty()).thenReturn(false);
         org.mockito.Mockito.when(mockFile.getOriginalFilename()).thenReturn("update_test.jpg");
@@ -1491,12 +1484,10 @@ class CommunityAnswerServiceTest {
         assertThat(attachment.contentType()).isEqualTo("image/jpeg");
         assertThat(attachment.size()).isEqualTo(2048L);
 
-        // User 정보 검증
         assertThat(updatedRes.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(updatedRes.user().nickname()).isEqualTo("user");
         assertThat(updatedRes.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
 
-        // 기본 상태 검증
         assertThat(updatedRes.isAccepted()).isFalse();
         assertThat(updatedRes.videoInfo()).isNull();
     }
@@ -1587,7 +1578,7 @@ class CommunityAnswerServiceTest {
 
         String newContent = "다른 사용자가 수정하려는 답변";
         var updateReq = new CommunityAnswerUpdateReq(newContent, null, null);
-        Long differentUserId = 999L; // 존재하지 않는 다른 사용자 ID
+        Long differentUserId = 999L;
 
         // when & then - 다른 사용자가 답변을 수정하려고 시도하면 예외 발생
         assertThatThrownBy(() -> communityAnswerService.updateAnswer(differentUserId, answerId, updateReq, null))
@@ -1628,16 +1619,14 @@ class CommunityAnswerServiceTest {
         assertThat(updatedRes).isNotNull();
         assertThat(updatedRes.content()).isEqualTo(content);
 
-        // User 정보 검증
         assertThat(updatedRes.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(updatedRes.user().nickname()).isEqualTo("user");
         assertThat(updatedRes.user().userType()).isEqualTo(insty.model.user.UserType.CREATOR);
 
-        // 기본 상태 검증
         assertThat(updatedRes.isAccepted()).isFalse();
         assertThat(updatedRes.attachments()).isEmpty();
 
-        // 시간 정보 검증 - 업데이트 시간이 변경되었는지 확인
+        // 업데이트 시간이 변경되었는지 확인
         assertThat(updatedRes.createdAt()).isNotNull();
         assertThat(updatedRes.updatedAt()).isNotNull();
     }
@@ -1696,7 +1685,7 @@ class CommunityAnswerServiceTest {
         assertThat(result2.user().id()).isEqualTo(TEST_USER_ID);
         assertThat(result3.user().id()).isEqualTo(TEST_USER_ID);
 
-        // 시간 정보 검증 - 업데이트 시간이 순차적으로 증가하는지 확인
+        // 업데이트 시간이 순차적으로 증가하는지 확인
         assertThat(result1.updatedAt()).isBeforeOrEqualTo(result2.updatedAt());
         assertThat(result2.updatedAt()).isBeforeOrEqualTo(result3.updatedAt());
     }
