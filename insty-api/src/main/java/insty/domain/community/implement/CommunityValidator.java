@@ -64,9 +64,9 @@ public class CommunityValidator {
      * 답변 작성자 검증
      */
     public void validateAnswerAuthor(Long userId, Long answerId) {
-        CommunityAnswer question = communityAnswerRepository.findById(answerId)
+        CommunityAnswer answer = communityAnswerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
-        Long authorId = question.getUser().getId();
+        Long authorId = answer.getUser().getId();
         if (!authorId.equals(userId)) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_NOT_ANSWER_AUTHOR);
         }
