@@ -64,10 +64,10 @@ public class CommunityController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/course/{courseId}")
     public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByCourse(
-            @PathVariable @NotBlank Long courseId,
+            @PathVariable @NotBlank Long course_id,
             @ModelAttribute @Validated CommunityQuestionSearchReq req
     ) {
-        return SuccessRes.of(communityQuestionService.searchQuestionsByCourseId(req, courseId));
+        return SuccessRes.of(communityQuestionService.searchQuestionsByCourseId(req, course_id));
     }
 
     @Operation(summary = "유저 별 커뮤니티 질문 검색", description = "러너가 작성한 질문 목록을 조회한다")
@@ -96,8 +96,7 @@ public class CommunityController {
     public SuccessRes<CommunityQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
-            @Parameter(description = "질문 첨부파일 (이미지)")
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityQuestionService.saveQuestion(userId, communityQuestionCreateReq, attachments));
     }
@@ -110,8 +109,8 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityQuestionUpdateReq communityQuestionUpdateReq,
-            @Parameter(description = "질문 첨부파일 (이미지)")
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @Parameter(description = "질문 첨부파일 (이미지, 코드 파일 등)")
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityQuestionService.updateQuestion(userId, questionId, communityQuestionUpdateReq, attachments));
     }
@@ -146,8 +145,8 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotBlank Long questionId,
             @RequestPart CommunityAnswerCreateReq communityAnswerCreateReq,
-            @Parameter(description = "답변 첨부 파일", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityAnswerService.saveAnswer(userId, communityAnswerCreateReq, attachments));
     }
@@ -155,15 +154,15 @@ public class CommunityController {
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PatchMapping(value = "/answer/{answerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/answer/{answerId}/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> updateAnswer(
             @CurrentUser Long userId,
             @PathVariable @NotBlank Long answerId,
             @RequestPart CommunityAnswerUpdateReq communityAnswerUpdateReq,
-            @Parameter(description = "답변 첨부파일 (이미지)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> imageFiles
     ) {
-        return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, attachments));
+        return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, imageFiles));
     }
 
     @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
