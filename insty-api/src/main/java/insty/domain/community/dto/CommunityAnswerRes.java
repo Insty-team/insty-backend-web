@@ -1,35 +1,30 @@
 package insty.domain.community.dto;
 
 import insty.domain.common.FileInfo;
-import insty.domain.common.VideoInfo;
-import insty.model.community.CommunityAnswer;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 public record CommunityAnswerRes(
-        CommunityUserRes user,
+        @NotNull
+        Long userId,
+        @NotNull
         String content,
         List<FileInfo> attachments,
-        VideoInfo videoInfo,
-        boolean isAccepted,
         Instant createdAt,
-        Instant updatedAt
-
+        Instant updatedAt,
+        boolean isAccepted
 ) {
-    public static CommunityAnswerRes from(
-            CommunityAnswer answer,
+    public static CommunityAnswerRes create(
+            @NotNull Long userId,
+            @NotNull String content,
             List<FileInfo> attachments,
-            VideoInfo videoInfo
+            Instant createdAt,
+            Instant updatedAt,
+            boolean isAccepted
     ) {
-        return new CommunityAnswerRes(
-                CommunityUserRes.from(answer.getUser()),
-                answer.getContent(),
-                Optional.ofNullable(attachments).orElse(List.of()),
-                videoInfo,
-                answer.isAccepted(),
-                answer.getCreatedAt(),
-                answer.getUpdatedAt()
-        );
+        return new CommunityAnswerRes(userId, content, attachments, createdAt, updatedAt, isAccepted);
     }
+
 }

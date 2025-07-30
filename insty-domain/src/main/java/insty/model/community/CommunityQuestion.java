@@ -5,26 +5,19 @@ import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.course.Course;
 import insty.model.user.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Entity
@@ -49,14 +42,14 @@ public class CommunityQuestion extends BaseEntity {
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @Builder.Default
-    private List<CommunityQuestionFile> attachments = new ArrayList<>();
+    private List<CommunityFile> attachments = new ArrayList<>();
 
     @OneToMany(mappedBy = "communityQuestion", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @Builder.Default
     private List<CommunityAnswer> answers = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "accepted_answer_id")
+    @JoinColumn(name = "accepted_answer_id", nullable = true)
     private CommunityAnswer acceptedAnswer;
 
     @Column(nullable = false)
@@ -67,6 +60,14 @@ public class CommunityQuestion extends BaseEntity {
 
     @Column(nullable = false, name = "is_answered")
     private boolean isAnswered;
+
+    @CreatedDate
+    @Column(nullable = false, name = "created_at", updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = false, name = "updated_at", updatable = false)
+    private Instant updatedAt;
 
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
@@ -83,29 +84,11 @@ public class CommunityQuestion extends BaseEntity {
                 .build();
     }
 
-    private static void validateCreate(Course course, User user, String title, String content) {
-        if (course == null || course.getId() == null) {
-            log.error("생성 오류 - course : null");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (user == null || user.getId() == null) {
-            log.error("생성 오류 - user : null");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (title == null || title.isBlank()) {
-            log.error("생성 오류 - title : 비었음");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (content == null || content.isBlank()) {
-            log.error("생성 오류 - content : 비었음");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-    }
-
-    public void update(String title, String content, List<CommunityQuestionFile> attachments) {
+    public void update(String title, String content, List<CommunityFile> attachments) {
         this.title = title;
         this.content = content;
         this.attachments = attachments;
+        this.updatedAt = Instant.now();
     }
 
     public void acceptAnswer(CommunityAnswer answer) {
@@ -115,6 +98,7 @@ public class CommunityQuestion extends BaseEntity {
         this.acceptedAnswer = answer;
         this.isAnswered = true;
         answer.accept();
+        this.updatedAt = Instant.now();
     }
 
     public void unacceptAnswer() {
@@ -123,14 +107,25 @@ public class CommunityQuestion extends BaseEntity {
             this.acceptedAnswer = null;
         }
         this.isAnswered = false;
+        this.updatedAt = Instant.now();
     }
 
-    public void removeAllFiles() {
-        this.attachments.clear();
+    private static void validateCreate(Course course, User user, String title, String content) {
+        if (course == null || course.getId() == null) {
+            log.error("CommunityQuestion creation error - course is null or has no ID");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (user == null || user.getId() == null) {
+            log.error("CommunityQuestion creation error - user is null or has no ID");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (title == null || title.isBlank()) {
+            log.error("CommunityQuestion creation error - title is null or blank");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (content == null || content.isBlank()) {
+            log.error("CommunityQuestion creation error - content is null or blank");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
     }
-
-    public void markAsDeleted() {
-        isDeleted = true;
-    }
-
 }

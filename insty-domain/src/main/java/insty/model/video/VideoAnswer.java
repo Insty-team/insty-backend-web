@@ -122,8 +122,4 @@ public class VideoAnswer extends BaseEntity implements BaseVideo {
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_INVALID_FILE_NAME));
         return "vod/" + VideoType.ANSWER + "/" + extension + "/" + uuid + "/" + fileName;
     }
-
-    public void updateCommunityAnswer(CommunityAnswer communityAnswer) {
-        this.communityAnswer = communityAnswer;
-    }
 }

@@ -58,4 +58,3 @@ oauth:
 
 app:
   health-check-path: /tmp
-  domain: "domain"

@@ -1,39 +1,28 @@
 package insty.model.community;
 
-import insty.error.CommunityErrorCode;
-import insty.exception.CustomException;
-import insty.model.BaseEntity;
 import insty.model.file.File;
 import insty.model.user.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Builder;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-@Slf4j
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "community_answers", schema = "web_service")
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityAnswer extends BaseEntity {
+public class CommunityAnswer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +34,7 @@ public class CommunityAnswer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    User user;
 
     @Column(nullable = false)
     private String content;
@@ -54,6 +43,14 @@ public class CommunityAnswer extends BaseEntity {
     @JoinColumn(name = "answer_image_id", nullable = true)
     private File answerImage;
 
+    @CreatedDate
+    @Column(nullable = false, name = "created_at", updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = false, name = "updated_at", updatable = false)
+    private Instant updatedAt;
+
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
@@ -61,13 +58,7 @@ public class CommunityAnswer extends BaseEntity {
     @Builder.Default
     private boolean isAccepted = false;
 
-    @OneToMany(mappedBy = "communityAnswer", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    @Builder.Default
-    private List<CommunityAnswerFile> attachments = new ArrayList<>();
-
-
     public static CommunityAnswer create(CommunityQuestion communityQuestion, User user, String content) {
-        validateCreate(communityQuestion, user, content);
         return CommunityAnswer.builder()
                 .communityQuestion(communityQuestion)
                 .user(user)
@@ -77,39 +68,18 @@ public class CommunityAnswer extends BaseEntity {
                 .build();
     }
 
-    private static void validateCreate(CommunityQuestion communityQuestion, User user, String content) {
-        if (communityQuestion == null) {
-            log.error("생성 오류 - communityQuestion : null");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (user == null) {
-            log.error("생성 오류 - user : null");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-        if (content == null || content.trim().isEmpty()) {
-            log.error("생성 오류 - content : 비었음");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
-        }
-    }
-
     public void update(String content) {
         this.content = content;
+        this.updatedAt = Instant.now();
     }
 
     public void accept() {
         this.isAccepted = true;
+        this.updatedAt = Instant.now();
     }
 
     public void unaccept() {
         this.isAccepted = false;
-    }
-
-    public void removeAllFiles() {
-        this.answerImage = null;
-        this.attachments.clear();
-    }
-
-    public void markAsDeleted() {
-        isDeleted = true;
+        this.updatedAt = Instant.now();
     }
 }

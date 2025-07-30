@@ -5,10 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAnswerFixtureBuilder;
-import insty.model.community.CommunityQuestion;
-import insty.model.community.CommunityQuestionFixtureBuilder;
 import insty.model.user.User;
 import insty.model.user.UserFixture;
 import insty.model.user.UserFixtureBuilder;
@@ -154,19 +150,5 @@ class VideoAnswerTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(VideoErrorCode.VIDEO_INVALID_FILE_NAME);
-    }
-
-    @Test
-    void updateCommunityAnswer_정상() {
-        // given
-        VideoAnswer videoAnswer = VideoFixtureBuilder.getVideoAnswerWithIdAndUser();
-        CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
-        CommunityAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question);
-
-        // when
-        videoAnswer.updateCommunityAnswer(answer);
-
-        // then
-        assertThat(videoAnswer.getCommunityAnswer()).isEqualTo(answer);
     }
 }

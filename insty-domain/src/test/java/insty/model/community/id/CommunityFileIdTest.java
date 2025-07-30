@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Tag("unit")
-public class CommunityQuestionFileIdTest {
+public class CommunityFileIdTest {
 
     @Test
     void create_정상() {
@@ -18,12 +18,12 @@ public class CommunityQuestionFileIdTest {
         Long questionId = 2L;
 
         // when
-        CommunityQuestionFileId communityQuestionFileId = CommunityQuestionFileId.create(questionId, fileId);
+        CommunityFileId communityFileId = CommunityFileId.create(questionId, fileId);
 
         // then
-        assertThat(communityQuestionFileId).isNotNull();
-        assertThat(communityQuestionFileId.getFileId()).isEqualTo(fileId);
-        assertThat(communityQuestionFileId.getQuestionId()).isEqualTo(questionId);
+        assertThat(communityFileId).isNotNull();
+        assertThat(communityFileId.getFileId()).isEqualTo(fileId);
+        assertThat(communityFileId.getQuestionId()).isEqualTo(questionId);
     }
 
     @Test
@@ -32,12 +32,12 @@ public class CommunityQuestionFileIdTest {
         Long fileId = 1L;
         Long questionId = 2L;
 
-        CommunityQuestionFileId communityQuestionFileId1 = CommunityQuestionFileId.create(questionId, fileId);
-        CommunityQuestionFileId communityQuestionFileId2 = CommunityQuestionFileId.create(questionId, fileId);
+        CommunityFileId communityFileId1 = CommunityFileId.create(questionId, fileId);
+        CommunityFileId communityFileId2 = CommunityFileId.create(questionId, fileId);
 
         // when, then
-        assertThat(communityQuestionFileId1).isEqualTo(communityQuestionFileId2);
-        assertThat(communityQuestionFileId1.hashCode()).isEqualTo(communityQuestionFileId2.hashCode());
+        assertThat(communityFileId1).isEqualTo(communityFileId2);
+        assertThat(communityFileId1.hashCode()).isEqualTo(communityFileId2.hashCode());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class CommunityQuestionFileIdTest {
         Long questionId = null;
 
         // when, then
-        assertThatThrownBy(() -> CommunityQuestionFileId.create(questionId, fileId))
+        assertThatThrownBy(() -> CommunityFileId.create(questionId, fileId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -60,7 +60,7 @@ public class CommunityQuestionFileIdTest {
         Long questionId = 2L;
 
         // when, then
-        assertThatThrownBy(() -> CommunityQuestionFileId.create(fileId, questionId))
+        assertThatThrownBy(() -> CommunityFileId.create(fileId, questionId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
