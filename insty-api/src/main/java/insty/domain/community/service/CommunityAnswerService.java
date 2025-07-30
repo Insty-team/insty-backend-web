@@ -106,6 +106,7 @@ public class CommunityAnswerService {
     public void deleteAnswer(Long userId, Long answerId) {
         communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
+        communityAnswerVideoManager.softDeleteAnswerVideo(answerId);
         communityAnswerWriter.deleteAnswer(answer);
     }
 

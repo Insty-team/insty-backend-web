@@ -109,11 +109,11 @@ public class CommunityQuestionService {
     public CommunityQuestionDetailsRes getQuestionDetails(Long questionId) {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
 
-        List<FileInfo> questionFileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
+        List<FileInfo> fileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
         VideoInfo videoInfo = communityQuestionVideoManager.getQuestionVideoInfo(question);
         List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        return CommunityQuestionDetailsRes.from(question, questionFileInfos, videoInfo, answers);
+        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, answers);
     }
 
     /**
@@ -142,15 +142,14 @@ public class CommunityQuestionService {
         communityValidator.validateQuestionAuthor(userId, questionId);
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
-        // 1:1 매핑이므로 비디오 검증 불필요
 
-        List<FileInfo> updatedFileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
+        List<FileInfo> fileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
         VideoInfo videoInfo = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
         List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
                 .map(communityAnswerMapper::toCommunityAnswerRes)
                 .toList();
 
-        return CommunityQuestionDetailsRes.from(updatedQuestion, updatedFileInfos, videoInfo, answers);
+        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, videoInfo, answers);
     }
 
     /**
@@ -163,6 +162,7 @@ public class CommunityQuestionService {
         for(CommunityAnswer answer : question.getAnswers()){
             communityAnswerService.deleteAnswer(userId, answer.getId());
         }
+        communityQuestionVideoManager.softDeleteQuestionVideo(questionId);
         communityQuestionWriter.deleteQuestion(question);
     }
 }
