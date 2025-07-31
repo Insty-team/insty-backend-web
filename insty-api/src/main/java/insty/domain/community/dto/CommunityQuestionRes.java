@@ -1,45 +1,28 @@
 package insty.domain.community.dto;
 
-import insty.domain.common.FileInfo;
-import jakarta.validation.constraints.NotNull;
-
+import insty.model.community.CommunityQuestion;
 import java.time.Instant;
-import java.util.List;
 
 public record CommunityQuestionRes(
-        Long userId,
+        CommunityUserRes user,
         Long courseId,
-        @NotNull
         String title,
-        @NotNull
         String content,
+        Boolean isAnswered,
         Instant createdAt,
-        Instant updatedAt,
-        List<CommunityAnswerRes> answers,
-        List<FileInfo> attachments,
-        CommunityAnswerRes acceptedAnswer
+        Instant updatedAt
 ) {
-    public static CommunityQuestionRes create(
-            Long userId,
-            Long courseId,
-            String title,
-            String content,
-            Instant createdAt,
-            Instant updatedAt,
-            List<CommunityAnswerRes> answers,
-            List<FileInfo> attachments,
-            CommunityAnswerRes acceptedAnswer
+    public static CommunityQuestionRes from(
+            CommunityQuestion question
     ) {
         return new CommunityQuestionRes(
-                userId,
-                courseId,
-                title,
-                content,
-                createdAt,
-                updatedAt,
-                answers,
-                attachments,
-                acceptedAnswer
+                CommunityUserRes.from(question.getUser()),
+                question.getCourse().getId(),
+                question.getTitle(),
+                question.getContent(),
+                question.isAnswered(),
+                question.getCreatedAt(),
+                question.getUpdatedAt()
         );
     }
 }
