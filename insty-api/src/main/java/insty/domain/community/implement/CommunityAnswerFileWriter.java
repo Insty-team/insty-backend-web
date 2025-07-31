@@ -11,7 +11,6 @@ import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

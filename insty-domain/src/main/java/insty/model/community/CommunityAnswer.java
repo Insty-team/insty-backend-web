@@ -51,7 +51,7 @@ public class CommunityAnswer extends BaseEntity {
     private String content;
 
     @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
-    @JoinColumn(name = "answer_image_id", nullable = true)
+    @JoinColumn(name = "answer_image_id")
     private File answerImage;
 
     @Column(nullable = false, name = "is_deleted")

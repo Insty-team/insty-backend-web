@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS web_service.community_question_files (
 
 CREATE TABLE IF NOT EXISTS web_service.community_answers_files (
     answer_id  	 BIGINT NOT NULL,
-    file_id      BIGINT NOT null unique,
+    file_id      BIGINT NOT null,
     created_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     PRIMARY KEY (answer_id, file_id),

@@ -10,7 +10,6 @@ import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.implement.CommunityQuestionReader;
-import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.repository.CommunityQuestionFileRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
