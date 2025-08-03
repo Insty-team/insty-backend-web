@@ -38,8 +38,8 @@ public class VideoService {
 
     public VideoUploadRes getPreSignedURLForVideoUpload(VideoType videoType, Long userId, VideoUploadReq req) {
         videoValidator.validateContentType(req.fileName(), req.contentType());
-//        videoStrategyFactory.getValidateStrategy(videoType)
-//          .validateUploadable(userId); TODO - 개발 편의를 위해 비활성화
+        videoStrategyFactory.getValidateStrategy(videoType)
+                .validateUploadable(userId);
 
         User user = userReader.getUser(userId);
         BaseVideo video = videoStrategyFactory.getWriteStrategy(videoType).saveVideo(req, user);
@@ -54,7 +54,7 @@ public class VideoService {
 
     public Map<String, String> getVideoCookieMap(Long userId, VideoHlsPlaylistReq req) {
         VideoValidateStrategy validateStrategy = videoStrategyFactory.getValidateStrategy(req.type());
-//        validateStrategy.validateReadable(userId, req.id()); TODO - 개발 편의를 위해 비활성화
+        validateStrategy.validateReadable(userId, req.id());
         validateStrategy.verifyEncodingCompletedAndDeleted(req.id());
 
         UUID videoUuid = videoStrategyFactory.getReadStrategy(req.type())
