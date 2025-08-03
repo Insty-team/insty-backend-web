@@ -44,3 +44,6 @@ node_modules
 insty-domain/src/main/generated/**
 
 *.pem
+
+application-temp.yml
+tempdocker

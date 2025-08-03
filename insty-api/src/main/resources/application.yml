@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: prod
+  config:
+    import:
+      - classpath:config/mail.yml
 
   web:
     resources:
@@ -8,8 +11,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 20MB
+      max-file-size: 50MB
+      max-request-size: 110MB
 
   datasource:
     url: ${DB_URL}
