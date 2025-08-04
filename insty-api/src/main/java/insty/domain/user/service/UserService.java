@@ -48,9 +48,9 @@ public class UserService {
      * 이메일 회원가입
      */
     public UserCreateRes signup(UserCreateReq req) {
-        if (!emailVerificationReader.existsByEmail(req.email())) {
+        /*if (!emailVerificationReader.existsByEmail(req.email())) {
             throw new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
-        }
+        }*/
         // 중복 체크
         userValidator.validateDuplicateEmail(req.email());
         userValidator.validateDuplicateNickname(req.nickname());
