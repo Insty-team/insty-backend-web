@@ -42,7 +42,7 @@ class EmailVerificationServiceTest {
         emailVerificationService.sendVerification("email@email.com");
 
         // then
-        verify(mailHelper).sendVerificationCode(any(MailContent.class));
+        verify(mailHelper).send(any(MailContent.class));
         verify(emailVerificationWriter).save(any(EmailVerification.class));
     }
 
@@ -59,7 +59,7 @@ class EmailVerificationServiceTest {
         emailVerificationService.sendVerification("email@email.com");
 
         // then
-        verify(mailHelper).sendVerificationCode(any(MailContent.class));
+        verify(mailHelper).send(any(MailContent.class));
         verify(emailVerificationWriter).save(newVerification);
     }
 

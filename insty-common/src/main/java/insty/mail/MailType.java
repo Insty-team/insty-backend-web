@@ -20,4 +20,8 @@ public enum MailType {
     public String getSubject() {
         return subject;
     }
+
+    public boolean hasTemplate() {
+        return template != null && !template.isBlank();
+    }
 }

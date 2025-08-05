@@ -30,7 +30,7 @@ public class EmailVerificationService {
             .orElse(EmailVerification.create(email, tokenGenerator));
 
         MailAuthenticateContent content = MailAuthenticateContent.of(email, emailVerification.getToken());
-        mailHelper.sendVerificationCode(content);
+        mailHelper.send(content);
         emailVerificationWriter.save(emailVerification);
     }
 
