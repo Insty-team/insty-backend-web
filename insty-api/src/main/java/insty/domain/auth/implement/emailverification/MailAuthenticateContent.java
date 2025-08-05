@@ -3,15 +3,19 @@ package insty.domain.auth.implement.emailverification;
 import insty.mail.MailContent;
 import insty.mail.MailType;
 import java.util.Map;
+import java.util.Objects;
 
-public record MailAuthenticateContent(
-    String to,
-    MailType mailType,
-    String code
-) implements MailContent {
+public final class MailAuthenticateContent extends MailContent  {
+
+    private final String code;
+
+    private MailAuthenticateContent(String to, String code) {
+        super(to, MailType.AUTH);
+        this.code = Objects.requireNonNull(code);
+    }
 
     public static MailAuthenticateContent of(String to, String code) {
-        return new MailAuthenticateContent(to, MailType.AUTH, code);
+        return new MailAuthenticateContent(to, code);
     }
 
     @Override

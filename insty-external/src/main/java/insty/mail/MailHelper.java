@@ -21,6 +21,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Slf4j
 public class MailHelper {
 
+    private static final String DEFAULT_TEMPLATE = "default-email-template";
+
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
@@ -29,9 +31,11 @@ public class MailHelper {
         retryFor = {EmailSendException.class},
         backoff = @Backoff(delay = 2000, multiplier = 2)
     )
-    public void sendVerificationCode(MailContent content) {
+    public void send(MailContent content) {
         try {
-            MimeMessage message = getMimeMessage(content.to(), content.mailType(), content.variables());
+            MailType mailType = content.mailType();
+            String emailText = extractEmailText(mailType, content.variables());
+            MimeMessage message = getMimeMessage(content.to(), mailType.getSubject(), emailText);
             mailSender.send(message);
         } catch (MailException | MessagingException e) {
             throw new EmailSendException(e);
@@ -39,28 +43,29 @@ public class MailHelper {
     }
 
     @Recover
-    public void recover(EmailSendException ex, String to, String subject, String code) {
-        log.error("이메일 발송 최종 실패 - 3번 시도 후 포기. email: {}", to, ex);
+    public void recover(EmailSendException ex, MailContent content) {
+        log.error("이메일 발송 최종 실패 - 3번 시도 후 포기. email: {}, type: {}", content.to(), content.mailType(), ex);
         // 나중에 슬랙 알림 등 추가되면 추가하기
     }
 
-    private MimeMessage getMimeMessage(
-        String to,
-        MailType type,
-        Map<String, Object> variables
-    ) throws MessagingException {
+    private MimeMessage getMimeMessage(String to, String subject, String text) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         helper.setTo(to);
-        helper.setSubject(type.getSubject());
-        helper.setText(getEmailContent(type.getTemplate(), variables), true);
+        helper.setSubject(subject);
+        helper.setText(text, true);
 
         return message;
     }
 
-    private String getEmailContent(String templateName, Map<String, Object> variables) {
+    private String extractEmailText(MailType mailType, Map<String, Object> variables) {
         Context context = new Context();
+        context.setVariable("allVariables", variables);
         variables.forEach(context::setVariable);
-        return templateEngine.process(templateName, context);
+
+        if (mailType.hasTemplate()) {
+            return templateEngine.process(mailType.getTemplate(), context);
+        }
+        return templateEngine.process(DEFAULT_TEMPLATE, context);
     }
 }
