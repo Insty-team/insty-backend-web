@@ -2,6 +2,7 @@ package insty.mail;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -28,9 +29,9 @@ public class MailHelper {
         retryFor = {EmailSendException.class},
         backoff = @Backoff(delay = 2000, multiplier = 2)
     )
-    public void sendVerificationCode(String to, String subject, String code) {
+    public void sendVerificationCode(MailContent content) {
         try {
-            MimeMessage message = getMimeMessage(to, subject, code);
+            MimeMessage message = getMimeMessage(content.to(), content.mailType(), content.variables());
             mailSender.send(message);
         } catch (MailException | MessagingException e) {
             throw new EmailSendException(e);
@@ -43,19 +44,23 @@ public class MailHelper {
         // 나중에 슬랙 알림 등 추가되면 추가하기
     }
 
-    private MimeMessage getMimeMessage(String to, String subject, String code) throws MessagingException {
+    private MimeMessage getMimeMessage(
+        String to,
+        MailType type,
+        Map<String, Object> variables
+    ) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(getEmailContent(code), true);
+        helper.setSubject(type.getSubject());
+        helper.setText(getEmailContent(type.getTemplate(), variables), true);
 
         return message;
     }
 
-    private String getEmailContent(String code) {
+    private String getEmailContent(String templateName, Map<String, Object> variables) {
         Context context = new Context();
-        context.setVariable("code", code);
-        return templateEngine.process("email", context);
+        variables.forEach(context::setVariable);
+        return templateEngine.process(templateName, context);
     }
 }
