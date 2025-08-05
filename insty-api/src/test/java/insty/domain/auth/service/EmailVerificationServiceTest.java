@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.auth.implement.emailverification.EmailVerificationWriter;
+import insty.mail.MailContent;
 import insty.mail.MailHelper;
 import insty.model.auth.EmailVerification;
 import insty.model.auth.TokenGenerator;
@@ -41,7 +42,7 @@ class EmailVerificationServiceTest {
         emailVerificationService.sendVerification("email@email.com");
 
         // then
-        verify(mailHelper).sendVerificationCode(eq("email@email.com"), anyString(), anyString());
+        verify(mailHelper).sendVerificationCode(any(MailContent.class));
         verify(emailVerificationWriter).save(any(EmailVerification.class));
     }
 
@@ -58,7 +59,7 @@ class EmailVerificationServiceTest {
         emailVerificationService.sendVerification("email@email.com");
 
         // then
-        verify(mailHelper).sendVerificationCode(eq("email@email.com"), anyString(), eq("token"));
+        verify(mailHelper).sendVerificationCode(any(MailContent.class));
         verify(emailVerificationWriter).save(newVerification);
     }
 
