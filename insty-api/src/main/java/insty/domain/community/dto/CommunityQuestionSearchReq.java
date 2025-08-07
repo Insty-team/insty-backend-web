@@ -12,7 +12,7 @@ public record CommunityQuestionSearchReq(
         @Min(1) int page,
         @Min(1) @Max(100) int pageSize,
         String sort,
-        String search,
+        //String search, 키워드로 대체
         String keyword,
         Boolean isAnswered
 ) {
@@ -20,13 +20,13 @@ public record CommunityQuestionSearchReq(
         return new PaginationReq(page, pageSize);
     }
     public CommunityQuestionSearchFilter toSearchFilter() {
-        return new CommunityQuestionSearchFilter(search, keyword, isAnswered, null, null);
+        return new CommunityQuestionSearchFilter(keyword, null, isAnswered, null, null);
     }
     public CommunityQuestionSearchFilter toSearchFilterWithUser(Long userId) {
-        return new CommunityQuestionSearchFilter(search, keyword, isAnswered, null, userId);
+        return new CommunityQuestionSearchFilter(keyword, null, isAnswered, null, userId);
     }
 
     public CommunityQuestionSearchFilter toSearchFilterWithCourseId(Long courseId) {
-        return new CommunityQuestionSearchFilter(search, keyword, isAnswered, courseId, null);
+        return new CommunityQuestionSearchFilter(keyword, null, isAnswered, courseId, null);
     }
 }
