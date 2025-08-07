@@ -7,8 +7,6 @@ import lombok.Builder;
 @Builder
 public record CommunityAnswerCreateReq(
         @NotNull
-        Long questionId,
-        @NotNull
         String content,
         UUID videoUuid
 ) {

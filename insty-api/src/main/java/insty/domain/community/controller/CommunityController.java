@@ -148,7 +148,7 @@ public class CommunityController {
             @Parameter(description = "댓글 이미지 (최대 5개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "answerImages", required = false) @Size(max = 5) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityAnswerService.saveAnswer(userId, communityAnswerCreateReq, attachments));
+        return SuccessRes.of(communityAnswerService.saveAnswer(userId, questionId, communityAnswerCreateReq, attachments));
     }
 
     @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
