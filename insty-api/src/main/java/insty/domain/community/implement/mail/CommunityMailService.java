@@ -12,12 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommunityMailService {
 
+    private static final int CONTENT_MAX_LENGTH = 100;
+
     private final MailHelper mailHelper;
 
     public void sendQuestionNotificationToCreator(CommunityQuestion question) {
         String creatorEmail = question.getCourse().getUser().getEmail();
         String questionTitle = question.getTitle();
-        String questionContent = truncateContent(question.getContent(), 100);
+        String questionContent = truncateContent(question.getContent(), CONTENT_MAX_LENGTH);
         String questionAuthorName = question.getUser().getNickname();
         String courseName = question.getCourse().getTitle();
         String questionUrl = generateQuestionUrl(question.getId());
@@ -37,7 +39,7 @@ public class CommunityMailService {
     public void sendAnswerNotification(CommunityQuestion question, CommunityAnswer answer) {
         String receiverEmail = determineAnswerNotificationReceiver(question, answer);
         String questionTitle = question.getTitle();
-        String answerContent = truncateContent(answer.getContent(), 100);
+        String answerContent = truncateContent(answer.getContent(), CONTENT_MAX_LENGTH);
         String answerAuthorName = answer.getUser().getNickname();
         String questionUrl = generateQuestionUrl(question.getId());
 
