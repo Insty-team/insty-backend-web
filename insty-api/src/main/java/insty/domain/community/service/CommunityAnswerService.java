@@ -14,6 +14,7 @@ import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.community.implement.mail.CommunityMailService;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
@@ -36,6 +37,7 @@ public class CommunityAnswerService {
     private final CommunityAnswerAcceptService communityAnswerAcceptService;
     private final CommunityValidator communityValidator;
     private final CommunityQuestionReader communityQuestionReader;
+    private final CommunityMailService communityMailService;
     private final UserReader userReader;
 
     /**
@@ -81,6 +83,8 @@ public class CommunityAnswerService {
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
         List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerFiles(answer, attachments);
         VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
+
+        communityMailService.sendAnswerNotification(question, answer);
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
     }
