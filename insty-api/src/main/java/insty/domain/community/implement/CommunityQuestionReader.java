@@ -2,7 +2,9 @@ package insty.domain.community.implement;
 
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
+import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.repository.CommunityQuestionQueryRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
@@ -24,7 +26,10 @@ public class CommunityQuestionReader {
     /**
      * 필터, 검색 조건, 정렬을 기준으로 검색
      */
-    public List<CommunityQuestion> searchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter, String sort) {
+    /**
+     * 필터, 검색 조건, 정렬을 기준으로 검색
+     */
+    public List<CommunityQuestionSearchInfo> searchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter, String sort) {
         return communityQuestionQueryRepository.searchQuestions(paginationReq, filter, sort);
     }
 

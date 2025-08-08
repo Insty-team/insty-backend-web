@@ -25,4 +25,18 @@ public record CommunityQuestionRes(
                 question.getUpdatedAt()
         );
     }
+
+    public static CommunityQuestionRes from(
+            CommunityQuestionSearchInfo info
+    ) {
+        return new CommunityQuestionRes(
+                CommunityUserRes.from(info.user()),
+                info.courseId(),
+                info.title(),
+                info.content(),
+                info.isAnswered(),
+                info.createdAt(),
+                info.updatedAt()
+        );
+    }
 }
