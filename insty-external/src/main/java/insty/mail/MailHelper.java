@@ -2,6 +2,7 @@ package insty.mail;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -20,6 +21,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Slf4j
 public class MailHelper {
 
+    private static final String DEFAULT_TEMPLATE = "default-email-template";
+
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
@@ -28,9 +31,11 @@ public class MailHelper {
         retryFor = {EmailSendException.class},
         backoff = @Backoff(delay = 2000, multiplier = 2)
     )
-    public void sendVerificationCode(String to, String subject, String code) {
+    public void send(MailContent content) {
         try {
-            MimeMessage message = getMimeMessage(to, subject, code);
+            MailType mailType = content.mailType();
+            String emailText = extractEmailText(mailType, content.variables());
+            MimeMessage message = getMimeMessage(content.to(), mailType.getSubject(), emailText);
             mailSender.send(message);
         } catch (MailException | MessagingException e) {
             throw new EmailSendException(e);
@@ -38,24 +43,29 @@ public class MailHelper {
     }
 
     @Recover
-    public void recover(EmailSendException ex, String to, String subject, String code) {
-        log.error("이메일 발송 최종 실패 - 3번 시도 후 포기. email: {}", to, ex);
+    public void recover(EmailSendException ex, MailContent content) {
+        log.error("이메일 발송 최종 실패 - 3번 시도 후 포기. email: {}, type: {}", content.to(), content.mailType(), ex);
         // 나중에 슬랙 알림 등 추가되면 추가하기
     }
 
-    private MimeMessage getMimeMessage(String to, String subject, String code) throws MessagingException {
+    private MimeMessage getMimeMessage(String to, String subject, String text) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(getEmailContent(code), true);
+        helper.setText(text, true);
 
         return message;
     }
 
-    private String getEmailContent(String code) {
+    private String extractEmailText(MailType mailType, Map<String, Object> variables) {
         Context context = new Context();
-        context.setVariable("code", code);
-        return templateEngine.process("email", context);
+        context.setVariable("allVariables", variables);
+        variables.forEach(context::setVariable);
+
+        if (mailType.hasTemplate()) {
+            return templateEngine.process(mailType.getTemplate(), context);
+        }
+        return templateEngine.process(DEFAULT_TEMPLATE, context);
     }
 }
