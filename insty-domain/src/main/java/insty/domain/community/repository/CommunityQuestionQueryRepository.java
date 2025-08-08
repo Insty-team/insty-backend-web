@@ -4,7 +4,6 @@ import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
-import insty.model.community.CommunityQuestion;
 import java.util.List;
 
 public interface CommunityQuestionQueryRepository {

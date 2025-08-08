@@ -13,12 +13,8 @@ import insty.domain.community.repository.CommunityQuestionQueryRepository;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAnswerFixtureBuilder;
 import insty.model.community.CommunityQuestion;
-import insty.model.community.CommunityQuestionFile;
 import insty.model.community.CommunityQuestionFixtureBuilder;
-import insty.model.file.FileFixtureBuilder;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
@@ -27,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
