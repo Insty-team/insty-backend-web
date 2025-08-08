@@ -35,14 +35,14 @@ public class CommunityMailService {
     }
 
     public void sendAnswerNotification(CommunityQuestion question, CommunityAnswer answer) {
-        String questionAuthorEmail = question.getUser().getEmail();
+        String receiverEmail = determineAnswerNotificationReceiver(question, answer);
         String questionTitle = question.getTitle();
         String answerContent = truncateContent(answer.getContent(), 100);
         String answerAuthorName = answer.getUser().getNickname();
         String questionUrl = generateQuestionUrl(question.getId());
 
         CommunityAnswerMailContent mailContent = CommunityAnswerMailContent.of(
-                questionAuthorEmail,
+                receiverEmail,
                 questionTitle,
                 answerContent,
                 answerAuthorName,
@@ -50,6 +50,20 @@ public class CommunityMailService {
         );
 
         mailHelper.send(mailContent);
+    }
+
+    private String determineAnswerNotificationReceiver(CommunityQuestion question, CommunityAnswer answer) {
+        Long answererUserId = answer.getUser().getId();
+        Long courseCreatorId = question.getCourse().getUser().getId();
+
+        // Creator가 답변한 경우 → Runner(질문 작성자)에게 전송
+        if (answererUserId.equals(courseCreatorId)) {
+            return question.getUser().getEmail();
+        }
+        // Runner가 답변한 경우 → Creator에게 전송
+        else {
+            return question.getCourse().getUser().getEmail();
+        }
     }
 
     private String truncateContent(String content, int maxLength) {
