@@ -13,7 +13,11 @@ public interface CommunityQuestionFileRepository extends JpaRepository<Community
 
     @Modifying
     @Transactional
-    @Query("delete from CommunityQuestionFile cf where cf.communityQuestion.id = :questionId and cf.file.id in :fileIds")
+    @Query("""
+        DELETE FROM CommunityQuestionFile cf
+        WHERE cf.communityQuestion.id = :questionId
+          AND cf.file.id IN :fileIds
+    """)
     void deleteByQuestionIdAndFileIdIn(Long questionId, List<Long> fileIds);
 
     int countByCommunityQuestionId(Long questionId);

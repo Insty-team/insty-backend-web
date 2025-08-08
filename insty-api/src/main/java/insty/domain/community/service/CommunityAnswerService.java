@@ -73,11 +73,11 @@ public class CommunityAnswerService {
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
      */
-    public CommunityAnswerRes saveAnswer(Long userId, CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
+    public CommunityAnswerRes saveAnswer(Long userId, Long questionId, CommunityAnswerCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(req.questionId());
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         User user = userReader.getUser(userId);
 
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);

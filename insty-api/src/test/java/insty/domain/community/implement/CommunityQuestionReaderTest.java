@@ -166,7 +166,7 @@ class CommunityQuestionReaderTest {
         // given
         Long id = 1L;
         CommunityQuestion q = mock(CommunityQuestion.class);
-        when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.of(q));
+        when(repository.findDetailsWithUserAttachmentsById(id)).thenReturn(Optional.of(q));
         // when
         CommunityQuestion result = reader.getCommunityQuestionWithFilesById(id);
         // then
@@ -177,7 +177,7 @@ class CommunityQuestionReaderTest {
     void getCommunityQuestionWithFilesById_에러_존재하지않음() {
         // given
         Long id = 1L;
-        when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.empty());
+        when(repository.findDetailsWithUserAttachmentsById(id)).thenReturn(Optional.empty());
         // when & then
         assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
@@ -191,7 +191,7 @@ class CommunityQuestionReaderTest {
         Long id = 1L;
         CommunityQuestion deletedQuestion = mock(CommunityQuestion.class);
         when(deletedQuestion.isDeleted()).thenReturn(true);
-        when(repository.findWithCourseUserAttachmentsById(id)).thenReturn(Optional.of(deletedQuestion));
+        when(repository.findDetailsWithUserAttachmentsById(id)).thenReturn(Optional.of(deletedQuestion));
 
         // when & then
         assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))

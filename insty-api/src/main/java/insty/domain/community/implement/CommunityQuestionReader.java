@@ -55,7 +55,7 @@ public class CommunityQuestionReader {
      * (파일 포함 & 질문 미포함)
      */
     public CommunityQuestion getCommunityQuestionWithFilesById(Long questionId) {
-        CommunityQuestion question = communityQuestionRepository.findWithCourseUserAttachmentsById(questionId)
+        CommunityQuestion question = communityQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
@@ -68,7 +68,7 @@ public class CommunityQuestionReader {
      * (파일 미포함 & 질문 미포함 - 질문 파일은 미포함)
      */
     public CommunityQuestion getCommunityQuestionWithAnswerById(Long questionId){
-        CommunityQuestion question = communityQuestionRepository.findWithCourseUserAttachmentsById(questionId)
+        CommunityQuestion question = communityQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);

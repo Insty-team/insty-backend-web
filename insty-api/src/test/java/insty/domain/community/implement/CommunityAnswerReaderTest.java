@@ -34,7 +34,7 @@ class CommunityAnswerReaderTest {
         CommunityAnswer a2 = mock(CommunityAnswer.class);
 
         // 실제 서비스에서 호출하는 메서드 이름으로 변경
-        when(answerRepository.findAllWithDetailsByCommunityQuestionId(questionId)).thenReturn(List.of(a1, a2));
+        when(answerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionId(questionId)).thenReturn(List.of(a1, a2));
 
         List<CommunityAnswer> result = reader.getAllCommunityAnswersByQuestionId(questionId);
 
