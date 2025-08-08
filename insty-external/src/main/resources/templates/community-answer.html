@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새로운 답변이 등록되었습니다</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f7f9fc; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background-color: #9CCD9F; color: white; padding: 24px; text-align: left; }
+        .header h1 { margin: 0; font-size: 32px; font-weight: 600; text-shadow: 1px 1px 2px rgba(30, 58, 95, 0.7); }
+        .header p { margin: 8px 0 0 0; font-size: 16px; opacity: 0.9; }
+        .content { padding: 32px; }
+        .notification-title { font-size: 20px; font-weight: 600; color: #1a1a1a; margin-bottom: 24px; }
+        .question-info { background-color: #f0f8f1; border-left: 4px solid #9CCD9F; padding: 16px; border-radius: 4px; margin-bottom: 24px; }
+        .question-title { font-size: 16px; font-weight: 600; color: #4a6741; margin: 0; }
+        .answer-card { background-color: #fafbfc; border: 1px solid #e4e7ea; border-radius: 6px; padding: 20px; margin-bottom: 24px; }
+        .answer-content { font-size: 14px; color: #1a1a1a; line-height: 1.5; margin-bottom: 16px; }
+        .author-info { display: flex; align-items: center; }
+        .author-avatar { width: 32px; height: 32px; background-color: #9CCD9F; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; margin-right: 10px; }
+        .author-name { font-size: 14px; color: #6b7280; }
+        .answer-label { font-size: 12px; color: #9CCD9F; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .cta-button { display: inline-block; background-color: #9CCD9F; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; margin-top: 24px; transition: background-color 0.2s; }
+        .cta-button:hover { background-color: #8bc08f; }
+        .footer { background-color: #f7f9fc; padding: 20px 32px; border-top: 1px solid #e4e7ea; }
+        .footer p { margin: 0; font-size: 12px; color: #6b7280; }
+        .divider { height: 1px; background-color: #e4e7ea; margin: 20px 0; }
+        .success-icon { color: #9CCD9F; margin-right: 8px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>INSTY</h1>
+        <p>새로운 답변 알림</p>
+    </div>
+
+    <div class="content">
+        <div class="notification-title">
+            질문에 새로운 답변이 등록되었습니다
+        </div>
+
+        <div class="question-info">
+            <div class="question-title" th:text="${questionTitle}">질문 제목</div>
+        </div>
+
+        <div class="answer-card">
+            <div class="answer-label">새로운 답변</div>
+            <div class="answer-content" th:text="${answerContent}">답변 내용</div>
+            <div class="author-info">
+                <div class="author-avatar" th:text="${answerAuthorName.substring(0,1)}">답</div>
+                <span class="author-name" th:text="${answerAuthorName} + ' 님'">답변자 님</span>
+            </div>
+        </div>
+
+        <a th:href="'https://insty.co.kr' + ${questionUrl}" class="cta-button">답변 확인하기 →</a>
+
+        <div class="divider"></div>
+
+        <p style="font-size: 14px; color: #6b7280; line-height: 1.5; margin: 0;">
+            답변이 도움이 되었다면 <strong>답변 채택</strong>을 통해 답변자에게 감사를 표현해보세요!
+        </p>
+    </div>
+
+    <div class="footer">
+        <p>INSTY에서 발송된 알림 메일입니다. 알림 설정은 계정 설정에서 변경하실 수 있습니다.</p>
+    </div>
+</div>
+</body>
+</html>
