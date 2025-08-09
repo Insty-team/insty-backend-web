@@ -1,35 +1,21 @@
 package insty.domain.user.controller;
 
 
+import insty.domain.user.controller.docs.UserControllerDocs;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
-import insty.domain.user.dto.request.UserCreateReq;
-import insty.domain.user.dto.request.UserEmailCheckReq;
-import insty.domain.user.dto.request.UserNicknameCheckReq;
-import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
 import insty.domain.user.dto.request.UserUpdateReq;
-import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.service.UserService;
 import insty.global.annotation.CurrentUser;
-import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
-import insty.global.swagger.SwaggerResponseDescription;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,111 +24,44 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
-@Tag(name = "유저 API")
-@Validated
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerDocs {
 
     private final UserService userService;
 
-    @Operation(summary = "이메일 회원 가입", description = "이메일로 회원 가입을 진행합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_CREATE)
-    @PostMapping
-    public SuccessRes<UserCreateRes> signup(@Validated @RequestBody UserCreateReq req) {
-        return SuccessRes.of(userService.signup(req));
-    }
-
-    @Operation(summary = "이메일 중복 체크", description = "이메일이 이미 사용중인지 중복체크를 합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @GetMapping("/email/check")
-    public SuccessRes<Void> emailCheck(@ParameterObject @Validated @ModelAttribute UserEmailCheckReq req) {
-        userService.existCheckByEmail(req);
-        return SuccessRes.of();
-    }
-
-    @Operation(summary = "닉네임 중복 체크", description = "닉네임이 이미 사용중인지 중복체크를 합니다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    @GetMapping("/nickname/check")
-    public SuccessRes<Void> nicknameCheck(@ParameterObject @Validated @ModelAttribute UserNicknameCheckReq req) {
-        userService.existsCheckByNickname(req);
-        return SuccessRes.of();
-    }
-
-    @Operation(
-            summary = "내 사용자 정보 조회",
-            description = "사용자가 가지고 있는 토큰 기반으로 사용자 정보를 조회합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_DETAIL)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/profile")
     public SuccessRes<UserDetailRes> getProfile(@CurrentUser Long userId) {
         return SuccessRes.of(userService.getDetailUser(userId));
     }
 
-
-    @Operation(
-            summary = "내 사용자 정보 수정",
-            description = "내 사용자 정보를 수정합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
             @CurrentUser Long userId,
-            @RequestPart("userUpdateReq") @Validated UserUpdateReq req,
-            @Parameter(description = "프로필 이미지", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+            @RequestPart("userUpdateReq") @Valid UserUpdateReq req,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
         return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }
 
-    @Operation(
-            summary = "내 비밀번호 수정 수정",
-            description = "내 비밀번호를 수정합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PatchMapping(value = "/profile/password")
-    public SuccessRes<UserDetailRes> updatePassword(
-            @CurrentUser Long userId,
-            @RequestBody @Validated UserPasswordUpdateReq req) {
-        return SuccessRes.of(userService.updatePassword(userId, req));
-    }
-
-
-
-    @Operation(
-            summary = "사용자 타입 변경",
-            description = "사용자 타입을 변경합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping("/profile/userType")
     public SuccessRes<UserDetailRes> updateUserType(
-            @CurrentUser Long userId,
-            @Validated @RequestBody UserTypeUpdateReq req) {
+        @CurrentUser Long userId,
+        @Valid @RequestBody UserTypeUpdateReq req
+    ) {
         return SuccessRes.of(userService.updateUserType(userId, req));
     }
 
-    @Operation(
-            summary = "사용자 이메일 수신 동의 상태 값 변경",
-            description = "로그아웃을 요청합니다.",
-            security = @SecurityRequirement(name = "JWT")
-    )
-    @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping("/profile/email-agree")
     public SuccessRes<UserDetailRes> updateEmailAgreed(
             @CurrentUser Long userId,
-            @RequestBody UserAgreementUpdateReq req) {
+            @RequestBody UserAgreementUpdateReq req
+    ) {
         return SuccessRes.of(userService.updateAgreement(userId, req));
     }
-
 }
-
-
