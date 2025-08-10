@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,6 +96,7 @@ public class S3FileManager {
         }
     }
 
+    @Async("asyncExecutor")
     public void deleteAllByKeyList(List<String> keyList) {
         for (String key : keyList) {
             delete(key);
