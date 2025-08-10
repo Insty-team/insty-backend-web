@@ -93,3 +93,10 @@ app:
 logging:
   level:
     org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport: WARN
+
+video:
+  upload:
+    max-minute:
+      course: 30
+      answer: 5
+      question: 5

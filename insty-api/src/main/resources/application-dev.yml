@@ -9,3 +9,10 @@ spring:
 
 swagger:
   server-url: ${SWAGGER_SERVER_URL}
+
+video:
+  upload:
+    max-minute:
+      course: 2
+      answer: 2
+      question: 2

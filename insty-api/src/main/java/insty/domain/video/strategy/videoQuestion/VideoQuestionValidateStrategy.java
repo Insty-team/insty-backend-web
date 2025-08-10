@@ -1,11 +1,10 @@
 package insty.domain.video.strategy.videoQuestion;
 
-import static insty.constants.VideoConstants.VIDEO_QUESTION_UPLOAD_MINUTES_LIMIT;
-
 import insty.domain.video.repository.VideoQuestionRepository;
 import insty.domain.video.strategy.VideoValidateStrategy;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.global.property.VideoUploadLimitProperties;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoQuestion;
 import insty.util.DateUtils;
@@ -19,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VideoQuestionValidateStrategy implements VideoValidateStrategy {
 
+    private final VideoUploadLimitProperties videoUploadLimitProperties;
+
     private final VideoQuestionRepository videoQuestionRepository;
 
     @Override
@@ -30,7 +31,7 @@ public class VideoQuestionValidateStrategy implements VideoValidateStrategy {
                 .stream()
                 .mapToInt(Integer::intValue)
                 .sum();
-        if (durationSum >= VIDEO_QUESTION_UPLOAD_MINUTES_LIMIT * 60) {
+        if (durationSum >= videoUploadLimitProperties.getQuestion() * 60) {
             throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
         }
     }
