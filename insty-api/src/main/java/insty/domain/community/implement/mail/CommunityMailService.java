@@ -1,25 +1,23 @@
 package insty.domain.community.implement.mail;
 
+import insty.global.property.AppProperties;
 import insty.mail.MailHelper;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class CommunityMailService {
 
-    private static final int CONTENT_MAX_LENGTH = 100;
-
+    private final AppProperties appProperties;
     private final MailHelper mailHelper;
 
     public void sendQuestionNotificationToCreator(CommunityQuestion question) {
         String creatorEmail = question.getCourse().getUser().getEmail();
         String questionTitle = question.getTitle();
-        String questionContent = truncateContent(question.getContent(), CONTENT_MAX_LENGTH);
+        String questionContent = truncateContent(question.getContent(), appProperties.getMailPreviewLength());
         String questionAuthorName = question.getUser().getNickname();
         String courseName = question.getCourse().getTitle();
         String questionUrl = generateQuestionUrl(question.getId());
@@ -39,7 +37,7 @@ public class CommunityMailService {
     public void sendAnswerNotification(CommunityQuestion question, CommunityAnswer answer) {
         String receiverEmail = determineAnswerNotificationReceiver(question, answer);
         String questionTitle = question.getTitle();
-        String answerContent = truncateContent(answer.getContent(), CONTENT_MAX_LENGTH);
+        String answerContent = truncateContent(answer.getContent(), appProperties.getMailPreviewLength());
         String answerAuthorName = answer.getUser().getNickname();
         String questionUrl = generateQuestionUrl(question.getId());
 

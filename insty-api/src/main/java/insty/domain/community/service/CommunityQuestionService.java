@@ -23,6 +23,8 @@ import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
 import insty.domain.community.implement.mail.CommunityMailService;
+import insty.domain.community.event.CommunityQuestionCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
@@ -49,9 +51,9 @@ public class CommunityQuestionService {
     private final CommunityValidator communityValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
-    private final CommunityMailService communityMailService;
     private final CommunityAnswerService communityAnswerService;
     private final CommunityAnswerWriter communityAnswerWriter;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
@@ -131,7 +133,7 @@ public class CommunityQuestionService {
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
         VideoInfo videoInfo = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuid());
 
-        communityMailService.sendQuestionNotificationToCreator(question);
+        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
 
 
         return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, null);
