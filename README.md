@@ -27,6 +27,9 @@ npm install
 ```
 <type>(optional scope): <subject>
 
+* 주의: type은 이모지 붙일 필요없고, 전부 소문자로 작성 가능
+ex. `feat:` `fix(login):`
+
 ✨ Feat(login/SignUp): 회원가입 기능 추가
 🐛 Fix(login): 로그인 기능 수정
 ⭐️ Style: 코드 포맷 변경
