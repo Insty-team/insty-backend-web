@@ -26,4 +26,6 @@ public interface CourseTagRepository extends JpaRepository<CourseTag, Long> {
                                                       @Param("tagIds") List<Long> tagIds);
 
     void deleteAllByCourseId(Long courseId);
+
+    void deleteAllByCourseIdIn(List<Long> courseIds);
 }

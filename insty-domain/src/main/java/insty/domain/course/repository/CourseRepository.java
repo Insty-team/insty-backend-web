@@ -17,4 +17,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("SELECT c FROM Course c JOIN FETCH c.thumbnail WHERE c.id IN :courseIds")
     List<Course> findWithThumbnailByCourseIdIn(@Param("courseIds") List<Long> courseIds);
+
+    List<Long> findAllIdByUserId(Long userId);
 }
