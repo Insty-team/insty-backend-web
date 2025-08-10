@@ -109,7 +109,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.COMPLETED);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -141,7 +141,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -161,7 +161,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED_INVALID_VIDEO_LENGTH);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -181,7 +181,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED_NOT_FOUND_VOICE);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -201,7 +201,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.PROCESSING);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when

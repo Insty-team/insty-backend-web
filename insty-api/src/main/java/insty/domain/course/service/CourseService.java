@@ -93,7 +93,7 @@ public class CourseService {
     }
 
     /**
-     * CourseTag만 삭제하고, Course는 isDeleted=true만 설정하여 논리적 삭제한다.<br> 관련 파일은 모두 삭제한다.
+     * 관련 파일(썸네일, 실습 파일, 영상)은 모두 삭제한다.
      *
      * @param courseId
      */
@@ -102,7 +102,7 @@ public class CourseService {
         Course course = courseReader.getCourseById(courseId);
         courseTagWriter.deleteAllCourseTags(course.getId());
         courseFileWriter.deleteAllFiles(course);
-        courseVideoManager.softDeleteCourseVideo(course.getId());
+        courseVideoManager.deleteCourseVideo(course.getId());
         courseWriter.deleteCourse(course);
     }
 

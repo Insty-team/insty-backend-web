@@ -1,6 +1,7 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
@@ -213,14 +214,14 @@ class CourseWriterTest {
     }
 
     @Test
-    void deleteCourse_정상_논리적으로_삭제된다() {
+    void deleteCourse_정상() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
 
         // when
-        courseWriter.deleteCourse(course);
 
         // then
-        assertThat(course.isDeleted()).isTrue();
+        assertThatCode(() -> courseRepository.delete(course))
+                .doesNotThrowAnyException();
     }
 }

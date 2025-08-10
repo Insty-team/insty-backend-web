@@ -71,7 +71,6 @@ public class CourseWriter {
     }
 
     public void deleteCourse(Course course) {
-        course.deleteLogically();
-        courseRepository.save(course);
+        courseRepository.delete(course);
     }
 }
