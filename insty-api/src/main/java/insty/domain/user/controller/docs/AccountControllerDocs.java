@@ -14,8 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "유저 API")
 public interface AccountControllerDocs {
@@ -39,4 +37,12 @@ public interface AccountControllerDocs {
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_UPDATE)
     SuccessRes<UserDetailRes> updatePassword(Long userId, UserPasswordUpdateReq req);
+
+    @Operation(
+        summary = "탈퇴",
+        description = "사용자 정보를 탈퇴합니다.",
+        security = @SecurityRequirement(name = "JWT")
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.USER_DELETE)
+    SuccessRes<Void> delete(@CurrentUser Long userId);
 }

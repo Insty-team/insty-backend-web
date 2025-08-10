@@ -39,5 +39,11 @@ public class UserReader {
     public boolean existCheckByNickname(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
+
+    public void existByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+        }
+    }
 }
 

@@ -78,4 +78,9 @@ public class AccountService {
 
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
+
+    public void withDraw(Long userId) {
+        userReader.existByUserId(userId);
+        userWriter.delete(userId);
+    }
 }

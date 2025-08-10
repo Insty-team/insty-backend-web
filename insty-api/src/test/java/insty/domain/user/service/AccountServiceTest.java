@@ -3,6 +3,7 @@ package insty.domain.user.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -124,5 +125,18 @@ class AccountServiceTest {
 
         assertThat(result).usingRecursiveComparison()
             .isEqualTo(UserDetailRes.from(updatedUser, profileImageUrl));
+    }
+    
+    @Test
+    void 사용자_탈퇴시_존재여부를_확인하고_탈퇴한다() {
+        // given
+        Long userId = 1L;
+
+        // when
+        accountService.withDraw(userId);
+
+        // then
+        verify(userReader).existByUserId(eq(userId));
+        verify(userWriter).delete(eq(userId));
     }
 }

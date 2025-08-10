@@ -69,4 +69,8 @@ public class UserWriter {
         user.updateLastLoginAt();
         userRepository.save(user);
     }
+
+    public void delete(Long userId) {
+        userRepository.deleteById(userId);
+    }
 }
