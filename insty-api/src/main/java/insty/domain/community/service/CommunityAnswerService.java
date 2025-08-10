@@ -14,7 +14,6 @@ import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityValidator;
-import insty.domain.community.implement.mail.CommunityMailService;
 import insty.domain.community.event.CommunityAnswerCreatedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.user.implement.UserReader;
@@ -39,7 +38,6 @@ public class CommunityAnswerService {
     private final CommunityAnswerAcceptService communityAnswerAcceptService;
     private final CommunityValidator communityValidator;
     private final CommunityQuestionReader communityQuestionReader;
-    private final CommunityMailService communityMailService;
     private final UserReader userReader;
     private final ApplicationEventPublisher eventPublisher;
 

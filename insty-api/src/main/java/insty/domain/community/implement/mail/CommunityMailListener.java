@@ -6,6 +6,7 @@ import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityAnswerReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -19,6 +20,7 @@ public class CommunityMailListener {
     private final CommunityQuestionReader communityQuestionReader;
     private final CommunityAnswerReader communityAnswerReader;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAnswerCreated(CommunityAnswerCreatedEvent event) {
         try {
@@ -30,6 +32,7 @@ public class CommunityMailListener {
         }
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onQuestionCreated(CommunityQuestionCreatedEvent event) {
         try {
