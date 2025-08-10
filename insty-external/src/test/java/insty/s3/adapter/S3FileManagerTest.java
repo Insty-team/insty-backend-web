@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import insty.uuid.UuidProvider;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -110,6 +111,25 @@ class S3FileManagerTest {
                 .doesNotThrowAnyException();
 
         // s3 파일 2개 + 디렉토리(prefix) 1개 = 3개
+        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3Client, times(3)).deleteObject(captor.capture());
+    }
+
+    @Test
+    void deleteAllByKeyList_정상() {
+        // given
+        List<String> keyList = List.of(
+                "file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg",
+                "vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4.m3u8",
+                "vod/COURSE/hls/00000000-0000-0000-0000-000000000001/fileName.mp4_1080p_00001.ts"
+        );
+
+        // when
+
+        // then
+        assertThatCode(() -> s3FileManager.deleteAllByKeyList(keyList))
+                .doesNotThrowAnyException();
+
         ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
         verify(s3Client, times(3)).deleteObject(captor.capture());
     }
