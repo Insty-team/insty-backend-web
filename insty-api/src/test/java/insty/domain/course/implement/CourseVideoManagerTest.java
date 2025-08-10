@@ -172,4 +172,24 @@ class CourseVideoManagerTest {
         // then
         verify(videoCourseRepository, never()).findByVideoUuid(any());
     }
+
+    @Test
+    void deleteCourseVideo_에러_강의에는_연결되었지만_인코딩이_완료되지_않은_경우_삭제할_수_없다() {
+        // given
+        Long courseId = 1L;
+
+        // mock
+        when(videoCourseRepository.findByCourseId(anyLong()))
+                .thenReturn(Optional.of(VideoFixtureBuilder.getVideoCourseWithIdAndUser()));
+        when(videoEncodingRepository.findByVideoUuid(any()))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> courseVideoManager.deleteCourseVideo(courseId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_NOT_FINISHED);
+    }
 }
