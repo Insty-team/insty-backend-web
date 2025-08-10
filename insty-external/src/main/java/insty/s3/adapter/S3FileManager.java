@@ -77,7 +77,7 @@ public class S3FileManager {
     }
 
     /**
-     * ts 파일로 조각나있는 영상 데이터 삭제 등에 사용
+     * ts 파일로 조각나있는 영상 데이터 삭제 등에 사용<br>한 번에 1000개 이상 삭제하지 않는다고 가정함. 만약 많은 객체가 삭제될 시 배치로 개선 필요
      *
      * @param directory vod/COURSE/hls/{uuid}
      */
