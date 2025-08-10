@@ -170,7 +170,7 @@ class CourseVideoManagerTest {
         courseVideoManager.deleteCourseVideo(courseId);
 
         // then
-        verify(videoCourseRepository, never()).findByVideoUuid(any());
+        verify(videoEncodingRepository, never()).findByVideoUuid(any());
     }
 
     @Test
