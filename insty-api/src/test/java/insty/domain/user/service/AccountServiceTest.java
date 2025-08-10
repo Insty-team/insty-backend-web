@@ -133,7 +133,7 @@ class AccountServiceTest {
         Long userId = 1L;
 
         // when
-        accountService.withDraw(userId);
+        accountService.withdraw(userId);
 
         // then
         verify(userReader).existByUserId(eq(userId));

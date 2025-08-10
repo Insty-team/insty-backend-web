@@ -58,9 +58,10 @@ public class AccountController implements AccountControllerDocs {
         return SuccessRes.of(accountService.updatePassword(userId, req));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/withdraw")
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     public SuccessRes<Void> delete(@CurrentUser Long userId) {
-        accountService.withDraw(userId);
+        accountService.withdraw(userId);
         return SuccessRes.of();
     }
 }

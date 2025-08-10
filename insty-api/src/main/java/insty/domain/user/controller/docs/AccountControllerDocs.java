@@ -44,5 +44,5 @@ public interface AccountControllerDocs {
         security = @SecurityRequirement(name = "JWT")
     )
     @CustomExceptionDescription(SwaggerResponseDescription.USER_DELETE)
-    SuccessRes<Void> delete(@CurrentUser Long userId);
+    SuccessRes<Void> delete(Long userId);
 }

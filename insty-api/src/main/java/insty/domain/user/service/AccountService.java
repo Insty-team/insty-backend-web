@@ -79,7 +79,7 @@ public class AccountService {
         return UserDetailRes.from(updatedUser, profileImageUrl);
     }
 
-    public void withDraw(Long userId) {
+    public void withdraw(Long userId) {
         userReader.existByUserId(userId);
         userWriter.delete(userId);
     }
