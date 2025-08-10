@@ -37,7 +37,6 @@ import static insty.error.VideoErrorCode.VIDEO_CONTENT_TYPE_ERROR;
 import static insty.error.VideoErrorCode.VIDEO_ENCODING_FAILED;
 import static insty.error.VideoErrorCode.VIDEO_ENCODING_FAILED_INVALID_LENGTH;
 import static insty.error.VideoErrorCode.VIDEO_ENCODING_FAILED_NOT_FOUND_VOICE;
-import static insty.error.VideoErrorCode.VIDEO_ENCODING_NOT_FINISHED;
 import static insty.error.VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT;
 import static insty.error.VideoErrorCode.VIDEO_INVALID_FILE_NAME;
 import static insty.error.VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING;
@@ -114,7 +113,7 @@ public enum SwaggerResponseDescription {
             COURSE_NOT_FOUND_LINKED_VIDEO,
             COURSE_TOO_MANY_PRACTICE_FILE,
             AI_API_REQUEST_FAILED,
-            VIDEO_ENCODING_NOT_FINISHED
+            VIDEO_NOT_FINISHED_ENCODING
     ))),
     COURSE_DELETE(new LinkedHashSet<>(Set.of(
             COURSE_NOT_FOUND,
@@ -122,7 +121,7 @@ public enum SwaggerResponseDescription {
             VIDEO_NOT_FOUND,
             COURSE_NOT_FOUND_LINKED_VIDEO,
             AI_API_REQUEST_FAILED,
-            VIDEO_ENCODING_NOT_FINISHED
+            VIDEO_NOT_FINISHED_ENCODING
     ))),
     COURSE_DETAIL(new LinkedHashSet<>(Set.of(
             COURSE_NOT_FOUND

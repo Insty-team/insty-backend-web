@@ -190,6 +190,6 @@ class CourseVideoManagerTest {
         assertThatThrownBy(() -> courseVideoManager.deleteCourseVideo(courseId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(VideoErrorCode.VIDEO_ENCODING_NOT_FINISHED);
+                .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
     }
 }

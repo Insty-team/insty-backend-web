@@ -65,7 +65,7 @@ public class CourseVideoManager {
         }
 
         VideoEncoding videoEncoding = videoEncodingRepository.findByVideoUuid(videoCourse.get().getVideoUuid())
-                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_ENCODING_NOT_FINISHED));
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING));
         String directory = videoEncoding.getEncodingVideoDirectoryPath();
         videoCourseRepository.delete(videoCourse.get());
         videoEncodingRepository.delete(videoEncoding);
