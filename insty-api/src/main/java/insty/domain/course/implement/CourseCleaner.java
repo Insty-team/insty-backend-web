@@ -36,13 +36,16 @@ public class CourseCleaner {
 
     public void cleanAllData(Long userId) {
         List<Long> courseIds = courseRepository.findAllIdByUserId(userId);
-        List<String> keys = new ArrayList<>();
+        if (courseIds.isEmpty()) {
+            return;
+        }
+        List<String> s3Keys = new ArrayList<>();
 
         deleteAllTag(courseIds);
-        deleteAllFile(keys, courseIds);
-        deleteAllVideo(keys, courseIds);
+        deleteAllFile(s3Keys, courseIds);
+        deleteAllVideo(s3Keys, courseIds);
         deleteAllCourse(courseIds);
-        s3FileManager.deleteAllByKeyList(keys);
+        s3FileManager.deleteAllByKeyList(s3Keys);
     }
 
     private void deleteAllTag(List<Long> courseIds) {
