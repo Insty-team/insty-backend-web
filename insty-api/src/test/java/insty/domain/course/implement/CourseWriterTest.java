@@ -221,7 +221,7 @@ class CourseWriterTest {
         // when
 
         // then
-        assertThatCode(() -> courseRepository.delete(course))
+        assertThatCode(() -> courseWriter.deleteCourse(course))
                 .doesNotThrowAnyException();
     }
 }
