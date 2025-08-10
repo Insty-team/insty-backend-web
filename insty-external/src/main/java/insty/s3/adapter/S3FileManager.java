@@ -4,8 +4,10 @@ import insty.exception.CustomException;
 import insty.s3.error.S3ErrorCode;
 import insty.uuid.UuidProvider;
 import java.io.IOException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,12 +66,7 @@ public class S3FileManager {
     }
 
     public void delete(String directory, String key, String fileName) {
-        DeleteObjectRequest request = DeleteObjectRequest.builder()
-                .bucket(getFilePath(directory, key, fileName))
-                .key(key)
-                .build();
-
-        s3Client.deleteObject(request);
+        delete(getFilePath(directory, key, fileName));
     }
 
     private String getFilePath(String directory, String key, String fileName) {
@@ -90,19 +87,35 @@ public class S3FileManager {
                 .build());
 
         for (S3Object content : list.contents()) {
-            s3Client.deleteObject(DeleteObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(content.key())
-                    .build());
+            delete(content.key());
         }
 
         try {
-            s3Client.deleteObject(DeleteObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(prefix)
-                    .build());
+            delete(prefix);
         } catch (S3Exception ignored) {
         }
+    }
+
+    @Async("asyncExecutor")
+    public void deleteAllByKeyList(List<String> keyList) {
+        if (keyList == null || keyList.isEmpty()) {
+            return;
+        }
+        if (keyList.size() > 200) {
+            log.warn("회원 탈퇴로 인한 키 삭제 개수가 200개 이상입니다. 배치 처리 전환이 필요합니다.");
+        }
+        for (String key : keyList) {
+            delete(key);
+        }
+    }
+
+    private void delete(String key) {
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(request);
     }
 
     public boolean doesFileExist(String key) {

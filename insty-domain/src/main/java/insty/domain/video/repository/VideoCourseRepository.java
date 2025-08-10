@@ -18,6 +18,8 @@ public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> 
 
     Optional<VideoCourse> findByCourseId(Long courseId);
 
+    List<VideoCourse> findAllByCourseIdIn(List<Long> courseIds);
+
     @Query("SELECT vc.duration FROM VideoCourse vc "
             + "WHERE vc.encodingStatus != 'FAILED' AND vc.user.id = :userId AND vc.encodingAt >= :encodingAt")
     List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
