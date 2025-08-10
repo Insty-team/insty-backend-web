@@ -77,6 +77,6 @@ public class CommunityMailService {
     }
 
     private String generateQuestionUrl(Long questionId) {
-        return String.format("/community/questions/%d", questionId);
+        return String.format("%s/community/questions/%d", appProperties.getDomain(), questionId);
     }
 }
