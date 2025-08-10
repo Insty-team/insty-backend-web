@@ -40,17 +40,17 @@ class VideoQuestionValidateStrategyTest {
     @BeforeEach
     void setUp() {
         lenient().when(videoUploadLimitProperties.getQuestion())
-                .thenReturn(5);
+                .thenReturn(10);
     }
 
     @Test
-    void validateUploadable_정상_오늘_생성한_영상_총_길이가_5분_미만이다() {
+    void validateUploadable_정상_오늘_생성한_영상_총_길이가_10분_미만이다() {
         // given
         Long userId = 1L;
 
         // mock
         when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
-                .thenReturn(List.of(60, 239));
+                .thenReturn(List.of(60, 239, 300));
 
         // when
 
@@ -60,13 +60,13 @@ class VideoQuestionValidateStrategyTest {
     }
 
     @Test
-    void validateUploadable_에러_오늘_생성한_영상_총_길이가_5분_이상이다() {
+    void validateUploadable_에러_오늘_생성한_영상_총_길이가_10분_이상이다() {
         // given
         Long userId = 1L;
 
         // mock
         when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
-                .thenReturn(List.of(60, 240));
+                .thenReturn(List.of(60, 240, 300));
 
         // when
 

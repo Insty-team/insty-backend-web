@@ -98,5 +98,5 @@ video:
   upload:
     max-minute:
       course: 30
-      answer: 5
-      question: 5
+      answer: 10
+      question: 10

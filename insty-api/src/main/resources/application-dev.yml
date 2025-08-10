@@ -13,6 +13,6 @@ swagger:
 video:
   upload:
     max-minute:
-      course: 2
-      answer: 2
-      question: 2
+      course: 60
+      answer: 60
+      question: 60
