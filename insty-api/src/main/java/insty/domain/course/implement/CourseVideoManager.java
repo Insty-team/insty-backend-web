@@ -67,9 +67,9 @@ public class CourseVideoManager {
         VideoEncoding videoEncoding = videoEncodingRepository.findByVideoUuid(videoCourse.get().getVideoUuid())
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_ENCODING_NOT_FINISHED));
         String directory = videoEncoding.getEncodingVideoDirectoryPath();
-        aiRequester.deleteAiVideoInfo(videoCourse.get().getVideoUuid());
         videoCourseRepository.delete(videoCourse.get());
         videoEncodingRepository.delete(videoEncoding);
+        aiRequester.deleteAiVideoInfo(videoCourse.get().getVideoUuid());
         s3FileManager.deleteAllByDirectory(directory);
     }
 }
