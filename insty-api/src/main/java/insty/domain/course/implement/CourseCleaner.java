@@ -53,7 +53,6 @@ public class CourseCleaner {
     }
 
     private void deleteAllFile(List<String> keys, List<Long> courseIds) {
-        coursePracticeFileRepository.deleteAllByCourseIdIn(courseIds);
         List<File> files = fileRepository.findAllByContainerTypeAndContainerIdIn(
                 FileContainerType.COURSE_THUMBNAIL, courseIds);
         files.addAll(fileRepository.findAllByContainerTypeAndContainerIdIn(
@@ -62,6 +61,7 @@ public class CourseCleaner {
         for (File file : files) {
             keys.add(getFilePath(file.getContainerType().toString(), file.getContainerId().toString(), file.getName()));
         }
+        coursePracticeFileRepository.deleteAllByCourseIdIn(courseIds);
         fileRepository.deleteAll(files);
     }
 
@@ -71,6 +71,9 @@ public class CourseCleaner {
 
     private void deleteAllVideo(List<String> keys, List<Long> courseIds) {
         List<VideoCourse> videoCourses = videoCourseRepository.findAllByCourseIdIn(courseIds);
+        if (videoCourses.isEmpty()) {
+            return;
+        }
 
         List<UUID> videoUuids = videoCourses.stream()
                 .map(VideoCourse::getVideoUuid)
@@ -80,8 +83,8 @@ public class CourseCleaner {
                 .map(VideoEncoding::getEncodingVideoDirectoryPath)
                 .toList());
 
-        videoCourseRepository.deleteAll(videoCourses);
         videoEncodingRepository.deleteAll(videoEncodings);
+        videoCourseRepository.deleteAll(videoCourses);
         for (UUID videoUuid : videoUuids) { // TODO 배치 ai api 요청
             aiRequester.deleteAiVideoInfo(videoUuid);
         }

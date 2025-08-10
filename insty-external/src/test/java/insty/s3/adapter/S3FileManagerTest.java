@@ -135,6 +135,17 @@ class S3FileManagerTest {
     }
 
     @Test
+    void deleteAllByKeyList_정상_빈_리스트() {
+        // given
+
+        // when
+
+        // then
+        assertThatCode(() -> s3FileManager.deleteAllByKeyList(List.of()))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
     void doesFileExist_정상() {
         // given
         String key = "file/VIDEO_BASIC_THUMBNAIL/00000000-0000-0000-0000-000000000001/basic_thumbnail.jpg";

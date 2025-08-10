@@ -1,6 +1,7 @@
 package insty.domain.course.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
@@ -84,5 +85,17 @@ class CourseCleanerTest {
         ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
         verify(s3FileManager).deleteAllByKeyList(captor.capture());
         assertThat(captor.getValue()).hasSize(3);
+    }
+
+    @Test
+    void cleanAllData_정상_생성한_강의가_없음() {
+        // given
+        Long userId = 1L;
+
+        // when
+
+        // then
+        assertThatCode(() -> courseCleaner.cleanAllData(userId))
+                .doesNotThrowAnyException();
     }
 }

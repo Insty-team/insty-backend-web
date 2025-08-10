@@ -98,6 +98,12 @@ public class S3FileManager {
 
     @Async("asyncExecutor")
     public void deleteAllByKeyList(List<String> keyList) {
+        if (keyList == null || keyList.isEmpty()) {
+            return;
+        }
+        if (keyList.size() > 200) {
+            log.warn("회원 탈퇴로 인한 키 삭제 개수가 200개 이상입니다. 배치 처리 전환이 필요합니다.");
+        }
         for (String key : keyList) {
             delete(key);
         }
