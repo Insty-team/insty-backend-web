@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -12,12 +11,14 @@ import static org.mockito.Mockito.when;
 
 import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoCourseRepository;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.course.Course;
 import insty.model.course.CourseFixtureBuilder;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoFixtureBuilder;
+import insty.s3.adapter.S3FileManager;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -36,6 +37,11 @@ class CourseVideoManagerTest {
 
     @Mock
     private AiRequester aiRequester;
+    @Mock
+    private S3FileManager s3FileManager;
+
+    @Mock
+    private VideoEncodingRepository videoEncodingRepository;
     @Mock
     private VideoCourseRepository videoCourseRepository;
 
@@ -71,8 +77,10 @@ class CourseVideoManagerTest {
                 .thenReturn(Optional.of(mockVideoCourse));
         when(videoCourseRepository.save(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(anyLong(), anyBoolean()))
+        when(videoCourseRepository.findByCourseId(anyLong()))
                 .thenReturn(Optional.of(VideoFixtureBuilder.getVideoCourseWithIdAndUser()));
+        when(videoEncodingRepository.findByVideoUuid(any()))
+                .thenReturn(Optional.of(VideoFixtureBuilder.getVideoEncodingWithId()));
 
         // when
         VideoCourse videoCourse = courseVideoManager.updateAndGetLinkedVideo(course, updateVideoUuid);
@@ -89,7 +97,7 @@ class CourseVideoManagerTest {
 
         // mock
         VideoCourse mockVideoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(anyLong(), anyBoolean()))
+        when(videoCourseRepository.findByCourseId(anyLong()))
                 .thenReturn(Optional.of(mockVideoCourse));
 
         // when
@@ -107,7 +115,7 @@ class CourseVideoManagerTest {
 
         // mock
         VideoCourse mockVideoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(anyLong(), anyBoolean()))
+        when(videoCourseRepository.findByCourseId(anyLong()))
                 .thenReturn(Optional.of(mockVideoCourse));
 
         // when
@@ -132,34 +140,56 @@ class CourseVideoManagerTest {
     }
 
     @Test
-    void softDeleteCourseVideo_정상() {
+    void deleteCourseVideo_정상() {
         // given
         Long courseId = 1L;
 
         // mock
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(anyLong(), anyBoolean()))
+        when(videoCourseRepository.findByCourseId(anyLong()))
                 .thenReturn(Optional.of(VideoFixtureBuilder.getVideoCourseWithIdAndUser()));
+        when(videoEncodingRepository.findByVideoUuid(any()))
+                .thenReturn(Optional.of(VideoFixtureBuilder.getVideoEncodingWithId()));
 
         // when
 
         // then
-        assertThatCode(() -> courseVideoManager.softDeleteCourseVideo(courseId))
+        assertThatCode(() -> courseVideoManager.deleteCourseVideo(courseId))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    void softDeleteCourseVideo_정상_영상을_찾을_수_없으면_삭제하지_않는다() {
+    void deleteCourseVideo_정상_영상을_찾을_수_없으면_삭제하지_않는다() {
         // given
         Long courseId = 1L;
 
         // mock
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(anyLong(), anyBoolean()))
+        when(videoCourseRepository.findByCourseId(anyLong()))
                 .thenReturn(Optional.empty());
 
         // when
-        courseVideoManager.softDeleteCourseVideo(courseId);
+        courseVideoManager.deleteCourseVideo(courseId);
 
         // then
-        verify(videoCourseRepository, never()).deleteLogicallyById(courseId);
+        verify(videoEncodingRepository, never()).findByVideoUuid(any());
+    }
+
+    @Test
+    void deleteCourseVideo_에러_강의에는_연결되었지만_인코딩이_완료되지_않은_경우_삭제할_수_없다() {
+        // given
+        Long courseId = 1L;
+
+        // mock
+        when(videoCourseRepository.findByCourseId(anyLong()))
+                .thenReturn(Optional.of(VideoFixtureBuilder.getVideoCourseWithIdAndUser()));
+        when(videoEncodingRepository.findByVideoUuid(any()))
+                .thenReturn(Optional.empty());
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> courseVideoManager.deleteCourseVideo(courseId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
     }
 }

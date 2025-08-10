@@ -112,10 +112,6 @@ public class Course extends BaseEntity {
         this.targetAudience = targetAudience;
     }
 
-    public void deleteLogically() {
-        this.isDeleted = true;
-    }
-
     public void updateThumbnail(File thumbnail) {
         this.thumbnail = thumbnail;
     }

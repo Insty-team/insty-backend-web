@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.uuid.UuidProvider;
@@ -14,13 +16,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -78,6 +85,33 @@ class S3FileManagerTest {
         // then
         assertThatCode(() -> s3FileManager.delete(directory, key, fileName))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    void deleteAllByDirectory_정상() {
+        // given
+        String directory = "vod/COURSE/hls/00000000-0000-0000-0000-000000000001";
+
+        // mock
+        String prefix = directory + "/";
+        ListObjectsV2Response listRes = ListObjectsV2Response.builder()
+                .contents(
+                        S3Object.builder().key(prefix + "fileName.mp4.m3u8").size(123L).build(),
+                        S3Object.builder().key(prefix + "fileName.mp4_1080p_00001.ts").size(456L).build()
+                )
+                .build();
+        when(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
+                .thenReturn(listRes);
+
+        // when
+
+        // then
+        assertThatCode(() -> s3FileManager.deleteAllByDirectory(directory))
+                .doesNotThrowAnyException();
+
+        // s3 파일 2개 + 디렉토리(prefix) 1개 = 3개
+        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3Client, times(3)).deleteObject(captor.capture());
     }
 
     @Test
