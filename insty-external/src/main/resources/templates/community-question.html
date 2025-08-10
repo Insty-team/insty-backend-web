@@ -41,8 +41,8 @@
       <div class="question-title" th:text="${questionTitle}">질문 제목</div>
       <div class="question-content" th:text="${questionContent}">질문 내용</div>
       <div class="author-info">
-        <div class="author-avatar" th:text="${questionAuthorName.substring(0,1)}">학</div>
-        <span class="author-name" th:text="${questionAuthorName} + ' 님'">작성자 님</span>
+        <div class="author-avatar" th:text="${#strings.isEmpty(questionAuthorName) ? ' ' : #strings.substring(questionAuthorName, 0, 1)}">학</div>
+        <span class="author-name" th:text="${#strings.isEmpty(questionAuthorName) ? '작성자' : questionAuthorName} + ' 님'">작성자 님</span>
       </div>
     </div>
 

@@ -47,8 +47,8 @@
             <div class="answer-label">새로운 답변</div>
             <div class="answer-content" th:text="${answerContent}">답변 내용</div>
             <div class="author-info">
-                <div class="author-avatar" th:text="${answerAuthorName.substring(0,1)}">답</div>
-                <span class="author-name" th:text="${answerAuthorName} + ' 님'">답변자 님</span>
+                <div class="author-avatar" th:text="${#strings.isEmpty(answerAuthorName) ? ' ' : #strings.substring(answerAuthorName, 0, 1)}">답</div>
+                <span class="author-name" th:text="${#strings.isEmpty(answerAuthorName) ? '답변자' : answerAuthorName} + ' 님'">답변자 님</span>
             </div>
         </div>
 
