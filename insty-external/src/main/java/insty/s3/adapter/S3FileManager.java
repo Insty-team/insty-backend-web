@@ -65,8 +65,8 @@ public class S3FileManager {
 
     public void delete(String directory, String key, String fileName) {
         DeleteObjectRequest request = DeleteObjectRequest.builder()
-                .bucket(getFilePath(directory, key, fileName))
-                .key(key)
+                .bucket(bucket)
+                .key(getFilePath(directory, key, fileName))
                 .build();
 
         s3Client.deleteObject(request);
