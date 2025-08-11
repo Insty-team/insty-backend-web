@@ -23,6 +23,7 @@ import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
 import insty.domain.community.event.CommunityQuestionCreatedEvent;
+import insty.model.video.VideoQuestion;
 import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
@@ -52,6 +53,44 @@ public class CommunityQuestionService {
     private final CommunityAnswerService communityAnswerService;
     private final CommunityAnswerWriter communityAnswerWriter;
     private final ApplicationEventPublisher eventPublisher;
+
+    /**
+     * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
+     */
+    public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
+        communityValidator.validateContent(req.content());
+        communityValidator.validateFiles(attachments);
+
+        Course course = courseReader.getCourseById(req.courseId());
+        User user = userReader.getUser(userId);
+
+        CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
+        List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
+        VideoQuestion video = communityQuestionVideoManager.attachVideoToQuestion(question, req.videoUuid());
+
+        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
+
+        return CommunityQuestionDetailsRes.from(question, fileInfos, video, null);
+    }
+
+    /**
+     * 기존 질문을 수정하고 첨부 파일을 업데이트
+     */
+    public CommunityQuestionDetailsRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
+        communityValidator.validateContent(req.content());
+        communityValidator.validateFiles(attachments);
+        communityValidator.validateQuestionAuthor(userId, questionId);
+
+        CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
+
+        List<FileInfo> fileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
+        VideoQuestion video = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
+        List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
+                .map(communityAnswerMapper::toCommunityAnswerRes)
+                .toList();
+
+        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, video, answers);
+    }
 
     /**
      * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
@@ -111,54 +150,16 @@ public class CommunityQuestionService {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
 
         List<FileInfo> fileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
-        VideoInfo videoInfo = communityQuestionVideoManager.getQuestionVideoInfo(question);
+        VideoQuestion video = communityQuestionVideoManager.getVideoQuestion(question);
         List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, answers);
-    }
-
-    /**
-     * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
-     */
-    public CommunityQuestionDetailsRes saveQuestion(Long userId, CommunityQuestionCreateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateContent(req.content());
-        communityValidator.validateFiles(attachments);
-
-        Course course = courseReader.getCourseById(req.courseId());
-        User user = userReader.getUser(userId);
-
-        CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
-        List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
-        VideoInfo videoInfo = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuid());
-
-        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
-
-
-        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, null);
-    }
-
-    /**
-     * 기존 질문을 수정하고 첨부 파일을 업데이트
-     */
-    public CommunityQuestionDetailsRes updateQuestion(Long userId, Long questionId, CommunityQuestionUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateContent(req.content());
-        communityValidator.validateFiles(attachments);
-        communityValidator.validateQuestionAuthor(userId, questionId);
-
-        CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
-
-        List<FileInfo> fileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
-        VideoInfo videoInfo = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
-        List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
-                .map(communityAnswerMapper::toCommunityAnswerRes)
-                .toList();
-
-        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, videoInfo, answers);
+        return CommunityQuestionDetailsRes.from(question, fileInfos, video, answers);
     }
 
     /**
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
-     * (질문 삭제는 자주 불리지 않으니 N+1문제는 허용한다. - why?) 복잡한 설계 X)
+     * 질문 삭제는 자주 불리지 않으니 N+1문제는 허용한다.
+     * why?) 복잡한 설계 X
      */
     public void deleteQuestion(Long userId, Long questionId) {
         communityValidator.validateQuestionAuthor(userId, questionId);
@@ -166,7 +167,7 @@ public class CommunityQuestionService {
         for(CommunityAnswer answer : question.getAnswers()){
             communityAnswerWriter.deleteAnswer(answer);
         }
-        communityQuestionVideoManager.softDeleteQuestionVideo(questionId);
+        communityQuestionVideoManager.deleteeQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
     }
 }

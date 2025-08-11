@@ -3,6 +3,7 @@ package insty.domain.community.dto;
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityAnswer;
+import insty.model.video.VideoAnswer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
@@ -34,13 +35,13 @@ public record CommunityAnswerRes(
     public static CommunityAnswerRes from(
             CommunityAnswer answer,
             List<FileInfo> attachments,
-            VideoInfo videoInfo
+            VideoAnswer video
     ) {
         return new CommunityAnswerRes(
                 CommunityUserRes.from(answer.getUser()),
                 answer.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),
-                videoInfo,
+                VideoInfo.of(video),
                 answer.isAccepted(),
                 answer.getCreatedAt(),
                 answer.getUpdatedAt()

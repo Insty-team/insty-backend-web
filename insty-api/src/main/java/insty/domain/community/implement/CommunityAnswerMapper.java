@@ -16,7 +16,7 @@ public class CommunityAnswerMapper {
         return CommunityAnswerRes.from(
                 answer,
                 communityAnswerFileReader.getAnswerFileInfos(answer),
-                communityAnswerVideoManager.getAnswerVideoInfo(answer)
+                communityAnswerVideoManager.getVideoAnswer(answer)
         );
     }
 

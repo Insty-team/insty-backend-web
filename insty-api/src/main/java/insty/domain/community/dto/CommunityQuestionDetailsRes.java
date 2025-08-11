@@ -3,11 +3,14 @@ package insty.domain.community.dto;
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityQuestion;
+import insty.model.video.VideoQuestion;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import lombok.Builder;
 
+@Builder
 public record CommunityQuestionDetailsRes(
         @Schema(description = "질문 작성자 정보")
         CommunityUserRes user,
@@ -39,7 +42,7 @@ public record CommunityQuestionDetailsRes(
     public static CommunityQuestionDetailsRes from(
             CommunityQuestion question,
             List<FileInfo> attachments,
-            VideoInfo videoInfo,
+            VideoQuestion video,
             List<CommunityAnswerRes> answers
     ) {
         return new CommunityQuestionDetailsRes(
@@ -49,7 +52,7 @@ public record CommunityQuestionDetailsRes(
                 question.getContent(),
                 Optional.ofNullable(answers).orElse(List.of()),
                 Optional.ofNullable(attachments).orElse(List.of()),
-                videoInfo,
+                VideoInfo.of(video),
                 question.getCreatedAt(),
                 question.getUpdatedAt()
         );
