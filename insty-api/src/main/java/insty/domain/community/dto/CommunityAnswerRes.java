@@ -2,6 +2,7 @@ package insty.domain.community.dto;
 
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
+import insty.domain.common.dto.UserInfo;
 import insty.model.community.CommunityAnswer;
 import insty.model.video.VideoAnswer;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 public record CommunityAnswerRes(
         @Schema(description = "답변 작성자 정보")
-        CommunityUserRes user,
+        UserInfo user,
 
         @Schema(description = "답변 내용", example = "이 문제는 다음과 같이 해결할 수 있습니다.")
         String content,
@@ -38,7 +39,7 @@ public record CommunityAnswerRes(
             VideoAnswer video
     ) {
         return new CommunityAnswerRes(
-                CommunityUserRes.from(answer.getUser()),
+                UserInfo.from(answer.getUser()),
                 answer.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 VideoInfo.of(video),
