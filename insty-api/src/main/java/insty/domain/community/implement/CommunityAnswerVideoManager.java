@@ -1,13 +1,14 @@
 package insty.domain.community.implement;
 
 import insty.ai.adapter.AiRequester;
-import insty.domain.common.VideoInfo;
 import insty.domain.video.repository.VideoAnswerRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.video.VideoAnswer;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,5 +64,21 @@ public class CommunityAnswerVideoManager {
         }
         videoAnswerRepository.delete(videoAnswer);
         aiRequester.deleteAiVideoInfo(videoAnswer.getVideoUuid());
+    }
+
+    /**
+     * 답변 목록에 대한 비디오를 배치 조회하여 answerId -> VideoAnswer 로 반환
+     */
+    public Map<Long, VideoAnswer> getVideoMapByAnswers(List<CommunityAnswer> answers) {
+        List<Long> answerIds = answers.stream().map(CommunityAnswer::getId).toList();
+        if (answerIds.isEmpty()) {
+            return Map.of();
+        }
+        List<VideoAnswer> videos = videoAnswerRepository.findAllByCommunityAnswerIds(answerIds);
+        return videos.stream().collect(Collectors.toMap(
+                v -> v.getCommunityAnswer().getId(),
+                v -> v,
+                (a, b) -> a
+        ));
     }
 }

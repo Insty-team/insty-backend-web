@@ -1,7 +1,10 @@
 package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityAnswerRes;
+import insty.model.video.VideoAnswer;
 import insty.model.community.CommunityAnswer;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +13,18 @@ import org.springframework.stereotype.Service;
 public class CommunityAnswerMapper {
 
     private final CommunityAnswerFileReader communityAnswerFileReader;
-    private final CommunityAnswerVideoManager communityAnswerVideoManager;
 
-    public CommunityAnswerRes toCommunityAnswerRes(CommunityAnswer answer){
-        return CommunityAnswerRes.from(
-                answer,
-                communityAnswerFileReader.getAnswerFileInfos(answer),
-                communityAnswerVideoManager.getVideoAnswer(answer)
-        );
+    /**
+     * 답변 리스트를 DTO 리스트로 변환한다
+     */
+    public List<CommunityAnswerRes> toCommunityAnswerResList(List<CommunityAnswer> answers, Map<Long, VideoAnswer> videoMap){
+        return answers.stream()
+                .map(answer -> CommunityAnswerRes.from(
+                        answer,
+                        communityAnswerFileReader.getAnswerFileInfos(answer),
+                        videoMap.get(answer.getId())
+                ))
+                .toList();
     }
 
 }

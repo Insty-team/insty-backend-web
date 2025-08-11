@@ -3,7 +3,6 @@ package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
-import insty.domain.common.VideoInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.CommunityAnswerRes;
@@ -85,9 +84,7 @@ public class CommunityQuestionService {
 
         List<FileInfo> fileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
         VideoQuestion video = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
-        List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
-                .map(communityAnswerMapper::toCommunityAnswerRes)
-                .toList();
+        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
         return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, video, answers);
     }

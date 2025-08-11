@@ -1,7 +1,6 @@
 package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
-import insty.domain.common.VideoInfo;
 import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
@@ -9,6 +8,7 @@ import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerAcceptService;
 import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
+import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
@@ -38,6 +38,7 @@ public class CommunityAnswerService {
     private final CommunityAnswerVideoManager communityAnswerVideoManager;
     private final CommunityAnswerAcceptService communityAnswerAcceptService;
     private final CommunityValidator communityValidator;
+    private final CommunityAnswerMapper communityAnswerMapper;
     private final CommunityQuestionReader communityQuestionReader;
     private final UserReader userReader;
     private final ApplicationEventPublisher eventPublisher;
@@ -82,15 +83,8 @@ public class CommunityAnswerService {
     public List<CommunityAnswerRes> getAllAnswersByQuestionId(Long questionId) {
         communityValidator.validateQuestionExists(questionId);
         List<CommunityAnswer> answers = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
-        List<CommunityAnswerRes> answerRes = answers.stream()
-                .map(answer -> CommunityAnswerRes.from(
-                        answer,
-                        communityAnswerFileReader.getAnswerFileInfos(answer),
-                        communityAnswerVideoManager.getVideoAnswer(answer)
-                ))
-                .toList();
-
-        return answerRes;
+        var videoMap = communityAnswerVideoManager.getVideoMapByAnswers(answers);
+        return communityAnswerMapper.toCommunityAnswerResList(answers, videoMap);
     }
 
 
