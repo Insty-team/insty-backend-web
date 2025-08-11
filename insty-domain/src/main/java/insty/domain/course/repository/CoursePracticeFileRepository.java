@@ -9,4 +9,6 @@ public interface CoursePracticeFileRepository extends JpaRepository<CoursePracti
     void deleteByCourseIdAndPracticeFileIdIn(Long courseId, List<Long> practiceFileId);
 
     void deleteAllByCourseId(Long courseId);
+
+    void deleteAllByCourseIdIn(List<Long> courseIds);
 }

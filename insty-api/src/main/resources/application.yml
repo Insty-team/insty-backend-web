@@ -19,6 +19,11 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 2
+      connection-timeout: 3000
+      idle-timeout: 60000
 
   jpa:
     hibernate:
@@ -89,7 +94,16 @@ app:
   domain: ${INSTY_DOMAIN}
   health-check-path: ${HEALTH_CHECK_PATH}
   ai-api-secret: ${AI_API_SECRET}
+  mail:
+    preview-length: 100
 
 logging:
   level:
     org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport: WARN
+
+video:
+  upload:
+    max-minute:
+      course: 30
+      answer: 10
+      question: 10

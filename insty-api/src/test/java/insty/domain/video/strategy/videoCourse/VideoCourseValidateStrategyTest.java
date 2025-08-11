@@ -3,16 +3,19 @@ package insty.domain.video.strategy.videoCourse;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.global.property.VideoUploadLimitProperties;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoFixtureBuilder;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +32,16 @@ class VideoCourseValidateStrategyTest {
     private VideoCourseValidateStrategy videoCourseValidateStrategy;
 
     @Mock
+    private VideoUploadLimitProperties videoUploadLimitProperties;
+    @Mock
     private VideoCourseRepository videoCourseRepository;
+
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(videoUploadLimitProperties.getCourse())
+                .thenReturn(30);
+    }
 
     @Test
     void validateUploadable_정상_오늘_생성한_영상_총_길이가_30분_미만이다() {
@@ -109,7 +121,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.COMPLETED);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -141,7 +153,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -161,7 +173,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED_INVALID_VIDEO_LENGTH);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -181,7 +193,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.FAILED_NOT_FOUND_VOICE);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when
@@ -201,7 +213,7 @@ class VideoCourseValidateStrategyTest {
         // mock
         VideoCourse videoCourse = VideoFixtureBuilder.getVideoCourseWithIdAndUser();
         ReflectionTestUtils.setField(videoCourse, "encodingStatus", EncodingStatus.PROCESSING);
-        when(videoCourseRepository.findByCourseIdAndIsDeleted(id, false))
+        when(videoCourseRepository.findByCourseId(id))
                 .thenReturn(Optional.of(videoCourse));
 
         // when

@@ -203,6 +203,8 @@ class CourseServiceTest {
                     "VALUES (200, 100, '강의에 연결되었지만 수정 후 없어질 핵심포인트')",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 100, 1, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000001/course_video.mp4', 'mp4', 'course_video.mp4', 10, 'COMPLETED', NOW(), 'COMPLETED', NOW(), NOW(), NOW(), false)",
+            "INSERT INTO web_service.video_encodings (id, video_uuid, format, encoding_s3_key, created_at) " +
+                    "VALUES (1, '00000000-0000-0000-0000-000000000001', 'hls', 'vod/COURSE/hls/00000000-0000-0000-0000-000000000001/course_video.mp4', NOW())",
             "INSERT INTO web_service.video_courses (id, video_uuid, course_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, analysis_status, analysis_at, created_at, updated_at, is_deleted) "
                     + "VALUES (2, '00000000-0000-0000-0000-000000000002', null, 1, 'vod/COURSE/mp4/00000000-0000-0000-0000-000000000002/new_course_video.mp4', 'mp4', 'new_course_video.mp4', 10, 'PROCESSING', NOW(), 'WAITING', NOW(), NOW(), NOW(), false)"
     })
@@ -267,7 +269,7 @@ class CourseServiceTest {
         assertThat(courseTagRepository.count()).isEqualTo(2); // 1개 삭제되고 2개 생성됨
         assertThat(tagsRepository.count()).isEqualTo(3); // 새로운 태그가 생성되어 3개가 됨
 
-        assertThat(videoCourseRepository.count()).isEqualTo(2); // 하나는 가상삭제, 하나는 새로 생성
+        assertThat(videoCourseRepository.count()).isEqualTo(1); // 하나 삭제되고 하나 생성됨
         Optional<UUID> videoUuid = videoCourseRepository.findVideoUuidByCourseId(100L);
         assertThat(videoUuid.isPresent()).isTrue();
         assertThat(videoUuid.get().toString()).isEqualTo("00000000-0000-0000-0000-000000000002");
@@ -300,9 +302,7 @@ class CourseServiceTest {
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);
-        assertThat(course.isPresent()).isTrue();
-        assertThat(course.get().isDeleted()).isTrue();
-        assertThat(course.get().getThumbnail()).isNull();
+        assertThat(course.isEmpty()).isTrue();
 
         List<Tags> allTagsByCourseId = courseTagRepository.findAllTagsByCourseId(courseId);
         assertThat(allTagsByCourseId.isEmpty()).isTrue();

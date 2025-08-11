@@ -134,8 +134,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
         return queryFactory()
                 .select(course.id, videoCourse.videoUuid)
                 .from(course)
-                .join(videoCourse).on(videoCourse.course.id.eq(course.id)
-                        .and(videoCourse.isDeleted.eq(false)))
+                .join(videoCourse).on(videoCourse.course.id.eq(course.id))
                 .where(course.id.in(courseIds))
                 .transform(GroupBy.groupBy(course.id)
                         .as(videoCourse.videoUuid));
@@ -147,13 +146,11 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
     private BooleanExpression[] searchCourseConditions(CourseSearchFilter filter) {
         return new BooleanExpression[]{
                 searchFilter(filter.search()), // 검색
-                course.isDeleted.eq(false), // 가상 삭제x
         };
     }
 
     private BooleanExpression[] searchMyCourseConditions() {
         return new BooleanExpression[]{
-                course.isDeleted.eq(false), // 가상 삭제x
         };
     }
 

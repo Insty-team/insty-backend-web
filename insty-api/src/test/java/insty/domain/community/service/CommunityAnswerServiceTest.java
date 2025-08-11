@@ -103,7 +103,7 @@ class CommunityAnswerServiceTest {
                 .orElseThrow();
     }
     private Long createAnswerAndGetId(Long questionId, String content) {
-        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId, content, null), null);
+        communityAnswerService.saveAnswer(TEST_USER_ID, questionId, new CommunityAnswerCreateReq( content, null), null);
         return communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -124,10 +124,13 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 40L;
         String content = "답변 내용";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
+        var req = CommunityAnswerCreateReq.builder()
+                .content(content)
+                .videoUuid(null)
+                .build();
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(result).isNotNull();
@@ -172,8 +175,8 @@ class CommunityAnswerServiceTest {
         Long questionId = 50L;
         String content = "원본 답변";
         UUID videoUuid = UUID.fromString("550e8400-e29b-41d4-a716-446655440005");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -279,8 +282,8 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("비디오답변삭제 질문", "비디오답변삭제 질문 내용");
         String content = "삭제할 비디오 답변";
         UUID videoUuid = UUID.fromString("ff0e8400-e29b-41d4-a716-446655440015");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
-        communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
+        communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -361,8 +364,8 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_content누락_예외() {
         Long questionId = createQuestionAndGetId("답변필수값테스트", "내용");
-        var req = new CommunityAnswerCreateReq(questionId, null, null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
+        var req = new CommunityAnswerCreateReq(null, null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -378,8 +381,8 @@ class CommunityAnswerServiceTest {
     void saveAnswer_첨부파일비디오없음_정상() {
         Long questionId = createQuestionAndGetId("파일없는답변질문", "내용");
         String content = "파일없는답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var res = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var res = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         assertThat(res).isNotNull();
         assertThat(res.attachments()).isEmpty();
         assertThat(res.videoInfo()).isNull();
@@ -402,8 +405,8 @@ class CommunityAnswerServiceTest {
         Long questionId = 600L, userId = 1L;
 
         // 답변 2개 생성 (첨부파일 없는 답변과 첨부파일 있는 답변)
-        communityAnswerService.saveAnswer(userId, new CommunityAnswerCreateReq(questionId, "답변1", null), List.of());
-        communityAnswerService.saveAnswer(userId, new CommunityAnswerCreateReq(questionId, "답변2", null), List.of());
+        communityAnswerService.saveAnswer(userId, questionId, new CommunityAnswerCreateReq( "답변1", null), List.of());
+        communityAnswerService.saveAnswer(userId, questionId, new CommunityAnswerCreateReq( "답변2", null), List.of());
 
         var res = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
@@ -475,8 +478,9 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_존재하지않는질문_예외() {
         // 존재하지 않는 질문에 답변 작성 시 예외 발생
-        var req = new CommunityAnswerCreateReq(99999L, "답변 내용", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
+        long questionId = 99999L;
+        var req = new CommunityAnswerCreateReq("답변 내용", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -491,8 +495,9 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_삭제된질문_예외() {
         // 삭제된 질문에 답변 작성 시 예외 발생
-        var req = new CommunityAnswerCreateReq(800L, "답변 내용", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
+        long questionId = 800L;
+        var req = new CommunityAnswerCreateReq( "답변 내용", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -507,8 +512,9 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_빈내용_예외() {
         // content가 빈 문자열인 경우 예외 발생
-        var req = new CommunityAnswerCreateReq(1000L, "", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
+        long questionId = 1000L;
+        var req = new CommunityAnswerCreateReq("", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -826,8 +832,8 @@ class CommunityAnswerServiceTest {
     void updateAnswer_채택된답변수정_정상() {
         Long questionId = createQuestionAndGetId("채택된답변수정테스트", "내용");
         UUID videoUuid = UUID.fromString("660e8400-e29b-41d4-a716-446655440006");
-        var req = new CommunityAnswerCreateReq(questionId, "원본 답변", videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( "원본 답변", videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals("원본 답변"))
                 .findFirst()
@@ -890,8 +896,8 @@ class CommunityAnswerServiceTest {
 
         // 특수문자가 포함된 내용으로 답변 작성
         String specialContent = "답변 내용에 특수문자: !@#$%^&*()_+-=[]{}|;':\",./<>?`~";
-        var req = new CommunityAnswerCreateReq(questionId, specialContent, null);
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( specialContent, null);
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
 
         assertThat(result).isNotNull();
         assertThat(result.content()).isEqualTo(specialContent);
@@ -910,8 +916,8 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("공백문자테스트", "내용");
 
         // 공백 문자만으로 답변 작성 시 예외 발생
-        var req = new CommunityAnswerCreateReq(questionId, "   \t\n   ", null);
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of()))
+        var req = new CommunityAnswerCreateReq( "   \t\n   ", null);
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of()))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -930,9 +936,9 @@ class CommunityAnswerServiceTest {
         Long questionId = createQuestionAndGetId("순서테스트", "내용");
 
         // 여러 답변을 순서대로 생성
-        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"첫 번째 답변", null), List.of());
-        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"두 번째 답변", null), List.of());
-        communityAnswerService.saveAnswer(TEST_USER_ID, new CommunityAnswerCreateReq(questionId,"세 번째 답변", null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, questionId, new CommunityAnswerCreateReq("첫 번째 답변", null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, questionId, new CommunityAnswerCreateReq("두 번째 답변", null), List.of());
+        communityAnswerService.saveAnswer(TEST_USER_ID, questionId, new CommunityAnswerCreateReq("세 번째 답변", null), List.of());
 
         var result = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
@@ -957,8 +963,8 @@ class CommunityAnswerServiceTest {
     void updateAnswer_채택상태유지_정상() {
         Long questionId = createQuestionAndGetId("채택상태유지테스트", "내용");
         UUID videoUuid = UUID.fromString("770e8400-e29b-41d4-a716-446655440007");
-        var req = new CommunityAnswerCreateReq(questionId, "원본 답변", videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( "원본 답변", videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals("원본 답변"))
                 .findFirst()
@@ -1021,12 +1027,12 @@ class CommunityAnswerServiceTest {
     @Test
     void saveAnswer_첨부파일_10개초과_예외() {
         Long questionId = 8888L;
-        var req = new CommunityAnswerCreateReq(questionId,"답변", null);
+        var req = new CommunityAnswerCreateReq("답변", null);
         List<org.springframework.web.multipart.MultipartFile> files = java.util.stream.IntStream.range(0, MAX_FILE_COUNT+1)
                 .mapToObj(i -> org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class))
                 .toList();
         files.forEach(f -> org.mockito.Mockito.when(f.isEmpty()).thenReturn(false));
-        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, req, files))
+        assertThatThrownBy(() -> communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, files))
                 .isInstanceOf(insty.exception.CustomException.class);
     }
 
@@ -1084,10 +1090,10 @@ class CommunityAnswerServiceTest {
         Long questionId = 41L;
         String content = "비디오가 포함된 답변";
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(result).isNotNull();
@@ -1114,7 +1120,7 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 42L;
         String content = "첨부파일이 포함된 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
+        var req = new CommunityAnswerCreateReq( content, null);
 
         // Mock 첨부파일 생성
         var mockFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
@@ -1126,7 +1132,7 @@ class CommunityAnswerServiceTest {
         List<org.springframework.web.multipart.MultipartFile> attachments = List.of(mockFile);
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, attachments);
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, attachments);
 
         // then
         assertThat(result).isNotNull();
@@ -1161,7 +1167,7 @@ class CommunityAnswerServiceTest {
         Long questionId = 43L;
         String content = "비디오와 첨부파일이 모두 포함된 답변";
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
 
         // Mock 첨부파일 생성
         var mockFile = org.mockito.Mockito.mock(org.springframework.web.multipart.MultipartFile.class);
@@ -1173,7 +1179,7 @@ class CommunityAnswerServiceTest {
         List<org.springframework.web.multipart.MultipartFile> attachments = List.of(mockFile);
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, attachments);
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, attachments);
 
         // then
         assertThat(result).isNotNull();
@@ -1205,10 +1211,10 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 44L;
         String longContent = "a".repeat(10000); // 매우 긴 내용
-        var req = new CommunityAnswerCreateReq(questionId, longContent, null);
+        var req = new CommunityAnswerCreateReq( longContent, null);
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(result).isNotNull();
@@ -1239,10 +1245,10 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 45L;
         String specialContent = "답변 내용에 특수문자: !@#$%^&*()_+-=[]{}|;':\",./<>?`~ 한글도 포함";
-        var req = new CommunityAnswerCreateReq(questionId, specialContent, null);
+        var req = new CommunityAnswerCreateReq( specialContent, null);
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(result).isNotNull();
@@ -1272,7 +1278,7 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 46L;
         String content = "여러 첨부파일이 포함된 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
+        var req = new CommunityAnswerCreateReq( content, null);
 
         // MAX_ANSWER_FILE_COUNT만큼 Mock 첨부파일들 생성
         List<org.springframework.web.multipart.MultipartFile> attachments = new java.util.ArrayList<>();
@@ -1291,7 +1297,7 @@ class CommunityAnswerServiceTest {
         }
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, attachments);
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, attachments);
 
         // then
         assertThat(result).isNotNull();
@@ -1337,10 +1343,10 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 47L;
         String content = "빈 첨부파일 목록이 있는 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
+        var req = new CommunityAnswerCreateReq( content, null);
 
         // when
-        var result = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var result = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
 
         // then
         assertThat(result).isNotNull();
@@ -1365,14 +1371,14 @@ class CommunityAnswerServiceTest {
     void saveAnswer_동시에같은질문에답변작성_정상() {
         // given
         Long questionId = 48L;
-        var req1 = new CommunityAnswerCreateReq(questionId, "첫 번째 답변", null);
-        var req2 = new CommunityAnswerCreateReq(questionId, "두 번째 답변", null);
-        var req3 = new CommunityAnswerCreateReq(questionId, "세 번째 답변", null);
+        var req1 = new CommunityAnswerCreateReq( "첫 번째 답변", null);
+        var req2 = new CommunityAnswerCreateReq( "두 번째 답변", null);
+        var req3 = new CommunityAnswerCreateReq( "세 번째 답변", null);
 
         // when - 동시에 같은 질문에 답변 작성 (실제로는 순차 실행)
-        var result1 = communityAnswerService.saveAnswer(TEST_USER_ID, req1, List.of());
-        var result2 = communityAnswerService.saveAnswer(TEST_USER_ID, req2, List.of());
-        var result3 = communityAnswerService.saveAnswer(TEST_USER_ID, req3, List.of());
+        var result1 = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req1, List.of());
+        var result2 = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req2, List.of());
+        var result3 = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req3, List.of());
 
         // then
         assertThat(result1).isNotNull();
@@ -1410,8 +1416,8 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 51L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1451,8 +1457,8 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 52L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1507,8 +1513,8 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 53L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1568,8 +1574,8 @@ class CommunityAnswerServiceTest {
         Long questionId = 56L;
         String content = "원본 답변";
         UUID videoUuid = UUID.fromString("bb0e8400-e29b-41d4-a716-446655440011");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1601,8 +1607,8 @@ class CommunityAnswerServiceTest {
         Long questionId = 57L;
         String content = "원본 답변";
         UUID videoUuid = UUID.fromString("cc0e8400-e29b-41d4-a716-446655440012");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1647,8 +1653,8 @@ class CommunityAnswerServiceTest {
         Long questionId = 58L;
         String content = "원본 답변";
         UUID videoUuid = UUID.fromString("dd0e8400-e29b-41d4-a716-446655440013");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1706,8 +1712,8 @@ class CommunityAnswerServiceTest {
         Long questionId = 59L;
         String content = "원본 답변";
         UUID videoUuid = UUID.fromString("ee0e8400-e29b-41d4-a716-446655440014");
-        var req = new CommunityAnswerCreateReq(questionId, content, videoUuid);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, null);
+        var req = new CommunityAnswerCreateReq( content, videoUuid);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, null);
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1733,8 +1739,8 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 60L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1760,8 +1766,8 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 62L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()
@@ -1787,8 +1793,8 @@ class CommunityAnswerServiceTest {
         // given
         Long questionId = 63L;
         String content = "원본 답변";
-        var req = new CommunityAnswerCreateReq(questionId, content, null);
-        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, req, List.of());
+        var req = new CommunityAnswerCreateReq( content, null);
+        var originalResult = communityAnswerService.saveAnswer(TEST_USER_ID, questionId, req, List.of());
         Long answerId = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId).stream()
                 .filter(a -> a.getContent().equals(content))
                 .findFirst()

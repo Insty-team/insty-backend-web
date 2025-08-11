@@ -263,7 +263,7 @@ class CommunityQuestionServiceTest {
         assertThat(result.title()).isEqualTo(title);
         assertThat(result.content()).isEqualTo(content);
         assertThat(result.videoInfo().videoUuid()).isEqualTo(videoUuid);
-        
+
     }
 
 
@@ -1329,7 +1329,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("검색질문")
+                .keyword("검색질문")
                 .build();
 
         // when
@@ -1495,7 +1495,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("존재하지않는키워드")
+                .keyword("존재하지않는키워드")
                 .build();
 
         // when
@@ -1524,7 +1524,7 @@ class CommunityQuestionServiceTest {
                 .page(1)
                 .pageSize(10)
                 .isAnswered(false)
-                .search("질문")
+                .keyword("질문")
                 .sort("createdAt")
                 .build();
 
@@ -1638,7 +1638,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("질문1")
+                .keyword("질문1")
                 .build();
 
         // when
@@ -1791,7 +1791,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("사용자2")
+                .keyword("사용자2")
                 .build();
 
         // when
@@ -1850,7 +1850,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("질문")
+                .keyword("질문")
                 .build();
 
         // when
@@ -1879,7 +1879,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("질문")
+                .keyword("질문")
                 .build();
 
         // when
@@ -2017,7 +2017,7 @@ class CommunityQuestionServiceTest {
         var req = CommunityQuestionSearchReq.builder()
                 .page(1)
                 .pageSize(10)
-                .search("키워드")
+                .keyword("키워드")
                 .build();
 
         // when

@@ -3,16 +3,19 @@ package insty.domain.video.strategy.videoQuestion;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.global.property.VideoUploadLimitProperties;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoFixtureBuilder;
 import insty.model.video.VideoQuestion;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,16 +32,25 @@ class VideoQuestionValidateStrategyTest {
     private VideoQuestionValidateStrategy videoQuestionValidateStrategy;
 
     @Mock
+    private VideoUploadLimitProperties videoUploadLimitProperties;
+    @Mock
     private VideoQuestionRepository videoQuestionRepository;
 
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(videoUploadLimitProperties.getQuestion())
+                .thenReturn(10);
+    }
+
     @Test
-    void validateUploadable_정상_오늘_생성한_영상_총_길이가_5분_미만이다() {
+    void validateUploadable_정상_오늘_생성한_영상_총_길이가_10분_미만이다() {
         // given
         Long userId = 1L;
 
         // mock
         when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
-                .thenReturn(List.of(60, 239));
+                .thenReturn(List.of(60, 239, 300));
 
         // when
 
@@ -48,13 +60,13 @@ class VideoQuestionValidateStrategyTest {
     }
 
     @Test
-    void validateUploadable_에러_오늘_생성한_영상_총_길이가_5분_이상이다() {
+    void validateUploadable_에러_오늘_생성한_영상_총_길이가_10분_이상이다() {
         // given
         Long userId = 1L;
 
         // mock
         when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
-                .thenReturn(List.of(60, 240));
+                .thenReturn(List.of(60, 240, 300));
 
         // when
 

@@ -1,11 +1,10 @@
 package insty.domain.video.strategy.videoCourse;
 
-import static insty.constants.VideoConstants.VIDEO_COURSE_UPLOAD_MINUTES_LIMIT;
-
 import insty.domain.video.repository.VideoCourseRepository;
 import insty.domain.video.strategy.VideoValidateStrategy;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
+import insty.global.property.VideoUploadLimitProperties;
 import insty.model.video.EncodingStatus;
 import insty.model.video.VideoCourse;
 import insty.util.DateUtils;
@@ -19,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VideoCourseValidateStrategy implements VideoValidateStrategy {
 
+    private final VideoUploadLimitProperties videoUploadLimitProperties;
+
     private final VideoCourseRepository videoCourseRepository;
 
     @Override
@@ -30,7 +31,7 @@ public class VideoCourseValidateStrategy implements VideoValidateStrategy {
                 .stream()
                 .mapToInt(Integer::intValue)
                 .sum();
-        if (durationSum >= VIDEO_COURSE_UPLOAD_MINUTES_LIMIT * 60) {
+        if (durationSum >= videoUploadLimitProperties.getCourse() * 60) {
             throw new CustomException(VideoErrorCode.VIDEO_EXCEED_UPLOAD_LIMIT);
         }
     }
@@ -46,7 +47,7 @@ public class VideoCourseValidateStrategy implements VideoValidateStrategy {
 
     @Override
     public void verifyEncodingCompletedAndDeleted(Long parentId) {
-        VideoCourse videoCourse = videoCourseRepository.findByCourseIdAndIsDeleted(parentId, false)
+        VideoCourse videoCourse = videoCourseRepository.findByCourseId(parentId)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         if (videoCourse.getEncodingStatus() == EncodingStatus.FAILED) {
             throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED);

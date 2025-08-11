@@ -2,6 +2,7 @@ package insty.domain.auth.service;
 
 import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.auth.implement.emailverification.EmailVerificationWriter;
+import insty.domain.auth.implement.emailverification.MailAuthenticateContent;
 import insty.mail.MailHelper;
 import insty.model.auth.EmailVerification;
 import insty.model.auth.SimpleTokenGenerator;
@@ -17,8 +18,6 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class EmailVerificationService {
 
-    private static final String EMAIL_VERIFICATION_SUBJECT = "[INSTY] 메일 인증 안내드립니다.";
-
     private final EmailVerificationWriter emailVerificationWriter;
     private final EmailVerificationReader emailVerificationReader;
     private final MailHelper mailHelper;
@@ -30,7 +29,8 @@ public class EmailVerificationService {
             .map(present -> present.reissue(tokenGenerator))
             .orElse(EmailVerification.create(email, tokenGenerator));
 
-        mailHelper.sendVerificationCode(email, EMAIL_VERIFICATION_SUBJECT, emailVerification.getToken());
+        MailAuthenticateContent content = MailAuthenticateContent.of(email, emailVerification.getToken());
+        mailHelper.send(content);
         emailVerificationWriter.save(emailVerification);
     }
 

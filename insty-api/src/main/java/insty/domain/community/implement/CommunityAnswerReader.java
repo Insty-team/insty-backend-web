@@ -20,7 +20,7 @@ public class CommunityAnswerReader {
      * 커뮤니티 답변에 따른 모든 질문 조회
      */
     public List<CommunityAnswer> getAllCommunityAnswersByQuestionId(Long questionId) {
-        return communityAnswerRepository.findAllWithDetailsByCommunityQuestionId(questionId);
+        return communityAnswerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionId(questionId);
     }
 
     /**

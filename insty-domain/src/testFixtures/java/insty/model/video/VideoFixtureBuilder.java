@@ -26,4 +26,10 @@ public class VideoFixtureBuilder {
         ReflectionTestUtils.setField(videoQuestion, "id", 1L);
         return videoQuestion;
     }
+
+    public static VideoEncoding getVideoEncodingWithId() {
+        VideoEncoding videoEncoding = VideoEncodingFixture.getVideoEncoding();
+        ReflectionTestUtils.setField(videoEncoding, "id", 1L);
+        return videoEncoding;
+    }
 }

@@ -11,17 +11,19 @@ import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionDetailsRes;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
+import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
-import insty.domain.community.implement.CommunityQuestionMapper;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.community.event.CommunityQuestionCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
@@ -44,13 +46,12 @@ public class CommunityQuestionService {
     private final CommunityQuestionFileWriter communityQuestionFileWriter;
     private final CommunityQuestionVideoManager communityQuestionVideoManager;
     private final CommunityAnswerMapper communityAnswerMapper;
-    private final CommunityQuestionMapper communityQuestionMapper;
     private final CommunityValidator communityValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
-
     private final CommunityAnswerService communityAnswerService;
     private final CommunityAnswerWriter communityAnswerWriter;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
@@ -60,9 +61,9 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toSearchFilter();
         String sort = req.sort();
 
-        List<CommunityQuestion> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(communityQuestionMapper::toCommunityQuestionRes)
+                .map(CommunityQuestionRes::from)
                 .toList();
 
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
@@ -77,9 +78,9 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toSearchFilterWithUser(userId);
         String sort = req.sort();
 
-        List<CommunityQuestion> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(communityQuestionMapper::toCommunityQuestionRes)
+                .map(CommunityQuestionRes::from)
                 .toList();
 
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
@@ -94,9 +95,9 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toSearchFilterWithCourseId(courseId);
         String sort = req.sort();
 
-        List<CommunityQuestion> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(communityQuestionMapper::toCommunityQuestionRes)
+                .map(CommunityQuestionRes::from)
                 .toList();
 
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
@@ -129,6 +130,9 @@ public class CommunityQuestionService {
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
         VideoInfo videoInfo = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuid());
+
+        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
+
 
         return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, null);
     }

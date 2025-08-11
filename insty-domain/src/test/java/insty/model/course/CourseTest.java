@@ -156,18 +156,6 @@ class CourseTest {
     }
 
     @Test
-    void deleteLogically_정상() {
-        // given
-        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
-
-        // when
-        course.deleteLogically();
-
-        // then
-        assertThat(course.isDeleted()).isTrue();
-    }
-
-    @Test
     void updateThumbnail_정상() {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();

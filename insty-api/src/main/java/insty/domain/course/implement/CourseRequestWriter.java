@@ -18,4 +18,8 @@ public class CourseRequestWriter {
         CourseRequest courseRequest = CourseRequest.create(userId, req.title(), req.content(), req.creatorId());
         return courseRequestRepository.save(courseRequest);
     }
+
+    public void deleteAllByRequesterId(Long requesterId) {
+        courseRequestRepository.deleteAllByRequesterId(requesterId);
+    }
 }
