@@ -5,16 +5,16 @@ import static insty.model.user.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import insty.domain.common.dto.UserInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.common.dto.UserInfo;
 import insty.domain.common.repository.QuerydslRepositorySupport;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.repository.CommunityQuestionQueryRepository;
 import insty.model.community.CommunityQuestion;
-import org.springframework.stereotype.Repository;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupport implements CommunityQuestionQueryRepository {

@@ -1,8 +1,8 @@
 package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityAnswerRes;
-import insty.model.video.VideoAnswer;
 import insty.model.community.CommunityAnswer;
+import insty.model.video.VideoAnswer;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

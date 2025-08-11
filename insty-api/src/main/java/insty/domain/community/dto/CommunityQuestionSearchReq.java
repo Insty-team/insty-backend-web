@@ -1,7 +1,6 @@
 package insty.domain.community.dto;
 
 import insty.domain.common.dto.PaginationReq;
-import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
