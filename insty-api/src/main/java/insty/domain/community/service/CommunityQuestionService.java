@@ -94,14 +94,13 @@ public class CommunityQuestionService {
      */
     public SearchRes<CommunityQuestionRes> searchQuestions(CommunityQuestionSearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
-        CommunityQuestionSearchFilter filter = req.toSearchFilter();
-        String sort = req.sort();
+        CommunityQuestionSearchFilter filter = req.toFilter(null, null);
+        String sort = req.orderByClause();
 
         List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(CommunityQuestionRes::from)
                 .toList();
-
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
         return SearchRes.from(paginationRes, communityQuestionRes);
     }
@@ -111,14 +110,13 @@ public class CommunityQuestionService {
      */
     public SearchRes<CommunityQuestionRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId){
         PaginationReq paginationReq = req.toPaginationReq();
-        CommunityQuestionSearchFilter filter = req.toSearchFilterWithUser(userId);
-        String sort = req.sort();
+        CommunityQuestionSearchFilter filter = req.toFilter(userId, null);
+        String sort = req.orderByClause();
 
         List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(CommunityQuestionRes::from)
                 .toList();
-
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
         return SearchRes.from(paginationRes, communityQuestionRes);
     }
@@ -128,14 +126,13 @@ public class CommunityQuestionService {
      */
     public SearchRes<CommunityQuestionRes> searchQuestionsByCourseId(CommunityQuestionSearchReq req, Long courseId) {
         PaginationReq paginationReq = req.toPaginationReq();
-        CommunityQuestionSearchFilter filter = req.toSearchFilterWithCourseId(courseId);
-        String sort = req.sort();
+        CommunityQuestionSearchFilter filter = req.toFilter(null, courseId);
+        String sort = req.orderByClause();
 
         List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(CommunityQuestionRes::from)
                 .toList();
-
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
         return SearchRes.from(paginationRes, communityQuestionRes);
     }
