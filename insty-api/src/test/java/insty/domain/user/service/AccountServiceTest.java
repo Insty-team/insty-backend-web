@@ -137,6 +137,6 @@ class AccountServiceTest {
 
         // then
         verify(userReader).existByUserId(eq(userId));
-        verify(userWriter).delete(eq(userId));
+        verify(userWriter).withdraw(eq(userId));
     }
 }

@@ -81,6 +81,6 @@ public class AccountService {
 
     public void withdraw(Long userId) {
         userReader.existByUserId(userId);
-        userWriter.delete(userId);
+        userWriter.withdraw(userId);
     }
 }
