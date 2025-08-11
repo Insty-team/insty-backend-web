@@ -1,25 +1,19 @@
 package insty.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.implement.UserFileReader;
-import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
-import insty.error.AuthErrorCode;
-import insty.exception.CustomException;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import org.junit.jupiter.api.Test;
@@ -41,11 +35,7 @@ class AccountServiceTest {
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
-    private UserFileWriter userFileWriter;
-    @Mock
     private UserFileReader userFileReader;
-    @Mock
-    private EmailVerificationReader emailVerificationReader;
 
     @InjectMocks
     private AccountService accountService;
@@ -60,12 +50,12 @@ class AccountServiceTest {
 
         when(bCryptPasswordEncoder.encode(req.password())).thenReturn(encodedPassword);
         when(userWriter.save(req.email(), encodedPassword, req.nickname())).thenReturn(savedUser);
-//        when(emailVerificationReader.existsByEmail(req.email())).thenReturn(true);
 
         // when
         UserCreateRes result = accountService.signup(req);
 
         // then
+        verify(userValidator).validateEmailVerification(req.email());
         verify(userValidator).validateDuplicateEmail(req.email());
         verify(userValidator).validateDuplicateNickname(req.nickname());
         verify(bCryptPasswordEncoder).encode(req.password());
@@ -75,18 +65,6 @@ class AccountServiceTest {
         assertThat(result.email()).isEqualTo(req.email());
         assertThat(result.nickname()).isEqualTo(req.nickname());
         assertThat(result.userType()).isEqualTo(savedUser.getUserType());
-    }
-
-    // @Test
-    void 회원가입시_인증하지_않은_이메일이라면_예외가_발생한다() {
-        // given
-        UserCreateReq req = new UserCreateReq("test@example.com", "plainPassword", "nickname");
-        when(emailVerificationReader.existsByEmail(any())).thenReturn(false);
-
-        // when & then
-        assertThatThrownBy(() -> accountService.signup(req))
-            .isInstanceOf(CustomException.class)
-            .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
     }
 
     @Test

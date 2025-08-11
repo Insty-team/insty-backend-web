@@ -1,6 +1,6 @@
 package insty.domain.user.implement;
 
-import insty.domain.course.service.CourseService;
+import insty.domain.course.implement.CourseCleaner;
 import insty.domain.user.repository.UserRepository;
 import insty.model.user.User;
 import insty.model.user.UserType;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserWriter {
 
-    private final CourseService courseService;
+    private final CourseCleaner courseCleaner;
     private final UserRepository userRepository;
 
     /**
@@ -74,5 +74,7 @@ public class UserWriter {
 
     public void withdraw(Long userId) {
         userRepository.deleteById(userId);
+        courseCleaner.cleanAllData(userId);
+        // todo: AI 질문 이력 삭제 추가시 작업
     }
 }

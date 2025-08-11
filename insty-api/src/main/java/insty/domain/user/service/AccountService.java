@@ -1,6 +1,5 @@
 package insty.domain.user.service;
 
-import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
@@ -30,15 +29,12 @@ public class AccountService {
 
     // 스프링 시큐리티
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final EmailVerificationReader emailVerificationReader;
+
     /**
      * 이메일 회원가입
      */
     public UserCreateRes signup(UserCreateReq req) {
-        /*if (!emailVerificationReader.existsByEmail(req.email())) {
-            throw new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
-        }*/
-        // 중복 체크
+        userValidator.validateEmailVerification(req.email());
         userValidator.validateDuplicateEmail(req.email());
         userValidator.validateDuplicateNickname(req.nickname());
 
