@@ -68,9 +68,10 @@ public class CommunityAnswerService {
     public CommunityAnswerRes updateAnswer(Long userId, Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
-        communityValidator.validateAnswerAuthor(userId, answerId);
 
         CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
+        communityValidator.validateAnswerAuthor(userId, answer);
+
         List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
         VideoAnswer video = communityAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
 
@@ -102,8 +103,9 @@ public class CommunityAnswerService {
      * 답변과 관련된 모든 데이터(첨부 파일 등)를 함께 삭제
      */
     public void deleteAnswer(Long userId, Long answerId) {
-        communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
+        communityValidator.validateAnswerAuthor(userId, answer);
+        communityAnswerFileWriter.deleteAnswerFiles(answer);
         communityAnswerVideoManager.deleteeAnswerVideo(answer);
         communityAnswerWriter.deleteAnswer(answer);
     }
@@ -113,9 +115,9 @@ public class CommunityAnswerService {
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
     public AcceptAnswerResultRes acceptAnswer(Long userId, Long questionId, Long answerId) {
-        communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
+        communityValidator.validateAnswerAuthor(userId, answer);
         communityValidator.validateAnswerBelongsToQuestion(answer, question);
         return communityAnswerAcceptService.acceptAnswer(question, answer);
     }

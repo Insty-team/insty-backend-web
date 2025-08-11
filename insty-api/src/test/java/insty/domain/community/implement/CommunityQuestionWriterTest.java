@@ -120,7 +120,7 @@ class CommunityQuestionWriterTest {
         writer.deleteQuestion(question);
 
         // then
-        verify(question).markAsDeleted();
+        verify(repository).delete(question);
     }
 
 }

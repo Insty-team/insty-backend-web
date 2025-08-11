@@ -62,4 +62,16 @@ public class CommunityQuestionFileWriter {
         return communityQuestionFiles;
     }
 
+    /**
+     * 질문과 연관된 모든 파일을 S3 및 DB에서 삭제한다.
+     *
+     * @param question
+     */
+    public void deleteQuestionFiles(CommunityQuestion question) {
+        question.removeAllFiles();
+        communityQuestionFileRepository.deleteAllByQuestionId(question.getId());
+
+        fileWriter.deleteAllFile(FileContainerType.QUESTION_IMAGE, question.getId());
+    }
+
 }

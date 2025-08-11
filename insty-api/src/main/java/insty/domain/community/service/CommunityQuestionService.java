@@ -14,6 +14,8 @@ import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.event.CommunityQuestionCreatedEvent;
+import insty.domain.community.implement.CommunityAnswerFileWriter;
+import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
@@ -49,6 +51,8 @@ public class CommunityQuestionService {
     private final UserReader userReader;
     private final CommunityAnswerService communityAnswerService;
     private final CommunityAnswerWriter communityAnswerWriter;
+    private final CommunityAnswerFileWriter communityAnswerFileWriter;
+    private final CommunityAnswerVideoManager communityAnswerVideoManager;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -150,15 +154,20 @@ public class CommunityQuestionService {
 
     /**
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
-     * 질문 삭제는 자주 불리지 않으니 N+1문제는 허용한다.
-     * why?) 복잡한 설계 X
      */
     public void deleteQuestion(Long userId, Long questionId) {
-        communityValidator.validateQuestionAuthor(userId, questionId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
-        for(CommunityAnswer answer : question.getAnswers()){
+        communityValidator.validateQuestionAuthor(userId, questionId);
+        
+        // 연관된 모든 답변 삭제
+        for (CommunityAnswer answer : question.getAnswers()) {
+            communityAnswerFileWriter.deleteAnswerFiles(answer);
+            communityAnswerVideoManager.deleteeAnswerVideo(answer);
             communityAnswerWriter.deleteAnswer(answer);
         }
+
+        communityQuestionFileWriter.deleteQuestionFiles(question);
+        communityQuestionVideoManager.deleteeQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
     }
 }

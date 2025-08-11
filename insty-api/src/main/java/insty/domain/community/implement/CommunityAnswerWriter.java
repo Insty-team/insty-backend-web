@@ -20,8 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityAnswerWriter {
 
     private final CommunityAnswerRepository communityAnswerRepository;
-    private final CommunityAnswerVideoManager communityAnswerVideoManager;
-    private final CommunityAnswerFileWriter communityAnswerFileWriter;
 
     /**
      * 커뮤니티 답변 생성 및 저장
@@ -51,9 +49,6 @@ public class CommunityAnswerWriter {
         if (communityAnswer.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
         }
-        communityAnswerVideoManager.deleteeAnswerVideo(communityAnswer);
-        communityAnswerFileWriter.deleteAnswerFiles(communityAnswer);
-        communityAnswer.markAsDeleted();
         communityAnswerRepository.delete(communityAnswer);
     }
 }

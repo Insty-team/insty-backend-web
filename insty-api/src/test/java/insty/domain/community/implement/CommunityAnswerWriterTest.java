@@ -121,9 +121,6 @@ class CommunityAnswerWriterTest {
         writer.deleteAnswer(answer);
 
         // then
-        verify(communityAnswerVideoManager).deleteeAnswerVideo(answer);
-        verify(communityAnswerFileWriter).deleteAnswerFiles(answer);
-        verify(answer).markAsDeleted();
         verify(answerRepository).delete(answer);
     }
 
