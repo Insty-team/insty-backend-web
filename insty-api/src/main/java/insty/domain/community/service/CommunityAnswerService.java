@@ -14,6 +14,8 @@ import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.community.event.CommunityAnswerCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
@@ -37,6 +39,7 @@ public class CommunityAnswerService {
     private final CommunityValidator communityValidator;
     private final CommunityQuestionReader communityQuestionReader;
     private final UserReader userReader;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 특정 질문에 달린 모든 답변을 상세 정보와 함께 조회
@@ -81,6 +84,8 @@ public class CommunityAnswerService {
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
         List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerFiles(answer, attachments);
         VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
+
+        eventPublisher.publishEvent(new CommunityAnswerCreatedEvent(question.getId(), answer.getId()));
 
         return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
     }

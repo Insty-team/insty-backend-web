@@ -94,6 +94,8 @@ app:
   domain: ${INSTY_DOMAIN}
   health-check-path: ${HEALTH_CHECK_PATH}
   ai-api-secret: ${AI_API_SECRET}
+  mail:
+    preview-length: 100
 
 logging:
   level:
