@@ -38,7 +38,7 @@ public class CommunityAnswerFile extends BaseEntity {
     @JoinColumn(name = "answer_id", nullable = false)
     private CommunityAnswer communityAnswer;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @MapsId("fileId")
     @JoinColumn(name = "file_id", nullable = false)
     private File file;

@@ -58,4 +58,15 @@ public class CommunityAnswerFileWriter {
         return answerFiles;
     }
 
+    /**
+     * 답변과 연관된 모든 파일을 S3 및 DB에서 삭제한다.
+     *
+     * @param answer
+     */
+    public void deleteAnswerFiles(CommunityAnswer answer) {
+        answer.removeAllFiles();
+        communityAnswerFileRepository.deleteAllByAnswerId(answer.getId());
+        fileWriter.deleteAllFile(FileContainerType.ANSWER_IMAGE, answer.getId());
+    }
+
 }

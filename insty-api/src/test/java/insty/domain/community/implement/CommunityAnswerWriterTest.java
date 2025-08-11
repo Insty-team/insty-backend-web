@@ -33,6 +33,10 @@ class CommunityAnswerWriterTest {
     @Mock
     private CommunityAnswerRepository answerRepository;
     @Mock
+    private CommunityAnswerVideoManager communityAnswerVideoManager;
+    @Mock
+    private CommunityAnswerFileWriter communityAnswerFileWriter;
+    @Mock
     private CommunityAnswerFileRepository fileRepository;
 
     @Test
@@ -117,7 +121,10 @@ class CommunityAnswerWriterTest {
         writer.deleteAnswer(answer);
 
         // then
+        verify(communityAnswerVideoManager).deleteeAnswerVideo(answer);
+        verify(communityAnswerFileWriter).deleteAnswerFiles(answer);
         verify(answer).markAsDeleted();
+        verify(answerRepository).delete(answer);
     }
 
 }

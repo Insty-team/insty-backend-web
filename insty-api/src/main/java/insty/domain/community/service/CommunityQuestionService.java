@@ -159,7 +159,6 @@ public class CommunityQuestionService {
         for(CommunityAnswer answer : question.getAnswers()){
             communityAnswerWriter.deleteAnswer(answer);
         }
-        communityQuestionVideoManager.deleteeQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
     }
 }
