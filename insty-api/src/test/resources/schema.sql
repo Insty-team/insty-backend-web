@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS web_service.community_questions (
     title       VARCHAR(255) NOT NULL, -- 질문 게시글 제목
     content     TEXT NOT NULL, -- 질문 게시글 내용
     is_answered BOOLEAN NOT NULL DEFAULT FALSE, -- 답변 여부
+    status      VARCHAR(15) NOT NULL DEFAULT 'WAITING' CHECK (status IN ('WAITING', 'ANSWERED', 'ACCEPTED')), -- 질문 상태
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 생성 시각
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 수정 시각
     is_deleted  BOOLEAN NOT NULL DEFAULT FALSE, -- 삭제 여부
