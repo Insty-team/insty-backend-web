@@ -21,4 +21,6 @@ public interface CommunityAnswerRepository extends JpaRepository<CommunityAnswer
         ORDER BY a.createdAt ASC
     """)
     List<CommunityAnswer> findAllDetailsWithUserAttachmentsByCommunityQuestionId(@Param("questionId") Long questionId);
+
+    int countByCommunityQuestionIdAndIsDeletedFalse(Long communityQuestionId);
 }

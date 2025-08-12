@@ -14,6 +14,7 @@ import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
+import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityValidator;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
@@ -40,6 +41,7 @@ public class CommunityAnswerService {
     private final CommunityValidator communityValidator;
     private final CommunityAnswerMapper communityAnswerMapper;
     private final CommunityQuestionReader communityQuestionReader;
+    private final CommunityQuestionStatusManager communityQuestionStatusManager;
     private final UserReader userReader;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -56,6 +58,8 @@ public class CommunityAnswerService {
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
         List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerFiles(answer, attachments);
         VideoAnswer video = communityAnswerVideoManager.attachVideoToAnswer(answer, req.videoUuid());
+
+        communityQuestionStatusManager.updateStatusAfterAnswerCreated(question);
 
         eventPublisher.publishEvent(new CommunityAnswerCreatedEvent(question.getId(), answer.getId()));
 
@@ -105,9 +109,12 @@ public class CommunityAnswerService {
     public void deleteAnswer(Long userId, Long answerId) {
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateAnswerAuthor(userId, answer);
+        
         communityAnswerFileWriter.deleteAnswerFiles(answer);
         communityAnswerVideoManager.deleteeAnswerVideo(answer);
         communityAnswerWriter.deleteAnswer(answer);
+
+        communityQuestionStatusManager.updateStatusAfterAnswerDeleted(answer);
     }
 
     /**
