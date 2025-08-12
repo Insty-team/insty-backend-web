@@ -104,7 +104,7 @@ public class UserValidator {
     }
 
     public void validateEmailVerification(String email) {
-        if (!emailVerificationReader.existsByEmail(email)) {
+        if (!emailVerificationReader.checkEmailVerified(email)) {
             throw new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
         }
     }

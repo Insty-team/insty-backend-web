@@ -84,7 +84,7 @@ class UserValidatorTest {
     @Test
     void 이메일_인증_내역이_없으면_예외가_발생한다() {
         // given
-        when(emailVerificationReader.existsByEmail(anyString())).thenReturn(false);
+        when(emailVerificationReader.checkEmailVerified(anyString())).thenReturn(false);
 
         // when & then
         assertThatThrownBy(() -> userValidator.validateEmailVerification("test@example.com"))
