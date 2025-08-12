@@ -286,4 +286,62 @@ class CommunityQuestionTest {
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
         assertThat(communityQuestion.isAnswered()).isFalse();
     }
+
+    @Test
+    void handleAcceptedAnswerDeleted_남은답변있음() {
+        // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId();
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        
+        CommunityAnswer acceptedAnswer = CommunityAnswer.create(communityQuestion, user, "채택된 답변");
+        acceptedAnswer.accept();
+        communityQuestion.acceptAnswer(acceptedAnswer);
+
+        // when
+        communityQuestion.handleAcceptedAnswerDeleted(true); // 남은 답변 있음
+
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+        assertThat(communityQuestion.isAnswered()).isFalse();
+        assertThat(acceptedAnswer.isAccepted()).isFalse();
+    }
+
+    @Test
+    void handleAcceptedAnswerDeleted_남은답변없음() {
+        // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId();
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        
+        CommunityAnswer acceptedAnswer = CommunityAnswer.create(communityQuestion, user, "채택된 답변");
+        acceptedAnswer.accept();
+        communityQuestion.acceptAnswer(acceptedAnswer);
+
+        // when
+        communityQuestion.handleAcceptedAnswerDeleted(false); // 남은 답변 없음
+
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.WAITING);
+        assertThat(communityQuestion.isAnswered()).isFalse();
+        assertThat(acceptedAnswer.isAccepted()).isFalse();
+    }
+
+    @Test
+    void handleAcceptedAnswerDeleted_채택된답변없는경우() {
+        // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId();
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+
+        // when
+        communityQuestion.handleAcceptedAnswerDeleted(true); // 채택된 답변이 없는 상태
+
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+        assertThat(communityQuestion.isAnswered()).isFalse();
+    }
 }

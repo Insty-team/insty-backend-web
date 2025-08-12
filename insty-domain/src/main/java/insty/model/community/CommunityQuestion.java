@@ -142,6 +142,19 @@ public class CommunityQuestion extends BaseEntity {
         }
     }
 
+    public void handleAcceptedAnswerDeleted(boolean hasRemainingAnswers) {
+        if (this.acceptedAnswer != null) {
+            this.acceptedAnswer.unaccept();
+            this.acceptedAnswer = null;
+        }
+        if (hasRemainingAnswers) {
+            this.status = QuestionStatus.ANSWERED;
+        } else {
+            this.status = QuestionStatus.WAITING;
+        }
+        this.isAnswered = false;
+    }
+
     public void removeAllFiles() {
         this.attachments.clear();
     }
