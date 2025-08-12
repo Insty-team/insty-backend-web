@@ -27,6 +27,9 @@ public class CommunityAnswerVideoManager {
      * 답변에 비디오 첨부
      */
     public VideoAnswer attachVideoToAnswer(CommunityAnswer answer, UUID videoUuid) {
+        if(videoUuid == null){
+            return null;
+        }
         VideoAnswer videoAnswer = videoAnswerRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         videoAnswer.updateCommunityAnswer(answer);

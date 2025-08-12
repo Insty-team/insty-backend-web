@@ -51,4 +51,11 @@ public class CommunityAnswerReader {
     public int countActiveAnswersByQuestionId(Long questionId) {
         return communityAnswerRepository.countByCommunityQuestionIdAndIsDeletedFalse(questionId);
     }
+    
+    /**
+     * 특정 질문에 대한 채택된 답변 개수 조회
+     */
+    public int countAcceptedAnswersByQuestionId(Long questionId) {
+        return communityAnswerRepository.countAcceptedAnswersByQuestionId(questionId);
+    }
 }

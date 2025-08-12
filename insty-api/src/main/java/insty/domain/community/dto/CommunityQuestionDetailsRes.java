@@ -3,6 +3,7 @@ package insty.domain.community.dto;
 import insty.domain.common.FileInfo;
 import insty.domain.common.VideoInfo;
 import insty.model.community.CommunityQuestion;
+import insty.model.community.QuestionStatus;
 import insty.model.video.VideoQuestion;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
@@ -23,6 +24,9 @@ public record CommunityQuestionDetailsRes(
 
         @Schema(description = "질문 내용", example = "스프링 부트에서 JPA를 사용할 때 발생하는 문제입니다.")
         String content,
+
+        @Schema(description = "질문 상태 (WAITING: 답변 대기, ANSWERED: 답변 있음, ACCEPTED: 답변 채택됨)", example = "WAITING")
+        QuestionStatus status,
 
         @Schema(description = "질문에 달린 답변 목록")
         List<CommunityAnswerRes> answers,
@@ -50,6 +54,7 @@ public record CommunityQuestionDetailsRes(
                 question.getCourse().getId(),
                 question.getTitle(),
                 question.getContent(),
+                question.getStatus(),
                 Optional.ofNullable(answers).orElse(List.of()),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 VideoInfo.of(video),
