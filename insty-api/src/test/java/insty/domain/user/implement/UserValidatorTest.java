@@ -1,12 +1,16 @@
 package insty.domain.user.implement;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.user.repository.UserRepository;
+import insty.error.AuthErrorCode;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
@@ -23,7 +27,8 @@ class UserValidatorTest {
 
     @Mock
     private UserRepository userRepository;
-
+    @Mock
+    private EmailVerificationReader emailVerificationReader;
     @InjectMocks
     private UserValidator userValidator;
 
@@ -74,5 +79,16 @@ class UserValidatorTest {
 
         // when & then
         assertDoesNotThrow(() -> userValidator.validateDuplicateNickname(nickname));
+    }
+
+    @Test
+    void 이메일_인증_내역이_없으면_예외가_발생한다() {
+        // given
+        when(emailVerificationReader.existsByEmail(anyString())).thenReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> userValidator.validateEmailVerification("test@example.com"))
+            .isInstanceOf(CustomException.class)
+            .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
     }
 }

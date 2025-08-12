@@ -2,7 +2,6 @@ package insty.domain.user.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -22,8 +21,6 @@ import insty.domain.user.implement.UserFileWriter;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserValidator;
 import insty.domain.user.implement.UserWriter;
-import insty.error.AuthErrorCode;
-import insty.exception.CustomException;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.user.UserType;
@@ -82,18 +79,6 @@ class UserServiceTest {
         assertThat(result.email()).isEqualTo(req.email());
         assertThat(result.nickname()).isEqualTo(req.nickname());
         assertThat(result.userType()).isEqualTo(savedUser.getUserType());
-    }
-
-    // @Test
-    void 회원가입시_인증하지_않은_이메일이라면_예외가_발생한다() {
-        // given
-        UserCreateReq req = new UserCreateReq("test@example.com", "plainPassword", "nickname");
-        when(emailVerificationReader.existsByEmail(any())).thenReturn(false);
-        
-        // when & then
-        assertThatThrownBy(() -> userService.signup(req))
-            .isInstanceOf(CustomException.class)
-            .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
     }
 
     @Test
