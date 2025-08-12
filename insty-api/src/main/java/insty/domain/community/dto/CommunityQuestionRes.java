@@ -1,6 +1,7 @@
 package insty.domain.community.dto;
 
 import insty.model.community.CommunityQuestion;
+import insty.model.community.QuestionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 
@@ -18,8 +19,8 @@ public record CommunityQuestionRes(
         @Schema(description = "질문 내용", example = "스프링 부트에서 JPA를 사용할 때 발생하는 문제입니다.")
         String content,
 
-        @Schema(description = "답변 채택 여부", example = "false")
-        Boolean isAnswered,
+        @Schema(description = "질문 상태 (WAITING: 답변 대기, ANSWERED: 답변 있음, ACCEPTED: 답변 채택됨)", example = "WAITING")
+        QuestionStatus status,
 
         @Schema(description = "질문 작성 시간", example = "2024-01-15T10:30:00Z")
         Instant createdAt,
@@ -35,7 +36,7 @@ public record CommunityQuestionRes(
                 question.getCourse().getId(),
                 question.getTitle(),
                 question.getContent(),
-                question.isAnswered(),
+                question.getStatus(),
                 question.getCreatedAt(),
                 question.getUpdatedAt()
         );
@@ -49,7 +50,7 @@ public record CommunityQuestionRes(
                 info.courseId(),
                 info.title(),
                 info.content(),
-                info.isAnswered(),
+                info.status(),
                 info.createdAt(),
                 info.updatedAt()
         );

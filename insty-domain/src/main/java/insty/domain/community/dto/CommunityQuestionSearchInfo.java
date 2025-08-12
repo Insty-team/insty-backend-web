@@ -1,6 +1,7 @@
 package insty.domain.community.dto;
 
 import insty.domain.common.dto.UserInfo;
+import insty.model.community.QuestionStatus;
 import java.time.Instant;
 
 public record CommunityQuestionSearchInfo(
@@ -9,7 +10,7 @@ public record CommunityQuestionSearchInfo(
         Long courseId,
         String title,
         String content,
-        boolean isAnswered,
+        QuestionStatus status,
         Instant createdAt,
         Instant updatedAt
 ) {}

@@ -38,7 +38,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
                         communityQuestion.course.id,
                         communityQuestion.title,
                         communityQuestion.content,
-                        communityQuestion.isAnswered,
+                        communityQuestion.status,
                         communityQuestion.createdAt,
                         communityQuestion.updatedAt
                 )

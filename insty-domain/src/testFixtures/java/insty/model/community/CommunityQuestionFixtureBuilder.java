@@ -36,7 +36,7 @@ public class CommunityQuestionFixtureBuilder {
                 courseId,
                 title,
                 content,
-                false,
+                QuestionStatus.WAITING,
                 Instant.now(),
                 Instant.now()
         );
