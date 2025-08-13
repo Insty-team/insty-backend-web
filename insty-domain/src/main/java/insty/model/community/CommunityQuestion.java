@@ -67,8 +67,6 @@ public class CommunityQuestion extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(nullable = false, name = "is_answered")
-    private boolean isAnswered;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "status")
@@ -85,7 +83,6 @@ public class CommunityQuestion extends BaseEntity {
                 .title(title)
                 .content(content)
                 .status(QuestionStatus.WAITING)
-                .isAnswered(false)
                 .isDeleted(false)
                 .build();
     }
@@ -121,7 +118,7 @@ public class CommunityQuestion extends BaseEntity {
         }
         this.status = QuestionStatus.ACCEPTED;
         this.acceptedAnswer = answer;
-        this.isAnswered = true;
+        
         answer.accept();
     }
 
@@ -131,7 +128,7 @@ public class CommunityQuestion extends BaseEntity {
             this.acceptedAnswer = null;
         }
         this.status = QuestionStatus.ANSWERED;
-        this.isAnswered = false;
+        
     }
 
     public void changeStatusByAnswer(boolean hasAnswer) {
@@ -152,7 +149,7 @@ public class CommunityQuestion extends BaseEntity {
         } else {
             this.status = QuestionStatus.WAITING;
         }
-        this.isAnswered = false;
+        
     }
 
     public void removeAllFiles() {

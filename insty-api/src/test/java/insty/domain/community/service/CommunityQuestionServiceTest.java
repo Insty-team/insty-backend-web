@@ -231,7 +231,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 질문 검색: 키워드/페이지네이션/isAnswered 필터를 검증한다.
+     * 질문 검색: 키워드/페이지네이션/상태 필터를 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -242,28 +242,28 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, '코스2', '설명2', 20000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '[키워드] 제목 포함', '내용 일반', true, 'ANSWERED', DATEADD('MINUTE', -20, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 1, 1, '일반 제목', '내용에 [키워드] 포함', true, 'ANSWERED', DATEADD('MINUTE', -10, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (3, 1, 1, '일반3', '일반 내용3', true, 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (4, 1, 1, '[키워드] 있으나 대기', '내용', false, 'WAITING', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (5, 1, 1, '[키워드] ACCEPTED', '내용', true, 'ACCEPTED', DATEADD('MINUTE', -2, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (6, 1, 1, '[키워드] A6', '내용', true, 'ANSWERED', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (7, 1, 1, '[키워드] A7', '내용', true, 'ANSWERED', DATEADD('MINUTE', -4, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (8, 1, 1, '[키워드] A8', '내용', true, 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (9, 1, 1, '[키워드] A9', '내용', true, 'ANSWERED', DATEADD('MINUTE', -6, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (10, 1, 1, '[키워드] WAIT2', '내용', false, 'WAITING', DATEADD('MINUTE', -7, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (11, 1, 2, '[키워드] 다른코스 WAIT', '내용', false, 'WAITING', DATEADD('MINUTE', -1, NOW()), NOW(), false);"})
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '[키워드] 제목 포함', '내용 일반', 'ANSWERED', DATEADD('MINUTE', -20, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, '일반 제목', '내용에 [키워드] 포함', 'ANSWERED', DATEADD('MINUTE', -10, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 1, 1, '일반3', '일반 내용3', 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 1, 1, '[키워드] 있으나 대기', '내용', 'WAITING', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (5, 1, 1, '[키워드] ACCEPTED', '내용', 'ACCEPTED', DATEADD('MINUTE', -2, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (6, 1, 1, '[키워드] A6', '내용', 'ANSWERED', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (7, 1, 1, '[키워드] A7', '내용', 'ANSWERED', DATEADD('MINUTE', -4, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (8, 1, 1, '[키워드] A8', '내용', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (9, 1, 1, '[키워드] A9', '내용', 'ANSWERED', DATEADD('MINUTE', -6, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (10, 1, 1, '[키워드] WAIT2', '내용', 'WAITING', DATEADD('MINUTE', -7, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (11, 1, 2, '[키워드] 다른코스 WAIT', '내용', 'WAITING', DATEADD('MINUTE', -1, NOW()), NOW(), false);"})
     void searchQuestions_정상() {
         CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(5).orderBy(null)
                 .order(null).keyword("키워드").statuses(java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED)).build();
@@ -309,18 +309,18 @@ class CommunityQuestionServiceTest {
                     + "VALUES (2, 2, '코스2', '설명2', 20000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
             // user1의 질문 3개(1개 삭제됨)
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, 'U1-Q1', '내용1', true, 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 1, 1, 'U1-Q2', '내용2', false, 'WAITING', DATEADD('MINUTE', -20, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (3, 1, 2, 'U1-Q3', '내용3', true, 'ACCEPTED', DATEADD('MINUTE', -10, NOW()), NOW(), true);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, 'U1-Q1', '내용1', 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, 'U1-Q2', '내용2', 'WAITING', DATEADD('MINUTE', -20, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 1, 2, 'U1-Q3', '내용3', 'ACCEPTED', DATEADD('MINUTE', -10, NOW()), NOW(), true);",
 
             // user2의 질문 2개(조회 대상 아님)
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (4, 2, 2, 'U2-Q1', '내용4', true, 'ANSWERED', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (5, 2, 1, 'U2-Q2', '내용5', false, 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 2, 2, 'U2-Q1', '내용4', 'ANSWERED', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (5, 2, 1, 'U2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
     void searchQuestionsByUserId_정상() {
         CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(2).orderBy(null)
                 .order(null).keyword(null).statuses(null).build();
@@ -350,18 +350,18 @@ class CommunityQuestionServiceTest {
                     + "VALUES (2, 2, '코스2', '설명2', 20000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
             // 코스1 질문 3개(1개 삭제)
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, 'C1-Q1', '내용1', true, 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 1, 1, 'C1-Q2', '내용2', false, 'WAITING', DATEADD('MINUTE', -20, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (3, 1, 1, 'C1-Q3', '내용3', true, 'ACCEPTED', DATEADD('MINUTE', -10, NOW()), NOW(), true);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, 'C1-Q1', '내용1', 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, 'C1-Q2', '내용2', 'WAITING', DATEADD('MINUTE', -20, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 1, 1, 'C1-Q3', '내용3', 'ACCEPTED', DATEADD('MINUTE', -10, NOW()), NOW(), true);",
 
             // 코스2 질문 2개(필터로 제외)
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (4, 2, 2, 'C2-Q1', '내용4', true, 'ANSWERED', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (5, 2, 2, 'C2-Q2', '내용5', false, 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 2, 2, 'C2-Q1', '내용4', 'ANSWERED', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (5, 2, 2, 'C2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
     void searchQuestionsByCourseId_정상() {
         CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(10).orderBy(null)
                 .order(null).keyword(null).statuses(null).build();
@@ -388,8 +388,8 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '상세코스', '상세설명', 10000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '상세 질문 제목', '상세 질문 내용', true, 'ANSWERED', NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '상세 질문 제목', '상세 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
 
             "INSERT INTO web_service.files (id, container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (100, 1, 'QUESTION_IMAGE', 'image/jpeg', 'detail_q_attachment1.jpg', 'detail_q_attachment1.jpg', 1024, NOW(), NOW());",
@@ -461,8 +461,8 @@ class CommunityQuestionServiceTest {
                     + "VALUES (1, 1, '삭제코스', '삭제설명', 10000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
             // 질문 및 파일
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, is_answered, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '삭제 대상 질문', '삭제 대상 질문 내용', true, 'ANSWERED', NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '삭제 대상 질문', '삭제 대상 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
             "INSERT INTO web_service.files (id, container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (100, 1, 'QUESTION_IMAGE', 'image/jpeg', 'del_q_attachment1.jpg', 'del_q_attachment1.jpg', 1024, NOW(), NOW());",
             "INSERT INTO web_service.community_question_files (question_id, file_id, created_at, updated_at) VALUES (1, 100, NOW(), NOW());",

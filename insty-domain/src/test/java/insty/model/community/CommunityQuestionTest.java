@@ -38,7 +38,6 @@ class CommunityQuestionTest {
         assertThat(communityQuestion.getTitle()).isEqualTo(title);
         assertThat(communityQuestion.getContent()).isEqualTo(content);
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.WAITING);
-        assertThat(communityQuestion.isAnswered()).isFalse();
         assertThat(communityQuestion.isDeleted()).isFalse();
     }
 
@@ -208,7 +207,6 @@ class CommunityQuestionTest {
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isEqualTo(answer);
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
-        assertThat(communityQuestion.isAnswered()).isTrue();
         assertThat(answer.isAccepted()).isTrue();
     }
 
@@ -244,7 +242,6 @@ class CommunityQuestionTest {
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
-        assertThat(communityQuestion.isAnswered()).isFalse();
         assertThat(answer.isAccepted()).isFalse();
     }
 
@@ -284,7 +281,6 @@ class CommunityQuestionTest {
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
-        assertThat(communityQuestion.isAnswered()).isFalse();
     }
 
     @Test
@@ -304,7 +300,6 @@ class CommunityQuestionTest {
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
-        assertThat(communityQuestion.isAnswered()).isFalse();
         assertThat(acceptedAnswer.isAccepted()).isFalse();
     }
 
@@ -325,7 +320,6 @@ class CommunityQuestionTest {
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.WAITING);
-        assertThat(communityQuestion.isAnswered()).isFalse();
         assertThat(acceptedAnswer.isAccepted()).isFalse();
     }
 
@@ -342,6 +336,5 @@ class CommunityQuestionTest {
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
         assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
-        assertThat(communityQuestion.isAnswered()).isFalse();
     }
 }
