@@ -50,7 +50,7 @@ public class CommunityAnswer extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @JoinColumn(name = "answer_image_id")
     private File answerImage;
 
@@ -61,7 +61,7 @@ public class CommunityAnswer extends BaseEntity {
     @Builder.Default
     private boolean isAccepted = false;
 
-    @OneToMany(mappedBy = "communityAnswer", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "communityAnswer", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     @Builder.Default
     private List<CommunityAnswerFile> attachments = new ArrayList<>();
 

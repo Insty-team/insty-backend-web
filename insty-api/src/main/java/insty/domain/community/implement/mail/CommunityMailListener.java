@@ -2,8 +2,8 @@ package insty.domain.community.implement.mail;
 
 import insty.domain.community.event.CommunityAnswerCreatedEvent;
 import insty.domain.community.event.CommunityQuestionCreatedEvent;
-import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityAnswerReader;
+import insty.domain.community.implement.CommunityQuestionReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

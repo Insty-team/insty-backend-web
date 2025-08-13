@@ -18,6 +18,7 @@ import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityAnswerFile;
 import insty.model.file.File;
+import insty.model.file.FileContainerType;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -221,5 +222,42 @@ class CommunityAnswerFileWriterTest {
         // when & then
         assertThatThrownBy(() -> fileWriter.updateAnswerFiles(null, null, null))
                 .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void deleteAnswerFiles_정상() {
+        // given
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answer.getId()).thenReturn(1L);
+
+        // when
+        fileWriter.deleteAnswerFiles(answer);
+
+        // then
+        verify(answer).removeAllFiles();
+        verify(communityAnswerFileRepository).deleteAllByAnswerId(1L);
+        verify(fileWriterDep).deleteAllFile(FileContainerType.ANSWER_IMAGE, 1L);
+    }
+
+    @Test
+    void deleteAnswerFiles_answerNull이면예외() {
+        // when & then
+        assertThatThrownBy(() -> fileWriter.deleteAnswerFiles(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void deleteAnswerFiles_순서검증() {
+        // given
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answer.getId()).thenReturn(1L);
+
+        // when
+        fileWriter.deleteAnswerFiles(answer);
+
+        // then - 순서대로 호출되는지 검증
+        verify(answer).removeAllFiles();
+        verify(communityAnswerFileRepository).deleteAllByAnswerId(1L);
+        verify(fileWriterDep).deleteAllFile(FileContainerType.ANSWER_IMAGE, 1L);
     }
 }

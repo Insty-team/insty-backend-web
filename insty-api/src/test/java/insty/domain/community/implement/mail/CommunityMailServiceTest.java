@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.domain.community.implement.mail.CommunityAnswerMailContent;
-import insty.domain.community.implement.mail.CommunityQuestionMailContent;
 import insty.global.property.AppProperties;
 import insty.mail.MailContent;
 import insty.mail.MailHelper;

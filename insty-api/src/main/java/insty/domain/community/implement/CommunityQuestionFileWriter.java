@@ -13,10 +13,12 @@ import insty.model.file.FileContainerType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommunityQuestionFileWriter {
 
     private final FileWriter fileWriter;
@@ -60,6 +62,18 @@ public class CommunityQuestionFileWriter {
                 .toList();
         communityQuestionFileRepository.saveAll(communityQuestionFiles);
         return communityQuestionFiles;
+    }
+
+    /**
+     * 질문과 연관된 모든 파일을 S3 및 DB에서 삭제한다.
+     *
+     * @param question
+     */
+    public void deleteQuestionFiles(CommunityQuestion question) {
+        question.removeAllFiles();
+        communityQuestionFileRepository.deleteAllByQuestionId(question.getId());
+
+        fileWriter.deleteAllFile(FileContainerType.QUESTION_IMAGE, question.getId());
     }
 
 }

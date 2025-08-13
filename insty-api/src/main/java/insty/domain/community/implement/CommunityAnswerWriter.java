@@ -2,7 +2,6 @@ package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
@@ -19,8 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityAnswerWriter {
 
     private final CommunityAnswerRepository communityAnswerRepository;
-    private final CommunityAnswerFileRepository communityAnswerFileRepository;
-
 
     /**
      * 커뮤니티 답변 생성 및 저장
@@ -50,7 +47,6 @@ public class CommunityAnswerWriter {
         if (communityAnswer.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
         }
-        communityAnswer.removeAllFiles();
-        communityAnswer.markAsDeleted();
+        communityAnswerRepository.delete(communityAnswer);
     }
 }
