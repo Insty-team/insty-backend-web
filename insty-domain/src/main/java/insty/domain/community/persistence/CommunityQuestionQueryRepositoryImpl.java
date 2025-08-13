@@ -65,7 +65,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
     private BooleanExpression[] searchConditions(CommunityQuestionSearchFilter filter) {
         return new BooleanExpression[] {
                 courseIdEq(filter.courseId()),
-                isAnsweredEq(filter.isAnswered()),
+                statusesIn(filter.statuses()),
                 queryContains(filter.query()),
                 userIdEq(filter.userId()),
                 communityQuestion.isDeleted.eq(false)
@@ -76,8 +76,8 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
         return courseId != null ? communityQuestion.course.id.eq(courseId) : null;
     }
 
-    private BooleanExpression isAnsweredEq(Boolean isAnswered) {
-        return isAnswered != null ? communityQuestion.isAnswered.eq(isAnswered) : null;
+    private BooleanExpression statusesIn(java.util.List<insty.model.community.QuestionStatus> statuses) {
+        return (statuses != null && !statuses.isEmpty()) ? communityQuestion.status.in(statuses) : null;
     }
 
     private BooleanExpression userIdEq(Long userId) {

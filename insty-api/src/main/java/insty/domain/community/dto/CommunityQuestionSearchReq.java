@@ -1,6 +1,8 @@
 package insty.domain.community.dto;
 
 import insty.domain.common.dto.PaginationReq;
+import insty.model.community.QuestionStatus;
+import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -30,8 +32,8 @@ public record CommunityQuestionSearchReq(
         @Schema(description = "검색 키워드", example = "자바", defaultValue = "")
         String keyword,
 
-        @Schema(description = "답변 여부 필터 (true: 답변 있음, false: 답변 없음)", example = "true", defaultValue = "null")
-        Boolean isAnswered
+        @Schema(description = "질문 상태 필터 (다중 선택)", example = "[\"WAITING\", \"ANSWERED\"]")
+        List<QuestionStatus> statuses
 ) {
     public PaginationReq toPaginationReq() {
         return new PaginationReq(page, pageSize);
@@ -49,7 +51,7 @@ public record CommunityQuestionSearchReq(
     public CommunityQuestionSearchFilter toFilter(Long userId, Long courseId) {
         return CommunityQuestionSearchFilter.builder()
                 .query(keyword)
-                .isAnswered(isAnswered)
+                .statuses(statuses)
                 .userId(userId)
                 .courseId(courseId)
                 .build();
