@@ -134,60 +134,35 @@ public enum SwaggerResponseDescription {
     ))),
     //community
     COMMUNITY_QUESTION_SEARCH(new LinkedHashSet<>(Set.of(
-            COMMUNITY_USER_ID_IS_REQUIRED,
-            COMMUNITY_COURSE_ID_IS_REQUIRED,
-            USER_NOT_FOUND,
-            COURSE_NOT_FOUND
     ))),
     COMMUNITY_QUESTION_MY_SEARCH(new LinkedHashSet<>(Set.of(
-            COMMUNITY_USER_ID_IS_REQUIRED,
-            USER_NOT_FOUND
     ))),
     COMMUNITY_QUESTION_COURSE_SEARCH(new LinkedHashSet<>(Set.of(
-            COMMUNITY_COURSE_ID_IS_REQUIRED,
-            COURSE_NOT_FOUND
     ))),
     COMMUNITY_QUESTION_DETAIL(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
-            COMMUNITY_QUESTION_NOT_FOUND
+            COMMUNITY_QUESTION_NOT_FOUND,
+            COMMUNITY_QUESTION_ALREADY_DELETED
     ))),
     COMMUNITY_QUESTION_CREATE(new LinkedHashSet<>(Set.of(
-            COMMUNITY_COURSE_ID_IS_REQUIRED,
-            COMMUNITY_USER_ID_IS_REQUIRED,
-            VIDEO_NOT_FOUND,
-            COMMUNITY_INVALID_VIDEO_UUID,
-            COMMUNITY_MAX_FILE_COUNT_EXCEEDED,
-            COMMUNITY_TITLE_IS_REQUIRED,
-            COMMUNITY_CONTENT_IS_REQUIRED,
-            COMMUNITY_CREATE_ERROR,
             USER_NOT_FOUND,
             COURSE_NOT_FOUND,
+            VIDEO_NOT_FOUND,
+            COMMUNITY_CONTENT_IS_REQUIRED,
             COMMUNITY_FILE_IS_EMPTY
-            // TODO: 추후 추가될 예외들
-            // - 파일 크기 제한 초과 (FILE_SIZE_EXCEEDED)
-            // - 지원하지 않는 파일 확장자 (INVALID_FILE_EXTENSION)
     ))),
     COMMUNITY_QUESTION_UPDATE(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
             COMMUNITY_QUESTION_NOT_FOUND,
-            VIDEO_NOT_FOUND,
-            COMMUNITY_INVALID_VIDEO_UUID,
-            COMMUNITY_MAX_FILE_COUNT_EXCEEDED,
-            COMMUNITY_TITLE_IS_REQUIRED,
-            COMMUNITY_CONTENT_IS_REQUIRED,
-            COMMUNITY_UPDATE_ERROR,
             COMMUNITY_QUESTION_ALREADY_DELETED,
             COMMUNITY_NOT_QUESTION_AUTHOR,
-            COMMUNITY_FILE_IS_EMPTY
-            // TODO: 추후 추가될 예외들
-            //FILE_INVALID_CREATE_REQUEST
-            // - 파일 크기 제한 초과 (FILE_SIZE_EXCEEDED)
-            // - 지원하지 않는 파일 확장자 (INVALID_FILE_EXTENSION)
+            COMMUNITY_CONTENT_IS_REQUIRED,
+            COMMUNITY_FILE_IS_EMPTY,
+            VIDEO_NOT_FOUND
     ))),
     COMMUNITY_QUESTION_DELETE(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
             COMMUNITY_QUESTION_NOT_FOUND,
-            COMMUNITY_DELETE_ERROR,
             COMMUNITY_QUESTION_ALREADY_DELETED,
             COMMUNITY_NOT_QUESTION_AUTHOR
     ))),
@@ -197,40 +172,26 @@ public enum SwaggerResponseDescription {
     ))),
     COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
-            COMMUNITY_USER_ID_IS_REQUIRED,
-            COMMUNITY_INVALID_VIDEO_UUID,
-            COMMUNITY_MAX_FILE_COUNT_EXCEEDED,
-            COMMUNITY_CONTENT_IS_REQUIRED,
-            COMMUNITY_CREATE_ERROR,
             COMMUNITY_QUESTION_NOT_FOUND,
             USER_NOT_FOUND,
+            COMMUNITY_CONTENT_IS_REQUIRED,
             COMMUNITY_FILE_IS_EMPTY,
+            COMMUNITY_MAX_FILE_COUNT_EXCEEDED,
             VIDEO_NOT_FOUND
-            // TODO: 추후 추가될 예외들
-            // - 파일 크기 제한 초과 (FILE_SIZE_EXCEEDED)
-            // - 지원하지 않는 파일 확장자 (INVALID_FILE_EXTENSION)
     ))),
     COMMUNITY_ANSWER_UPDATE(new LinkedHashSet<>(Set.of(
             COMMUNITY_ANSWER_ID_IS_REQUIRED,
             COMMUNITY_ANSWER_NOT_FOUND,
-            COMMUNITY_QUESTION_ALREADY_DELETED,
-            COMMUNITY_INVALID_VIDEO_UUID,
             COMMUNITY_MAX_FILE_COUNT_EXCEEDED,
             COMMUNITY_CONTENT_IS_REQUIRED,
-            COMMUNITY_UPDATE_ERROR,
             COMMUNITY_ANSWER_ALREADY_DELETED,
             COMMUNITY_NOT_ANSWER_AUTHOR,
             COMMUNITY_FILE_IS_EMPTY,
             VIDEO_NOT_FOUND
-            // TODO: 추후 추가될 예외들
-            // - 파일 크기 제한 초과 (FILE_SIZE_EXCEEDED)
-            // - 지원하지 않는 파일 확장자 (INVALID_FILE_EXTENSION)
     ))),
     COMMUNITY_ANSWER_DELETE(new LinkedHashSet<>(Set.of(
             COMMUNITY_ANSWER_ID_IS_REQUIRED,
             COMMUNITY_ANSWER_NOT_FOUND,
-            COMMUNITY_DELETE_ERROR,
-            COMMUNITY_QUESTION_ALREADY_DELETED,
             COMMUNITY_ANSWER_ALREADY_DELETED,
             COMMUNITY_NOT_ANSWER_AUTHOR
     ))),

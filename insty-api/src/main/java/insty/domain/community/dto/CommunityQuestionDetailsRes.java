@@ -13,7 +13,7 @@ import lombok.Builder;
 
 @Builder
 public record CommunityQuestionDetailsRes(
-        @Schema(description = "질문 작성자 정보")
+        @Schema(description = "질문 작성자 정보 (id, nickname, userType 포함)")
         CommunityUserRes user,
 
         @Schema(description = "질문이 작성된 강좌 ID", example = "1")
@@ -28,19 +28,19 @@ public record CommunityQuestionDetailsRes(
         @Schema(description = "질문 상태 (WAITING: 답변 대기, ANSWERED: 답변 있음, ACCEPTED: 답변 채택됨)", example = "WAITING")
         QuestionStatus status,
 
-        @Schema(description = "질문에 달린 답변 목록")
+        @Schema(description = "질문에 달린 답변 목록 (최신순)")
         List<CommunityAnswerRes> answers,
 
-        @Schema(description = "질문에 첨부된 파일 목록")
+        @Schema(description = "질문에 첨부된 파일 목록 (id, name=원본파일명, contentType, size, url 포함)")
         List<FileInfo> attachments,
 
-        @Schema(description = "질문에 첨부된 비디오 정보")
+        @Schema(description = "질문에 첨부된 비디오 정보 (videoUuid, originFileName 등)")
         VideoInfo videoInfo,
 
-        @Schema(description = "질문 작성 시간", example = "2024-01-15T10:30:00Z")
+        @Schema(description = "질문 작성 시간 (UTC ISO8601)", example = "2024-01-15T10:30:00Z")
         Instant createdAt,
 
-        @Schema(description = "질문 수정 시간", example = "2024-01-15T10:30:00Z")
+        @Schema(description = "질문 수정 시간 (UTC ISO8601)", example = "2024-01-15T10:30:00Z")
         Instant updatedAt
 ) {
     public static CommunityQuestionDetailsRes from(
