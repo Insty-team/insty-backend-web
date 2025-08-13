@@ -139,7 +139,7 @@ class CommunityAnswerVideoManagerTest {
     }
 
     @Test
-    void deleteeAnswerVideo_정상_비디오존재() {
+    void deleteAnswerVideo_정상_비디오존재() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -150,7 +150,7 @@ class CommunityAnswerVideoManagerTest {
         when(videoAnswer.getVideoUuid()).thenReturn(videoUuid);
 
         // when
-        videoManager.deleteeAnswerVideo(answer);
+        videoManager.deleteAnswerVideo(answer);
 
         // then
         verify(videoAnswerRepository).delete(videoAnswer);
@@ -158,7 +158,7 @@ class CommunityAnswerVideoManagerTest {
     }
 
     @Test
-    void deleteeAnswerVideo_정상_비디오존재하지않음() {
+    void deleteAnswerVideo_정상_비디오존재하지않음() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answer.getId()).thenReturn(1L);
@@ -166,7 +166,7 @@ class CommunityAnswerVideoManagerTest {
                 .thenReturn(Optional.empty());
 
         // when
-        videoManager.deleteeAnswerVideo(answer);
+        videoManager.deleteAnswerVideo(answer);
 
         // then
         verify(videoAnswerRepository, never()).delete(any());

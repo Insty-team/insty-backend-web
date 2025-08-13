@@ -111,7 +111,7 @@ public class CommunityAnswerService {
         communityValidator.validateAnswerAuthor(userId, answer);
         
         communityAnswerFileWriter.deleteAnswerFiles(answer);
-        communityAnswerVideoManager.deleteeAnswerVideo(answer);
+        communityAnswerVideoManager.deleteAnswerVideo(answer);
         communityAnswerWriter.deleteAnswer(answer);
 
         communityQuestionStatusManager.updateStatusAfterAnswerDeleted(answer);

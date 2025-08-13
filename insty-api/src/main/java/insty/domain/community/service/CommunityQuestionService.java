@@ -162,7 +162,7 @@ public class CommunityQuestionService {
         // 연관된 모든 답변 삭제
         for (CommunityAnswer answer : question.getAnswers()) {
             communityAnswerFileWriter.deleteAnswerFiles(answer);
-            communityAnswerVideoManager.deleteeAnswerVideo(answer);
+            communityAnswerVideoManager.deleteAnswerVideo(answer);
             communityAnswerWriter.deleteAnswer(answer);
         }
 

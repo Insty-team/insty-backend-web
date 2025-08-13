@@ -45,7 +45,7 @@ public class CommunityAnswerVideoManager {
         if (videoUuid == null) {
             return getVideoAnswer(answer);
         }
-        deleteeAnswerVideo(answer);
+        deleteAnswerVideo(answer);
         return attachVideoToAnswer(answer, videoUuid);
     }
 
@@ -60,7 +60,7 @@ public class CommunityAnswerVideoManager {
     /**
      * 비디오를 완전 삭제한다
      */
-    public void deleteeAnswerVideo(CommunityAnswer answer) {
+    public void deleteAnswerVideo(CommunityAnswer answer) {
         VideoAnswer videoAnswer =  getVideoAnswer(answer);
         if (videoAnswer == null) {
             return;
