@@ -5,11 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.ai.adapter.AiRequester;
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
@@ -38,8 +36,6 @@ class CourseCleanerTest {
     @InjectMocks
     private CourseCleaner courseCleaner;
 
-    @Mock
-    private AiRequester aiRequester;
     @Mock
     private S3FileManager s3FileManager;
     @Mock
@@ -79,8 +75,6 @@ class CourseCleanerTest {
         courseCleaner.cleanAllData(userId);
 
         // then
-        // 2개 강의에서 영상은 1개만 존재
-        verify(aiRequester, times(1)).deleteAiVideoInfo(any());
         // 썸네일, 실습파일, 영상 총 3개
         ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
         verify(s3FileManager).deleteAllByKeyList(captor.capture());
