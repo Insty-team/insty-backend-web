@@ -2,8 +2,6 @@ package insty.domain.community.implement;
 
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.community.dto.CommunityQuestionSearchInfo;
-import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
