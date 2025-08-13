@@ -27,7 +27,10 @@ public class EmailVerificationReader {
             .orElseThrow(() -> new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST));
     }
 
-    public boolean existsByEmail(String email) {
-        return redisService.find(email).isPresent();
+    public boolean checkEmailVerified(String email) {
+        return redisService.find(email)
+            .map(jsonString -> StringObjectMapper.fromJson(jsonString, EmailVerification.class))
+            .map(EmailVerification::isVerified)
+            .orElse(false);
     }
 }

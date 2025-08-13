@@ -94,5 +94,30 @@ class CommunityAnswerReaderTest {
         assertThat(result).isEqualTo(answer);
     }
 
+    @Test
+    void getCommunityAnswerByIdIncludingDeleted_에러_존재하지않음() {
+        // given
+        Long id = 1L;
+        when(answerRepository.findById(id)).thenReturn(Optional.empty());
 
+        // when & then
+        assertThatThrownBy(() -> reader.getCommunityAnswerByIdIncludingDeleted(id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND);
+    }
+
+    @Test
+    void getCommunityAnswerByIdIncludingDeleted_정상_삭제된답변도조회() {
+        // given
+        Long id = 1L;
+        CommunityAnswer deletedAnswer = mock(CommunityAnswer.class);
+        when(answerRepository.findById(id)).thenReturn(Optional.of(deletedAnswer));
+
+        // when
+        CommunityAnswer result = reader.getCommunityAnswerByIdIncludingDeleted(id);
+
+        // then
+        assertThat(result).isEqualTo(deletedAnswer);
+    }
 }

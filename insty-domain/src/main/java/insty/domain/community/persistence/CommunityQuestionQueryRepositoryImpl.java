@@ -5,16 +5,16 @@ import static insty.model.user.QUser.user;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import insty.domain.common.dto.UserInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.common.dto.UserInfo;
 import insty.domain.common.repository.QuerydslRepositorySupport;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.repository.CommunityQuestionQueryRepository;
 import insty.model.community.CommunityQuestion;
-import org.springframework.stereotype.Repository;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupport implements CommunityQuestionQueryRepository {
@@ -38,7 +38,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
                         communityQuestion.course.id,
                         communityQuestion.title,
                         communityQuestion.content,
-                        communityQuestion.isAnswered,
+                        communityQuestion.status,
                         communityQuestion.createdAt,
                         communityQuestion.updatedAt
                 )
@@ -65,7 +65,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
     private BooleanExpression[] searchConditions(CommunityQuestionSearchFilter filter) {
         return new BooleanExpression[] {
                 courseIdEq(filter.courseId()),
-                isAnsweredEq(filter.isAnswered()),
+                statusesIn(filter.statuses()),
                 queryContains(filter.query()),
                 userIdEq(filter.userId()),
                 communityQuestion.isDeleted.eq(false)
@@ -76,8 +76,8 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
         return courseId != null ? communityQuestion.course.id.eq(courseId) : null;
     }
 
-    private BooleanExpression isAnsweredEq(Boolean isAnswered) {
-        return isAnswered != null ? communityQuestion.isAnswered.eq(isAnswered) : null;
+    private BooleanExpression statusesIn(java.util.List<insty.model.community.QuestionStatus> statuses) {
+        return (statuses != null && !statuses.isEmpty()) ? communityQuestion.status.in(statuses) : null;
     }
 
     private BooleanExpression userIdEq(Long userId) {

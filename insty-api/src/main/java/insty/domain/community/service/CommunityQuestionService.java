@@ -3,7 +3,6 @@ package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
-import insty.domain.common.VideoInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.CommunityAnswerRes;
@@ -14,7 +13,9 @@ import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
-import insty.domain.community.implement.CommunityAnswerMapper;
+import insty.domain.community.event.CommunityQuestionCreatedEvent;
+import insty.domain.community.implement.CommunityAnswerFileWriter;
+import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
@@ -22,16 +23,16 @@ import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
-import insty.domain.community.event.CommunityQuestionCreatedEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
+import insty.model.video.VideoQuestion;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,77 +46,14 @@ public class CommunityQuestionService {
     private final CommunityQuestionFileReader communityQuestionFileReader;
     private final CommunityQuestionFileWriter communityQuestionFileWriter;
     private final CommunityQuestionVideoManager communityQuestionVideoManager;
-    private final CommunityAnswerMapper communityAnswerMapper;
     private final CommunityValidator communityValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
     private final CommunityAnswerService communityAnswerService;
     private final CommunityAnswerWriter communityAnswerWriter;
+    private final CommunityAnswerFileWriter communityAnswerFileWriter;
+    private final CommunityAnswerVideoManager communityAnswerVideoManager;
     private final ApplicationEventPublisher eventPublisher;
-
-    /**
-     * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
-     */
-    public SearchRes<CommunityQuestionRes> searchQuestions(CommunityQuestionSearchReq req) {
-        PaginationReq paginationReq = req.toPaginationReq();
-        CommunityQuestionSearchFilter filter = req.toSearchFilter();
-        String sort = req.sort();
-
-        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
-        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(CommunityQuestionRes::from)
-                .toList();
-
-        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
-        return SearchRes.from(paginationRes, communityQuestionRes);
-    }
-
-    /**
-     * User(러너)가 작성한 커뮤니티 질문을 검색
-     */
-    public SearchRes<CommunityQuestionRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId){
-        PaginationReq paginationReq = req.toPaginationReq();
-        CommunityQuestionSearchFilter filter = req.toSearchFilterWithUser(userId);
-        String sort = req.sort();
-
-        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
-        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(CommunityQuestionRes::from)
-                .toList();
-
-        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
-        return SearchRes.from(paginationRes, communityQuestionRes);
-    }
-
-    /**
-     * 특정 코스의 질문 목록 조회
-     */
-    public SearchRes<CommunityQuestionRes> searchQuestionsByCourseId(CommunityQuestionSearchReq req, Long courseId) {
-        PaginationReq paginationReq = req.toPaginationReq();
-        CommunityQuestionSearchFilter filter = req.toSearchFilterWithCourseId(courseId);
-        String sort = req.sort();
-
-        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
-        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(CommunityQuestionRes::from)
-                .toList();
-
-        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
-        return SearchRes.from(paginationRes, communityQuestionRes);
-    }
-
-    /**
-     * 질문 상세 조회 (첨부 파일 포함)
-     */
-    public CommunityQuestionDetailsRes getQuestionDetails(Long questionId) {
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
-
-        List<FileInfo> fileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
-        VideoInfo videoInfo = communityQuestionVideoManager.getQuestionVideoInfo(question);
-        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
-
-        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, answers);
-    }
 
     /**
      * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
@@ -129,12 +67,11 @@ public class CommunityQuestionService {
 
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
-        VideoInfo videoInfo = communityQuestionVideoManager.saveQuestionVideo(question, req.videoUuid());
+        VideoQuestion video = communityQuestionVideoManager.attachVideoToQuestion(question, req.videoUuid());
 
         eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
 
-
-        return CommunityQuestionDetailsRes.from(question, fileInfos, videoInfo, null);
+        return CommunityQuestionDetailsRes.from(question, fileInfos, video, null);
     }
 
     /**
@@ -148,25 +85,89 @@ public class CommunityQuestionService {
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
 
         List<FileInfo> fileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
-        VideoInfo videoInfo = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
-        List<CommunityAnswerRes> answers = updatedQuestion.getAnswers().stream()
-                .map(communityAnswerMapper::toCommunityAnswerRes)
-                .toList();
+        VideoQuestion video = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
+        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, videoInfo, answers);
+        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, video, answers);
+    }
+
+    /**
+     * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
+     */
+    public SearchRes<CommunityQuestionRes> searchQuestions(CommunityQuestionSearchReq req) {
+        PaginationReq paginationReq = req.toPaginationReq();
+        CommunityQuestionSearchFilter filter = req.toFilter(null, null);
+        String sort = req.orderByClause();
+
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
+                .map(CommunityQuestionRes::from)
+                .toList();
+        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
+        return SearchRes.from(paginationRes, communityQuestionRes);
+    }
+
+    /**
+     * User(러너)가 작성한 커뮤니티 질문을 검색
+     */
+    public SearchRes<CommunityQuestionRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId){
+        PaginationReq paginationReq = req.toPaginationReq();
+        CommunityQuestionSearchFilter filter = req.toFilter(userId, null);
+        String sort = req.orderByClause();
+
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
+                .map(CommunityQuestionRes::from)
+                .toList();
+        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
+        return SearchRes.from(paginationRes, communityQuestionRes);
+    }
+
+    /**
+     * 특정 코스의 질문 목록 조회
+     */
+    public SearchRes<CommunityQuestionRes> searchQuestionsByCourseId(CommunityQuestionSearchReq req, Long courseId) {
+        PaginationReq paginationReq = req.toPaginationReq();
+        CommunityQuestionSearchFilter filter = req.toFilter(null, courseId);
+        String sort = req.orderByClause();
+
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
+                .map(CommunityQuestionRes::from)
+                .toList();
+        PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
+        return SearchRes.from(paginationRes, communityQuestionRes);
+    }
+
+    /**
+     * 질문 상세 조회 (첨부 파일 포함)
+     */
+    public CommunityQuestionDetailsRes getQuestionDetails(Long questionId) {
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
+
+        List<FileInfo> fileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
+        VideoQuestion video = communityQuestionVideoManager.getVideoQuestion(question);
+        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
+
+        return CommunityQuestionDetailsRes.from(question, fileInfos, video, answers);
     }
 
     /**
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
-     * (질문 삭제는 자주 불리지 않으니 N+1문제는 허용한다. - why?) 복잡한 설계 X)
      */
     public void deleteQuestion(Long userId, Long questionId) {
-        communityValidator.validateQuestionAuthor(userId, questionId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
-        for(CommunityAnswer answer : question.getAnswers()){
+        communityValidator.validateQuestionAuthor(userId, questionId);
+        
+        // 연관된 모든 답변 삭제
+        for (CommunityAnswer answer : question.getAnswers()) {
+            communityAnswerFileWriter.deleteAnswerFiles(answer);
+            communityAnswerVideoManager.deleteAnswerVideo(answer);
             communityAnswerWriter.deleteAnswer(answer);
         }
-        communityQuestionVideoManager.softDeleteQuestionVideo(questionId);
+
+        communityQuestionFileWriter.deleteQuestionFiles(question);
+        communityQuestionVideoManager.deleteQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
     }
 }

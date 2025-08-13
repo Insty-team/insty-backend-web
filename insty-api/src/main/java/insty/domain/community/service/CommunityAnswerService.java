@@ -1,27 +1,29 @@
 package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
-import insty.domain.common.VideoInfo;
 import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
+import insty.domain.community.event.CommunityAnswerCreatedEvent;
 import insty.domain.community.implement.CommunityAnswerAcceptService;
 import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
+import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
+import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityValidator;
-import insty.domain.community.event.CommunityAnswerCreatedEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.user.User;
+import insty.model.video.VideoAnswer;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,39 +39,11 @@ public class CommunityAnswerService {
     private final CommunityAnswerVideoManager communityAnswerVideoManager;
     private final CommunityAnswerAcceptService communityAnswerAcceptService;
     private final CommunityValidator communityValidator;
+    private final CommunityAnswerMapper communityAnswerMapper;
     private final CommunityQuestionReader communityQuestionReader;
+    private final CommunityQuestionStatusManager communityQuestionStatusManager;
     private final UserReader userReader;
     private final ApplicationEventPublisher eventPublisher;
-
-    /**
-     * 특정 질문에 달린 모든 답변을 상세 정보와 함께 조회
-     */
-    public List<CommunityAnswerRes> getAllAnswersByQuestionId(Long questionId) {
-        communityValidator.validateQuestionExists(questionId);
-        List<CommunityAnswer> answers = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
-        List<CommunityAnswerRes> answerRes = answers.stream()
-                .map(answer -> CommunityAnswerRes.from(
-                        answer,
-                        communityAnswerFileReader.getAnswerFileInfos(answer),
-                        communityAnswerVideoManager.getAnswerVideoInfo(answer)
-                ))
-                .toList();
-
-        return answerRes;
-    }
-
-
-    /**
-     * 답변의 모든 정보와 첨부 파일을 포함하여 조회
-     */
-    public CommunityAnswerRes getAnswerDetails(Long answerId) {
-        CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
-
-        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
-        VideoInfo videoInfo = communityAnswerVideoManager.getAnswerVideoInfo(answer);
-
-        return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
-    }
 
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
@@ -83,11 +57,13 @@ public class CommunityAnswerService {
 
         CommunityAnswer answer = communityAnswerWriter.saveAnswer(user, question, req);
         List<FileInfo> fileInfos = communityAnswerFileWriter.saveAnswerFiles(answer, attachments);
-        VideoInfo videoInfo = communityAnswerVideoManager.saveAnswerVideo(answer, req.videoUuid());
+        VideoAnswer video = communityAnswerVideoManager.attachVideoToAnswer(answer, req.videoUuid());
+
+        communityQuestionStatusManager.updateStatusAfterAnswerCreated(question);
 
         eventPublisher.publishEvent(new CommunityAnswerCreatedEvent(question.getId(), answer.getId()));
 
-        return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
+        return CommunityAnswerRes.from(answer, fileInfos, video);
     }
 
     /**
@@ -96,23 +72,49 @@ public class CommunityAnswerService {
     public CommunityAnswerRes updateAnswer(Long userId, Long answerId, CommunityAnswerUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
-        communityValidator.validateAnswerAuthor(userId, answerId);
 
         CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
-        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
-        VideoInfo videoInfo = communityAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
+        communityValidator.validateAnswerAuthor(userId, answer);
 
-        return CommunityAnswerRes.from(answer, fileInfos, videoInfo);
+        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
+        VideoAnswer video = communityAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
+
+        return CommunityAnswerRes.from(answer, fileInfos, video);
+    }
+
+    /**
+     * 특정 질문에 달린 모든 답변을 상세 정보와 함께 조회
+     */
+    public List<CommunityAnswerRes> getAllAnswersByQuestionId(Long questionId) {
+        communityValidator.validateQuestionExists(questionId);
+        List<CommunityAnswer> answers = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
+        var videoMap = communityAnswerVideoManager.getVideoMapByAnswers(answers);
+        return communityAnswerMapper.toCommunityAnswerResList(answers, videoMap);
+    }
+
+
+    /**
+     * 답변의 모든 정보와 첨부 파일을 포함하여 조회
+     */
+    public CommunityAnswerRes getAnswerDetails(Long answerId) {
+        CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
+        List<FileInfo> fileInfos = communityAnswerFileReader.getAnswerFileInfos(answer);
+        VideoAnswer video = communityAnswerVideoManager.getVideoAnswer(answer);
+        return CommunityAnswerRes.from(answer, fileInfos, video);
     }
 
     /**
      * 답변과 관련된 모든 데이터(첨부 파일 등)를 함께 삭제
      */
     public void deleteAnswer(Long userId, Long answerId) {
-        communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
-        communityAnswerVideoManager.softDeleteAnswerVideo(answerId);
+        communityValidator.validateAnswerAuthor(userId, answer);
+        
+        communityAnswerFileWriter.deleteAnswerFiles(answer);
+        communityAnswerVideoManager.deleteAnswerVideo(answer);
         communityAnswerWriter.deleteAnswer(answer);
+
+        communityQuestionStatusManager.updateStatusAfterAnswerDeleted(answer);
     }
 
     /**
@@ -120,9 +122,9 @@ public class CommunityAnswerService {
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
     public AcceptAnswerResultRes acceptAnswer(Long userId, Long questionId, Long answerId) {
-        communityValidator.validateAnswerAuthor(userId, answerId);
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
+        communityValidator.validateQuestionAuthor(userId, questionId);
         communityValidator.validateAnswerBelongsToQuestion(answer, question);
         return communityAnswerAcceptService.acceptAnswer(question, answer);
     }

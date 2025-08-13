@@ -49,7 +49,7 @@ public class CommunityController {
 
     /// ============================== 질문 API  ======================================
 
-    @Operation(summary = "커뮤니티 질문 검색", description = "일반 질문 목록을 조회한다")
+    @Operation(summary = "커뮤니티 질문 검색", description = "질문 목록을 조회한다. (제목/내용 키워드 검색)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions")
@@ -59,7 +59,7 @@ public class CommunityController {
         return SuccessRes.of(communityQuestionService.searchQuestions(req));
     }
 
-    @Operation(summary = "강좌 별 커뮤니티 질문 검색", description = "특정 강좌에 작성된 질문 목록을 조회한다")
+    @Operation(summary = "강좌별 질문 검색", description = "특정 강좌의 질문 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_COURSE_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/course/{courseId}")
@@ -70,7 +70,7 @@ public class CommunityController {
         return SuccessRes.of(communityQuestionService.searchQuestionsByCourseId(req, courseId));
     }
 
-    @Operation(summary = "유저 별 커뮤니티 질문 검색", description = "러너가 작성한 질문 목록을 조회한다")
+    @Operation(summary = "유저 질문 검색", description = "러너 자신이 작성한 질문 목록을 조회한다. (인증 사용자 기준)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
     @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/questions/my")
@@ -81,7 +81,7 @@ public class CommunityController {
         return SuccessRes.of(communityQuestionService.searchQuestionsByUserId(req, userId));
     }
 
-    @Operation(summary = "질문 상세 조회", description = "질문 상세 정보 조회")
+    @Operation(summary = "질문 상세 조회", description = "질문의 상세 정보를 조회한다. (답변 최신순)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}")
@@ -89,20 +89,20 @@ public class CommunityController {
         return SuccessRes.of(communityQuestionService.getQuestionDetails(questionId));
     }
 
-    @Operation(summary = "질문 작성", description = "새로운 질문 작성")
+    @Operation(summary = "질문 작성", description = "질문을 생성한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
-            @Parameter(description = "질문 첨부파일 (이미지)")
+            @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)")
             @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityQuestionService.saveQuestion(userId, communityQuestionCreateReq, attachments));
     }
 
-    @Operation(summary = "질문 수정", description = "질문 수정 (첨부파일 업로드 지원)")
+    @Operation(summary = "질문 수정", description = "질문을 수정한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
     @PreAuthorize("hasRole('LEARNER')")
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -110,13 +110,13 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CommunityQuestionUpdateReq communityQuestionUpdateReq,
-            @Parameter(description = "질문 첨부파일 (이미지)")
+            @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)")
             @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityQuestionService.updateQuestion(userId, questionId, communityQuestionUpdateReq, attachments));
     }
 
-    @Operation(summary = "질문 삭제", description = "질문 삭제")
+    @Operation(summary = "질문 삭제", description = "질문을 삭제한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
     @PreAuthorize("hasRole('LEARNER')")
     @DeleteMapping("/questions/{questionId}")
@@ -130,7 +130,7 @@ public class CommunityController {
 
     /// ============================== 답변 API  ======================================
 
-    @Operation(summary = "답변 조회", description = "질문에 대한 모든 댓글 조회")
+    @Operation(summary = "답변 조회", description = "질문의 답변 목록을 조회한다. (최신순)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}/answer")
@@ -138,7 +138,7 @@ public class CommunityController {
         return SuccessRes.of(communityAnswerService.getAllAnswersByQuestionId(questionId));
     }
 
-    @Operation(summary = "답변 작성", description = "질문에 대한 댓글 작성")
+    @Operation(summary = "답변 작성", description = "질문에 답변을 생성한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/questions/{questionId}/answer")
@@ -146,13 +146,13 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CommunityAnswerCreateReq communityAnswerCreateReq,
-            @Parameter(description = "답변 첨부파일 (이미지)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityAnswerService.saveAnswer(userId, questionId, communityAnswerCreateReq, attachments));
     }
 
-    @Operation(summary = "답변 수정", description = "질문에 대한 댓글 수정")
+    @Operation(summary = "답변 수정", description = "답변을 수정한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping(value = "/answer/{answerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -166,7 +166,7 @@ public class CommunityController {
         return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, attachments));
     }
 
-    @Operation(summary = "답변 삭제", description = "질문에 대한 댓글 삭제")
+    @Operation(summary = "답변 삭제", description = "답변을 삭제한다. (연관 파일/비디오 정리·질문 상태 반영)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @DeleteMapping("/answer/{answerId}")
@@ -180,7 +180,7 @@ public class CommunityController {
 
     /// ============================== 답변 채택 API  ======================================
 
-    @Operation(summary = "답변 채택", description = "질문 작성자가 답변을 채택")
+    @Operation(summary = "답변 채택", description = "질문자가 답변을 채택/해제한다. (토글)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")

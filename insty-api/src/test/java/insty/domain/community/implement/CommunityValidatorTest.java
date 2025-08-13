@@ -130,9 +130,8 @@ class CommunityValidatorTest {
         User user = mock(User.class);
         when(user.getId()).thenReturn(10L);
         when(answer.getUser()).thenReturn(user);
-        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.of(answer));
 
-        assertThatCode(() -> communityValidator.validateAnswerAuthor(10L, 1L))
+        assertThatCode(() -> communityValidator.validateAnswerAuthor(10L, answer))
                 .doesNotThrowAnyException();
     }
 
@@ -142,9 +141,8 @@ class CommunityValidatorTest {
         User user = mock(User.class);
         when(user.getId()).thenReturn(99L);
         when(answer.getUser()).thenReturn(user);
-        when(communityAnswerRepository.findById(1L)).thenReturn(Optional.of(answer));
 
-        assertThatThrownBy(() -> communityValidator.validateAnswerAuthor(10L, 1L))
+        assertThatThrownBy(() -> communityValidator.validateAnswerAuthor(10L, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_NOT_ANSWER_AUTHOR);

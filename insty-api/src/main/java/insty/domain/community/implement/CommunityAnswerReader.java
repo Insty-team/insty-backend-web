@@ -44,4 +44,18 @@ public class CommunityAnswerReader {
         return communityAnswerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
     }
+
+    /**
+     * 특정 질문에 대한 활성 답변 개수 조회
+     */
+    public int countActiveAnswersByQuestionId(Long questionId) {
+        return communityAnswerRepository.countByCommunityQuestionIdAndIsDeletedFalse(questionId);
+    }
+    
+    /**
+     * 특정 질문에 대한 채택된 답변 개수 조회
+     */
+    public int countAcceptedAnswersByQuestionId(Long questionId) {
+        return communityAnswerRepository.countAcceptedAnswersByQuestionId(questionId);
+    }
 }

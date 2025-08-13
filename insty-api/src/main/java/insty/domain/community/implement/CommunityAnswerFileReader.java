@@ -26,8 +26,9 @@ public class CommunityAnswerFileReader {
         if (files == null || files.isEmpty()) {
             return List.of();
         }
+        String domain = appProperties.getDomain();
         return files.stream()
-                .map(file -> FileInfo.from(file.getFile(), appProperties.getDomain()))
+                .map(file -> FileInfo.from(file.getFile(), domain))
                 .toList();
     }
 

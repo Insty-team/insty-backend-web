@@ -8,6 +8,8 @@ import insty.model.user.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -65,8 +67,10 @@ public class CommunityQuestion extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(nullable = false, name = "is_answered")
-    private boolean isAnswered;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, name = "status")
+    private QuestionStatus status;
 
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
@@ -78,7 +82,7 @@ public class CommunityQuestion extends BaseEntity {
                 .user(user)
                 .title(title)
                 .content(content)
-                .isAnswered(false)
+                .status(QuestionStatus.WAITING)
                 .isDeleted(false)
                 .build();
     }
@@ -112,8 +116,9 @@ public class CommunityQuestion extends BaseEntity {
         if (this.acceptedAnswer != null) {
             this.acceptedAnswer.unaccept();
         }
+        this.status = QuestionStatus.ACCEPTED;
         this.acceptedAnswer = answer;
-        this.isAnswered = true;
+        
         answer.accept();
     }
 
@@ -122,7 +127,29 @@ public class CommunityQuestion extends BaseEntity {
             this.acceptedAnswer.unaccept();
             this.acceptedAnswer = null;
         }
-        this.isAnswered = false;
+        this.status = QuestionStatus.ANSWERED;
+        
+    }
+
+    public void changeStatusByAnswer(boolean hasAnswer) {
+        if (hasAnswer) {
+            this.status = QuestionStatus.ANSWERED;
+        } else {
+            this.status = QuestionStatus.WAITING;
+        }
+    }
+
+    public void handleAcceptedAnswerDeleted(boolean hasRemainingAnswers) {
+        if (this.acceptedAnswer != null) {
+            this.acceptedAnswer.unaccept();
+            this.acceptedAnswer = null;
+        }
+        if (hasRemainingAnswers) {
+            this.status = QuestionStatus.ANSWERED;
+        } else {
+            this.status = QuestionStatus.WAITING;
+        }
+        
     }
 
     public void removeAllFiles() {

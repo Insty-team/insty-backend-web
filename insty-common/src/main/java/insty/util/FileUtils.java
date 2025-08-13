@@ -11,4 +11,8 @@ public class FileUtils {
         }
         return Optional.of(fileName.substring(dotIndex + 1));
     }
+
+    public static String getFilePath(String directory, String key, String fileName) {
+        return "file/" + directory + "/" + key + "/" + fileName;
+    }
 }

@@ -1,7 +1,9 @@
 package insty.domain.user.implement;
 
+import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.user.dto.request.UserUpdateReq;
 import insty.domain.user.repository.UserRepository;
+import insty.error.AuthErrorCode;
 import insty.error.SocialErrorCode;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
@@ -18,6 +20,7 @@ public class UserValidator {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final EmailVerificationReader emailVerificationReader;
 
     /**
      * 사용자 이메일 중복 체크
@@ -97,6 +100,12 @@ public class UserValidator {
         }
         if(!findUser.getPassword().equals(req.currentPassword())){
             throw new CustomException(SocialErrorCode.NOT_CHANGE_PASSWORD);
+        }
+    }
+
+    public void validateEmailVerification(String email) {
+        if (!emailVerificationReader.checkEmailVerified(email)) {
+            throw new CustomException(AuthErrorCode.REQUIRES_EMAIL_VERIFICATION_REQUEST);
         }
     }
 }

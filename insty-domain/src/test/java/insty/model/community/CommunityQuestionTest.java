@@ -37,7 +37,7 @@ class CommunityQuestionTest {
         assertThat(communityQuestion.getUser()).isEqualTo(user);
         assertThat(communityQuestion.getTitle()).isEqualTo(title);
         assertThat(communityQuestion.getContent()).isEqualTo(content);
-        assertThat(communityQuestion.isAnswered()).isFalse();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.WAITING);
         assertThat(communityQuestion.isDeleted()).isFalse();
     }
 
@@ -206,7 +206,7 @@ class CommunityQuestionTest {
 
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isEqualTo(answer);
-        assertThat(communityQuestion.isAnswered()).isTrue();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(answer.isAccepted()).isTrue();
     }
 
@@ -224,6 +224,7 @@ class CommunityQuestionTest {
 
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isEqualTo(secondAnswer);
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(firstAnswer.isAccepted()).isFalse();
         assertThat(secondAnswer.isAccepted()).isTrue();
     }
@@ -240,7 +241,100 @@ class CommunityQuestionTest {
 
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
-        assertThat(communityQuestion.isAnswered()).isFalse();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
         assertThat(answer.isAccepted()).isFalse();
+    }
+
+    @Test
+    void changeStatusByAnswer_답변_있음() {
+        // given
+        CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        
+        // when
+        communityQuestion.changeStatusByAnswer(true);
+        
+        // then
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+    }
+
+    @Test
+    void changeStatusByAnswer_답변_없음() {
+        // given
+        CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        communityQuestion.changeStatusByAnswer(true); // 먼저 ANSWERED 상태로 변경
+        
+        // when
+        communityQuestion.changeStatusByAnswer(false);
+        
+        // then
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.WAITING);
+    }
+
+    @Test
+    void unacceptAnswer_채택된_답변이_없는_경우() {
+        // given
+        CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        
+        // when
+        communityQuestion.unacceptAnswer();
+        
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+    }
+
+    @Test
+    void handleAcceptedAnswerDeleted_남은답변있음() {
+        // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId();
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        
+        CommunityAnswer acceptedAnswer = CommunityAnswer.create(communityQuestion, user, "채택된 답변");
+        acceptedAnswer.accept();
+        communityQuestion.acceptAnswer(acceptedAnswer);
+
+        // when
+        communityQuestion.handleAcceptedAnswerDeleted(true); // 남은 답변 있음
+
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+        assertThat(acceptedAnswer.isAccepted()).isFalse();
+    }
+
+    @Test
+    void handleAcceptedAnswerDeleted_남은답변없음() {
+        // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId();
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        
+        CommunityAnswer acceptedAnswer = CommunityAnswer.create(communityQuestion, user, "채택된 답변");
+        acceptedAnswer.accept();
+        communityQuestion.acceptAnswer(acceptedAnswer);
+
+        // when
+        communityQuestion.handleAcceptedAnswerDeleted(false); // 남은 답변 없음
+
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.WAITING);
+        assertThat(acceptedAnswer.isAccepted()).isFalse();
+    }
+
+    @Test
+    void handleAcceptedAnswerDeleted_채택된답변없는경우() {
+        // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId();
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+
+        // when
+        communityQuestion.handleAcceptedAnswerDeleted(true); // 남은 답변 있음
+
+        // then
+        assertThat(communityQuestion.getAcceptedAnswer()).isNull();
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
     }
 }

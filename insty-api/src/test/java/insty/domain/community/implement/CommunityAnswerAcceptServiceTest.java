@@ -116,4 +116,64 @@ class CommunityAnswerAcceptServiceTest {
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
     }
+
+    @Test
+    void acceptAnswer_에러_답변작성자가null인경우() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answer.getUser()).thenReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> service.acceptAnswer(question, answer))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
+        verify(question, never()).acceptAnswer(any());
+        verify(question, never()).unacceptAnswer();
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void acceptAnswer_에러_답변작성자의UserType이null인경우() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        User user = mock(User.class);
+        when(answer.getUser()).thenReturn(user);
+        when(user.getUserType()).thenReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> service.acceptAnswer(question, answer))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
+        verify(question, never()).acceptAnswer(any());
+        verify(question, never()).unacceptAnswer();
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void acceptAnswer_정상_동일한답변ID로채택취소() {
+        // given
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        User user = mock(User.class);
+        when(answer.getUser()).thenReturn(user);
+        when(user.getUserType()).thenReturn(UserType.CREATOR);
+        when(answer.getId()).thenReturn(1L);
+        
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer acceptedAnswer = mock(CommunityAnswer.class);
+        when(question.getAcceptedAnswer()).thenReturn(acceptedAnswer);
+        when(acceptedAnswer.getId()).thenReturn(1L);
+
+        // when
+        var result = service.acceptAnswer(question, answer);
+
+        // then
+        verify(question).unacceptAnswer();
+        verify(repository).save(question);
+        assertThat(result.accepted()).isFalse();
+        assertThat(result.answerId()).isEqualTo(1L);
+    }
 }

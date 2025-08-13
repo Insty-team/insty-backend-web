@@ -1,12 +1,12 @@
 package insty.model.community.id;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import insty.error.CommunityErrorCode;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Tag("unit")
 public class CommunityQuestionFileIdTest {

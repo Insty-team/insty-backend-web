@@ -1,9 +1,8 @@
 package insty.domain.community.repository;
 
 import insty.model.community.CommunityAnswer;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,7 +18,12 @@ public interface CommunityAnswerRepository extends JpaRepository<CommunityAnswer
         LEFT JOIN FETCH att.file f
         WHERE a.communityQuestion.id = :questionId
           AND a.isDeleted = false
-        ORDER BY a.createdAt ASC
+        ORDER BY a.createdAt DESC
     """)
     List<CommunityAnswer> findAllDetailsWithUserAttachmentsByCommunityQuestionId(@Param("questionId") Long questionId);
+
+    int countByCommunityQuestionIdAndIsDeletedFalse(Long communityQuestionId);
+    
+    @Query("SELECT COUNT(ca) FROM CommunityAnswer ca WHERE ca.communityQuestion.id = :questionId AND ca.isAccepted = true AND ca.isDeleted = false")
+    int countAcceptedAnswersByQuestionId(@Param("questionId") Long questionId);
 }
