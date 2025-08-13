@@ -102,7 +102,7 @@ class CommunityQuestionServiceTest {
     private AiRequester aiRequester;
 
     /**
-     * 새로운 질문 생성 시 첨부파일과 비디오 연동 및 이벤트 발행이 정상 동작하는지 검증
+     * 질문 생성: 첨부파일/비디오 연동을 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -145,8 +145,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 기존 질문 수정 통합 시나리오 - 선행조건: 질문(파일 2개, 기존 비디오), 답변 2개(비디오/파일 혼재), 새 비디오(UUID) 준비 - 동작: 제목/내용 수정, 기존 파일 삭제 후 새 파일 2개
-     * 추가, 비디오 UUID 교체 - 검증: 제목/내용 반영, 첨부파일 교체(2건), 비디오 교체(UUID/원본명), 응답에 답변 목록 포함
+     * 질문 수정: 첨부파일 교체와 비디오 교체를 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -232,7 +231,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 필터, 정렬, 키워드, 페이지네이션 조건으로 질문 검색이 정상 동작하는지 검증
+     * 질문 검색: 키워드/페이지네이션/isAnswered 필터를 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -296,7 +295,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 특정 사용자 ID 기준 질문 검색이 정상 동작하는지 검증
+     * 사용자별 질문 검색: userId 필터를 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -337,7 +336,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 특정 코스 ID 기준 질문 검색이 정상 동작하는지 검증
+     * 코스별 질문 검색: courseId 필터를 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -378,7 +377,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 질문 상세 조회 시 첨부파일, 비디오, 답변 목록이 정상 포함되는지 검증
+     * 질문 상세 조회: 첨부파일/비디오/답변 목록을 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -450,7 +449,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 질문 삭제 시 연관 답변, 파일, 비디오가 함께 정리되고 권한 검증이 정상 동작하는지 검증
+     * 질문 삭제: 연관 답변/파일/비디오 정리와 권한을 검증한다.
      */
     @Test
     @Sql(statements = {

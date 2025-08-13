@@ -91,6 +91,9 @@ class CommunityAnswerServiceTest {
     private AiRequester aiRequester;
 
 
+    /**
+     * 답변 생성: 비디오/첨부 파일 유무에 따른 저장을 검증한다.
+     */
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'question_author@example.com', '질문작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
@@ -104,33 +107,27 @@ class CommunityAnswerServiceTest {
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 10, 'PROCESSING', NOW(), NOW(), NOW(), false)"})
     @Test
     void saveAnswer_정상() {
-        // given
         Long questionId = 1L;
         Long questionAuthorId = 1L;
         Long courseCreatorId = 2L;
 
-        // 첫 번째 답변 (비디오 포함)
         String firstAnswerContent = "첫 번째 답변 내용입니다.";
         UUID firstVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
         CommunityAnswerCreateReq firstReq = new CommunityAnswerCreateReq(firstAnswerContent, firstVideoUuid);
         List<MultipartFile> firstAttachments = List.of(
                 new MockMultipartFile("attachment", "test1.jpg", "image/jpeg", "content1".getBytes()));
 
-        // 두 번째 답변 (비디오 없음)
         String secondAnswerContent = "두 번째 답변 내용입니다.";
         CommunityAnswerCreateReq secondReq = new CommunityAnswerCreateReq(secondAnswerContent, null);
         List<MultipartFile> secondAttachments = List.of();
 
-        // mock
         when(appProperties.getDomain()).thenReturn("insty.test.com");
         when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn(
                 "00000000-0000-0000-0000-000000000001.jpg");
 
-        // when - 첫 번째 답변 작성
         CommunityAnswerRes firstRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, firstReq,
                 firstAttachments);
 
-        // then - 첫 번째 답변 검증
         assertThat(firstRes).isNotNull();
         assertThat(firstRes.content()).isEqualTo(firstAnswerContent);
         assertThat(firstRes.user().id()).isEqualTo(questionAuthorId);
@@ -142,15 +139,12 @@ class CommunityAnswerServiceTest {
         assertThat(firstRes.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
         assertThat(firstRes.videoInfo().originFileName()).isEqualTo("answer_video.mp4");
 
-        // 질문 상태 변경 검증 (첫 번째 답변으로 인해 WAITING -> ANSWERED)
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
-        // when - 두 번째 답변 작성
         CommunityAnswerRes secondRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, secondReq,
                 secondAttachments);
 
-        // then - 두 번째 답변 검증
         assertThat(secondRes).isNotNull();
         assertThat(secondRes.content()).isEqualTo(secondAnswerContent);
         assertThat(secondRes.user().id()).isEqualTo(questionAuthorId);
@@ -160,25 +154,20 @@ class CommunityAnswerServiceTest {
         assertThat(secondRes.attachments()).isEmpty();
         assertThat(secondRes.videoInfo()).isNull();
 
-        // 질문 상태 유지 검증 (두 번째 답변으로 인해 여전히 ANSWERED)
         question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
-        // 전체 답변 목록 검증
         List<CommunityAnswerRes> allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
         assertThat(allAnswers).hasSize(2);
 
-        // 답변 내용들이 정확히 포함되어 있는지 확인 (순서 무관)
         List<String> answerContents = allAnswers.stream().map(CommunityAnswerRes::content).toList();
         assertThat(answerContents).containsExactlyInAnyOrder(firstAnswerContent, secondAnswerContent);
 
-        // 비디오가 포함된 답변과 비디오가 없는 답변을 구분하여 검증
         CommunityAnswerRes videoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() != null).findFirst()
                 .orElse(null);
         assertThat(videoAnswer).isNotNull();
         assertThat(videoAnswer.content()).isEqualTo(firstAnswerContent);
         assertThat(videoAnswer.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
-
         CommunityAnswerRes nonVideoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() == null).findFirst()
                 .orElse(null);
         assertThat(nonVideoAnswer).isNotNull();
