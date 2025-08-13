@@ -1,6 +1,7 @@
 package insty.domain.course.implement;
 
-import insty.ai.adapter.AiRequester;
+import static insty.util.FileUtils.getFilePath;
+
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CourseCleaner {
 
-    private final AiRequester aiRequester;
     private final S3FileManager s3FileManager;
 
     private final CourseRepository courseRepository;
@@ -65,10 +65,6 @@ public class CourseCleaner {
         fileRepository.deleteAll(files);
     }
 
-    private String getFilePath(String directory, String key, String fileName) {
-        return "file/" + directory + "/" + key + "/" + fileName;
-    }
-
     private void deleteAllVideo(List<String> keys, List<Long> courseIds) {
         List<VideoCourse> videoCourses = videoCourseRepository.findAllByCourseIdIn(courseIds);
         if (videoCourses.isEmpty()) {
@@ -85,9 +81,7 @@ public class CourseCleaner {
 
         videoEncodingRepository.deleteAll(videoEncodings);
         videoCourseRepository.deleteAll(videoCourses);
-        for (UUID videoUuid : videoUuids) { // TODO 배치 ai api 요청
-            aiRequester.deleteAiVideoInfo(videoUuid);
-        }
+        // ai 벡터 업데이트는 ai에서 함께 처리
     }
 
     private void deleteAllCourse(List<Long> courseIds) {
