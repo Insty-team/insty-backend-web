@@ -93,31 +93,29 @@ class CommunityAnswerServiceTest {
 
 
     @Sql(statements = {
-           "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                   + "VALUES (1, 'question_author@example.com', '질문작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-           "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                   + "VALUES (2, 'course_creator@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-           "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                   + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-           "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                   + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'WAITING', NOW(), NOW(), false);",
-           "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
-                   + "VALUES (1, '00000000-0000-0000-0000-000000000001', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 10, 'PROCESSING', NOW(), NOW(), NOW(), false)"
-       })
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'question_author@example.com', '질문작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'course_creator@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'WAITING', NOW(), NOW(), false);",
+            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 10, 'PROCESSING', NOW(), NOW(), NOW(), false)"})
     @Test
     void saveAnswer_정상() {
         // given
         Long questionId = 1L;
         Long questionAuthorId = 1L;
         Long courseCreatorId = 2L;
-        
+
         // 첫 번째 답변 (비디오 포함)
         String firstAnswerContent = "첫 번째 답변 내용입니다.";
         UUID firstVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
         CommunityAnswerCreateReq firstReq = new CommunityAnswerCreateReq(firstAnswerContent, firstVideoUuid);
         List<MultipartFile> firstAttachments = List.of(
-                new MockMultipartFile("attachment", "test1.jpg", "image/jpeg", "content1".getBytes())
-        );
+                new MockMultipartFile("attachment", "test1.jpg", "image/jpeg", "content1".getBytes()));
 
         // 두 번째 답변 (비디오 없음)
         String secondAnswerContent = "두 번째 답변 내용입니다.";
@@ -126,11 +124,12 @@ class CommunityAnswerServiceTest {
 
         // mock
         when(appProperties.getDomain()).thenReturn("insty.test.com");
-        when(s3FileManager.upload(any(), anyString(), anyString()))
-                .thenReturn("00000000-0000-0000-0000-000000000001.jpg");
+        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn(
+                "00000000-0000-0000-0000-000000000001.jpg");
 
         // when - 첫 번째 답변 작성
-        CommunityAnswerRes firstRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, firstReq, firstAttachments);
+        CommunityAnswerRes firstRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, firstReq,
+                firstAttachments);
 
         // then - 첫 번째 답변 검증
         assertThat(firstRes).isNotNull();
@@ -149,7 +148,8 @@ class CommunityAnswerServiceTest {
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
         // when - 두 번째 답변 작성
-        CommunityAnswerRes secondRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, secondReq, secondAttachments);
+        CommunityAnswerRes secondRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, secondReq,
+                secondAttachments);
 
         // then - 두 번째 답변 검증
         assertThat(secondRes).isNotNull();
@@ -165,29 +165,25 @@ class CommunityAnswerServiceTest {
         question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
-                 // 전체 답변 목록 검증
-         List<CommunityAnswerRes> allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
-         assertThat(allAnswers).hasSize(2);
-         
-         // 답변 내용들이 정확히 포함되어 있는지 확인 (순서 무관)
-         List<String> answerContents = allAnswers.stream().map(CommunityAnswerRes::content).toList();
-         assertThat(answerContents).containsExactlyInAnyOrder(firstAnswerContent, secondAnswerContent);
-         
-         // 비디오가 포함된 답변과 비디오가 없는 답변을 구분하여 검증
-         CommunityAnswerRes videoAnswer = allAnswers.stream()
-                 .filter(answer -> answer.videoInfo() != null)
-                 .findFirst()
-                 .orElse(null);
-         assertThat(videoAnswer).isNotNull();
-         assertThat(videoAnswer.content()).isEqualTo(firstAnswerContent);
-         assertThat(videoAnswer.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
-         
-         CommunityAnswerRes nonVideoAnswer = allAnswers.stream()
-                 .filter(answer -> answer.videoInfo() == null)
-                 .findFirst()
-                 .orElse(null);
-         assertThat(nonVideoAnswer).isNotNull();
-         assertThat(nonVideoAnswer.content()).isEqualTo(secondAnswerContent);
+        // 전체 답변 목록 검증
+        List<CommunityAnswerRes> allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
+        assertThat(allAnswers).hasSize(2);
+
+        // 답변 내용들이 정확히 포함되어 있는지 확인 (순서 무관)
+        List<String> answerContents = allAnswers.stream().map(CommunityAnswerRes::content).toList();
+        assertThat(answerContents).containsExactlyInAnyOrder(firstAnswerContent, secondAnswerContent);
+
+        // 비디오가 포함된 답변과 비디오가 없는 답변을 구분하여 검증
+        CommunityAnswerRes videoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() != null).findFirst()
+                .orElse(null);
+        assertThat(videoAnswer).isNotNull();
+        assertThat(videoAnswer.content()).isEqualTo(firstAnswerContent);
+        assertThat(videoAnswer.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
+
+        CommunityAnswerRes nonVideoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() == null).findFirst()
+                .orElse(null);
+        assertThat(nonVideoAnswer).isNotNull();
+        assertThat(nonVideoAnswer.content()).isEqualTo(secondAnswerContent);
     }
 
     @Sql(statements = {
@@ -210,67 +206,64 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/old_answer_video.mp4', 'mp4', 'old_answer_video.mp4', 15, 'COMPLETED', NOW(), NOW(), NOW(), false);",
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, '00000000-0000-0000-0000-000000000002', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000002/new_answer_video.mp4', 'mp4', 'new_answer_video.mp4', 20, 'COMPLETED', NOW(), NOW(), NOW(), false)"
-    })
+                    + "VALUES (2, '00000000-0000-0000-0000-000000000002', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000002/new_answer_video.mp4', 'mp4', 'new_answer_video.mp4', 20, 'COMPLETED', NOW(), NOW(), NOW(), false)"})
     @Test
     void updateAnswer_정상() {
-         // given
-         Long userId = 1L;
-         Long answerId = 1L;
-         String updatedContent = "수정된 답변 내용입니다.";
-         UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        // given
+        Long userId = 1L;
+        Long answerId = 1L;
+        String updatedContent = "수정된 답변 내용입니다.";
+        UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
-         // 수정 전 기존 파일들 확인
-         CommunityAnswer answerBeforeUpdate = communityAnswerReader.getCommunityAnswerById(answerId);
-         List<FileInfo> filesBeforeUpdate = communityAnswerFileReader.getAnswerFileInfos(answerBeforeUpdate);
-         assertThat(filesBeforeUpdate).hasSize(2);
+        // 수정 전 기존 파일들 확인
+        CommunityAnswer answerBeforeUpdate = communityAnswerReader.getCommunityAnswerById(answerId);
+        List<FileInfo> filesBeforeUpdate = communityAnswerFileReader.getAnswerFileInfos(answerBeforeUpdate);
+        assertThat(filesBeforeUpdate).hasSize(2);
 
-         // 기존 첨부파일 ID들 (삭제할 파일들) - 실제 파일 ID 사용
-         List<Long> deleteFileIds = filesBeforeUpdate.stream().map(FileInfo::id).toList();
-         
-         // 디버깅을 위한 로그 출력
-         System.out.println("Files before update: " + filesBeforeUpdate.stream().map(FileInfo::name).toList());
-         System.out.println("Delete file IDs: " + deleteFileIds);
-         System.out.println("Files before update IDs: " + filesBeforeUpdate.stream().map(FileInfo::id).toList());
+        // 기존 첨부파일 ID들 (삭제할 파일들) - 실제 파일 ID 사용
+        List<Long> deleteFileIds = filesBeforeUpdate.stream().map(FileInfo::id).toList();
 
-         CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq(updatedContent, newVideoUuid, deleteFileIds);
+        // 디버깅을 위한 로그 출력
+        System.out.println("Files before update: " + filesBeforeUpdate.stream().map(FileInfo::name).toList());
+        System.out.println("Delete file IDs: " + deleteFileIds);
+        System.out.println("Files before update IDs: " + filesBeforeUpdate.stream().map(FileInfo::id).toList());
 
-         // 새로운 첨부파일들
-         List<MultipartFile> newAttachments = List.of(
-                 new MockMultipartFile("attachment1", "new_attachment1.jpg", "image/jpeg", "new_content1".getBytes()),
-                 new MockMultipartFile("attachment2", "new_attachment2.png", "image/png", "new_content2".getBytes())
-         );
+        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq(updatedContent, newVideoUuid, deleteFileIds);
 
-         // mock
-         when(appProperties.getDomain()).thenReturn("insty.test.com");
-         when(s3FileManager.upload(any(), anyString(), anyString()))
-                 .thenReturn("new_attachment1.jpg")
-                 .thenReturn("new_attachment2.png");
+        // 새로운 첨부파일들
+        List<MultipartFile> newAttachments = List.of(
+                new MockMultipartFile("attachment1", "new_attachment1.jpg", "image/jpeg", "new_content1".getBytes()),
+                new MockMultipartFile("attachment2", "new_attachment2.png", "image/png", "new_content2".getBytes()));
 
-         // when
-         CommunityAnswerRes res = communityAnswerService.updateAnswer(userId, answerId, req, newAttachments);
+        // mock
+        when(appProperties.getDomain()).thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("new_attachment1.jpg")
+                .thenReturn("new_attachment2.png");
 
-         // then
-         assertThat(res).isNotNull();
+        // when
+        CommunityAnswerRes res = communityAnswerService.updateAnswer(userId, answerId, req, newAttachments);
 
-         // 내용 수정 검증
-         assertThat(res.content()).isEqualTo(updatedContent);
-         assertThat(res.user().id()).isEqualTo(userId);
-         assertThat(res.user().nickname()).isEqualTo("답변작성자");
-         assertThat(res.user().userType()).isEqualTo(UserType.CREATOR);
-         assertThat(res.isAccepted()).isFalse();
+        // then
+        assertThat(res).isNotNull();
 
-         // 비디오 수정 검증 (기존 비디오에서 새로운 비디오로 변경)
-         assertThat(res.videoInfo()).isNotNull();
-         assertThat(res.videoInfo().videoUuid()).isEqualTo(newVideoUuid);
-         assertThat(res.videoInfo().originFileName()).isEqualTo("new_answer_video.mp4");
+        // 내용 수정 검증
+        assertThat(res.content()).isEqualTo(updatedContent);
+        assertThat(res.user().id()).isEqualTo(userId);
+        assertThat(res.user().nickname()).isEqualTo("답변작성자");
+        assertThat(res.user().userType()).isEqualTo(UserType.CREATOR);
+        assertThat(res.isAccepted()).isFalse();
 
-         // 첨부파일 수정 검증 (기존 파일들이 삭제되고 새로운 파일들로 교체)
-         assertThat(res.attachments()).hasSize(2);
-         assertThat(res.attachments().get(0).name()).isEqualTo("new_attachment1.jpg");
-         assertThat(res.attachments().get(0).contentType()).isEqualTo("image/jpeg");
-         assertThat(res.attachments().get(1).name()).isEqualTo("new_attachment2.png");
-         assertThat(res.attachments().get(1).contentType()).isEqualTo("image/png");
+        // 비디오 수정 검증 (기존 비디오에서 새로운 비디오로 변경)
+        assertThat(res.videoInfo()).isNotNull();
+        assertThat(res.videoInfo().videoUuid()).isEqualTo(newVideoUuid);
+        assertThat(res.videoInfo().originFileName()).isEqualTo("new_answer_video.mp4");
+
+        // 첨부파일 수정 검증 (기존 파일들이 삭제되고 새로운 파일들로 교체)
+        assertThat(res.attachments()).hasSize(2);
+        assertThat(res.attachments().get(0).name()).isEqualTo("new_attachment1.jpg");
+        assertThat(res.attachments().get(0).contentType()).isEqualTo("image/jpeg");
+        assertThat(res.attachments().get(1).name()).isEqualTo("new_attachment2.png");
+        assertThat(res.attachments().get(1).contentType()).isEqualTo("image/png");
 
     }
 
@@ -298,8 +291,7 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (3, (SELECT id FROM web_service.files WHERE name = 'attachment1.jpg'), NOW(), NOW());",
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 2, 2, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 15, 'COMPLETED', NOW(), NOW(), NOW(), false);"
-    })
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 2, 2, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 15, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void getAllAnswersByQuestionId_정상() {
         // given
@@ -311,12 +303,12 @@ class CommunityAnswerServiceTest {
         // then
         assertThat(res).isNotNull();
         assertThat(res).hasSize(3);
-        
+
         // 생성일 기준 최신순 정렬 검증 (최신 -> 오래된 순)
         assertThat(res.get(0).content()).isEqualTo("질문A의 세 번째 답변 (첨부파일 포함)");
         assertThat(res.get(1).content()).isEqualTo("질문A의 두 번째 답변 (비디오 포함)");
         assertThat(res.get(2).content()).isEqualTo("질문A의 첫 번째 답변 (채택됨)");
-        
+
         // 첫 번째 답변 (최신, 첨부파일 포함)
         assertThat(res.get(0).user().id()).isEqualTo(1L);
         assertThat(res.get(0).user().nickname()).isEqualTo("사용자1");
@@ -326,7 +318,7 @@ class CommunityAnswerServiceTest {
         assertThat(res.get(0).attachments().get(0).name()).isEqualTo("attachment1.jpg");
         assertThat(res.get(0).attachments().get(0).contentType()).isEqualTo("image/jpeg");
         assertThat(res.get(0).videoInfo()).isNull();
-        
+
         // 두 번째 답변 (비디오 포함)
         assertThat(res.get(1).user().id()).isEqualTo(2L);
         assertThat(res.get(1).user().nickname()).isEqualTo("사용자2");
@@ -334,9 +326,10 @@ class CommunityAnswerServiceTest {
         assertThat(res.get(1).isAccepted()).isFalse();
         assertThat(res.get(1).attachments()).isEmpty();
         assertThat(res.get(1).videoInfo()).isNotNull();
-        assertThat(res.get(1).videoInfo().videoUuid()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        assertThat(res.get(1).videoInfo().videoUuid()).isEqualTo(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
         assertThat(res.get(1).videoInfo().originFileName()).isEqualTo("answer_video.mp4");
-        
+
         // 세 번째 답변 (채택됨)
         assertThat(res.get(2).user().id()).isEqualTo(1L);
         assertThat(res.get(2).user().nickname()).isEqualTo("사용자1");
@@ -364,8 +357,7 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'detail_attachment2.pdf'), NOW(), NOW());",
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/detail_answer_video.mp4', 'mp4', 'detail_answer_video.mp4', 25, 'COMPLETED', NOW(), NOW(), NOW(), false);"
-    })
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/detail_answer_video.mp4', 'mp4', 'detail_answer_video.mp4', 25, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void getAnswerDetails_정상() {
         // given
@@ -376,18 +368,18 @@ class CommunityAnswerServiceTest {
 
         // then
         assertThat(res).isNotNull();
-        
+
         // 답변 내용 검증
         assertThat(res.content()).isEqualTo("상세 조회할 답변 내용입니다.");
-        
+
         // 사용자 정보 검증
         assertThat(res.user().id()).isEqualTo(1L);
         assertThat(res.user().nickname()).isEqualTo("답변작성자");
         assertThat(res.user().userType()).isEqualTo(UserType.CREATOR);
-        
+
         // 채택 여부 검증
         assertThat(res.isAccepted()).isTrue();
-        
+
         // 첨부파일 검증
         assertThat(res.attachments()).hasSize(2);
         assertThat(res.attachments().get(0).name()).isEqualTo("detail_attachment1.jpg");
@@ -396,7 +388,7 @@ class CommunityAnswerServiceTest {
         assertThat(res.attachments().get(1).name()).isEqualTo("detail_attachment2.pdf");
         assertThat(res.attachments().get(1).contentType()).isEqualTo("application/pdf");
         assertThat(res.attachments().get(1).size()).isEqualTo(2048L);
-        
+
         // 비디오 정보 검증
         assertThat(res.videoInfo()).isNotNull();
         assertThat(res.videoInfo().videoUuid()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000001"));
@@ -422,8 +414,7 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'delete_attachment2.pdf'), NOW(), NOW());",
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/delete_answer_video.mp4', 'mp4', 'delete_answer_video.mp4', 30, 'COMPLETED', NOW(), NOW(), NOW(), false);"
-    })
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/delete_answer_video.mp4', 'mp4', 'delete_answer_video.mp4', 30, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void deleteAnswer_정상() {
         // given
@@ -435,10 +426,10 @@ class CommunityAnswerServiceTest {
         CommunityAnswer answerBeforeDelete = communityAnswerReader.getCommunityAnswerById(answerId);
         assertThat(answerBeforeDelete.isDeleted()).isFalse();
         assertThat(answerBeforeDelete.isAccepted()).isTrue();
-        
+
         List<FileInfo> filesBeforeDelete = communityAnswerFileReader.getAnswerFileInfos(answerBeforeDelete);
         assertThat(filesBeforeDelete).hasSize(2);
-        
+
         VideoAnswer videoBeforeDelete = communityAnswerVideoManager.getVideoAnswer(answerBeforeDelete);
         assertThat(videoBeforeDelete).isNotNull();
         assertThat(videoBeforeDelete.isDeleted()).isFalse();
@@ -446,36 +437,35 @@ class CommunityAnswerServiceTest {
         // when
         communityAnswerService.deleteAnswer(userId, answerId);
 
-                 // then
-         assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(answerId))
-                 .isInstanceOf(CustomException.class);
-         
-         // 질문 상태가 올바르게 변경되었는지 확인 (모든 답변이 삭제되었으므로 WAITING)
-         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
-         assertThat(question.getStatus()).isEqualTo(QuestionStatus.WAITING);
-         assertThat(question.getAcceptedAnswer()).isNull();
-         
-         // 질문의 답변 목록에서 삭제된 답변이 제외되었는지 확인
-         List<CommunityAnswerRes> remainingAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
-         assertThat(remainingAnswers).isEmpty();
+        // then
+        assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(answerId)).isInstanceOf(
+                CustomException.class);
+
+        // 질문 상태가 올바르게 변경되었는지 확인 (모든 답변이 삭제되었으므로 WAITING)
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.WAITING);
+        assertThat(question.getAcceptedAnswer()).isNull();
+
+        // 질문의 답변 목록에서 삭제된 답변이 제외되었는지 확인
+        List<CommunityAnswerRes> remainingAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
+        assertThat(remainingAnswers).isEmpty();
     }
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                 + "VALUES (1, 'user1@example.com', '사용자1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'user1@example.com', '사용자1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                 + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                 + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                 + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
+                    + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
-                 + "VALUES (1, 1, 1, '답변1 - 사용자1이 작성', false, NOW(), NOW(), false);",
+                    + "VALUES (1, 1, 1, '답변1 - 사용자1이 작성', false, NOW(), NOW(), false);",
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
-                 + "VALUES (2, 2, 1, '답변2 - 사용자2(질문자)가 작성', false, NOW(), NOW(), false);",
+                    + "VALUES (2, 2, 1, '답변2 - 사용자2(질문자)가 작성', false, NOW(), NOW(), false);",
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
-                 + "VALUES (3, 1, 1, '답변3 - 사용자1이 작성', false, NOW(), NOW(), false);"
-    })
+                    + "VALUES (3, 1, 1, '답변3 - 사용자1이 작성', false, NOW(), NOW(), false);"})
     @Test
     void acceptAnswer_정상() {
         // given
@@ -504,8 +494,9 @@ class CommunityAnswerServiceTest {
         assertThat(acceptedCount).isEqualTo(1);
 
         // 시나리오 2: 1번 상태에서 user2가 답변3을 채택한다. -> 실패 - 이미 해당 질문에 답변이 채택됨
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id))
-        .isInstanceOf(CustomException.class);
+        assertThatThrownBy(
+                () -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id)).isInstanceOf(
+                CustomException.class);
 
         // 시나리오 2 실패 후에도 채택된 답변 개수는 여전히 1개
         acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
@@ -530,16 +521,17 @@ class CommunityAnswerServiceTest {
         assertThat(acceptedCount).isEqualTo(0);
 
         // 시나리오 4: 3번 상태에서 user1이 답변1를 채택 -> 질문자가 아닌자는 채택할 수 없음
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, questionId, answer1Id))
-        .isInstanceOf(CustomException.class);
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, questionId, answer1Id)).isInstanceOf(
+                CustomException.class);
 
         // 시나리오 4 실패 후에도 채택된 답변 개수는 여전히 0개
         acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
         assertThat(acceptedCount).isEqualTo(0);
 
         // 시나리오 5: 3번 상태에서 user2이 답변2를 채택 -> 질문자 본인이 작성한 답변은 채택 불가
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id))
-        .isInstanceOf(CustomException.class);
+        assertThatThrownBy(
+                () -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id)).isInstanceOf(
+                CustomException.class);
 
         // 시나리오 5 실패 후에도 채택된 답변 개수는 여전히 0개
         acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
