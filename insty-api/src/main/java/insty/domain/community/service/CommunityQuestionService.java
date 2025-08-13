@@ -167,7 +167,7 @@ public class CommunityQuestionService {
         }
 
         communityQuestionFileWriter.deleteQuestionFiles(question);
-        communityQuestionVideoManager.deleteeQuestionVideo(question);
+        communityQuestionVideoManager.deleteQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
     }
 }

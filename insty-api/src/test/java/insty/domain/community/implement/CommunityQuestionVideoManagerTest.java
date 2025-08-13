@@ -137,7 +137,7 @@ class CommunityQuestionVideoManagerTest {
     }
 
     @Test
-    void deleteeQuestionVideo_정상_비디오존재() {
+    void deleteQuestionVideo_정상_비디오존재() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(question.getId()).thenReturn(1L);
@@ -148,7 +148,7 @@ class CommunityQuestionVideoManagerTest {
         when(videoQuestion.getVideoUuid()).thenReturn(videoUuid);
 
         // when
-        videoManager.deleteeQuestionVideo(question);
+        videoManager.deleteQuestionVideo(question);
 
         // then
         verify(videoQuestionRepository).delete(videoQuestion);
@@ -156,7 +156,7 @@ class CommunityQuestionVideoManagerTest {
     }
 
     @Test
-    void deleteeQuestionVideo_정상_비디오존재하지않음() {
+    void deleteQuestionVideo_정상_비디오존재하지않음() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(question.getId()).thenReturn(1L);
@@ -164,7 +164,7 @@ class CommunityQuestionVideoManagerTest {
                 .thenReturn(Optional.empty());
 
         // when
-        videoManager.deleteeQuestionVideo(question);
+        videoManager.deleteQuestionVideo(question);
 
         // then
         verify(videoQuestionRepository, never()).delete(any());

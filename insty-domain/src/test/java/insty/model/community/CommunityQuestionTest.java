@@ -331,7 +331,7 @@ class CommunityQuestionTest {
         CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
 
         // when
-        communityQuestion.handleAcceptedAnswerDeleted(true); // 채택된 답변이 없는 상태
+        communityQuestion.handleAcceptedAnswerDeleted(true); // 남은 답변 있음
 
         // then
         assertThat(communityQuestion.getAcceptedAnswer()).isNull();
