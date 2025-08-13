@@ -3,6 +3,7 @@ package insty.domain.auth.service;
 import insty.domain.auth.implement.emailverification.EmailVerificationReader;
 import insty.domain.auth.implement.emailverification.EmailVerificationWriter;
 import insty.domain.auth.implement.emailverification.MailAuthenticateContent;
+import insty.domain.user.implement.UserValidator;
 import insty.mail.MailHelper;
 import insty.model.auth.EmailVerification;
 import insty.model.auth.SimpleTokenGenerator;
@@ -21,10 +22,12 @@ public class EmailVerificationService {
     private final EmailVerificationWriter emailVerificationWriter;
     private final EmailVerificationReader emailVerificationReader;
     private final MailHelper mailHelper;
+    private final UserValidator userValidator;
     private final TokenGenerator tokenGenerator = new SimpleTokenGenerator();
 
     @Transactional
     public void sendVerification(@NotNull String email) {
+        userValidator.validateDuplicateEmail(email);
         EmailVerification emailVerification = emailVerificationReader.findOptionalByEmail(email)
             .map(present -> present.reissue(tokenGenerator))
             .orElse(EmailVerification.create(email, tokenGenerator));
