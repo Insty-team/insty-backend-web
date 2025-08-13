@@ -1,5 +1,7 @@
 package insty.s3.adapter;
 
+import static insty.util.FileUtils.getFilePath;
+
 import insty.exception.CustomException;
 import insty.s3.error.S3ErrorCode;
 import insty.uuid.UuidProvider;
@@ -67,10 +69,6 @@ public class S3FileManager {
 
     public void delete(String directory, String key, String fileName) {
         delete(getFilePath(directory, key, fileName));
-    }
-
-    private String getFilePath(String directory, String key, String fileName) {
-        return "file/" + directory + "/" + key + "/" + fileName;
     }
 
     /**

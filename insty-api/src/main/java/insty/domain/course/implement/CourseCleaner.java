@@ -1,5 +1,7 @@
 package insty.domain.course.implement;
 
+import static insty.util.FileUtils.getFilePath;
+
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
@@ -61,10 +63,6 @@ public class CourseCleaner {
         }
         coursePracticeFileRepository.deleteAllByCourseIdIn(courseIds);
         fileRepository.deleteAll(files);
-    }
-
-    private String getFilePath(String directory, String key, String fileName) {
-        return "file/" + directory + "/" + key + "/" + fileName;
     }
 
     private void deleteAllVideo(List<String> keys, List<Long> courseIds) {
