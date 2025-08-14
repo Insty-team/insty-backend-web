@@ -6,7 +6,6 @@ import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
-import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;

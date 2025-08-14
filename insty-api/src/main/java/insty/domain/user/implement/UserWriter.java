@@ -5,12 +5,14 @@ import insty.domain.user.repository.UserRepository;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UserWriter {
 
     private final CourseCleaner courseCleaner;
@@ -75,6 +77,5 @@ public class UserWriter {
     public void withdraw(Long userId) {
         userRepository.deleteById(userId);
         courseCleaner.cleanAllData(userId);
-        // todo: AI 질문 이력 삭제 추가시 작업
     }
 }

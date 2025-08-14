@@ -1,5 +1,7 @@
 package insty.domain.user.service;
 
+import insty.ai.adapter.AiRequester;
+import insty.domain.auth.util.TokenExtractor;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
@@ -29,6 +31,8 @@ public class AccountService {
 
     // 스프링 시큐리티
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final TokenExtractor tokenExtractor;
+    private final AiRequester aiRequester;
 
     /**
      * 이메일 회원가입
@@ -76,7 +80,9 @@ public class AccountService {
     }
 
     public void withdraw(Long userId) {
-        userReader.existByUserId(userId);
+        String token = tokenExtractor.getCurrentToken();
+        userReader.validateExistsUser(userId);
         userWriter.withdraw(userId);
+        aiRequester.deleteUserData(token, userId);
     }
 }

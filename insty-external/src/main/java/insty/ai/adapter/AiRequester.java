@@ -38,4 +38,16 @@ public class AiRequester {
             log.error("AI 통신 오류 - deleteAiVideoInfo : videoUuid={}", videoUuid, e);
         }
     }
+
+    public void deleteUserData(String userToken, Long userId) {
+        aiApiWebClient.delete()
+            .uri("/api/v1/ai/users/me/ai-data")
+            .header("Authorization", "Bearer " + userToken)
+            .retrieve()
+            .toBodilessEntity()
+            .subscribe(
+                result -> log.info("AI 사용자 데이터 삭제 완료: userId={}", userId),
+                error -> log.error("AI 사용자 데이터 삭제 실패: userId={}", userId, error)
+            );
+    }
 }

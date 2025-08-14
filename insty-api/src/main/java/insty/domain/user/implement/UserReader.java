@@ -40,7 +40,7 @@ public class UserReader {
         return userRepository.existsByNickname(nickname);
     }
 
-    public void existByUserId(Long userId) {
+    public void validateExistsUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new CustomException(UserErrorCode.USER_NOT_FOUND);
         }

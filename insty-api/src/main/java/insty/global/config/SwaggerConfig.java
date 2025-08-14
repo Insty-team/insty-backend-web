@@ -51,7 +51,7 @@ import org.springframework.web.method.HandlerMethod;
         in = io.swagger.v3.oas.annotations.enums.SecuritySchemeIn.HEADER, // 헤더에 담기
         paramName = "Authorization"          // 실제 헤더명
 )
-@Profile({"local", "dev"})
+@Profile({"local", "dev", "temp"})
 @Configuration
 public class SwaggerConfig {
 

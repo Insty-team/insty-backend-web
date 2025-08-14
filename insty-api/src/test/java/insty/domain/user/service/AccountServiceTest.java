@@ -6,6 +6,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import insty.ai.adapter.AiRequester;
+import insty.domain.auth.util.TokenExtractor;
 import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
 import insty.domain.user.dto.response.UserCreateRes;
@@ -36,6 +38,10 @@ class AccountServiceTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
     private UserFileReader userFileReader;
+    @Mock
+    private TokenExtractor tokenExtractor;
+    @Mock
+    private AiRequester aiRequester;
 
     @InjectMocks
     private AccountService accountService;
@@ -108,13 +114,16 @@ class AccountServiceTest {
     @Test
     void 사용자_탈퇴시_존재여부를_확인하고_탈퇴한다() {
         // given
+        String token = "valid-token";
+        when(tokenExtractor.getCurrentToken()).thenReturn(token);
         Long userId = 1L;
 
         // when
         accountService.withdraw(userId);
 
         // then
-        verify(userReader).existByUserId(eq(userId));
+        verify(userReader).validateExistsUser(eq(userId));
         verify(userWriter).withdraw(eq(userId));
+        verify(aiRequester).deleteUserData(token, userId);
     }
 }
