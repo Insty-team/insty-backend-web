@@ -2,6 +2,7 @@ package insty.ai.adapter;
 
 import insty.ai.error.AiErrorCode;
 import insty.exception.CustomException;
+import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -39,15 +41,19 @@ public class AiRequester {
         }
     }
 
-    public void deleteUserData(String userToken, Long userId) {
-        aiApiWebClient.delete()
+    public Mono<Void> deleteUserData(String userToken, Long userId) {
+        return aiApiWebClient.delete()
             .uri("/api/v1/ai/users/me/ai-data")
             .header("Authorization", "Bearer " + userToken)
             .retrieve()
             .toBodilessEntity()
-            .subscribe(
-                result -> log.info("AI 사용자 데이터 삭제 완료: userId={}", userId),
-                error -> log.error("AI 사용자 데이터 삭제 실패: userId={}", userId, error)
-            );
+            .then()
+            .timeout(Duration.ofSeconds(30))
+            .retry(2)
+            .doOnSuccess(unused -> log.info("AI 사용자 데이터 삭제 완료: userId={}", userId))
+            .doOnError(error -> { log.error("AI 사용자 데이터 삭제 실패: userId={}", userId, error);
+                // 나중에 슬랙 알림 추가할 부분
+            })
+            .onErrorResume(error -> Mono.empty());
     }
 }

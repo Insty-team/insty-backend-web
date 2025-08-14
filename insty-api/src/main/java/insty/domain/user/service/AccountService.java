@@ -60,7 +60,7 @@ public class AccountService {
     /**
      * 닉네임 존재여부 체크
      */
-    public void existsCheckByNickname(UserNicknameCheckReq req) {
+    public void existCheckByNickname(UserNicknameCheckReq req) {
         userValidator.validateDuplicateNickname(req.nickname());
     }
 
@@ -81,8 +81,9 @@ public class AccountService {
 
     public void withdraw(Long userId) {
         String token = tokenExtractor.getCurrentToken();
-        userReader.validateExistsUser(userId);
+        userReader.validateUserExists(userId);
         userWriter.withdraw(userId);
-        aiRequester.deleteUserData(token, userId);
+        // fire-and-forget
+        aiRequester.deleteUserData(token, userId).subscribe();
     }
 }

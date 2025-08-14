@@ -1,6 +1,8 @@
 package insty.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -24,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -116,13 +119,14 @@ class AccountServiceTest {
         // given
         String token = "valid-token";
         when(tokenExtractor.getCurrentToken()).thenReturn(token);
+        when(aiRequester.deleteUserData(anyString(), anyLong())).thenReturn(Mono.empty());
         Long userId = 1L;
 
         // when
         accountService.withdraw(userId);
 
         // then
-        verify(userReader).validateExistsUser(eq(userId));
+        verify(userReader).validateUserExists(eq(userId));
         verify(userWriter).withdraw(eq(userId));
         verify(aiRequester).deleteUserData(token, userId);
     }

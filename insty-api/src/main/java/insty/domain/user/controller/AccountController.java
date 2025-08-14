@@ -45,7 +45,7 @@ public class AccountController implements AccountControllerDocs {
 
     @GetMapping("/nickname/check")
     public SuccessRes<Void> nicknameCheck(@Valid @ModelAttribute UserNicknameCheckReq req) {
-        accountService.existsCheckByNickname(req);
+        accountService.existCheckByNickname(req);
         return SuccessRes.of();
     }
 
