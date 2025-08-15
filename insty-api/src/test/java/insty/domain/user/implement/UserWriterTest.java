@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import insty.domain.course.implement.CourseCleaner;
 import insty.domain.user.repository.UserRepository;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
@@ -22,6 +23,9 @@ class UserWriterTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private CourseCleaner courseCleaner;
 
     @InjectMocks
     private UserWriter userWriter;
@@ -47,5 +51,18 @@ class UserWriterTest {
         assertThat(savedUser).isSameAs(fakeUser);
 
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void 유저_삭제() {
+        // given
+        Long userId = 1L;
+
+        // when
+        userWriter.withdraw(userId);
+
+        // then
+        verify(userRepository).deleteById(userId);
+        verify(courseCleaner).cleanAllData(userId);
     }
 }

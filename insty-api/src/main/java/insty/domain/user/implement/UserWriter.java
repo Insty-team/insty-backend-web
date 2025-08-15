@@ -1,17 +1,21 @@
 package insty.domain.user.implement;
 
+import insty.domain.course.implement.CourseCleaner;
 import insty.domain.user.repository.UserRepository;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UserWriter {
 
+    private final CourseCleaner courseCleaner;
     private final UserRepository userRepository;
 
     /**
@@ -68,5 +72,10 @@ public class UserWriter {
     public void updateLastLoginAt(User user) {
         user.updateLastLoginAt();
         userRepository.save(user);
+    }
+
+    public void withdraw(Long userId) {
+        userRepository.deleteById(userId);
+        courseCleaner.cleanAllData(userId);
     }
 }
