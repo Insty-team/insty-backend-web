@@ -2,7 +2,6 @@ package insty.model.community;
 
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
-import insty.model.BaseEntity;
 import insty.model.community.id.CommunityQuestionViewId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -21,7 +20,7 @@ import java.time.Instant;
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommunityQuestionView extends BaseEntity {
+public class CommunityQuestionView {
 
     @EmbeddedId
     private CommunityQuestionViewId communityQuestionViewId;

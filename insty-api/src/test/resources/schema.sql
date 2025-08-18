@@ -158,8 +158,6 @@ CREATE TABLE IF NOT EXISTS web_service.community_question_views (
     question_id     BIGINT NOT NULL,
     user_id         BIGINT NOT NULL,
     last_viewed_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    created_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
-    updated_at      TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     PRIMARY KEY (question_id, user_id),
     FOREIGN KEY (question_id) REFERENCES web_service.community_questions(id) ON DELETE CASCADE
 );
