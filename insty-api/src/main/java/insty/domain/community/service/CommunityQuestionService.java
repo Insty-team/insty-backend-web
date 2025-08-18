@@ -8,6 +8,7 @@ import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionDetailsRes;
+import insty.domain.community.dto.CommunityQuestionMyRes;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
@@ -21,6 +22,7 @@ import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionVideoManager;
+import insty.domain.community.implement.CommunityQuestionViewManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
 import insty.domain.course.implement.CourseReader;
@@ -31,6 +33,7 @@ import insty.model.course.Course;
 import insty.model.user.User;
 import insty.model.video.VideoQuestion;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -54,6 +57,7 @@ public class CommunityQuestionService {
     private final CommunityAnswerFileWriter communityAnswerFileWriter;
     private final CommunityAnswerVideoManager communityAnswerVideoManager;
     private final ApplicationEventPublisher eventPublisher;
+    private final CommunityQuestionViewManager communityQuestionViewManager;
 
     /**
      * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
@@ -68,6 +72,8 @@ public class CommunityQuestionService {
         CommunityQuestion question = communityQuestionWriter.saveQuestion(user, course, req);
         List<FileInfo> fileInfos = communityQuestionFileWriter.saveQuestionFiles(question, attachments);
         VideoQuestion video = communityQuestionVideoManager.attachVideoToQuestion(question, req.videoUuid());
+
+        communityQuestionViewManager.recordQuestionView(question, userId);
 
         eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
 
@@ -99,7 +105,8 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toFilter(null, null);
         String sort = req.orderByClause();
 
-        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter,
+                sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(CommunityQuestionRes::from)
                 .toList();
@@ -110,17 +117,30 @@ public class CommunityQuestionService {
     /**
      * User(러너)가 작성한 커뮤니티 질문을 검색
      */
-    public SearchRes<CommunityQuestionRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId){
+    public SearchRes<CommunityQuestionMyRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId) {
         PaginationReq paginationReq = req.toPaginationReq();
         CommunityQuestionSearchFilter filter = req.toFilter(userId, null);
         String sort = req.orderByClause();
 
         List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
-        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(CommunityQuestionRes::from)
+        
+        List<Long> questionIds = questions.stream()
+                .map(CommunityQuestionSearchInfo::id)
                 .toList();
+
+        Map<Long, Long> answerCounts = communityQuestionReader.getAnswerCountsByQuestionIds(questionIds);
+        Map<Long, Boolean> hasNewAnswers = communityQuestionViewManager.getHasNewAnswersForQuestions(questionIds, userId);
+
+        List<CommunityQuestionMyRes> items = questions.stream()
+                .map(info -> CommunityQuestionMyRes.from(
+                        info,
+                        answerCounts.getOrDefault(info.id(), 0L),
+                        hasNewAnswers.getOrDefault(info.id(), false)
+                ))
+                .toList();
+
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
-        return SearchRes.from(paginationRes, communityQuestionRes);
+        return SearchRes.from(paginationRes, items);
     }
 
     /**
@@ -169,5 +189,13 @@ public class CommunityQuestionService {
         communityQuestionFileWriter.deleteQuestionFiles(question);
         communityQuestionVideoManager.deleteQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
+    }
+
+    /**
+     * 질문 작성자자 질문 열람 기록
+     */
+    public void recordQuestionView(Long questionId, Long userId) {
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        communityQuestionViewManager.recordQuestionView(question, userId);
     }
 }

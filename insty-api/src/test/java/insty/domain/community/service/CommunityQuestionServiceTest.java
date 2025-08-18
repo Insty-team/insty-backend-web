@@ -35,6 +35,7 @@ import insty.model.community.QuestionStatus;
 import insty.model.user.UserType;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -47,6 +48,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import insty.domain.community.dto.CommunityQuestionMyRes;
+import insty.domain.community.repository.CommunityQuestionViewRepository;
+import insty.model.community.CommunityQuestionView;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -89,6 +93,8 @@ class CommunityQuestionServiceTest {
     private CourseReader courseReader;
     @Autowired
     private CommunityAnswerReader communityAnswerReader;
+    @Autowired
+    private CommunityQuestionViewRepository communityQuestionViewRepository;
 
     @MockitoBean
     private AppProperties appProperties;
@@ -295,7 +301,7 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 사용자별 질문 검색: userId 필터를 검증한다.
+     * 사용자별 질문 검색 테스트
      */
     @Test
     @Sql(statements = {
@@ -308,7 +314,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 2, '코스2', '설명2', 20000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
-            // user1의 질문 3개(1개 삭제됨)
+            // user1 질문 3개
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, 'U1-Q1', '내용1', 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
@@ -316,24 +322,91 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (3, 1, 2, 'U1-Q3', '내용3', 'ACCEPTED', DATEADD('MINUTE', -10, NOW()), NOW(), true);",
 
-            // user2의 질문 2개(조회 대상 아님)
+            // user2 질문 2개
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (4, 2, 2, 'U2-Q1', '내용4', 'ANSWERED', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (5, 2, 1, 'U2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
+                    + "VALUES (5, 2, 1, 'U2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);",
+
+            // 답변 데이터
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, 1, '질문1 답변1', false, DATEADD('MINUTE', -25, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, '질문1 답변2', true, DATEADD('MINUTE', -20, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 2, 2, '질문2 답변1', false, DATEADD('MINUTE', -15, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 1, 4, '질문4 답변1', false, DATEADD('MINUTE', -10, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (5, 2, 4, '질문4 답변2', false, DATEADD('MINUTE', -8, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (6, 1, 4, '질문4 답변3', false, DATEADD('MINUTE', -5, NOW()), NOW(), false);",
+
+            // 질문1 조회 기록
+            "INSERT INTO web_service.community_question_views (question_id, user_id, last_viewed_at) "
+                    + "VALUES (1, 1, DATEADD('MINUTE', -22, NOW()));",
+
+            // 질문1 새로운 답변
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (7, 2, 1, '질문1 새로운 답변', false, DATEADD('MINUTE', -18, NOW()), NOW(), false);",
+
+            // 질문6 데이터
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (6, 1, 1, 'U1-Q4-조회완료', '내용4', 'ANSWERED', DATEADD('MINUTE', -40, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (8, 2, 6, '질문6 답변1', false, DATEADD('MINUTE', -35, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (9, 2, 6, '질문6 답변2', false, DATEADD('MINUTE', -32, NOW()), NOW(), false);",
+            
+            // 질문6 조회 기록
+            "INSERT INTO web_service.community_question_views (question_id, user_id, last_viewed_at) "
+                    + "VALUES (6, 1, DATEADD('MINUTE', -28, NOW()));",
+            
+            // 질문7 데이터
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (7, 1, 1, 'U1-Q5-자기답변', '내용5', 'ANSWERED', DATEADD('MINUTE', -50, NOW()), NOW(), false);",
+            
+            // 질문7에 대한 조회 기록
+            "INSERT INTO web_service.community_question_views (question_id, user_id, last_viewed_at) "
+                    + "VALUES (7, 1, DATEADD('MINUTE', -45, NOW()));",
+            
+            // 질문7 자기 답변
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (10, 1, 7, '질문7 자기답변', false, DATEADD('MINUTE', -38, NOW()), NOW(), false);"})
     void searchQuestionsByUserId_정상() {
-        CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(2).orderBy(null)
+        CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(10).orderBy(null)
                 .order(null).keyword(null).statuses(null).build();
 
-        SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
+        SearchRes<CommunityQuestionMyRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
 
         assertThat(res).isNotNull();
-        assertThat(res.items()).hasSize(2);
+        assertThat(res.items()).hasSize(4);
         assertThat(res.items().stream().allMatch(q -> q.user().id().equals(1L))).isTrue();
-        assertThat(res.pagination().totalItems()).isEqualTo(2);
-        assertThat(res.pagination().perPage()).isEqualTo(2);
+        
+        // 최신순 정렬
+        CommunityQuestionMyRes question1 = res.items().get(0); // 질문2
+        CommunityQuestionMyRes question2 = res.items().get(1); // 질문1
+        CommunityQuestionMyRes question3 = res.items().get(2); // 질문6
+        CommunityQuestionMyRes question4 = res.items().get(3); // 질문7
+        
+        // 답변 수 검증
+        assertThat(question1.answerCount()).isEqualTo(1);
+        assertThat(question2.answerCount()).isEqualTo(3);
+        assertThat(question3.answerCount()).isEqualTo(2);
+        assertThat(question4.answerCount()).isEqualTo(1);
+        
+        // 새 답변 여부 검증
+        assertThat(question1.hasNewAnswer()).isTrue();   // 조회 기록 없음
+        assertThat(question2.hasNewAnswer()).isTrue();   // 조회 후 새 답변 있음
+        assertThat(question3.hasNewAnswer()).isFalse();  // 조회 후 새 답변 없음
+        assertThat(question4.hasNewAnswer()).isFalse();  // 자기 답변만 있음
+        
+        assertThat(res.pagination().totalItems()).isEqualTo(4);
+        assertThat(res.pagination().perPage()).isEqualTo(10);
         assertThat(res.pagination().currentPage()).isEqualTo(1);
     }
+
+
 
     /**
      * 코스별 질문 검색: courseId 필터를 검증한다.
@@ -497,6 +570,41 @@ class CommunityQuestionServiceTest {
                 insty.exception.CustomException.class);
         assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(2L)).isInstanceOf(
                 insty.exception.CustomException.class);
+    }
+
+    /**
+     * 질문 작성자의 조회 기록 업데이트 테스트
+     */
+    @Test
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, user_type, is_deleted, is_email_agreed, created_at, updated_at) VALUES (1, 'user1@test.com', 'user1', 'password', 'LEARNER', false, true, NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, is_show, created_at, updated_at, is_deleted) VALUES (1, 1, '테스트 강의', '테스트 설명', 10000, 0, 0, true, NOW(), NOW(), false)",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '테스트 질문', '테스트 내용', 'WAITING', NOW(), NOW(), false)"
+    })
+    void recordQuestionView_정상() throws InterruptedException {
+        // given
+        Long questionId = 1L;
+        Long userId = 1L;
+
+        // when - 첫 번째 조회 (조회 기록 생성)
+        communityQuestionService.recordQuestionView(questionId, userId);
+
+        // then - 조회 기록이 생성되었는지 확인
+        CommunityQuestionView view = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
+        assertThat(view).isNotNull();
+        assertThat(view.getCommunityQuestion().getId()).isEqualTo(questionId);
+        assertThat(view.getCommunityQuestionViewId().getUserId()).isEqualTo(userId);
+        assertThat(view.getLastViewedAt()).isNotNull();
+
+        // when - 두 번째 조회 (조회 기록 업데이트)
+        Instant firstViewTime = view.getLastViewedAt();
+        Thread.sleep(100); // 시간 차이를 위해 잠시 대기
+        communityQuestionService.recordQuestionView(questionId, userId);
+
+        // then - 조회 시간이 업데이트되었는지 확인
+        CommunityQuestionView updatedView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
+        assertThat(updatedView).isNotNull();
+        assertThat(updatedView.getLastViewedAt()).isAfter(firstViewTime);
     }
 }
 

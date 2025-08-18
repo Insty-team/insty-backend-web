@@ -10,6 +10,7 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityQuestion;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,13 @@ public class CommunityQuestionReader {
      */
     public PaginationRes countSearchQuestions(PaginationReq paginationReq, CommunityQuestionSearchFilter filter) {
         return communityQuestionQueryRepository.countSearchQuestions(paginationReq, filter);
+    }
+
+    /**
+     * 질문 ID 리스트에 해당하는 답변 개수를 조회
+     */
+    public Map<Long, Long> getAnswerCountsByQuestionIds(List<Long> questionIds) {
+        return communityQuestionQueryRepository.getAnswerCountsByQuestionIds(questionIds);
     }
 
     /**

@@ -153,6 +153,15 @@ CREATE TABLE IF NOT EXISTS web_service.community_answers_files (
     FOREIGN KEY (file_id) REFERENCES web_service.files(id) ON DELETE CASCADE
 );
 
+
+CREATE TABLE IF NOT EXISTS web_service.community_question_views (
+    question_id     BIGINT NOT NULL,
+    user_id         BIGINT NOT NULL,
+    last_viewed_at  TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    PRIMARY KEY (question_id, user_id),
+    FOREIGN KEY (question_id) REFERENCES web_service.community_questions(id) ON DELETE CASCADE
+);
+
 -- 영상 관련
 CREATE TABLE IF NOT EXISTS web_service.video_courses
 (
