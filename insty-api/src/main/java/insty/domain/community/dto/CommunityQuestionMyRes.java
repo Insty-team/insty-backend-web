@@ -33,41 +33,11 @@ public record CommunityQuestionMyRes(
         @Schema(description = "질문 수정 시간 (UTC ISO8601)", example = "2024-01-15T10:30:00Z")
         Instant updatedAt
 ) {
-    public static CommunityQuestionMyRes from(
-            CommunityQuestion question
-    ) {
-        return new CommunityQuestionMyRes(
-                CommunityUserRes.from(question.getUser()),
-                question.getCourse().getId(),
-                question.getTitle(),
-                question.getContent(),
-                question.getStatus(),
-                0,
-                false, // TODO: 새로운 답변 여부 계산 필요
-                question.getCreatedAt(),
-                question.getUpdatedAt()
-        );
-    }
-
-    public static CommunityQuestionMyRes from(
-            CommunityQuestionSearchInfo info
-    ) {
-        return new CommunityQuestionMyRes(
-                CommunityUserRes.from(info.user()),
-                info.courseId(),
-                info.title(),
-                info.content(),
-                info.status(),
-                0,
-                false,
-                info.createdAt(),
-                info.updatedAt()
-        );
-    }
 
     public static CommunityQuestionMyRes from(
             CommunityQuestionSearchInfo info,
-            Long answerCount
+            Long answerCount,
+            boolean hasNewAnswer
     ) {
         return new CommunityQuestionMyRes(
                 CommunityUserRes.from(info.user()),
@@ -76,7 +46,7 @@ public record CommunityQuestionMyRes(
                 info.content(),
                 info.status(),
                 answerCount.intValue(),
-                false, // TODO: 새로운 답변 여부 계산 필요
+                hasNewAnswer,
                 info.createdAt(),
                 info.updatedAt()
         );

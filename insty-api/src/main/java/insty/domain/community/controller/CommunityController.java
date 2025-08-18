@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import insty.domain.community.dto.CommunityQuestionMyRes;
+import org.springframework.security.core.Authentication;
 
 @Tag(name = "커뮤니티 API")
 @RestController
@@ -86,8 +87,18 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}")
-    public SuccessRes<CommunityQuestionDetailsRes> retrieveQuestionDetails(@PathVariable @NotNull Long questionId) {
-        return SuccessRes.of(communityQuestionService.getQuestionDetails(questionId));
+    public SuccessRes<CommunityQuestionDetailsRes> getQuestionDetails(
+            @PathVariable @NotNull Long questionId,
+            @CurrentUser Long userId
+    ) {
+        CommunityQuestionDetailsRes response = communityQuestionService.getQuestionDetails(questionId);
+        
+        // 질문 조회 기록 업데이트 (질문 작성자인 경우에만)
+        if (response.user().id().equals(userId)) {
+            communityQuestionService.recordQuestionView(questionId, userId);
+        }
+        
+        return SuccessRes.of(response);
     }
 
     @Operation(summary = "질문 작성", description = "질문을 생성한다.")
