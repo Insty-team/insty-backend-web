@@ -71,11 +71,11 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
             return Map.of();
         }
 
-        // 단일 쿼리로 모든 질문의 답변 개수를 조회
+        com.querydsl.core.types.dsl.NumberExpression<Long> countExpr = communityAnswer.id.count();
         List<com.querydsl.core.Tuple> results = select(
                 Projections.tuple(
                         communityAnswer.communityQuestion.id,
-                        communityAnswer.count()
+                        countExpr
                 )
         )
                 .from(communityAnswer)
@@ -90,7 +90,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
         return results.stream()
                 .collect(Collectors.toMap(
                         tuple -> tuple.get(communityAnswer.communityQuestion.id),
-                        tuple -> tuple.get(communityAnswer.count())
+                        tuple -> tuple.get(countExpr)
                 ));
     }
 
