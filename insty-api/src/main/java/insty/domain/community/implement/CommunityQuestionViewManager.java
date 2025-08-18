@@ -20,8 +20,6 @@ public class CommunityQuestionViewManager {
 
 	/**
 	 * 질문 조회 기록을 업데이트한다.
-	 * 기존 조회 기록이 있으면 마지막 조회 시간을 현재 시간으로 업데이트하고,
-	 * 없으면 새로운 조회 기록을 생성한다.
 	 */
 	public void recordQuestionView(CommunityQuestion question, Long userId) {
 		communityQuestionViewRepository.findByQuestionIdAndUserId(question.getId(), userId)
