@@ -47,6 +47,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import insty.domain.community.dto.CommunityQuestionMyRes;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -308,7 +309,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 2, '코스2', '설명2', 20000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
 
-            // user1의 질문 3개(1개 삭제됨)
+            // user1의 질문 3개(1개 삭제)
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, 'U1-Q1', '내용1', 'ANSWERED', DATEADD('MINUTE', -30, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
@@ -316,20 +317,42 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (3, 1, 2, 'U1-Q3', '내용3', 'ACCEPTED', DATEADD('MINUTE', -10, NOW()), NOW(), true);",
 
-            // user2의 질문 2개(조회 대상 아님)
+            // user2의 질문 2개(필터로 제외)
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (4, 2, 2, 'U2-Q1', '내용4', 'ANSWERED', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (5, 2, 1, 'U2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
+                    + "VALUES (5, 2, 1, 'U2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);",
+
+            // 답변 데이터 추가 (질문1: 2개 답변, 질문2: 1개 답변, 질문4: 3개 답변)
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, 1, '질문1 답변1', false, DATEADD('MINUTE', -25, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, '질문1 답변2', true, DATEADD('MINUTE', -20, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 2, 2, '질문2 답변1', false, DATEADD('MINUTE', -15, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 1, 4, '질문4 답변1', false, DATEADD('MINUTE', -10, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (5, 2, 4, '질문4 답변2', false, DATEADD('MINUTE', -8, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (6, 1, 4, '질문4 답변3', false, DATEADD('MINUTE', -5, NOW()), NOW(), false);"})
     void searchQuestionsByUserId_정상() {
         CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(2).orderBy(null)
                 .order(null).keyword(null).statuses(null).build();
 
-        SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
+        SearchRes<CommunityQuestionMyRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
 
         assertThat(res).isNotNull();
         assertThat(res.items()).hasSize(2);
         assertThat(res.items().stream().allMatch(q -> q.user().id().equals(1L))).isTrue();
+        
+        // answerCount 검증 (최신순 정렬: 질문2가 첫 번째, 질문1이 두 번째)
+        CommunityQuestionMyRes question1 = res.items().get(0);
+        CommunityQuestionMyRes question2 = res.items().get(1);
+        
+        assertThat(question1.answerCount()).isEqualTo(1);
+        assertThat(question2.answerCount()).isEqualTo(2);
+        
         assertThat(res.pagination().totalItems()).isEqualTo(2);
         assertThat(res.pagination().perPage()).isEqualTo(2);
         assertThat(res.pagination().currentPage()).isEqualTo(1);

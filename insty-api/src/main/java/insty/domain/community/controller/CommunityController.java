@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import insty.domain.community.dto.CommunityQuestionMyRes;
 
 @Tag(name = "커뮤니티 API")
 @RestController
@@ -74,7 +75,7 @@ public class CommunityController {
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
     @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/questions/my")
-    public SuccessRes<SearchRes<CommunityQuestionRes>> searchQuestionsByUser(
+    public SuccessRes<SearchRes<CommunityQuestionMyRes>> searchQuestionsByUser(
             @CurrentUser Long userId,
             @ModelAttribute @Validated CommunityQuestionSearchReq req
     ) {

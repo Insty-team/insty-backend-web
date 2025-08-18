@@ -31,11 +31,13 @@ import insty.model.course.Course;
 import insty.model.user.User;
 import insty.model.video.VideoQuestion;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import insty.domain.community.dto.CommunityQuestionMyRes;
 
 @Service
 @Transactional
@@ -99,7 +101,8 @@ public class CommunityQuestionService {
         CommunityQuestionSearchFilter filter = req.toFilter(null, null);
         String sort = req.orderByClause();
 
-        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
+        List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter,
+                sort);
         List<CommunityQuestionRes> communityQuestionRes = questions.stream()
                 .map(CommunityQuestionRes::from)
                 .toList();
@@ -110,17 +113,25 @@ public class CommunityQuestionService {
     /**
      * User(러너)가 작성한 커뮤니티 질문을 검색
      */
-    public SearchRes<CommunityQuestionRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId){
+    public SearchRes<CommunityQuestionMyRes> searchQuestionsByUserId(CommunityQuestionSearchReq req, Long userId) {
         PaginationReq paginationReq = req.toPaginationReq();
         CommunityQuestionSearchFilter filter = req.toFilter(userId, null);
         String sort = req.orderByClause();
 
         List<CommunityQuestionSearchInfo> questions = communityQuestionReader.searchQuestions(paginationReq, filter, sort);
-        List<CommunityQuestionRes> communityQuestionRes = questions.stream()
-                .map(CommunityQuestionRes::from)
+
+        List<Long> questionIds = questions.stream()
+                .map(CommunityQuestionSearchInfo::id)
                 .toList();
+
+        Map<Long, Long> answerCounts = communityQuestionReader.getAnswerCountsByQuestionIds(questionIds);
+
+        List<CommunityQuestionMyRes> communityQuestionMyRes = questions.stream()
+                .map(info -> CommunityQuestionMyRes.from(info, answerCounts.getOrDefault(info.id(), 0L)))
+                .toList();
+
         PaginationRes paginationRes = communityQuestionReader.countSearchQuestions(paginationReq, filter);
-        return SearchRes.from(paginationRes, communityQuestionRes);
+        return SearchRes.from(paginationRes, communityQuestionMyRes);
     }
 
     /**
