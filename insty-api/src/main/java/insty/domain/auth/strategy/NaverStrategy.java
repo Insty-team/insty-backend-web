@@ -1,5 +1,6 @@
 package insty.domain.auth.strategy;
 
+import insty.domain.user.implement.UserValidator;
 import insty.domain.user.repository.UserRepository;
 import insty.generator.NicknameGenerator;
 import insty.model.user.SocialType;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class NaverStrategy implements SocialStrategy {
     private final NaverService naverService;
     private final UserRepository userRepository;
+    private final UserValidator userValidator;
 
     /**
      *  전략 사용 지원 여부
@@ -51,6 +53,8 @@ public class NaverStrategy implements SocialStrategy {
         String socialId = userProfile.naverAccount().id();       // 소셜 회원 ID
         String email = userProfile.naverAccount().email();      // 이메일
         String nickname = NicknameGenerator.generateNickname();
+
+        userValidator.validateDuplicateEmail(email);
 
         log.info("네이버 로그인 : 사용자 정보 조회 완료 , 소셜 ID : {}", socialId);
 
