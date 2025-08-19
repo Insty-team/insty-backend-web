@@ -74,6 +74,8 @@ public class CourseWriter {
      * cascade 없이 연관된 데이터를 먼저 삭제하고 강의를 마지막에 삭제할 것
      */
     public void deleteCourse(Course course) {
+        courseInstallEnvChecklistRepository.deleteAllByCourseId(course.getId());
+        courseKeypointRepository.deleteAllByCourseId(course.getId());
         courseRepository.delete(course);
     }
 }
