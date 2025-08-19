@@ -2,6 +2,8 @@ package insty.domain.course.implement;
 
 import static insty.util.FileUtils.getFilePath;
 
+import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
+import insty.domain.course.repository.CourseKeypointRepository;
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
@@ -30,6 +32,8 @@ public class CourseCleaner {
     private final CourseRepository courseRepository;
     private final CourseTagRepository courseTagRepository;
     private final CoursePracticeFileRepository coursePracticeFileRepository;
+    private final CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
+    private final CourseKeypointRepository courseKeypointRepository;
     private final VideoCourseRepository videoCourseRepository;
     private final VideoEncodingRepository videoEncodingRepository;
     private final FileRepository fileRepository;
@@ -85,6 +89,8 @@ public class CourseCleaner {
     }
 
     private void deleteAllCourse(List<Long> courseIds) {
+        courseInstallEnvChecklistRepository.deleteAllByCourseIdIn(courseIds);
+        courseKeypointRepository.deleteAllByCourseIdIn(courseIds);
         courseRepository.deleteAllById(courseIds);
     }
 }
