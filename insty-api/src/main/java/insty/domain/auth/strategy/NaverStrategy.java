@@ -60,6 +60,7 @@ public class NaverStrategy implements SocialStrategy {
 
         return userRepository.findBySocialIdAndSocialType(socialId, SocialType.NAVER)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
+                    userValidator.validateDuplicateEmail(email);
                     User newUser = User.createBySocial(socialId, SocialType.NAVER, email, nickname, userType);
                     return userRepository.save(newUser);
                 });

@@ -55,12 +55,11 @@ public class GoogleStrategy implements SocialStrategy {
         String email = userProfile.email();      // 이메일
         String nickname = NicknameGenerator.generateNickname();      // 닉네임
 
-        userValidator.validateDuplicateEmail(email);
-
         log.info("구글 로그인 : 사용자 정보 조회 완료 , 소셜 ID : {}", socialId);
 
         return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.GOOGLE)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
+                    userValidator.validateDuplicateEmail(email);
                     User newUser = User.createBySocial(socialId, SocialType.GOOGLE, email, nickname, userType);
                     return userRepository.save(newUser);
                 });

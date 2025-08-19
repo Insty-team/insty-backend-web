@@ -62,6 +62,7 @@ public class KakaoStrategy implements SocialStrategy {
 
         return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.KAKAO)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
+                    userValidator.validateDuplicateEmail(email);
                     User newUser = User.createBySocial(String.valueOf(socialId), SocialType.KAKAO, email, nickname, userType);
                     return userRepository.save(newUser);
                 });
