@@ -8,6 +8,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
+import insty.domain.course.repository.CourseKeypointRepository;
 import insty.domain.course.repository.CoursePracticeFileRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
@@ -44,6 +46,10 @@ class CourseCleanerTest {
     private CourseTagRepository courseTagRepository;
     @Mock
     private CoursePracticeFileRepository coursePracticeFileRepository;
+    @Mock
+    private CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
+    @Mock
+    private CourseKeypointRepository courseKeypointRepository;
     @Mock
     private VideoCourseRepository videoCourseRepository;
     @Mock
