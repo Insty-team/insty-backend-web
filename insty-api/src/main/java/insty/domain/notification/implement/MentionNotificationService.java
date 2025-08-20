@@ -1,22 +1,29 @@
 package insty.domain.notification.implement;
 
 import insty.domain.notification.content.MentionMailContent;
-import insty.global.property.AppProperties;
+import insty.domain.notification.util.NotificationUtils;
 import insty.mail.MailHelper;
 import insty.model.mention.Mention;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MentionNotificationService {
 
-    private final AppProperties appProperties;
+    private final NotificationUtils notificationUtils;
     private final MailHelper mailHelper;
+    private final NotificationSettingService notificationSettingService;
 
     public void sendMentionNotification(List<Mention> mentions, String questionTitle) {
         for (Mention mention : mentions) {
+            Long mentionedUserId = mention.getMentionedUser().getId();
+            
+            if (!notificationSettingService.isEmailNotificationEnabled(mentionedUserId)) {
+                continue;
+            }
+            
             String mentionedUserEmail = mention.getMentionedUser().getEmail();
             String mentionerName = mention.getMentionerUser().getNickname();
             String questionUrl = generateQuestionUrl(mention.getCommunityAnswer().getCommunityQuestion().getId());
@@ -33,6 +40,6 @@ public class MentionNotificationService {
     }
 
     private String generateQuestionUrl(Long questionId) {
-        return String.format("%s/community/questions/%d", appProperties.getDomain(), questionId);
+        return String.format("%s/community/questions/%d", notificationUtils.getDomain(), questionId);
     }
 }
