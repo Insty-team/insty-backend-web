@@ -32,7 +32,7 @@ public class MentionService {
      */
     public List<MentionUserSearchRes> searchMentionableUsers(MentionUserSearchReq req, Long userId) {
         List<User> users = mentionReader.searchMentionableUsers(req.size(), req.keyword(), userId);
-        List<MentionUserSearchRes> profileImages = users.stream().map( user ->
+        List<MentionUserSearchRes> profileImages = users.stream().map(user ->
                 MentionUserSearchRes.from(user, userFileReader.getProfileImageUrl(user))
         ).toList();
         return profileImages;
@@ -42,19 +42,20 @@ public class MentionService {
      * 댓글에서 멘션을 파싱하고 저장하며 알림을 발송한다
      */
     @Transactional
-    public List<Mention> processMentions(CommunityAnswer communityAnswer, User mentionerUser, String content, String questionTitle) {
+    public List<Mention> processMentions(CommunityAnswer communityAnswer, User mentionerUser) {
         // 1. 멘션 추출
-        List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
-        
+        List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(communityAnswer.getContent(),
+                mentionerUser);
+
         // 2. 멘션 쿨다운 검사
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
-        
+
         // 3. 멘션 저장
         List<Mention> savedMentions = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, communityAnswer);
-        
+
         // 4. 멘션 알림 (TODO: 미구현)
         // sendMentionNotifications(savedMentions, questionTitle);
-        
+
         return savedMentions;
     }
 }

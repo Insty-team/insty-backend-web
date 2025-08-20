@@ -22,24 +22,17 @@ public class MentionReader {
     private final MentionRepository mentionRepository;
 
     /**
-     * 멘션 가능한 사용자 목록을 검색한다
+     * 멘션 가능한 사용자 목록을 검색
      */
     public List<User> searchMentionableUsers(int size, String searchKeyword, Long excludedUserId) {
         Pageable pageable = PageRequest.of(0, size);
-
-        List<User> users = userRepository.searchUsersByKeyword(
-                searchKeyword,
-                excludedUserId,
-                pageable
-        );
-        return users;
+        return userRepository.searchUsersByKeyword(searchKeyword, excludedUserId, pageable);
     }
 
     /**
-     * 특정 댓글의 멘션 목록을 조회한다
+     * 특정 댓글의 멘션 목록을 조회
      */
     public List<Mention> getMentionsByAnswerId(Long answerId) {
-        log.debug("댓글 멘션 목록 조회: answerId={}", answerId);
         return mentionRepository.findAllByCommunityAnswerId(answerId);
     }
 }
