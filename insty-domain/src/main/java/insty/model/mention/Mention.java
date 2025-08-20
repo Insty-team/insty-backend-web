@@ -57,37 +57,6 @@ public class Mention extends BaseEntity {
                 .build();
     }
 
-    /**
-     * 멘션 생성 (userId 기반)
-     */
-    public static Mention create(CommunityAnswer communityAnswer, Long mentionedUserId, Long mentionerUserId) {
-        if (mentionedUserId == null) {
-            log.error("멘션 생성 오류 - mentionedUserId : null");
-            throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
-        }
-        if (mentionerUserId == null) {
-            log.error("멘션 생성 오류 - mentionerUserId : null");
-            throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
-        }
-        if (mentionedUserId.equals(mentionerUserId)) {
-            log.error("멘션 생성 오류 - 자기 자신을 멘션할 수 없음");
-            throw new CustomException(MentionErrorCode.MENTION_SELF_ERROR);
-        }
-        
-        return Mention.builder()
-                .communityAnswer(communityAnswer)
-                .mentionedUser(User.builder().id(mentionedUserId).build())
-                .mentionerUser(User.builder().id(mentionerUserId).build())
-                .build();
-    }
-
-    /**
-     * CommunityAnswer 설정
-     */
-    public void setCommunityAnswer(CommunityAnswer communityAnswer) {
-        this.communityAnswer = communityAnswer;
-    }
-
     private static void validateCreate(CommunityAnswer communityAnswer, User mentionedUser, User mentionerUser) {
         if (communityAnswer == null) {
             log.error("멘션 생성 오류 - communityAnswer : null");

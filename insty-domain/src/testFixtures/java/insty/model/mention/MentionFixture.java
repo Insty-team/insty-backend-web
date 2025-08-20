@@ -25,10 +25,11 @@ public class MentionFixture {
 
     public static Mention getMention(Long mentionedUserId, Long mentionerUserId) {
         CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
-        User user = UserFixtureBuilder.getUserWithId();
-        CommunityAnswer answer = CommunityAnswerFixture.getCommunityAnswer(question, user);
+        User mentionedUser = UserFixtureBuilder.getUserWithId(mentionedUserId);
+        User mentionerUser = UserFixtureBuilder.getUserWithId(mentionerUserId);
+        CommunityAnswer answer = CommunityAnswerFixture.getCommunityAnswer(question, mentionedUser);
         
-        return Mention.create(answer, mentionedUserId, mentionerUserId);
+        return Mention.create(answer, mentionedUser, mentionerUser);
     }
 }
 
