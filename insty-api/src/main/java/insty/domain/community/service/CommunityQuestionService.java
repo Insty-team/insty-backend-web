@@ -75,7 +75,7 @@ public class CommunityQuestionService {
 
         communityQuestionViewManager.recordQuestionView(question, userId);
 
-        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
+        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question));
 
         return CommunityQuestionDetailsRes.from(question, fileInfos, video, null);
     }

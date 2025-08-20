@@ -61,7 +61,7 @@ public class CommunityAnswerService {
 
         communityQuestionStatusManager.updateStatusAfterAnswerCreated(question);
 
-        eventPublisher.publishEvent(new CommunityAnswerCreatedEvent(question.getId(), answer.getId()));
+        eventPublisher.publishEvent(new CommunityAnswerCreatedEvent(question, answer));
 
         return CommunityAnswerRes.from(answer, fileInfos, video);
     }

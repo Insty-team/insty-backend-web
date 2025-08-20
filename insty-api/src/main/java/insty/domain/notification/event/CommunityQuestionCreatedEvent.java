@@ -1,6 +1,8 @@
 package insty.domain.notification.event;
 
+import insty.model.community.CommunityQuestion;
+
 public record CommunityQuestionCreatedEvent(
-        Long questionId
+        CommunityQuestion question
 ) {
 }
