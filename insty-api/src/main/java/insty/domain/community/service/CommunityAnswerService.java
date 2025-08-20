@@ -5,7 +5,7 @@ import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.community.event.CommunityAnswerCreatedEvent;
+import insty.domain.notification.event.CommunityAnswerCreatedEvent;
 import insty.domain.community.implement.CommunityAnswerAcceptService;
 import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityAnswerFileWriter;

@@ -12,7 +12,6 @@ import insty.model.community.CommunityAnswer;
 import insty.model.mention.Mention;
 import insty.model.user.User;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -58,10 +57,7 @@ public class MentionService {
         
         // 4. 멘션 이벤트 발행
         if (!savedMentions.isEmpty()) {
-            List<Long> mentionIds = savedMentions.stream()
-                    .map(Mention::getId)
-                    .collect(Collectors.toList());
-            eventPublisher.publishEvent(new MentionCreatedEvent(mentionIds, questionTitle));
+            eventPublisher.publishEvent(new MentionCreatedEvent(savedMentions, questionTitle));
         }
         
         return savedMentions;

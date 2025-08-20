@@ -1,4 +1,4 @@
-package insty.domain.community.implement.mail;
+package insty.domain.notification.implement;
 
 import insty.mail.MailContent;
 import insty.mail.MailType;

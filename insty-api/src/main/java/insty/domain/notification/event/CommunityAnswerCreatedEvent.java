@@ -1,4 +1,4 @@
-package insty.domain.community.event;
+package insty.domain.notification.event;
 
 public record CommunityAnswerCreatedEvent(
         Long questionId,

@@ -14,7 +14,7 @@ import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
-import insty.domain.community.event.CommunityQuestionCreatedEvent;
+import insty.domain.notification.event.CommunityQuestionCreatedEvent;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
