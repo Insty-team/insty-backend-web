@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MentionParser {
 
-    private static final Pattern MENTION_PATTERN = Pattern.compile("@\\[([^\\]]+)\\]\\((\\d+)\\)");
+    private static final Pattern MENTION_PATTERN = Pattern.compile("@\\[([^\\]]+)\\]\\(([^)]+)\\)");
     private static final int MAX_MENTIONS_PER_COMMENT = 2;
 
     /**
@@ -53,7 +53,7 @@ public class MentionParser {
                 Long userId = Long.parseLong(userIdStr);
                 mentionedUsers.add(new MentionedUserInfo(userId, displayName));
             } catch (NumberFormatException e) {
-                log.warn("잘못된 사용자 ID 형식: {}", userIdStr);
+                throw new CustomException(MentionErrorCode.MENTION_INVALID_FORMAT);
             }
         }
         
