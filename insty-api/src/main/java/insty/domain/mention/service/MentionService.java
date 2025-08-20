@@ -1,7 +1,9 @@
 package insty.domain.mention.service;
 
+import insty.domain.mention.dto.MentionedUserInfo;
 import insty.domain.mention.dto.MentionUserSearchReq;
 import insty.domain.mention.dto.MentionUserSearchRes;
+import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionReader;
 import insty.domain.mention.implement.MentionWriter;
 import insty.domain.user.implement.UserFileReader;
@@ -22,6 +24,7 @@ public class MentionService {
 
     private final MentionReader mentionReader;
     private final MentionWriter mentionWriter;
+    private final MentionParser mentionParser;
     private final UserFileReader userFileReader;
 
     /**
@@ -40,9 +43,18 @@ public class MentionService {
      */
     @Transactional
     public List<Mention> processMentions(CommunityAnswer communityAnswer, User mentionerUser, String content, String questionTitle) {
-
-        List<Mention> mentions = mentionWriter.parseAndSaveMentions(communityAnswer, mentionerUser, content);
-
-        return mentions;
+        // 1. 멘션 추출
+        List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
+        
+        // 2. 멘션 쿨다운 검사
+        mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
+        
+        // 3. 멘션 저장
+        List<Mention> savedMentions = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, communityAnswer);
+        
+        // 4. 멘션 알림 (TODO: 미구현)
+        // sendMentionNotifications(savedMentions, questionTitle);
+        
+        return savedMentions;
     }
 }
