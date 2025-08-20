@@ -26,8 +26,8 @@ public class VideoQuestionValidateStrategy implements VideoValidateStrategy {
     public void validateUploadable(Long userId) {
         Instant startOfToday = DateUtils.getStartOfTodayInKorea();
 
-        int durationSum = videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(userId,
-                        startOfToday)
+        int durationSum = videoQuestionRepository.findEncodingDuration(userId, startOfToday,
+                        EncodingStatus.getExceedUploadLimitTarget())
                 .stream()
                 .mapToInt(Integer::intValue)
                 .sum();

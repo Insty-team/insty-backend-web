@@ -1,5 +1,6 @@
 package insty.domain.video.repository;
 
+import insty.model.video.EncodingStatus;
 import insty.model.video.VideoQuestion;
 import java.time.Instant;
 import java.util.List;
@@ -26,9 +27,9 @@ public interface VideoQuestionRepository extends JpaRepository<VideoQuestion, Lo
     void deleteLogicallyById(@Param("id") Long id);
 
     @Query("SELECT va.duration FROM VideoQuestion va "
-            + "WHERE va.encodingStatus != 'FAILED' AND va.user.id = :userId AND va.encodingAt >= :encodingAt")
-    List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
-                                                                       @Param("encodingAt") Instant encodingAt);
+            + "WHERE va.user.id = :userId AND va.encodingAt >= :encodingAt AND va.encodingStatus in :encodingStatus")
+    List<Integer> findEncodingDuration(@Param("userId") Long userId, @Param("encodingAt") Instant encodingAt,
+                                       @Param("encodingStatus") List<EncodingStatus> encodingStatuses);
 
     boolean existsByIdAndUserId(Long id, Long userId);
 }
