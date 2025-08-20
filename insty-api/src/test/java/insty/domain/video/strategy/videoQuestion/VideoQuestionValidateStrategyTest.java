@@ -49,7 +49,7 @@ class VideoQuestionValidateStrategyTest {
         Long userId = 1L;
 
         // mock
-        when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+        when(videoQuestionRepository.findEncodingDuration(any(), any(), any()))
                 .thenReturn(List.of(60, 239, 300));
 
         // when
@@ -65,7 +65,7 @@ class VideoQuestionValidateStrategyTest {
         Long userId = 1L;
 
         // mock
-        when(videoQuestionRepository.findEncodingDurationByUserIdAndEncodingAtGreaterThan(any(), any()))
+        when(videoQuestionRepository.findEncodingDuration(any(), any(), any()))
                 .thenReturn(List.of(60, 240, 300));
 
         // when
