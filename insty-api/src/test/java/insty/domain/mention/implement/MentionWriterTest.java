@@ -17,7 +17,7 @@ import insty.model.mention.Mention;
 import insty.model.mention.MentionFixtureBuilder;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
@@ -94,7 +94,7 @@ class MentionWriterTest {
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
 
         // mock
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(LocalDateTime.class)))
+        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(Instant.class)))
                 .thenReturn(List.of());
 
         // when & then
@@ -111,7 +111,7 @@ class MentionWriterTest {
         Mention recentMention = MentionFixtureBuilder.getMentionWithId(1L);
 
         // mock
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(LocalDateTime.class)))
+        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(Instant.class)))
                 .thenReturn(List.of(recentMention));
 
         // when & then
@@ -130,9 +130,9 @@ class MentionWriterTest {
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo1, userInfo2);
 
         // mock
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(LocalDateTime.class)))
+        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(Instant.class)))
                 .thenReturn(List.of());
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(3L), any(LocalDateTime.class)))
+        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(3L), any(Instant.class)))
                 .thenReturn(List.of());
 
         // when & then

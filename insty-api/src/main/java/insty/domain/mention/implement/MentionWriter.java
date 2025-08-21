@@ -8,7 +8,7 @@ import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.mention.Mention;
 import insty.model.user.User;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +53,7 @@ public class MentionWriter {
      * 멘션 쿨다운 검증
      */
     public void validateMentionCooldown(List<MentionedUserInfo> mentionedUserInfos, User mentionerUser) {
-        LocalDateTime cooldownThreshold = LocalDateTime.now().minusMinutes(MENTION_COOLDOWN_MINUTES);
+        Instant cooldownThreshold = Instant.now().minusSeconds(MENTION_COOLDOWN_MINUTES * 60L);
 
         for (MentionedUserInfo userInfo : mentionedUserInfos) {
             List<Mention> recentMentions = mentionRepository.findRecentMentionsByMentionerAndMentioned(
