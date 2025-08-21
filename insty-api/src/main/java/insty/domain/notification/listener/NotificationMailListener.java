@@ -48,7 +48,7 @@ public class NotificationMailListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMentionCreated(MentionCreatedEvent event) {
         try {
-            mentionNotificationService.sendMentionNotification(event.mentions(), event.questionTitle());
+            mentionNotificationService.sendMentionNotification(event.mention(), event.questionTitle());
         } catch (Exception e) {
             throw new CustomException(NotificationErrorCode.MENTION_NOTIFICATION_FAILED);
         }

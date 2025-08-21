@@ -46,18 +46,12 @@ public class MentionService {
      */
     @Transactional
     public List<Mention> processMentions(CommunityAnswer communityAnswer, User mentionerUser, String content, String questionTitle) {
-        // 1. 멘션 추출
         List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
-        
-        // 2. 멘션 쿨다운 검사
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
-        
-        // 3. 멘션 저장
+
         List<Mention> savedMentions = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, communityAnswer);
-        
-        // 4. 멘션 이벤트 발행
-        if (!savedMentions.isEmpty()) {
-            eventPublisher.publishEvent(new MentionCreatedEvent(savedMentions, questionTitle));
+        for(Mention mention : savedMentions){
+            eventPublisher.publishEvent(new MentionCreatedEvent(mention, questionTitle));
         }
         
         return savedMentions;

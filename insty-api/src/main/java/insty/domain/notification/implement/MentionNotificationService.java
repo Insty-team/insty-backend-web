@@ -16,27 +16,25 @@ public class MentionNotificationService {
     private final MailHelper mailHelper;
     private final NotificationSettingService notificationSettingService;
 
-    public void sendMentionNotification(List<Mention> mentions, String questionTitle) {
-        for (Mention mention : mentions) {
-            Long mentionedUserId = mention.getMentionedUser().getId();
-            
-            if (!notificationSettingService.isEmailNotificationEnabled(mentionedUserId)) {
-                continue;
-            }
-            
-            String mentionedUserEmail = mention.getMentionedUser().getEmail();
-            String mentionerName = mention.getMentionerUser().getNickname();
-            String questionUrl = generateQuestionUrl(mention.getCommunityAnswer().getCommunityQuestion().getId());
+    public void sendMentionNotification(Mention mention, String questionTitle) {
+        Long mentionedUserId = mention.getMentionedUser().getId();
 
-            MentionMailContent mailContent = MentionMailContent.of(
-                    mentionedUserEmail,
-                    mentionerName,
-                    questionTitle,
-                    questionUrl
-            );
-
-            mailHelper.send(mailContent);
+        if (!notificationSettingService.isEmailNotificationEnabled(mentionedUserId)) {
+            return;
         }
+
+        String mentionedUserEmail = mention.getMentionedUser().getEmail();
+        String mentionerName = mention.getMentionerUser().getNickname();
+        String questionUrl = generateQuestionUrl(mention.getCommunityAnswer().getCommunityQuestion().getId());
+
+        MentionMailContent mailContent = MentionMailContent.of(
+                mentionedUserEmail,
+                mentionerName,
+                questionTitle,
+                questionUrl
+        );
+
+        mailHelper.send(mailContent);
     }
 
     private String generateQuestionUrl(Long questionId) {
