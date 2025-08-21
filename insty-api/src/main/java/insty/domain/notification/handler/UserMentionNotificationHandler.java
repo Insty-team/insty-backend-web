@@ -30,27 +30,31 @@ public class UserMentionNotificationHandler {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMailEventHandler(UserMentionedEvent event) {
+        log.info("UserMentionNotificationHandler 시작: receiver={}", event.receiver().getEmail());
         try {
             User receiverUser = event.receiver();
+            User senderUser = event.sender();
             CommunityQuestion question = event.question();
 
-            if (notificationValidator.validateUserNotification(receiverUser)) {
+            if (!notificationValidator.validateUserNotification(receiverUser)) {
                 return;
             }
             String email = receiverUser.getEmail();
-            String name = receiverUser.getNickname();
-            String title = question.getTitle();
-            String url = generateQuestionUrl(question.getId());
+            String questionTitle = question.getTitle();
+            String mentionerName = senderUser.getNickname();
+            String questionUrl = generateQuestionUrl(question.getId());
             UserMentionMailContent mailContent = UserMentionMailContent.of(
                     email,
-                    name,
-                    title,
-                    url
+                    questionTitle,
+                    mentionerName,
+                    questionUrl
             );
 
             mailHelper.send(mailContent);
+            log.info("UserMentionNotificationHandler 메일 전송 완료: {}", receiverUser.getEmail());
 
         } catch (Exception e) {
+            log.error("UserMentionNotificationHandler 에러", e);
             throw new CustomException(NotificationErrorCode.MENTION_NOTIFICATION_FAILED);
         }
     }

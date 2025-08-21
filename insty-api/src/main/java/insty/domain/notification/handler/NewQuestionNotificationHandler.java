@@ -35,7 +35,7 @@ public class NewQuestionNotificationHandler {
             User receiverUser = course.getUser();
             User senderUser = question.getUser();
 
-            if (notificationValidator.validateUserNotification(receiverUser)) {
+            if (!notificationValidator.validateUserNotification(receiverUser)) {
                 return;
             }
 
@@ -57,8 +57,9 @@ public class NewQuestionNotificationHandler {
             );
 
             mailHelper.send(mailContent);
-
+            log.info("NewQuestionNotificationHandler 메일 전송 완료: {}", receiverUser.getEmail());
         } catch (Exception e) {
+            log.error("NewQuestionNotificationHandler 에러", e);
             throw new CustomException(NotificationErrorCode.QUESTION_NOTIFICATION_FAILED);
         }
     }

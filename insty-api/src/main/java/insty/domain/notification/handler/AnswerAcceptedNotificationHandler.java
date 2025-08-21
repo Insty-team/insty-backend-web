@@ -36,7 +36,7 @@ public class AnswerAcceptedNotificationHandler {
             User questionAuthor = question.getUser();
             User answerAuthor = answer.getUser();
 
-            if (notificationValidator.validateUserNotification(receiverUser)) {
+            if (!notificationValidator.validateUserNotification(receiverUser)) {
                 return;
             }
 
@@ -56,8 +56,10 @@ public class AnswerAcceptedNotificationHandler {
             );
 
             mailHelper.send(mailContent);
+            log.info("AnswerAcceptedNotificationHandler 메일 전송 완료: {}", receiverUser.getEmail());
 
         } catch (Exception e) {
+            log.error("AnswerAcceptedNotificationHandler 에러", e);
             throw new CustomException(NotificationErrorCode.ANSWER_ACCEPT_NOTIFICATION_FAILED);
         }
     }
