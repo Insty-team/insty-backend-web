@@ -5,7 +5,8 @@ public enum NotificationErrorCode implements ErrorCode {
     NOTIFICATION_MAIL_SEND_FAILED("NOTIFICATION_001", "알림 메일 발송에 실패했습니다.", 500),
     QUESTION_NOTIFICATION_FAILED("NOTIFICATION_002", "질문 알림 메일 발송에 실패했습니다.", 500),
     ANSWER_NOTIFICATION_FAILED("NOTIFICATION_003", "답변 알림 메일 발송에 실패했습니다.", 500),
-    MENTION_NOTIFICATION_FAILED("NOTIFICATION_004", "멘션 알림 메일 발송에 실패했습니다.", 500);
+    ANSWER_ACCEPT_NOTIFICATION_FAILED("NOTIFICATION_004", "답변 채택 알림 메일 발송에 실패했습니다.", 500),
+    MENTION_NOTIFICATION_FAILED("NOTIFICATION_005", "멘션 알림 메일 발송에 실패했습니다.", 500);
 
     private final String code;
     private final String message;

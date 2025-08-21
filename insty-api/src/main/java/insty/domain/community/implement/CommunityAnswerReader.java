@@ -5,7 +5,10 @@ import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
+import insty.model.user.User;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,5 +60,15 @@ public class CommunityAnswerReader {
      */
     public int countAcceptedAnswersByQuestionId(Long questionId) {
         return communityAnswerRepository.countAcceptedAnswersByQuestionId(questionId);
+    }
+
+    /**
+     * 질문에 참여한 모든 사용자 조회 (질문 작성자 제외)
+     */
+    public Set<User> getParticipantsByQuestionId(Long questionId) {
+        List<CommunityAnswer> answers = communityAnswerRepository.findAllByCommunityQuestionId(questionId);
+        return answers.stream()
+                .map(CommunityAnswer::getUser)
+                .collect(Collectors.toSet());
     }
 }

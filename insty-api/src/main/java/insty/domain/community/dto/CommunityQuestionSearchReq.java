@@ -2,11 +2,11 @@ package insty.domain.community.dto;
 
 import insty.domain.common.dto.PaginationReq;
 import insty.model.community.QuestionStatus;
-import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
+import java.util.List;
 import lombok.Builder;
 import org.springdoc.core.annotations.ParameterObject;
 

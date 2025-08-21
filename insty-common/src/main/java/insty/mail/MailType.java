@@ -5,6 +5,7 @@ public enum MailType {
     AUTH("[INSTY] 메일 인증 안내드립니다.", "email-auth"),
     COMMUNITY_QUESTION("[INSTY] 새로운 질문이 등록되었습니다.", "community-question"),
     COMMUNITY_ANSWER("[INSTY] 새로운 답변이 등록되었습니다.", "community-answer"),
+    COMMUNITY_ANSWER_ACCEPT("[INSTY] 답변이 채택되었습니다.", "community-answer-accept"),
     MENTION("[INSTY] 멘션 알림", "mention"),
     ;
 

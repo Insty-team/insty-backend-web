@@ -1,6 +1,5 @@
 package insty.domain.community.dto;
 
-import insty.model.community.CommunityQuestion;
 import insty.model.community.QuestionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;

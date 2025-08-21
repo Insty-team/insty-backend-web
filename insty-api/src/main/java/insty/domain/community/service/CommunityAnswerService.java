@@ -5,17 +5,18 @@ import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.notification.event.CommunityAnswerCreatedEvent;
-import insty.domain.community.implement.CommunityAnswerAcceptService;
+import insty.domain.community.implement.CommunityAnswerAcceptManager;
 import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
 import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
+import insty.domain.community.implement.CommunityNotificationManager;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.mention.service.MentionService;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
@@ -23,7 +24,6 @@ import insty.model.user.User;
 import insty.model.video.VideoAnswer;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,13 +37,14 @@ public class CommunityAnswerService {
     private final CommunityAnswerFileReader communityAnswerFileReader;
     private final CommunityAnswerFileWriter communityAnswerFileWriter;
     private final CommunityAnswerVideoManager communityAnswerVideoManager;
-    private final CommunityAnswerAcceptService communityAnswerAcceptService;
+    private final CommunityAnswerAcceptManager communityAnswerAcceptManager;
     private final CommunityValidator communityValidator;
     private final CommunityAnswerMapper communityAnswerMapper;
     private final CommunityQuestionReader communityQuestionReader;
     private final CommunityQuestionStatusManager communityQuestionStatusManager;
     private final UserReader userReader;
-    private final ApplicationEventPublisher eventPublisher;
+    private final CommunityNotificationManager communityNotificationManager;
+    private final MentionService mentionService;
 
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
@@ -61,7 +62,7 @@ public class CommunityAnswerService {
 
         communityQuestionStatusManager.updateStatusAfterAnswerCreated(question);
 
-        eventPublisher.publishEvent(new CommunityAnswerCreatedEvent(question, answer));
+        mentionService.processMentions(answer, user, answer.getContent());
 
         return CommunityAnswerRes.from(answer, fileInfos, video);
     }
@@ -126,6 +127,13 @@ public class CommunityAnswerService {
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateQuestionAuthor(userId, questionId);
         communityValidator.validateAnswerBelongsToQuestion(answer, question);
-        return communityAnswerAcceptService.acceptAnswer(question, answer);
+
+        AcceptAnswerResultRes result = communityAnswerAcceptManager.acceptAnswer(question, answer);
+
+        if (result.accepted()) {
+            communityNotificationManager.sendAnswerAcceptedNotification(question, answer);
+        }
+        
+        return result;
     }
 }

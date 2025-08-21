@@ -13,7 +13,7 @@ import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
-import insty.domain.community.implement.CommunityAnswerAcceptService;
+import insty.domain.community.implement.CommunityAnswerAcceptManager;
 import insty.domain.community.implement.CommunityAnswerFileReader;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
 import insty.domain.community.implement.CommunityAnswerMapper;
@@ -67,7 +67,7 @@ class CommunityAnswerServiceTest {
     @Autowired
     private CommunityAnswerVideoManager communityAnswerVideoManager;
     @Autowired
-    private CommunityAnswerAcceptService communityAnswerAcceptService;
+    private CommunityAnswerAcceptManager communityAnswerAcceptManager;
     @Autowired
     private CommunityValidator communityValidator;
     @Autowired

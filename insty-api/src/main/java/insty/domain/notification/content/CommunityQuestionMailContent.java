@@ -25,7 +25,8 @@ public final class CommunityQuestionMailContent extends MailContent {
 
     public static CommunityQuestionMailContent of(String to, String questionTitle, String questionContent,
                                                   String questionAuthorName, String courseName, String questionUrl) {
-        return new CommunityQuestionMailContent(to, questionTitle, questionContent, questionAuthorName, courseName, questionUrl);
+        return new CommunityQuestionMailContent(to, questionTitle, questionContent, questionAuthorName, courseName,
+                questionUrl);
     }
 
     @Override

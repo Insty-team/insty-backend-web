@@ -24,10 +24,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
-class CommunityAnswerAcceptServiceTest {
+class CommunityAnswerAcceptManagerTest {
 
     @InjectMocks
-    private CommunityAnswerAcceptService service;
+    private CommunityAnswerAcceptManager service;
     @Mock
     private CommunityQuestionRepository repository;
 
