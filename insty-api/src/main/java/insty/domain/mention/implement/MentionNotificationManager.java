@@ -17,6 +17,10 @@ public class MentionNotificationManager {
     private final ApplicationEventPublisher eventPublisher;
 
     public void sendMentionsNotification(List<Mention> mentions, CommunityQuestion communityQuestion) {
+        if (mentions == null || mentions.isEmpty()) {
+            return;
+        }
+        
         for (Mention mention : mentions) {
             eventPublisher.publishEvent(
                     new UserMentionedEvent(mention.getMentionerUser(), mention.getMentionedUser(), communityQuestion));
