@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class MentionService {
 
@@ -29,10 +29,10 @@ public class MentionService {
     private final MentionNotificationManager mentionNotificationManager;
     private final UserFileReader userFileReader;
 
-
     /**
      * 멘션 가능한 사용자 목록을 검색한다
      */
+    @Transactional(readOnly = true)
     public List<MentionUserSearchRes> searchMentionableUsers(MentionUserSearchReq req, Long userId) {
         List<User> users = mentionReader.searchMentionableUsers(req.size(), req.keyword(), userId);
         List<MentionUserSearchRes> profileImages = users.stream().map(user ->
@@ -44,7 +44,6 @@ public class MentionService {
     /**
      * 댓글에서 멘션을 파싱하고 저장하며 알림을 발송한다
      */
-    @Transactional
     public void processMentions(CommunityAnswer communityAnswer, User mentionerUser, String content) {
         List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);

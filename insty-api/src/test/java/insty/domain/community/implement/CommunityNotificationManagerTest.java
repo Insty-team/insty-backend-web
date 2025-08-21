@@ -79,34 +79,7 @@ class CommunityNotificationManagerTest {
     }
 
     @Test
-    void sendAnswerAcceptedNotification_크리에이터가질문작성자인경우_크리에이터알림제외() {
-        // given
-        CommunityQuestion question = mock(CommunityQuestion.class);
-        CommunityAnswer answer = mock(CommunityAnswer.class);
-        Course course = mock(Course.class);
-        User creator = mock(User.class);
-        User participant = mock(User.class);
-
-        when(question.getId()).thenReturn(1L);
-        when(question.getCourse()).thenReturn(course);
-        when(question.getUser()).thenReturn(creator); // 크리에이터가 질문 작성자
-        when(course.getUser()).thenReturn(creator);
-        when(creator.getId()).thenReturn(100L);
-        when(participant.getId()).thenReturn(200L);
-
-        Set<User> participants = Set.of(participant);
-        when(communityAnswerReader.getParticipantsByQuestionId(1L)).thenReturn(participants);
-
-        // when
-        notificationManager.sendAnswerAcceptedNotification(question, answer);
-
-        // then
-        // 크리에이터가 질문 작성자이므로 참여자 1명에게만 알림
-        verify(eventPublisher, times(1)).publishEvent(any(AnswerAcceptedNotificationEvent.class));
-    }
-
-    @Test
-    void sendAnswerAcceptedNotification_참여자가질문작성자인경우_해당참여자알림제외() {
+    void sendAnswerAcceptedNotification_참여자중질문작성자가있는경우_해당참여자알림제외() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
@@ -122,7 +95,7 @@ class CommunityNotificationManagerTest {
         when(course.getUser()).thenReturn(creator);
         when(creator.getId()).thenReturn(100L);
         when(questionAuthor.getId()).thenReturn(200L);
-        when(participant1.getId()).thenReturn(200L); // 질문 작성자와 동일
+        when(participant1.getId()).thenReturn(200L);
         when(participant2.getId()).thenReturn(300L);
 
         Set<User> participants = Set.of(participant1, participant2);
@@ -133,6 +106,37 @@ class CommunityNotificationManagerTest {
 
         // then
         // 크리에이터 1명 + participant2 1명 = 총 2번의 이벤트 발행 (participant1은 질문 작성자라서 제외)
+        verify(eventPublisher, times(2)).publishEvent(any(AnswerAcceptedNotificationEvent.class));
+    }
+
+    @Test
+    void sendAnswerAcceptedNotification_참여자중크리에이터가있는경우_중복알림방지() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        User questionAuthor = mock(User.class);
+        User participant1 = mock(User.class);
+        User participant2 = mock(User.class);
+
+        when(question.getId()).thenReturn(1L);
+        when(question.getCourse()).thenReturn(course);
+        when(question.getUser()).thenReturn(questionAuthor);
+        when(course.getUser()).thenReturn(creator);
+        when(creator.getId()).thenReturn(100L);
+        when(questionAuthor.getId()).thenReturn(200L);
+        when(participant1.getId()).thenReturn(100L); // 크리에이터와 동일한 참여자
+        when(participant2.getId()).thenReturn(300L);
+
+        Set<User> participants = Set.of(participant1, participant2);
+        when(communityAnswerReader.getParticipantsByQuestionId(1L)).thenReturn(participants);
+
+        // when
+        notificationManager.sendAnswerAcceptedNotification(question, answer);
+
+        // then
+        // 크리에이터 1명 + participant2 1명 = 총 2번의 이벤트 발행 (participant1은 크리에이터라서 중복 제외)
         verify(eventPublisher, times(2)).publishEvent(any(AnswerAcceptedNotificationEvent.class));
     }
 }

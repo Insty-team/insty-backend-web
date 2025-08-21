@@ -36,14 +36,14 @@ public class CommunityNotificationManager {
      */
     public void sendAnswerAcceptedNotification(CommunityQuestion question, CommunityAnswer answer) {
         User creator = question.getCourse().getUser();
+        User questionAuthor = question.getUser();
         Set<User> participants = communityAnswerReader.getParticipantsByQuestionId(question.getId());
 
-        if (!creator.getId().equals(question.getUser().getId())) {
-            eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(creator, question, answer));
-        }
-
+        eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(creator, question, answer));
+        
         participants.stream()
-                .filter(participant -> !participant.getId().equals(question.getUser().getId()))
+                .filter(participant -> !participant.getId().equals(questionAuthor.getId()))
+                .filter(participant -> !participant.getId().equals(creator.getId()))
                 .forEach(participant -> {
                     eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(participant, question, answer));
                 });

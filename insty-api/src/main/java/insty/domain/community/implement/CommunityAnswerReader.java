@@ -54,7 +54,7 @@ public class CommunityAnswerReader {
     public int countActiveAnswersByQuestionId(Long questionId) {
         return communityAnswerRepository.countByCommunityQuestionIdAndIsDeletedFalse(questionId);
     }
-    
+
     /**
      * 특정 질문에 대한 채택된 답변 개수 조회
      */
@@ -63,7 +63,7 @@ public class CommunityAnswerReader {
     }
 
     /**
-     * 질문에 참여한 모든 사용자 조회 (질문 작성자 제외)
+     * 질문에 참여한 모든 사용자 조회
      */
     public Set<User> getParticipantsByQuestionId(Long questionId) {
         List<CommunityAnswer> answers = communityAnswerRepository.findAllByCommunityQuestionId(questionId);
