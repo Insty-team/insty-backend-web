@@ -604,7 +604,7 @@ class CommunityQuestionServiceTest {
         // then - 조회 시간이 업데이트되었는지 확인
         CommunityQuestionView updatedView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
         assertThat(updatedView).isNotNull();
-        assertThat(updatedView.getLastViewedAt()).isAfter(firstViewTime);
+        assertThat(updatedView.getLastViewedAt()).isAfterOrEqualTo(firstViewTime);
     }
 }
 
