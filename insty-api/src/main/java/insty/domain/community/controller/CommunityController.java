@@ -7,6 +7,7 @@ import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionDetailsRes;
+import insty.domain.community.dto.CommunityQuestionMyRes;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
@@ -37,8 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import insty.domain.community.dto.CommunityQuestionMyRes;
-import org.springframework.security.core.Authentication;
 
 @Tag(name = "커뮤니티 API")
 @RestController

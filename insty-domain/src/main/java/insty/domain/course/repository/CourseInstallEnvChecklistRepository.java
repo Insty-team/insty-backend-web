@@ -9,4 +9,6 @@ public interface CourseInstallEnvChecklistRepository extends JpaRepository<Cours
     List<CourseInstallEnvChecklist> findAllByCourseId(Long courseId);
 
     void deleteAllByCourseId(Long courseId);
+
+    void deleteAllByCourseIdIn(List<Long> courseIds);
 }

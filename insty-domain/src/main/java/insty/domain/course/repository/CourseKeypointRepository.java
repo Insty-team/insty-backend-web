@@ -9,4 +9,6 @@ public interface CourseKeypointRepository extends JpaRepository<CourseKeypoint, 
     List<CourseKeypoint> findAllByCourseId(Long courseId);
 
     void deleteAllByCourseId(Long courseId);
+
+    void deleteAllByCourseIdIn(List<Long> courseIds);
 }

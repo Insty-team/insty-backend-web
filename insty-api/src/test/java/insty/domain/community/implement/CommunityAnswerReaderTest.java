@@ -9,8 +9,10 @@ import insty.domain.community.repository.CommunityAnswerRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
+import insty.model.user.User;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,10 +71,9 @@ class CommunityAnswerReaderTest {
     void getCommunityAnswerById_에러_삭제된답변() {
         // given
         Long id = 1L;
-        CommunityAnswer deletedAnswer = mock(CommunityAnswer.class);
-        when(deletedAnswer.isDeleted()).thenReturn(true);
-        when(answerRepository.findById(id)).thenReturn(Optional.of(deletedAnswer));
-
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
+        when(answer.isDeleted()).thenReturn(true);
         // when & then
         assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
                 .isInstanceOf(CustomException.class)
@@ -86,10 +87,8 @@ class CommunityAnswerReaderTest {
         Long id = 1L;
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
-
         // when
         CommunityAnswer result = reader.getCommunityAnswerByIdIncludingDeleted(id);
-
         // then
         assertThat(result).isEqualTo(answer);
     }
@@ -119,5 +118,69 @@ class CommunityAnswerReaderTest {
 
         // then
         assertThat(result).isEqualTo(deletedAnswer);
+    }
+
+    @Test
+    void countActiveAnswersByQuestionId_정상() {
+        // given
+        Long questionId = 1L;
+        when(answerRepository.countByCommunityQuestionIdAndIsDeletedFalse(questionId)).thenReturn(5);
+        // when
+        int result = reader.countActiveAnswersByQuestionId(questionId);
+        // then
+        assertThat(result).isEqualTo(5);
+    }
+
+    @Test
+    void countAcceptedAnswersByQuestionId_정상() {
+        // given
+        Long questionId = 1L;
+        when(answerRepository.countAcceptedAnswersByQuestionId(questionId)).thenReturn(2);
+        // when
+        int result = reader.countAcceptedAnswersByQuestionId(questionId);
+        // then
+        assertThat(result).isEqualTo(2);
+    }
+
+    @Test
+    void getParticipantsByQuestionId_정상() {
+        // given
+        Long questionId = 1L;
+        User user1 = mock(User.class);
+        User user2 = mock(User.class);
+        User user3 = mock(User.class);
+        
+        CommunityAnswer answer1 = mock(CommunityAnswer.class);
+        CommunityAnswer answer2 = mock(CommunityAnswer.class);
+        CommunityAnswer answer3 = mock(CommunityAnswer.class);
+        
+        when(answer1.getUser()).thenReturn(user1);
+        when(answer2.getUser()).thenReturn(user2);
+        when(answer3.getUser()).thenReturn(user1); // 중복 사용자
+        
+        when(answerRepository.findAllByCommunityQuestionId(questionId))
+                .thenReturn(List.of(answer1, answer2, answer3));
+
+        // when
+        Set<User> result = reader.getParticipantsByQuestionId(questionId);
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result).contains(user1, user2);
+        // user3은 포함되지 않음 (answer3이 user1을 사용)
+    }
+
+    @Test
+    void getParticipantsByQuestionId_빈답변리스트_빈셋반환() {
+        // given
+        Long questionId = 1L;
+        when(answerRepository.findAllByCommunityQuestionId(questionId))
+                .thenReturn(List.of());
+
+        // when
+        Set<User> result = reader.getParticipantsByQuestionId(questionId);
+
+        // then
+        assertThat(result).isEmpty();
     }
 }

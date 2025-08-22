@@ -1,5 +1,6 @@
 package insty.domain.video.repository;
 
+import insty.model.video.EncodingStatus;
 import insty.model.video.VideoCourse;
 import java.time.Instant;
 import java.util.List;
@@ -21,9 +22,9 @@ public interface VideoCourseRepository extends JpaRepository<VideoCourse, Long> 
     List<VideoCourse> findAllByCourseIdIn(List<Long> courseIds);
 
     @Query("SELECT vc.duration FROM VideoCourse vc "
-            + "WHERE vc.encodingStatus != 'FAILED' AND vc.user.id = :userId AND vc.encodingAt >= :encodingAt")
-    List<Integer> findEncodingDurationByUserIdAndEncodingAtGreaterThan(@Param("userId") Long userId,
-                                                                       @Param("encodingAt") Instant encodingAt);
+            + "WHERE vc.user.id = :userId AND vc.encodingAt >= :encodingAt AND vc.encodingStatus in :encodingStatus")
+    List<Integer> findEncodingDuration(@Param("userId") Long userId, @Param("encodingAt") Instant encodingAt,
+                                       @Param("encodingStatus") List<EncodingStatus> encodingStatuses);
 
     boolean existsByIdAndUserId(Long id, Long userId);
 }

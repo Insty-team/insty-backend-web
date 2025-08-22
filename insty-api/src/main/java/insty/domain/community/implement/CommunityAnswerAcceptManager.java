@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CommunityAnswerAcceptService {
+public class CommunityAnswerAcceptManager {
 
     private final CommunityQuestionRepository communityQuestionRepository;
 
@@ -29,11 +29,12 @@ public class CommunityAnswerAcceptService {
         if (answer.getUser() == null || answer.getUser().getUserType() != UserType.CREATOR) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
         }
-        
+
         // 교차 검증: 요청한 질문의 답변인지 확인
         if (answer.getCommunityQuestion() == null || !answer.getCommunityQuestion().getId().equals(question.getId())) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION);
         }
+
         CommunityAnswer currentAccepted = question.getAcceptedAnswer();
         if (currentAccepted == null) {
             question.acceptAnswer(answer);
