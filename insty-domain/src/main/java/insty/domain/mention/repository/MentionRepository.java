@@ -13,12 +13,6 @@ public interface MentionRepository extends JpaRepository<Mention, Long> {
     @Query("SELECT m FROM Mention m WHERE m.communityAnswer.id = :answerId")
     List<Mention> findAllByCommunityAnswerId(@Param("answerId") Long answerId);
 
-    @Query("SELECT m FROM Mention m WHERE m.mentionedUser.id = :userId")
-    List<Mention> findAllByMentionedUserId(@Param("userId") Long userId);
-
-    @Query("SELECT m FROM Mention m WHERE m.mentionerUser.id = :userId")
-    List<Mention> findAllByMentionerUserId(@Param("userId") Long userId);
-
     boolean existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(
         Long mentionerId, Long mentionedId, Instant since);
 

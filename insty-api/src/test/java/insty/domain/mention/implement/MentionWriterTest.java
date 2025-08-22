@@ -19,7 +19,6 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
