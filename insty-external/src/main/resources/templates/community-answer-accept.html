@@ -56,16 +56,16 @@
             <div class="accepted-answer-content" th:text="${answerContent}">답변 내용</div>
             <div class="author-info">
                 <div class="author-avatar" th:text="${#strings.isEmpty(answerAuthorName) ? '?' : #strings.substring(answerAuthorName, 0, 1)}">답</div>
-                <span class="author-name" th:text="${#strings.isEmpty(answerAuthorName) ? '답변자' : answerAuthorName} + ' 님'">답변자 님</span>
+                <span class="author-name" th:text="${(#strings.isEmpty(answerAuthorName) ? '답변자' : answerAuthorName) + ' 님'}">답변자 님</span>
             </div>
         </div>
 
         <div class="acceptor-info">
             <div class="acceptor-label">채택한 사람</div>
-            <div class="acceptor-name" th:text="${#strings.isEmpty(questionAuthorName) ? '질문 작성자' : questionAuthorName} + ' 님'">질문 작성자 님</div>
+            <div class="acceptor-name" th:text="${(#strings.isEmpty(questionAuthorName) ? '질문 작성자' : questionAuthorName) + ' 님'}">질문 작성자 님</div>
         </div>
 
-        <a th:href="'https://insty.co.kr' + ${questionUrl}" class="cta-button">질문 확인하기 →</a>
+        <a th:href="${'https://insty.co.kr' + questionUrl}" class="cta-button">질문 확인하기 →</a>
 
         <div class="divider"></div>
 

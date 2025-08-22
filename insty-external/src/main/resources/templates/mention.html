@@ -37,7 +37,7 @@
     <div class="content">
         <div class="notification-title">
             <span class="success-icon">✓</span>
-            <span th:text="${#strings.isEmpty(mentionerName) ? '누군가' : mentionerName} + '님이 회원님을 언급했습니다'">홍길동님이 회원님을 언급했습니다</span>
+            <span th:text="${(#strings.isEmpty(mentionerName) ? '누군가' : mentionerName) + '님이 회원님을 언급했습니다'}">홍길동님이 회원님을 언급했습니다</span>
         </div>
 
         <div class="mention-info">
@@ -51,11 +51,11 @@
             </div>
             <div class="mentioner-info">
                 <div class="mentioner-avatar" th:text="${#strings.isEmpty(mentionerName) ? '?' : #strings.substring(mentionerName, 0, 1)}">홍</div>
-                <span class="mentioner-name" th:text="${#strings.isEmpty(mentionerName) ? '언급자' : mentionerName} + ' 님'">홍길동 님</span>
+                <span class="mentioner-name" th:text="${(#strings.isEmpty(mentionerName) ? '언급자' : mentionerName) + ' 님'}">홍길동 님</span>
             </div>
         </div>
 
-        <a th:href="'https://insty.co.kr' + ${questionUrl}" class="cta-button">질문 확인하기 →</a>
+        <a th:href="${'https://insty.co.kr' + questionUrl}" class="cta-button">질문 확인하기 →</a>
 
         <div class="divider"></div>
 
