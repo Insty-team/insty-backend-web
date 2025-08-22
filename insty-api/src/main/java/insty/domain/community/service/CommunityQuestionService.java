@@ -14,10 +14,10 @@ import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
-import insty.domain.community.event.CommunityQuestionCreatedEvent;
 import insty.domain.community.implement.CommunityAnswerFileWriter;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
+import insty.domain.community.implement.CommunityNotificationManager;
 import insty.domain.community.implement.CommunityQuestionFileReader;
 import insty.domain.community.implement.CommunityQuestionFileWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
@@ -35,7 +35,6 @@ import insty.model.video.VideoQuestion;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,7 +55,7 @@ public class CommunityQuestionService {
     private final CommunityAnswerWriter communityAnswerWriter;
     private final CommunityAnswerFileWriter communityAnswerFileWriter;
     private final CommunityAnswerVideoManager communityAnswerVideoManager;
-    private final ApplicationEventPublisher eventPublisher;
+    private final CommunityNotificationManager communityNotificationManager;
     private final CommunityQuestionViewManager communityQuestionViewManager;
 
     /**
@@ -75,7 +74,7 @@ public class CommunityQuestionService {
 
         communityQuestionViewManager.recordQuestionView(question, userId);
 
-        eventPublisher.publishEvent(new CommunityQuestionCreatedEvent(question.getId()));
+        communityNotificationManager.sendNewQuestionNotification(question);
 
         return CommunityQuestionDetailsRes.from(question, fileInfos, video, null);
     }

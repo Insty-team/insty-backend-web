@@ -14,16 +14,14 @@ public class CommunityQuestionFixtureBuilder {
 
     public static CommunityQuestion getCommunityQuestionWithIdAndUser() {
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
-        User user = UserFixtureBuilder.getUserWithId();
-        CommunityQuestion communityQuestion = CommunityQuestionFixture.getCommunityQuestion(course, user);
+        CommunityQuestion communityQuestion = CommunityQuestionFixture.getCommunityQuestion(course, course.getUser());
         ReflectionTestUtils.setField(communityQuestion, "id", 1L);
         return communityQuestion;
     }
 
     public static CommunityQuestion getCommunityQuestionWithIdAndUser(Long questionId, String title, String content) {
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
-        User user = UserFixtureBuilder.getUserWithId();
-        CommunityQuestion communityQuestion = CommunityQuestionFixture.getCommunityQuestion(course, user, title, content);
+        CommunityQuestion communityQuestion = CommunityQuestionFixture.getCommunityQuestion(course, course.getUser(), title, content);
         ReflectionTestUtils.setField(communityQuestion, "id", questionId);
         return communityQuestion;
     }

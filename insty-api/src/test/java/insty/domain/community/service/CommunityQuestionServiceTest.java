@@ -12,6 +12,7 @@ import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionDetailsRes;
+import insty.domain.community.dto.CommunityQuestionMyRes;
 import insty.domain.community.dto.CommunityQuestionRes;
 import insty.domain.community.dto.CommunityQuestionSearchReq;
 import insty.domain.community.dto.CommunityQuestionUpdateReq;
@@ -28,9 +29,11 @@ import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityQuestionVideoManager;
 import insty.domain.community.implement.CommunityQuestionWriter;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.community.repository.CommunityQuestionViewRepository;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.global.property.AppProperties;
+import insty.model.community.CommunityQuestionView;
 import insty.model.community.QuestionStatus;
 import insty.model.user.UserType;
 import insty.s3.adapter.S3FileManager;
@@ -48,9 +51,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import insty.domain.community.dto.CommunityQuestionMyRes;
-import insty.domain.community.repository.CommunityQuestionViewRepository;
-import insty.model.community.CommunityQuestionView;
 
 @SpringBootTest
 @ActiveProfiles("test")

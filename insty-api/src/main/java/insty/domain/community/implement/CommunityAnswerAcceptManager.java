@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CommunityAnswerAcceptService {
+public class CommunityAnswerAcceptManager {
 
     private final CommunityQuestionRepository communityQuestionRepository;
 
@@ -29,6 +29,7 @@ public class CommunityAnswerAcceptService {
         if (answer.getUser() == null || answer.getUser().getUserType() != UserType.CREATOR) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
         }
+        
         CommunityAnswer currentAccepted = question.getAcceptedAnswer();
         if (currentAccepted == null) {
             question.acceptAnswer(answer);
