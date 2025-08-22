@@ -65,7 +65,7 @@
             <div class="acceptor-name" th:text="${(#strings.isEmpty(questionAuthorName) ? '질문 작성자' : questionAuthorName) + ' 님'}">질문 작성자 님</div>
         </div>
 
-        <a th:href="${'https://insty.co.kr' + questionUrl}" class="cta-button">질문 확인하기 →</a>
+        <a th:href="${questionUrl}" class="cta-button">질문 확인하기 →</a>
 
         <div class="divider"></div>
 
