@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 
 public record CommunityQuestionMyRes(
+        @Schema(description = "질문 id", example = "1")
+        Long questionId,
+
         @Schema(description = "질문 작성자 정보 (id, nickname, userType 포함)")
         CommunityUserRes user,
 
@@ -39,6 +42,7 @@ public record CommunityQuestionMyRes(
             boolean hasNewAnswer
     ) {
         return new CommunityQuestionMyRes(
+                info.id(),
                 CommunityUserRes.from(info.user()),
                 info.courseId(),
                 info.title(),

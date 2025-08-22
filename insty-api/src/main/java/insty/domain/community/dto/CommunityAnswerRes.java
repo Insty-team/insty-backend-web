@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public record CommunityAnswerRes(
+        @Schema(description = "답변 Id")
+        Long answerId,
+
         @Schema(description = "답변 작성자 정보")
         UserInfo user,
 
@@ -39,7 +42,8 @@ public record CommunityAnswerRes(
             VideoAnswer video
     ) {
         return new CommunityAnswerRes(
-                UserInfo.from(answer.getUser()),
+                answer.getId(),
+                insty.domain.common.dto.UserInfo.from(answer.getUser()),
                 answer.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 VideoInfo.of(video),

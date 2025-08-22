@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public record CommunityQuestionDetailsRes(
+        @Schema(description = "질문 id", example = "1")
+        Long questionId,
+
         @Schema(description = "질문 작성자 정보 (id, nickname, userType 포함)")
         CommunityUserRes user,
 
@@ -48,6 +51,7 @@ public record CommunityQuestionDetailsRes(
             List<CommunityAnswerRes> answers
     ) {
         return new CommunityQuestionDetailsRes(
+                question.getId(),
                 CommunityUserRes.from(question.getUser()),
                 question.getCourse().getId(),
                 question.getTitle(),
