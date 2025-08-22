@@ -33,15 +33,15 @@ public class Mention extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "community_answer_id", nullable = false)
     private CommunityAnswer communityAnswer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mentioned_user_id", nullable = false)
     private User mentionedUser;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mentioner_user_id", nullable = false)
     private User mentionerUser;
 
@@ -70,7 +70,13 @@ public class Mention extends BaseEntity {
             log.error("멘션 생성 오류 - mentionerUser : null");
             throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
         }
-        if (mentionedUser.getId().equals(mentionerUser.getId())) {
+        Long mentionedId = mentionedUser.getId();
+        Long mentionerId = mentionerUser.getId();
+        if (mentionedId == null || mentionerId == null) {
+            log.error("멘션 생성 오류 - user id : null");
+            throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
+        }
+        if (java.util.Objects.equals(mentionedId, mentionerId)) {
             log.error("멘션 생성 오류 - 자기 자신을 멘션할 수 없음");
             throw new CustomException(MentionErrorCode.MENTION_SELF_ERROR);
         }
