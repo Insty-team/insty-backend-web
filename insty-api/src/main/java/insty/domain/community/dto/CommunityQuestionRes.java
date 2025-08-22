@@ -7,6 +7,9 @@ import java.time.Instant;
 
 
 public record CommunityQuestionRes(
+        @Schema(description = "질문 id", example = "1")
+        Long questionId,
+
         @Schema(description = "질문 작성자 정보 (id, nickname, userType 포함)")
         CommunityUserRes user,
 
@@ -32,6 +35,7 @@ public record CommunityQuestionRes(
             CommunityQuestion question
     ) {
         return new CommunityQuestionRes(
+                question.getId(),
                 CommunityUserRes.from(question.getUser()),
                 question.getCourse().getId(),
                 question.getTitle(),
@@ -46,6 +50,7 @@ public record CommunityQuestionRes(
             CommunityQuestionSearchInfo info
     ) {
         return new CommunityQuestionRes(
+                info.id(),
                 CommunityUserRes.from(info.user()),
                 info.courseId(),
                 info.title(),

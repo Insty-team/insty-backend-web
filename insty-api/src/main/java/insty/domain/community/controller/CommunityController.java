@@ -107,7 +107,7 @@ public class CommunityController {
     public SuccessRes<CommunityQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CommunityQuestionCreateReq communityQuestionCreateReq,
-            @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)")
+            @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityQuestionService.saveQuestion(userId, communityQuestionCreateReq, attachments));
@@ -121,7 +121,7 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CommunityQuestionUpdateReq communityQuestionUpdateReq,
-            @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)")
+            @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityQuestionService.updateQuestion(userId, questionId, communityQuestionUpdateReq, attachments));
@@ -157,7 +157,7 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CommunityAnswerCreateReq communityAnswerCreateReq,
-            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityAnswerService.saveAnswer(userId, questionId, communityAnswerCreateReq, attachments));
@@ -171,23 +171,12 @@ public class CommunityController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long answerId,
             @RequestPart CommunityAnswerUpdateReq communityAnswerUpdateReq,
-            @Parameter(description = "답변 첨부파일 (이미지)", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, attachments));
     }
 
-    @Operation(summary = "답변 삭제", description = "답변을 삭제한다. (연관 파일/비디오 정리·질문 상태 반영)")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @DeleteMapping("/answer/{answerId}")
-    public SuccessRes<?> deleteAnswer(
-            @CurrentUser Long userId,
-            @PathVariable @NotNull Long answerId
-    ) {
-        communityAnswerService.deleteAnswer(userId, answerId);
-        return SuccessRes.of(null);
-    }
 
     /// ============================== 답변 채택 API  ======================================
 
