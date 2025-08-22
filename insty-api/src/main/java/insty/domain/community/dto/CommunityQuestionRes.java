@@ -19,7 +19,7 @@ public record CommunityQuestionRes(
         @Schema(description = "질문 내용", example = "스프링 부트에서 JPA를 사용할 때 발생하는 문제입니다.")
         String content,
 
-        @Schema(description = "질문 상태 (WAITING: 답변 대기, ANSWERED: 답변 있음, ACCEPTED: 답변 채택됨)", example = "WAITING")
+        @Schema(description = "질문 상태", example = "WAITING", allowableValues = {"WAITING", "ANSWERED", "ACCEPTED"})
         QuestionStatus status,
 
         @Schema(description = "질문 작성 시간 (UTC ISO8601)", example = "2024-01-15T10:30:00Z")
