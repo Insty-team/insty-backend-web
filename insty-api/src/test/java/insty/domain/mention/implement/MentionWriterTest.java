@@ -127,12 +127,29 @@ class MentionWriterTest {
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo1, userInfo2);
 
         // mock
-        when(mentionRepository.existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(eq(1L), eq(2L), any(Instant.class)))
-                .thenReturn(false);
-        when(mentionRepository.existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(eq(1L), eq(3L), any(Instant.class)))
-                .thenReturn(false);
+        when(mentionRepository.findRecentlyMentionedUserIds(eq(1L), eq(java.util.Set.of(2L, 3L)), any(Instant.class)))
+                .thenReturn(List.of());
 
         // when & then
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
+    }
+
+    @Test
+    void validateMentionCooldown_여러_사용자_쿨다운_위반_에러() {
+        // given
+        User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
+        MentionedUserInfo userInfo1 = new MentionedUserInfo(2L, "홍길동");
+        MentionedUserInfo userInfo2 = new MentionedUserInfo(3L, "김철수");
+        List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo1, userInfo2);
+
+        // mock
+        when(mentionRepository.findRecentlyMentionedUserIds(eq(1L), eq(java.util.Set.of(2L, 3L)), any(Instant.class)))
+                .thenReturn(List.of(2L)); // 홍길동이 최근에 멘션됨
+
+        // when & then
+        assertThatThrownBy(() -> mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(MentionErrorCode.MENTION_COOLDOWN_VIOLATION);
     }
 }

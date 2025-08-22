@@ -61,9 +61,27 @@ public class MentionWriter {
      * 멘션 쿨다운 검증
      */
     public void validateMentionCooldown(List<MentionedUserInfo> mentionedUserInfos, User mentionerUser) {
+        if (mentionedUserInfos == null || mentionedUserInfos.isEmpty()) {
+            return;
+        }
+
         Instant cooldownThreshold = Instant.now().minusSeconds(MENTION_COOLDOWN_MINUTES * 60L);
 
-        for (MentionedUserInfo userInfo : mentionedUserInfos) {
+        // 다수 사용자에 대한 원샷 검증
+        if (mentionedUserInfos.size() > 1) {
+            Set<Long> mentionedUserIds = mentionedUserInfos.stream()
+                    .map(MentionedUserInfo::userId)
+                    .collect(java.util.stream.Collectors.toSet());
+            
+            List<Long> recentlyMentionedUserIds = mentionRepository
+                    .findRecentlyMentionedUserIds(mentionerUser.getId(), mentionedUserIds, cooldownThreshold);
+            
+            if (!recentlyMentionedUserIds.isEmpty()) {
+                throw new CustomException(MentionErrorCode.MENTION_COOLDOWN_VIOLATION);
+            }
+        } else {
+            // 단일 사용자에 대한 개별 검증
+            MentionedUserInfo userInfo = mentionedUserInfos.get(0);
             boolean exists = mentionRepository
                     .existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(
                             mentionerUser.getId(), userInfo.userId(), cooldownThreshold);
