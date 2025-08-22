@@ -8,13 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class MentionParser {
 
     private static final Pattern MENTION_PATTERN = Pattern.compile("@\\[([^\\]]+)\\]\\(([^)]+)\\)");
@@ -24,19 +22,27 @@ public class MentionParser {
      * 콘텐츠에서 멘션된 사용자 정보를 파싱하여 반환
      */
     public List<MentionedUserInfo> parseMentionedUserInfos(String content, User mentionerUser) {
-        List<MentionedUserInfo> mentionedUsers = parseMentionedUsers(content);
-        
-        if (mentionedUsers.size() > MAX_MENTIONS_PER_COMMENT) {
+        List<MentionedUserInfo> parsed = parseMentionedUsers(content);
+        // 사용자 ID 기준 중복 제거(입력 순서 보존)
+        List<MentionedUserInfo> deduped = parsed.stream()
+                .collect(java.util.stream.Collectors.collectingAndThen(
+                        java.util.stream.Collectors.toMap(
+                                MentionedUserInfo::userId,
+                                java.util.function.Function.identity(),
+                                (a, b) -> a,
+                                java.util.LinkedHashMap::new
+                        ),
+                        m -> new java.util.ArrayList<>(m.values())
+                ));
+
+        if (deduped.size() > MAX_MENTIONS_PER_COMMENT) {
             throw new CustomException(MentionErrorCode.MENTION_LIMIT_EXCEEDED);
         }
-        
-        if (mentionedUsers.stream().anyMatch(userInfo -> userInfo.userId().equals(mentionerUser.getId()))) {
+        if (mentionerUser != null && mentionerUser.getId() != null &&
+                deduped.stream().anyMatch(u -> u.userId().equals(mentionerUser.getId()))) {
             throw new CustomException(MentionErrorCode.MENTION_SELF_ERROR);
         }
-        
-        return mentionedUsers.stream()
-                .distinct()
-                .toList();
+        return java.util.List.copyOf(deduped);
     }
 
     /**
@@ -44,7 +50,9 @@ public class MentionParser {
      */
     private List<MentionedUserInfo> parseMentionedUsers(String content) {
         List<MentionedUserInfo> mentionedUsers = new ArrayList<>();
-        
+        if (content == null || content.isBlank()) {
+            return mentionedUsers;
+        }
         Matcher matcher = MENTION_PATTERN.matcher(content);
         while (matcher.find()) {
             String displayName = matcher.group(1);
@@ -56,7 +64,6 @@ public class MentionParser {
                 throw new CustomException(MentionErrorCode.MENTION_INVALID_FORMAT);
             }
         }
-        
         return mentionedUsers;
     }
 }
