@@ -23,6 +23,9 @@ public class CommunityQuestionVideoManager {
      * 질문에 비디오 첨부
      */
     public VideoQuestion attachVideoToQuestion(CommunityQuestion question, UUID videoUuid) {
+        if(videoUuid == null){
+            return null;
+        }
         VideoQuestion videoQuestion = videoQuestionRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         videoQuestion.updateCommunityQuestion(question);

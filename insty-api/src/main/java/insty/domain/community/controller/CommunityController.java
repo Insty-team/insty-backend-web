@@ -152,7 +152,7 @@ public class CommunityController {
     @Operation(summary = "답변 작성", description = "질문에 답변을 생성한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PostMapping("/questions/{questionId}/answer")
+    @PostMapping(value = "/questions/{questionId}/answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityAnswerRes> createAnswer(
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,

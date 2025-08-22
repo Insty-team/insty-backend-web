@@ -23,10 +23,15 @@ public class CommunityQuestionViewManager {
 	public void recordQuestionView(CommunityQuestion question, Long userId) {
 		communityQuestionViewRepository.findByQuestionIdAndUserId(question.getId(), userId)
 				.ifPresentOrElse(
-						view -> view.updateLastViewedAt(),
+						CommunityQuestionView::updateLastViewedAt,
 						() -> {
-							CommunityQuestionView newView = CommunityQuestionView.create(question, userId);
-							communityQuestionViewRepository.save(newView);
+							try {
+								CommunityQuestionView newView = CommunityQuestionView.create(question, userId);
+								communityQuestionViewRepository.save(newView);
+							} catch (org.springframework.dao.DataIntegrityViolationException e) {
+								communityQuestionViewRepository.findByQuestionIdAndUserId(question.getId(), userId)
+										.ifPresent(CommunityQuestionView::updateLastViewedAt);
+							}
 						}
 				);
 	}

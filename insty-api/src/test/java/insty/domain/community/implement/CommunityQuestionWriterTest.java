@@ -37,9 +37,7 @@ class CommunityQuestionWriterTest {
         // given
         User user = mock(User.class);
         Course course = mock(Course.class);
-        CommunityQuestionCreateReq req = CommunityQuestionCreateReq.builder()
-                .courseId(1L).title("제목").content("내용")
-                .build();
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(1L, "제목", "내용", null);
 
         when(repository.save(any(CommunityQuestion.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -58,9 +56,7 @@ class CommunityQuestionWriterTest {
     void updateQuestion_정상() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
-                .title("제목").content("내용")
-                .build();
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("제목", "내용", null, null);
 
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(repository.findById(id)).thenReturn(Optional.of(question));
@@ -80,9 +76,7 @@ class CommunityQuestionWriterTest {
     void updateQuestion_에러_존재하지않음() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
-                .title("제목").content("내용")
-                .build();
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("제목", "내용", null, null);
 
         when(repository.findById(id)).thenReturn(Optional.empty());
 
@@ -97,9 +91,7 @@ class CommunityQuestionWriterTest {
     void updateQuestion_에러_이미삭제됨() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = CommunityQuestionUpdateReq.builder()
-                .title("제목").content("내용")
-                .build();
+        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("제목", "내용", null, null);
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(repository.findById(id)).thenReturn(Optional.of(question));
         when(question.isDeleted()).thenReturn(true);

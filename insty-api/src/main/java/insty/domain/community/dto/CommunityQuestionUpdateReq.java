@@ -4,9 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
-import lombok.Builder;
 
-@Builder
+
 public record CommunityQuestionUpdateReq(
         @NotNull
         @Schema(description = "질문 제목", example = "자바 스프링 부트 질문입니다.")

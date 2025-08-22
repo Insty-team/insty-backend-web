@@ -271,8 +271,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (11, 1, 2, '[키워드] 다른코스 WAIT', '내용', 'WAITING', DATEADD('MINUTE', -1, NOW()), NOW(), false);"})
     void searchQuestions_정상() {
-        CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(5).orderBy(null)
-                .order(null).keyword("키워드").statuses(java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED)).build();
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED));
 
         SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestions(req);
 
@@ -286,15 +285,13 @@ class CommunityQuestionServiceTest {
         assertThat(res.pagination().perPage()).isEqualTo(5);
         assertThat(res.pagination().totalItems()).isEqualTo(7);
 
-        CommunityQuestionSearchReq page2Req = CommunityQuestionSearchReq.builder().page(2).pageSize(5).orderBy(null)
-                .order(null).keyword("키워드").statuses(java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED)).build();
+        CommunityQuestionSearchReq page2Req = new CommunityQuestionSearchReq(2, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED));
 
         SearchRes<CommunityQuestionRes> resPage2 = communityQuestionService.searchQuestions(page2Req);
         assertThat(resPage2.items()).hasSize(2);
         assertThat(resPage2.items().get(0).createdAt()).isAfter(resPage2.items().get(1).createdAt());
 
-        CommunityQuestionSearchReq waitingReq = CommunityQuestionSearchReq.builder().page(1).pageSize(10).orderBy(null)
-                .order(null).keyword("키워드").statuses(java.util.List.of(QuestionStatus.WAITING)).build();
+        CommunityQuestionSearchReq waitingReq = new CommunityQuestionSearchReq(1, 10, null, null, "키워드", java.util.List.of(QuestionStatus.WAITING));
 
         SearchRes<CommunityQuestionRes> waitingRes = communityQuestionService.searchQuestions(waitingReq);
         assertThat(waitingRes.items()).extracting(CommunityQuestionRes::status).containsOnly(QuestionStatus.WAITING);
@@ -374,8 +371,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (10, 1, 7, '질문7 자기답변', false, DATEADD('MINUTE', -38, NOW()), NOW(), false);"})
     void searchQuestionsByUserId_정상() {
-        CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(10).orderBy(null)
-                .order(null).keyword(null).statuses(null).build();
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
 
         SearchRes<CommunityQuestionMyRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
 
@@ -436,8 +432,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (5, 2, 2, 'C2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
     void searchQuestionsByCourseId_정상() {
-        CommunityQuestionSearchReq req = CommunityQuestionSearchReq.builder().page(1).pageSize(10).orderBy(null)
-                .order(null).keyword(null).statuses(null).build();
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
 
         SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
 
