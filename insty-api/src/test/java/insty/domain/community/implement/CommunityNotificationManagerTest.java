@@ -38,6 +38,13 @@ class CommunityNotificationManagerTest {
     void sendNewQuestionNotification_정상() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
+        Course course = mock(Course.class);
+        User questionAuthor = mock(User.class);
+        User courseCreator = mock(User.class);
+
+        when(question.getCourse()).thenReturn(course);
+        when(question.getUser()).thenReturn(questionAuthor);
+        when(course.getUser()).thenReturn(courseCreator);
 
         // when
         notificationManager.sendNewQuestionNotification(question);

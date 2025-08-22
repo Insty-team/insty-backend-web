@@ -4,8 +4,8 @@ import insty.model.community.CommunityQuestion;
 import insty.model.user.User;
 
 public record UserMentionedEvent(
-        User sender,
         User receiver,
+        User sender,
         CommunityQuestion question
 ) {
 }

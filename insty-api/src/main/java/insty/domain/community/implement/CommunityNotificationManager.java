@@ -4,6 +4,7 @@ import insty.domain.notification.event.AnswerAcceptedNotificationEvent;
 import insty.domain.notification.event.NewCommunityQuestionEvent;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import insty.model.course.Course;
 import insty.model.user.User;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,11 @@ public class CommunityNotificationManager {
      * 새 질문 작성 알림 전송
      */
     public void sendNewQuestionNotification(CommunityQuestion question) {
-        eventPublisher.publishEvent(new NewCommunityQuestionEvent(question));
+        Course course = question.getCourse();
+        User questionAuthor = question.getUser();
+        User courseCreator = course.getUser();
+        
+        eventPublisher.publishEvent(new NewCommunityQuestionEvent(courseCreator, questionAuthor, question, course));
     }
 
     /**
@@ -39,13 +44,13 @@ public class CommunityNotificationManager {
         User questionAuthor = question.getUser();
         Set<User> participants = communityAnswerReader.getParticipantsByQuestionId(question.getId());
 
-        eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(creator, question, answer));
+        eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(creator, questionAuthor, question, answer));
         
         participants.stream()
                 .filter(participant -> !participant.getId().equals(questionAuthor.getId()))
                 .filter(participant -> !participant.getId().equals(creator.getId()))
                 .forEach(participant -> {
-                    eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(participant, question, answer));
+                    eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(participant, questionAuthor, question, answer));
                 });
     }
 }

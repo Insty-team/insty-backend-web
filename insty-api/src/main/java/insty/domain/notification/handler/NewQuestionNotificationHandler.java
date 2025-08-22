@@ -4,12 +4,7 @@ import insty.domain.notification.common.NotificationUtils;
 import insty.domain.notification.content.CommunityQuestionMailContent;
 import insty.domain.notification.event.NewCommunityQuestionEvent;
 import insty.domain.notification.validation.NewQuestionNotificationValidator;
-import insty.error.NotificationErrorCode;
-import insty.exception.CustomException;
 import insty.mail.MailHelper;
-import insty.model.community.CommunityQuestion;
-import insty.model.course.Course;
-import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -30,34 +25,22 @@ public class NewQuestionNotificationHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMailEventHandler(NewCommunityQuestionEvent event) {
         try {
-            CommunityQuestion question = event.question();
-            Course course = event.question().getCourse();
-            User receiverUser = course.getUser();
-            User senderUser = question.getUser();
-
-            if (!notificationValidator.validateUserNotification(receiverUser)) {
+            if (!notificationValidator.validateUserNotification(event.receiver())) {
                 return;
             }
 
-            String creatorEmail = receiverUser.getEmail();
-            String questionTitle = question.getTitle();
-            String questionContent = notificationUtils.truncateContent(question.getContent(),
-                    notificationUtils.getDefaultPreviewLength());
-            String questionAuthorName = senderUser.getNickname();
-            String courseName = course.getTitle();
-            String questionUrl = generateQuestionUrl(question.getId());
-
+            String questionUrl = generateQuestionUrl(event.question().getId());
             CommunityQuestionMailContent mailContent = CommunityQuestionMailContent.of(
-                    creatorEmail,
-                    questionTitle,
-                    questionContent,
-                    questionAuthorName,
-                    courseName,
+                    event.receiver().getEmail(),
+                    event.question().getTitle(),
+                    notificationUtils.truncateContent(event.question().getContent(), notificationUtils.getDefaultPreviewLength()),
+                    event.questionAuthor().getNickname(),
+                    event.course().getTitle(),
                     questionUrl
             );
 
             mailHelper.send(mailContent);
-            log.info("NewQuestionNotificationHandler 메일 전송 완료: {}", receiverUser.getEmail());
+            log.info("NewQuestionNotificationHandler 메일 전송 완료: {}", event.receiver().getEmail());
         } catch (Exception e) {
             log.error("NewQuestionNotificationHandler 에러", e);
             // TODO: observability 시스템(예: Sentry/CloudWatch)에 전송 고려

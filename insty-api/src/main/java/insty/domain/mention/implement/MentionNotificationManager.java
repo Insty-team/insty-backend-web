@@ -23,7 +23,7 @@ public class MentionNotificationManager {
         
         for (Mention mention : mentions) {
             eventPublisher.publishEvent(
-                    new UserMentionedEvent(mention.getMentionerUser(), mention.getMentionedUser(), communityQuestion));
+                    new UserMentionedEvent(mention.getMentionedUser(), mention.getMentionerUser(), communityQuestion));
         }
     }
 }

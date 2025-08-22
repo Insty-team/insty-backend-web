@@ -6,6 +6,7 @@ import insty.model.user.User;
 
 public record AnswerAcceptedNotificationEvent(
         User receiver,
+        User questionAuthor,
         CommunityQuestion question,
         CommunityAnswer answer
 ) {
