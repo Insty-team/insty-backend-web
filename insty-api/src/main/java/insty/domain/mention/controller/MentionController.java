@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @Tag(name = "멘션 API")
 @RestController
@@ -27,7 +28,7 @@ public class MentionController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/users/search")
     public SuccessRes<List<MentionUserSearchRes>> searchMentionableUsers(
-            @ModelAttribute MentionUserSearchReq searchReq,
+            @Valid @ModelAttribute MentionUserSearchReq searchReq,
             @CurrentUser Long userId
     ) {
         return SuccessRes.of(mentionService.searchMentionableUsers(searchReq, userId));

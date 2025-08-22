@@ -34,7 +34,7 @@ public class MentionService {
      */
     @Transactional(readOnly = true)
     public List<MentionUserSearchRes> searchMentionableUsers(MentionUserSearchReq req, Long userId) {
-        List<User> users = mentionReader.searchMentionableUsers(req.size(), req.keyword(), userId);
+        List<User> users = mentionReader.searchMentionableUsers(req.size(), req.search(), userId);
         List<MentionUserSearchRes> profileImages = users.stream().map(user ->
                 MentionUserSearchRes.from(user, userFileReader.getProfileImageUrl(user))
         ).toList();
