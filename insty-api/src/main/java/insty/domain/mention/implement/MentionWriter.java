@@ -11,7 +11,8 @@ import insty.model.user.User;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,18 +35,25 @@ public class MentionWriter {
     public List<Mention> saveMentions(List<MentionedUserInfo> mentionedUserInfos, User mentionerUser,
                                       CommunityAnswer communityAnswer) {
         List<Mention> savedMentions = new ArrayList<>();
-
-        for (MentionedUserInfo userInfo : mentionedUserInfos) {
-            Optional<User> mentionedUserOpt = userRepository.findById(userInfo.userId());
-
-            if (mentionedUserOpt.isEmpty()) {
-                throw new CustomException(MentionErrorCode.MENTION_USER_NOT_FOUND);
-            }
-
-            Mention mention = Mention.create(communityAnswer, mentionedUserOpt.get(), mentionerUser);
-            savedMentions.add(mentionRepository.save(mention));
+        if (mentionedUserInfos == null || mentionedUserInfos.isEmpty()) {
+            return savedMentions;
         }
 
+        Set<Long> ids = mentionedUserInfos.stream()
+                .map(MentionedUserInfo::userId)
+                .collect(java.util.stream.Collectors.toSet());
+        Map<Long, User> usersById = userRepository.findAllById(ids).stream()
+                .collect(java.util.stream.Collectors.toMap(User::getId, u -> u));
+
+        if (usersById.size() != ids.size()) {
+            throw new CustomException(MentionErrorCode.MENTION_USER_NOT_FOUND);
+        }
+
+        for (MentionedUserInfo userInfo : mentionedUserInfos) {
+            User mentionedUser = usersById.get(userInfo.userId());
+            Mention mention = Mention.create(communityAnswer, mentionedUser, mentionerUser);
+            savedMentions.add(mentionRepository.save(mention));
+        }
         return savedMentions;
     }
 
@@ -56,10 +64,10 @@ public class MentionWriter {
         Instant cooldownThreshold = Instant.now().minusSeconds(MENTION_COOLDOWN_MINUTES * 60L);
 
         for (MentionedUserInfo userInfo : mentionedUserInfos) {
-            List<Mention> recentMentions = mentionRepository.findRecentMentionsByMentionerAndMentioned(
-                    mentionerUser.getId(), userInfo.userId(), cooldownThreshold);
-
-            if (!recentMentions.isEmpty()) {
+            boolean exists = mentionRepository
+                    .existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(
+                            mentionerUser.getId(), userInfo.userId(), cooldownThreshold);
+            if (exists) {
                 throw new CustomException(MentionErrorCode.MENTION_COOLDOWN_VIOLATION);
             }
         }

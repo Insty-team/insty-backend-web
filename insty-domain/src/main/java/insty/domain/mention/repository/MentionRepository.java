@@ -25,4 +25,7 @@ public interface MentionRepository extends JpaRepository<Mention, Long> {
         @Param("mentionedId") Long mentionedId, 
         @Param("since") Instant since
     );
+
+    boolean existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(
+        Long mentionerId, Long mentionedId, Instant since);
 }

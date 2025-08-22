@@ -55,8 +55,7 @@ class MentionWriterTest {
         Mention mention2 = MentionFixtureBuilder.getMentionWithId(2L);
 
         // mock
-        when(userRepository.findById(2L)).thenReturn(Optional.of(mentionedUser1));
-        when(userRepository.findById(3L)).thenReturn(Optional.of(mentionedUser2));
+        when(userRepository.findAllById(java.util.Set.of(2L, 3L))).thenReturn(List.of(mentionedUser1, mentionedUser2));
         when(mentionRepository.save(any(Mention.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -77,7 +76,7 @@ class MentionWriterTest {
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
 
         // mock
-        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+        when(userRepository.findAllById(java.util.Set.of(999L))).thenReturn(List.of());
 
         // when & then
         assertThatThrownBy(() -> mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, communityAnswer))
@@ -94,8 +93,8 @@ class MentionWriterTest {
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
 
         // mock
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(Instant.class)))
-                .thenReturn(List.of());
+        when(mentionRepository.existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(eq(1L), eq(2L), any(Instant.class)))
+                .thenReturn(false);
 
         // when & then
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
@@ -107,12 +106,10 @@ class MentionWriterTest {
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
         MentionedUserInfo userInfo = new MentionedUserInfo(2L, "홍길동");
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
-        
-        Mention recentMention = MentionFixtureBuilder.getMentionWithId(1L);
 
         // mock
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(Instant.class)))
-                .thenReturn(List.of(recentMention));
+        when(mentionRepository.existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(eq(1L), eq(2L), any(Instant.class)))
+                .thenReturn(true);
 
         // when & then
         assertThatThrownBy(() -> mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser))
@@ -130,10 +127,10 @@ class MentionWriterTest {
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo1, userInfo2);
 
         // mock
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(2L), any(Instant.class)))
-                .thenReturn(List.of());
-        when(mentionRepository.findRecentMentionsByMentionerAndMentioned(eq(1L), eq(3L), any(Instant.class)))
-                .thenReturn(List.of());
+        when(mentionRepository.existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(eq(1L), eq(2L), any(Instant.class)))
+                .thenReturn(false);
+        when(mentionRepository.existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(eq(1L), eq(3L), any(Instant.class)))
+                .thenReturn(false);
 
         // when & then
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
