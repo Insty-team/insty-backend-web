@@ -2,18 +2,19 @@ package insty.domain.mention.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.mention.dto.MentionUserSearchReq;
 import insty.domain.mention.dto.MentionUserSearchRes;
-import insty.domain.mention.dto.MentionedUserInfo;
 import insty.domain.mention.implement.MentionNotificationManager;
 import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionReader;
 import insty.domain.mention.implement.MentionWriter;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.user.implement.UserFileReader;
+import insty.domain.user.repository.UserRepository;
 import insty.global.property.AppProperties;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
@@ -23,7 +24,6 @@ import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.mention.Mention;
 import insty.model.user.User;
-import insty.model.user.UserType;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ class MentionServiceTest {
     @Autowired
     private MentionParser mentionParser;
 
-    @Autowired
+    @MockitoBean
     private MentionNotificationManager mentionNotificationManager;
 
     @Autowired
@@ -60,6 +60,9 @@ class MentionServiceTest {
 
     @Autowired
     private CommunityAnswerReader communityAnswerReader;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @MockitoBean
     private AppProperties appProperties;
@@ -120,7 +123,7 @@ class MentionServiceTest {
     void processMentions_정상() {
         // given
         CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
-        User mentionerUser = mentionReader.searchMentionableUsers(1, "", 0L).get(0);
+        User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님!";
 
         // when
@@ -131,6 +134,12 @@ class MentionServiceTest {
         assertThat(mentions).hasSize(1);
         assertThat(mentions.get(0).getMentionedUser().getId()).isEqualTo(2L);
         assertThat(mentions.get(0).getMentionerUser().getId()).isEqualTo(mentionerUser.getId());
+        
+        verify(mentionNotificationManager)
+                .sendMentionsNotification(
+                        argThat(list -> list.size() == 1),
+                        any(CommunityQuestion.class)
+                );
     }
 
     @Sql(statements = {
@@ -149,7 +158,7 @@ class MentionServiceTest {
     void processMentions_멘션없음_정상() {
         // given
         CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
-        User mentionerUser = mentionReader.searchMentionableUsers(1, "", 0L).get(0);
+        User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요! 멘션 없습니다.";
 
         // when
@@ -178,7 +187,7 @@ class MentionServiceTest {
     void processMentions_다중멘션_정상() {
         // given
         CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
-        User mentionerUser = mentionReader.searchMentionableUsers(1, "", 0L).get(0);
+        User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님과 @[김철수](3)님!";
 
         // when
@@ -190,5 +199,11 @@ class MentionServiceTest {
         assertThat(mentions.stream().map(m -> m.getMentionedUser().getId()).toList())
                 .containsExactlyInAnyOrder(2L, 3L);
         assertThat(mentions.stream().allMatch(m -> m.getMentionerUser().getId().equals(mentionerUser.getId()))).isTrue();
+        
+        verify(mentionNotificationManager)
+                .sendMentionsNotification(
+                        argThat(list -> list.size() == 2),
+                        any(CommunityQuestion.class)
+                );
     }
 }
