@@ -60,7 +60,7 @@ public class AnswerAcceptedNotificationHandler {
 
         } catch (Exception e) {
             log.error("AnswerAcceptedNotificationHandler 에러", e);
-            throw new CustomException(NotificationErrorCode.ANSWER_ACCEPT_NOTIFICATION_FAILED);
+            // TODO: observability 시스템(예: Sentry/CloudWatch)에 전송 고려
         }
     }
 

@@ -60,7 +60,7 @@ public class NewQuestionNotificationHandler {
             log.info("NewQuestionNotificationHandler 메일 전송 완료: {}", receiverUser.getEmail());
         } catch (Exception e) {
             log.error("NewQuestionNotificationHandler 에러", e);
-            throw new CustomException(NotificationErrorCode.QUESTION_NOTIFICATION_FAILED);
+            // TODO: observability 시스템(예: Sentry/CloudWatch)에 전송 고려
         }
     }
 

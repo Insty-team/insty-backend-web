@@ -30,7 +30,6 @@ public class UserMentionNotificationHandler {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMailEventHandler(UserMentionedEvent event) {
-        log.info("UserMentionNotificationHandler 시작: receiver={}", event.receiver().getEmail());
         try {
             User receiverUser = event.receiver();
             User senderUser = event.sender();
@@ -51,11 +50,11 @@ public class UserMentionNotificationHandler {
             );
 
             mailHelper.send(mailContent);
-            log.info("UserMentionNotificationHandler 메일 전송 완료: {}", receiverUser.getEmail());
+            log.info("UserMentionNotificationHandler 메일 전송 완료: receiverId={}", receiverUser.getId());
 
         } catch (Exception e) {
             log.error("UserMentionNotificationHandler 에러", e);
-            throw new CustomException(NotificationErrorCode.MENTION_NOTIFICATION_FAILED);
+            // TODO: observability 시스템(예: Sentry/CloudWatch)에 전송 고려
         }
     }
 
