@@ -3,9 +3,7 @@ package insty.domain.community.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
-import lombok.Builder;
 
-@Builder
 public record CommunityQuestionCreateReq(
         @NotNull
         @Schema(description = "질문을 작성할 강좌 ID", example = "1")

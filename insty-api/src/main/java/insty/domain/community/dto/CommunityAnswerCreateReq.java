@@ -3,9 +3,7 @@ package insty.domain.community.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
-import lombok.Builder;
 
-@Builder
 public record CommunityAnswerCreateReq(
         @NotNull
         @Schema(description = "답변 내용", example = "이 문제는 다음과 같이 해결할 수 있습니다.")

@@ -7,11 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
-import lombok.Builder;
 import org.springdoc.core.annotations.ParameterObject;
 
 @ParameterObject
-@Builder
 public record CommunityQuestionSearchReq(
 
         @Schema(description = "페이지 번호 (1부터 시작)", example = "1", defaultValue = "1")
@@ -49,11 +47,6 @@ public record CommunityQuestionSearchReq(
      * 필터 객체로 변환
      */
     public CommunityQuestionSearchFilter toFilter(Long userId, Long courseId) {
-        return CommunityQuestionSearchFilter.builder()
-                .query(keyword)
-                .statuses(statuses)
-                .userId(userId)
-                .courseId(courseId)
-                .build();
+        return new CommunityQuestionSearchFilter(keyword, statuses, courseId, userId);
     }
 }

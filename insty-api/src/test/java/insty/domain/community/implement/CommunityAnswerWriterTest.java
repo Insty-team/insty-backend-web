@@ -44,9 +44,7 @@ class CommunityAnswerWriterTest {
         // given
         User user = mock(User.class);
         CommunityQuestion question = mock(CommunityQuestion.class);
-        CommunityAnswerCreateReq req = CommunityAnswerCreateReq.builder()
-                .content("내용")
-                .build();
+        CommunityAnswerCreateReq req = new CommunityAnswerCreateReq("내용", null);
         when(answerRepository.save(any(CommunityAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -62,9 +60,7 @@ class CommunityAnswerWriterTest {
     void updateAnswer_정상() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
-                .content("내용")
-                .build();
+        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq("내용", null, null);
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         when(answerRepository.save(any(CommunityAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -82,9 +78,7 @@ class CommunityAnswerWriterTest {
     void updateAnswer_에러_이미삭제됨() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
-                .content("내용")
-                .build();
+        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq("내용", null, null);
         CommunityAnswer answer = mock(CommunityAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         when(answer.isDeleted()).thenReturn(true);
@@ -100,9 +94,7 @@ class CommunityAnswerWriterTest {
     void updateAnswer_에러_존재하지않음() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = CommunityAnswerUpdateReq.builder()
-                .content("내용")
-                .build();
+        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq("내용", null, null);
         when(answerRepository.findById(id)).thenReturn(Optional.empty());
 
         // when & then

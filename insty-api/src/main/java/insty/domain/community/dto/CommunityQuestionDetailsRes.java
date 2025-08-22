@@ -9,9 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import lombok.Builder;
 
-@Builder
 public record CommunityQuestionDetailsRes(
         @Schema(description = "질문 작성자 정보 (id, nickname, userType 포함)")
         CommunityUserRes user,
