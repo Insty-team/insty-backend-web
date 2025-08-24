@@ -46,6 +46,7 @@ public class MentionService {
      * @return 맨션된 사용자 ID 목록
      * @deprecated CommunityMentionManager.processMentions를 사용하세요.
      */
+    @Deprecated
     public void processMentions(CommunityAnswer communityAnswer, User mentionerUser, String content) {
         List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);

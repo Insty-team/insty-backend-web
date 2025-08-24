@@ -59,6 +59,14 @@ public class CommunityQuestionViewManager {
 	}
 
 	/**
+	 * 크리에이터가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있는지 확인한다.
+	 * @return true: 마지막 조회 이후 새로운 답변이 있음, false: 마지막 조회 이후 새로운 답변 없음
+	 */
+	public boolean hasNewAnswersAfterCreatorLastView(Long questionId, Long creatorId) {
+		return hasNewAnswers(questionId, creatorId);
+	}
+
+	/**
 	 * 특정 질문에 대해 새로운 답변이 있는지 확인한다.
 	 * 조회 기록이 있으면 마지막 조회 시간 이후 타인이 단 답변을 확인하고,
 	 * 조회 기록이 없으면 타인이 단 답변이 있는지 확인한다.
@@ -68,4 +76,5 @@ public class CommunityQuestionViewManager {
 				.map(view -> communityQuestionViewRepository.hasNewAnswersAfter(questionId, viewerId, view.getLastViewedAt()))
 				.orElseGet(() -> communityQuestionViewRepository.existsOtherUserAnswers(questionId, viewerId));
 	}
+
 }

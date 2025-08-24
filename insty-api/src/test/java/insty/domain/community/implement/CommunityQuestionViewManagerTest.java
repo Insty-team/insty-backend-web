@@ -228,6 +228,62 @@ class CommunityQuestionViewManagerTest {
         assertThat(result.get(1L)).isFalse();
     }
 
+    @Test
+    void hasNewAnswersAfterCreatorLastView_정상_새로운답변있음() {
+        // given
+        Long questionId = 1L;
+        Long creatorId = 1L;
+        
+        CommunityQuestionView view = createMockViewWithLastViewedAt(Instant.now().minusSeconds(3600));
+
+        when(communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, creatorId))
+                .thenReturn(Optional.of(view));
+        when(communityQuestionViewRepository.hasNewAnswersAfter(eq(questionId), eq(creatorId), any(Instant.class)))
+                .thenReturn(true);
+
+        // when
+        boolean result = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void hasNewAnswersAfterCreatorLastView_정상_새로운답변없음() {
+        // given
+        Long questionId = 1L;
+        Long creatorId = 1L;
+        
+        CommunityQuestionView view = createMockViewWithLastViewedAt(Instant.now().minusSeconds(3600));
+
+        when(communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, creatorId))
+                .thenReturn(Optional.of(view));
+        when(communityQuestionViewRepository.hasNewAnswersAfter(eq(questionId), eq(creatorId), any(Instant.class)))
+                .thenReturn(false);
+
+        // when
+        boolean result = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void hasNewAnswersAfterCreatorLastView_조회기록없음_새로운답변없음() {
+        // given
+        Long questionId = 1L;
+        Long creatorId = 1L;
+
+        when(communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, creatorId))
+                .thenReturn(Optional.empty());
+
+        // when
+        boolean result = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
     private CommunityQuestion createMockQuestion(Long questionId) {
         CommunityQuestion question = org.mockito.Mockito.mock(CommunityQuestion.class);
         when(question.getId()).thenReturn(questionId);
