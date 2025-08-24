@@ -43,6 +43,8 @@ public class MentionService {
 
     /**
      * 댓글에서 멘션을 파싱하고 저장하며 알림을 발송한다
+     * @return 맨션된 사용자 ID 목록
+     * @deprecated CommunityMentionManager.processMentions를 사용하세요.
      */
     public void processMentions(CommunityAnswer communityAnswer, User mentionerUser, String content) {
         List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
