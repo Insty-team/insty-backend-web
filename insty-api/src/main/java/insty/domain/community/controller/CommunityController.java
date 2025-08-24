@@ -90,13 +90,7 @@ public class CommunityController {
             @PathVariable @NotNull Long questionId,
             @CurrentUser Long userId
     ) {
-        CommunityQuestionDetailsRes response = communityQuestionService.getQuestionDetails(questionId);
-        
-        // 질문 조회 기록 업데이트 (질문 작성자인 경우에만)
-        if (response.user().id().equals(userId)) {
-            communityQuestionService.recordQuestionView(questionId, userId);
-        }
-        
+        CommunityQuestionDetailsRes response = communityQuestionService.getQuestionDetails(questionId, userId);
         return SuccessRes.of(response);
     }
 

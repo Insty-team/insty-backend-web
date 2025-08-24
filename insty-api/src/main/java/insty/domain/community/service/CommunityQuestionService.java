@@ -161,14 +161,18 @@ public class CommunityQuestionService {
     /**
      * 질문 상세 조회 (첨부 파일 포함)
      */
-    public CommunityQuestionDetailsRes getQuestionDetails(Long questionId) {
+    public CommunityQuestionDetailsRes getQuestionDetails(Long questionId, Long userId) {
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
 
         List<FileInfo> fileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
         VideoQuestion video = communityQuestionVideoManager.getVideoQuestion(question);
         List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        return CommunityQuestionDetailsRes.from(question, fileInfos, video, answers);
+        CommunityQuestionDetailsRes response = CommunityQuestionDetailsRes.from(question, fileInfos, video, answers);
+        
+        communityQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, userId);
+        
+        return response;
     }
 
     /**
@@ -188,13 +192,5 @@ public class CommunityQuestionService {
         communityQuestionFileWriter.deleteQuestionFiles(question);
         communityQuestionVideoManager.deleteQuestionVideo(question);
         communityQuestionWriter.deleteQuestion(question);
-    }
-
-    /**
-     * 질문 작성자자 질문 열람 기록
-     */
-    public void recordQuestionView(Long questionId, Long userId) {
-        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
-        communityQuestionViewManager.recordQuestionView(question, userId);
     }
 }

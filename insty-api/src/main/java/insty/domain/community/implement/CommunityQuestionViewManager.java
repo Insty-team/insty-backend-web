@@ -1,6 +1,7 @@
 package insty.domain.community.implement;
 
 import insty.domain.community.repository.CommunityQuestionViewRepository;
+import insty.domain.community.implement.CommunityQuestionReader;
 import insty.model.community.CommunityQuestion;
 import insty.model.community.CommunityQuestionView;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityQuestionViewManager {
 
 	private final CommunityQuestionViewRepository communityQuestionViewRepository;
+	private final CommunityQuestionReader communityQuestionReader;
 
 	/**
 	 * 질문 조회 기록을 업데이트한다.
@@ -29,6 +31,19 @@ public class CommunityQuestionViewManager {
 							communityQuestionViewRepository.save(newView);
 						}
 				);
+	}
+
+	/**
+	 * 질문 작성자 또는 강의 개시자인 경우 조회 기록을 업데이트한다.
+	 */
+	public void recordQuestionViewIfAuthorOrCreator(Long questionId, Long userId) {
+		CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
+		
+		// 질문 작성자 또는 강의 개시자인 경우에만 조회 기록 업데이트
+		Long creatorId = communityQuestionReader.getCreatorIdByQuestionId(questionId);
+		if (question.getUser().getId().equals(userId) || creatorId.equals(userId)) {
+			recordQuestionView(question, userId);
+		}
 	}
 
 	/**

@@ -486,7 +486,7 @@ class CommunityQuestionServiceTest {
     void getQuestionDetails_정상() {
         when(appProperties.getDomain()).thenReturn("insty.test.com");
 
-        CommunityQuestionDetailsRes res = communityQuestionService.getQuestionDetails(1L);
+        CommunityQuestionDetailsRes res = communityQuestionService.getQuestionDetails(1L, 1L);
 
         assertThat(res).isNotNull();
         assertThat(res.user().id()).isEqualTo(1L);
@@ -570,41 +570,6 @@ class CommunityQuestionServiceTest {
                 insty.exception.CustomException.class);
         assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(2L)).isInstanceOf(
                 insty.exception.CustomException.class);
-    }
-
-    /**
-     * 질문 작성자의 조회 기록 업데이트 테스트
-     */
-    @Test
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, user_type, is_deleted, is_email_agreed, created_at, updated_at) VALUES (1, 'user1@test.com', 'user1', 'password', 'LEARNER', false, true, NOW(), NOW())",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, is_show, created_at, updated_at, is_deleted) VALUES (1, 1, '테스트 강의', '테스트 설명', 10000, 0, 0, true, NOW(), NOW(), false)",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '테스트 질문', '테스트 내용', 'WAITING', NOW(), NOW(), false)"
-    })
-    void recordQuestionView_정상() throws InterruptedException {
-        // given
-        Long questionId = 1L;
-        Long userId = 1L;
-
-        // when - 첫 번째 조회 (조회 기록 생성)
-        communityQuestionService.recordQuestionView(questionId, userId);
-
-        // then - 조회 기록이 생성되었는지 확인
-        CommunityQuestionView view = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
-        assertThat(view).isNotNull();
-        assertThat(view.getCommunityQuestion().getId()).isEqualTo(questionId);
-        assertThat(view.getCommunityQuestionViewId().getUserId()).isEqualTo(userId);
-        assertThat(view.getLastViewedAt()).isNotNull();
-
-        // when - 두 번째 조회 (조회 기록 업데이트)
-        Instant firstViewTime = view.getLastViewedAt();
-        Thread.sleep(100); // 시간 차이를 위해 잠시 대기
-        communityQuestionService.recordQuestionView(questionId, userId);
-
-        // then - 조회 시간이 업데이트되었는지 확인
-        CommunityQuestionView updatedView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
-        assertThat(updatedView).isNotNull();
-        assertThat(updatedView.getLastViewedAt()).isAfter(firstViewTime);
     }
 }
 
