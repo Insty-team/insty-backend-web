@@ -9,8 +9,6 @@ import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseMySearchReq;
-import insty.domain.course.dto.CourseRequestReq;
-import insty.domain.course.dto.CourseRequestRes;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
@@ -20,15 +18,12 @@ import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
 import insty.domain.course.implement.CourseReader;
-import insty.domain.course.implement.CourseRequestReader;
-import insty.domain.course.implement.CourseRequestWriter;
 import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseValidator;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
-import insty.model.course.CourseRequest;
 import insty.model.user.User;
 import insty.model.video.VideoCourse;
 import java.util.List;
@@ -48,8 +43,6 @@ public class CourseService {
     private final CourseFileWriter courseFileWriter;
     private final CourseFileReader courseFileReader;
     private final CourseTagWriter courseTagWriter;
-    private final CourseRequestWriter courseRequestWriter;
-    private final CourseRequestReader courseRequestReader;
     private final CourseVideoManager courseVideoManager;
     private final CourseValidator courseValidator;
     private final CourseComplexReader courseComplexReader;
@@ -141,19 +134,4 @@ public class CourseService {
         return SearchRes.from(paginationRes, searchInfo);
     }
 
-    /**
-     * 러너가 크리에이터에게 강의 요청
-     */
-    public CourseRequestRes createCourseRequest(Long userId, CourseRequestReq req) {
-        CourseRequest saveCourseRequest = courseRequestWriter.saveCourseRequest(userId, req);
-        return CourseRequestRes.from(saveCourseRequest);
-    }
-
-    /**
-     * 크리에이터에 요청된 강의 목록 조회
-     */
-    public List<CourseRequestRes> searchCourseRequest(Long userId) {
-        List<CourseRequest> findMyCourseRequest = courseRequestReader.getListMyCourseRequest(userId);
-        return CourseRequestRes.from(findMyCourseRequest);
-    }
 }

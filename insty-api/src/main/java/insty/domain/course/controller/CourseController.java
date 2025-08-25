@@ -5,8 +5,6 @@ import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseMySearchReq;
-import insty.domain.course.dto.CourseRequestReq;
-import insty.domain.course.dto.CourseRequestRes;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
@@ -31,7 +29,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -119,24 +116,4 @@ public class CourseController {
         return SuccessRes.of(courseService.searchMyCourse(userId, req));
     }
 
-    @Operation(summary = "강의 요청", description = "러너가 크리에이터에게 강의를 요청한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_REQUEST)
-    @PreAuthorize("hasRole('LEARNER')")
-    @PostMapping("/requests")
-    public SuccessRes<CourseRequestRes> courseRequest(
-            @CurrentUser Long userId,
-            @RequestBody @Validated CourseRequestReq req
-    ) {
-        return SuccessRes.of(courseService.createCourseRequest(userId, req));
-    }
-
-    @Operation(summary = "강의 요청된 리스트", description = "러너가 크리에이터에게 강의를 요청한 목록을 조회한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_REQUEST)
-    @PreAuthorize("hasRole('CREATOR')")
-    @GetMapping("/requests")
-    public SuccessRes<List<CourseRequestRes>> courseRequestSearch(
-            @CurrentUser Long userId
-    ) {
-        return SuccessRes.of(courseService.searchCourseRequest(userId));
-    }
 }
