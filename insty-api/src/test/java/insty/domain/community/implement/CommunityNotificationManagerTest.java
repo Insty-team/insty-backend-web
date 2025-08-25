@@ -2,16 +2,19 @@ package insty.domain.community.implement;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.notification.event.AnswerAcceptedNotificationEvent;
+import insty.domain.notification.event.NewAnswerNotificationEvent;
 import insty.domain.notification.event.NewCommunityQuestionEvent;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,9 @@ class CommunityNotificationManagerTest {
 
     @Mock
     private CommunityAnswerReader communityAnswerReader;
+
+    @Mock
+    private CommunityQuestionViewManager communityQuestionViewManager;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -144,5 +150,129 @@ class CommunityNotificationManagerTest {
         // then
         // 크리에이터 1명 + participant2 1명 = 총 2번의 이벤트 발행 (participant1은 크리에이터라서 중복 제외)
         verify(eventPublisher, times(2)).publishEvent(any(AnswerAcceptedNotificationEvent.class));
+    }
+
+    @Test
+    void sendNewAnswerNotification_정상_크리에이터에게알림전송() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        User answerAuthor = mock(User.class);
+        User mentionedUser = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(answerAuthor);
+        when(question.getId()).thenReturn(1L);
+        when(creator.getId()).thenReturn(100L);
+        when(answerAuthor.getId()).thenReturn(200L);
+        when(mentionedUser.getId()).thenReturn(300L);
+        
+        List<User> mentionedUsers = List.of(mentionedUser);
+        when(communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(1L, 100L)).thenReturn(true);
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+
+        // then
+        verify(eventPublisher, times(1)).publishEvent(any(NewAnswerNotificationEvent.class));
+    }
+
+    @Test
+    void sendNewAnswerNotification_답변작성자가크리에이터인경우_알림전송안함() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(creator);
+        when(creator.getId()).thenReturn(100L);
+        
+        List<User> mentionedUsers = List.of();
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+
+        // then
+        verify(eventPublisher, never()).publishEvent(any(NewAnswerNotificationEvent.class));
+    }
+
+    @Test
+    void sendNewAnswerNotification_크리에이터가맨션된경우_알림전송안함() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        User answerAuthor = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(answerAuthor);
+        when(creator.getId()).thenReturn(100L);
+        when(answerAuthor.getId()).thenReturn(200L);
+        
+        List<User> mentionedUsers = List.of(creator);
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+
+        // then
+        verify(eventPublisher, never()).publishEvent(any(NewAnswerNotificationEvent.class));
+    }
+
+    @Test
+    void sendNewAnswerNotification_새로운답변이없는경우_알림전송안함() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        User answerAuthor = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(answerAuthor);
+        when(question.getId()).thenReturn(1L);
+        when(creator.getId()).thenReturn(100L);
+        when(answerAuthor.getId()).thenReturn(200L);
+        
+        List<User> mentionedUsers = List.of();
+        when(communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(1L, 100L)).thenReturn(false);
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+
+        // then
+        verify(eventPublisher, never()).publishEvent(any(NewAnswerNotificationEvent.class));
+    }
+
+    @Test
+    void sendNewAnswerNotification_답변작성자가크리에이터이고맨션된경우_알림전송안함() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(creator);
+        when(creator.getId()).thenReturn(100L);
+        
+        List<User> mentionedUsers = List.of(creator);
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+
+        // then
+        verify(eventPublisher, never()).publishEvent(any(NewAnswerNotificationEvent.class));
+        // hasNewAnswersAfterCreatorLastView는 호출되지 않아야 함
+        verify(communityQuestionViewManager, never()).hasNewAnswersAfterCreatorLastView(any(), any());
     }
 }
