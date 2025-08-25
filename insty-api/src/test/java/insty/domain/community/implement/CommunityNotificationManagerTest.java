@@ -275,4 +275,57 @@ class CommunityNotificationManagerTest {
         // hasNewAnswersAfterCreatorLastView는 호출되지 않아야 함
         verify(communityQuestionViewManager, never()).hasNewAnswersAfterCreatorLastView(any(), any());
     }
+
+    @Test
+    void sendNewAnswerNotification_mentionedUsers가null인경우_정상처리() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        User answerAuthor = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(answerAuthor);
+        when(question.getId()).thenReturn(1L);
+        when(creator.getId()).thenReturn(100L);
+        when(answerAuthor.getId()).thenReturn(200L);
+        
+        when(communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(1L, 100L)).thenReturn(true);
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, null);
+
+        // then
+        verify(eventPublisher, times(1)).publishEvent(any(NewAnswerNotificationEvent.class));
+    }
+
+    @Test
+    void sendNewAnswerNotification_사용자ID가null인경우_정상처리() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        Course course = mock(Course.class);
+        User creator = mock(User.class);
+        User answerAuthor = mock(User.class);
+        User mentionedUser = mock(User.class);
+        
+        when(question.getCourse()).thenReturn(course);
+        when(course.getUser()).thenReturn(creator);
+        when(answer.getUser()).thenReturn(answerAuthor);
+        when(question.getId()).thenReturn(1L);
+        when(creator.getId()).thenReturn(null);
+        when(answerAuthor.getId()).thenReturn(200L);
+        when(mentionedUser.getId()).thenReturn(300L);
+        
+        List<User> mentionedUsers = List.of(mentionedUser);
+        when(communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(1L, null)).thenReturn(true);
+
+        // when
+        notificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+
+        // then
+        verify(eventPublisher, times(1)).publishEvent(any(NewAnswerNotificationEvent.class));
+    }
 }

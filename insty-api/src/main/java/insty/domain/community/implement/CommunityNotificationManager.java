@@ -7,6 +7,7 @@ import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
+import java.util.Objects;
 import java.util.Set;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -52,10 +53,11 @@ public class CommunityNotificationManager {
         User answerAuthor = answer.getUser();
 
         // 답변 작성자가 creator가 아니고, creator가 맨션되지 않은 경우에만 검사
-        boolean creatorMentioned = mentionedUsers.stream()
-                .anyMatch(user -> user.getId().equals(creator.getId()));
+        List<User> safeMentionedUsers = (mentionedUsers != null) ? mentionedUsers : List.of();
+        boolean creatorMentioned = safeMentionedUsers.stream()
+                .anyMatch(user -> Objects.equals(user.getId(), creator.getId()));
         
-        if (!answerAuthor.getId().equals(creator.getId()) && !creatorMentioned) {
+        if (!Objects.equals(answerAuthor.getId(), creator.getId()) && !creatorMentioned) {
             // creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있는지 확인
             boolean hasNewAnswersAfterCreatorLastView = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(
                     question.getId(), creator.getId());
