@@ -91,4 +91,11 @@ public class CommunityQuestionReader {
         return communityQuestionRepository.findById(questionId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
     }
+
+    /**
+     * 질문의 강의 개시자 ID 조회
+     */
+    public Long getCreatorIdByQuestionId(Long questionId) {
+        return communityQuestionRepository.findCreatorIdByQuestionId(questionId);
+    }
 }

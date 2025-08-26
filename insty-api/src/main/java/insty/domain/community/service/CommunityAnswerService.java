@@ -12,11 +12,11 @@ import insty.domain.community.implement.CommunityAnswerMapper;
 import insty.domain.community.implement.CommunityAnswerReader;
 import insty.domain.community.implement.CommunityAnswerVideoManager;
 import insty.domain.community.implement.CommunityAnswerWriter;
+import insty.domain.community.implement.CommunityMentionManager;
 import insty.domain.community.implement.CommunityNotificationManager;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityValidator;
-import insty.domain.mention.service.MentionService;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
@@ -44,7 +44,7 @@ public class CommunityAnswerService {
     private final CommunityQuestionStatusManager communityQuestionStatusManager;
     private final UserReader userReader;
     private final CommunityNotificationManager communityNotificationManager;
-    private final MentionService mentionService;
+    private final CommunityMentionManager communityMentionManager;
 
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
@@ -62,7 +62,9 @@ public class CommunityAnswerService {
 
         communityQuestionStatusManager.updateStatusAfterAnswerCreated(question);
 
-        mentionService.processMentions(answer, user, answer.getContent());
+        List<User> mentionedUsers = communityMentionManager.processMentions(answer, user, answer.getContent());
+
+        communityNotificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
 
         return CommunityAnswerRes.from(answer, fileInfos, video);
     }

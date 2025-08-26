@@ -1,12 +1,15 @@
 package insty.domain.community.implement;
 
+import insty.domain.notification.event.NewAnswerNotificationEvent;
 import insty.domain.notification.event.AnswerAcceptedNotificationEvent;
 import insty.domain.notification.event.NewCommunityQuestionEvent;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
+import java.util.Objects;
 import java.util.Set;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,6 +27,7 @@ public class CommunityNotificationManager {
 
     private final CommunityAnswerReader communityAnswerReader;
     private final ApplicationEventPublisher eventPublisher;
+    private final CommunityQuestionViewManager communityQuestionViewManager;
 
     /**
      * 새 질문 작성 알림 전송
@@ -34,6 +38,34 @@ public class CommunityNotificationManager {
         User courseCreator = course.getUser();
         
         eventPublisher.publishEvent(new NewCommunityQuestionEvent(courseCreator, questionAuthor, question, course));
+    }
+
+    /**
+     * 새 답변 작성 알림 전송
+     * - 맨션된 사용자에게는 맨션 알림이 별도로 전송됨
+     * - 질문의 creator에게는 답변 알림 전송 (다음 조건을 모두 만족할 때만):
+     *   1. 답변 작성자가 creator가 아님
+     *   2. creator가 맨션되지 않음
+     *   3. creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있음
+     */
+    public void sendNewAnswerNotification(CommunityQuestion question, CommunityAnswer answer, List<User> mentionedUsers) {
+        User creator = question.getCourse().getUser();
+        User answerAuthor = answer.getUser();
+
+        // 답변 작성자가 creator가 아니고, creator가 맨션되지 않은 경우에만 검사
+        List<User> safeMentionedUsers = (mentionedUsers != null) ? mentionedUsers : List.of();
+        boolean creatorMentioned = safeMentionedUsers.stream()
+                .anyMatch(user -> Objects.equals(user.getId(), creator.getId()));
+        
+        if (!Objects.equals(answerAuthor.getId(), creator.getId()) && !creatorMentioned) {
+            // creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있는지 확인
+            boolean hasNewAnswersAfterCreatorLastView = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(
+                    question.getId(), creator.getId());
+            
+            if (hasNewAnswersAfterCreatorLastView) {
+                eventPublisher.publishEvent(new NewAnswerNotificationEvent(creator, answerAuthor, question, answer));
+            }
+        }
     }
 
     /**

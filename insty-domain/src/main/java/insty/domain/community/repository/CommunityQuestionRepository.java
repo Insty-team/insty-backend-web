@@ -20,4 +20,7 @@ public interface CommunityQuestionRepository extends JpaRepository<CommunityQues
 
     @Query("SELECT cq FROM CommunityQuestion cq WHERE cq.course.id = :courseId AND cq.isDeleted = false")
     List<CommunityQuestion> findAllByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT c.user.id FROM CommunityQuestion q JOIN q.course c WHERE q.id = :questionId")
+    Long findCreatorIdByQuestionId(@Param("questionId") Long questionId);
 }

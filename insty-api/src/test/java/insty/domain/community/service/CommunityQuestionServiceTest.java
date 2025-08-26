@@ -38,7 +38,6 @@ import insty.model.community.QuestionStatus;
 import insty.model.user.UserType;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -481,7 +480,7 @@ class CommunityQuestionServiceTest {
     void getQuestionDetails_정상() {
         when(appProperties.getDomain()).thenReturn("insty.test.com");
 
-        CommunityQuestionDetailsRes res = communityQuestionService.getQuestionDetails(1L);
+        CommunityQuestionDetailsRes res = communityQuestionService.getQuestionDetails(1L, 1L);
 
         assertThat(res).isNotNull();
         assertThat(res.user().id()).isEqualTo(1L);
@@ -568,38 +567,56 @@ class CommunityQuestionServiceTest {
     }
 
     /**
-     * 질문 작성자의 조회 기록 업데이트 테스트
+     * 질문 작성자와 강의 개시자의 조회 기록 업데이트 테스트
      */
     @Test
     @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, user_type, is_deleted, is_email_agreed, created_at, updated_at) VALUES (1, 'user1@test.com', 'user1', 'password', 'LEARNER', false, true, NOW(), NOW())",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, is_show, created_at, updated_at, is_deleted) VALUES (1, 1, '테스트 강의', '테스트 설명', 10000, 0, 0, true, NOW(), NOW(), false)",
+            "INSERT INTO web_service.users (id, email, nickname, password, user_type, is_deleted, is_email_agreed, created_at, updated_at) VALUES (1, 'question_author@test.com', '질문작성자', 'password', 'LEARNER', false, true, NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, user_type, is_deleted, is_email_agreed, created_at, updated_at) VALUES (2, 'course_creator@test.com', '강의제작자', 'password', 'CREATOR', false, true, NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '테스트 설명', 10000, 0, 0, true, NOW(), NOW(), false)",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '테스트 질문', '테스트 내용', 'WAITING', NOW(), NOW(), false)"
     })
-    void recordQuestionView_정상() throws InterruptedException {
+    void recordQuestionViewIfAuthorOrCreator_정상() throws InterruptedException {
         // given
         Long questionId = 1L;
-        Long userId = 1L;
+        Long questionAuthorId = 1L;
+        Long courseCreatorId = 2L;
+        Long otherUserId = 999L;
 
-        // when - 첫 번째 조회 (조회 기록 생성)
-        communityQuestionService.recordQuestionView(questionId, userId);
+        // when - 질문 작성자가 조회
+        communityQuestionService.getQuestionDetails(questionId, questionAuthorId);
 
-        // then - 조회 기록이 생성되었는지 확인
-        CommunityQuestionView view = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
-        assertThat(view).isNotNull();
-        assertThat(view.getCommunityQuestion().getId()).isEqualTo(questionId);
-        assertThat(view.getCommunityQuestionViewId().getUserId()).isEqualTo(userId);
-        assertThat(view.getLastViewedAt()).isNotNull();
+        // then - 질문 작성자의 조회 기록이 생성되었는지 확인
+        CommunityQuestionView authorView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, questionAuthorId).orElse(null);
+        assertThat(authorView).isNotNull();
+        assertThat(authorView.getCommunityQuestion().getId()).isEqualTo(questionId);
+        assertThat(authorView.getCommunityQuestionViewId().getUserId()).isEqualTo(questionAuthorId);
+        assertThat(authorView.getLastViewedAt()).isNotNull();
 
-        // when - 두 번째 조회 (조회 기록 업데이트)
-        Instant firstViewTime = view.getLastViewedAt();
+        // when - 강의 개시자가 조회
         Thread.sleep(100); // 시간 차이를 위해 잠시 대기
-        communityQuestionService.recordQuestionView(questionId, userId);
+        communityQuestionService.getQuestionDetails(questionId, courseCreatorId);
 
-        // then - 조회 시간이 업데이트되었는지 확인
-        CommunityQuestionView updatedView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, userId).orElse(null);
-        assertThat(updatedView).isNotNull();
-        assertThat(updatedView.getLastViewedAt()).isAfter(firstViewTime);
+        // then - 강의 개시자의 조회 기록이 생성되었는지 확인
+        CommunityQuestionView creatorView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, courseCreatorId).orElse(null);
+        assertThat(creatorView).isNotNull();
+        assertThat(creatorView.getCommunityQuestion().getId()).isEqualTo(questionId);
+        assertThat(creatorView.getCommunityQuestionViewId().getUserId()).isEqualTo(courseCreatorId);
+        assertThat(creatorView.getLastViewedAt()).isAfter(authorView.getLastViewedAt());
+
+        // when - 다른 사용자가 조회
+        Thread.sleep(100); // 시간 차이를 위해 잠시 대기
+        communityQuestionService.getQuestionDetails(questionId, otherUserId);
+
+        // then - 다른 사용자의 조회 기록은 생성되지 않았는지 확인
+        CommunityQuestionView otherView = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, otherUserId).orElse(null);
+        assertThat(otherView).isNull();
+
+        // then - 기존 조회 기록들은 그대로 유지되는지 확인
+        CommunityQuestionView authorViewAfter = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, questionAuthorId).orElse(null);
+        CommunityQuestionView creatorViewAfter = communityQuestionViewRepository.findByQuestionIdAndUserId(questionId, courseCreatorId).orElse(null);
+        assertThat(authorViewAfter).isNotNull();
+        assertThat(creatorViewAfter).isNotNull();
     }
 }
 
