@@ -3,7 +3,6 @@ package insty.domain.user.service;
 import insty.domain.user.dto.request.UserNotificationPreferenceUpdateReq;
 import insty.domain.user.dto.response.UserNotificationPreferenceRes;
 import insty.domain.user.implement.UserNotificationPreferenceReader;
-import insty.domain.user.implement.UserNotificationPreferenceValidator;
 import insty.domain.user.implement.UserNotificationPreferenceWriter;
 import insty.domain.user.implement.UserReader;
 import insty.model.user.User;
@@ -19,7 +18,6 @@ public class UserNotificationPreferenceService {
 
     private final UserNotificationPreferenceReader userNotificationPreferenceReader;
     private final UserNotificationPreferenceWriter userNotificationPreferenceWriter;
-    private final UserNotificationPreferenceValidator userNotificationPreferenceValidator;
     private final UserReader userReader;
 
     public UserNotificationPreferenceRes getUserNotificationPreference(Long userId) {
@@ -86,21 +84,25 @@ public class UserNotificationPreferenceService {
 
     @Transactional(readOnly = true)
     public boolean shouldReceiveUserMentionEmail(User user) {
-        return userNotificationPreferenceValidator.shouldReceiveUserMentionEmail(user);
+        UserNotificationPreference preference = userNotificationPreferenceReader.getOrCreateDefaultPreference(user);
+        return preference.shouldReceiveUserMentionEmail();
     }
 
     @Transactional(readOnly = true)
     public boolean shouldReceiveNewQuestionEmail(User user) {
-        return userNotificationPreferenceValidator.shouldReceiveNewQuestionEmail(user);
+        UserNotificationPreference preference = userNotificationPreferenceReader.getOrCreateDefaultPreference(user);
+        return preference.shouldReceiveNewQuestionEmail();
     }
 
     @Transactional(readOnly = true)
     public boolean shouldReceiveNewAnswerEmail(User user) {
-        return userNotificationPreferenceValidator.shouldReceiveNewAnswerEmail(user);
+        UserNotificationPreference preference = userNotificationPreferenceReader.getOrCreateDefaultPreference(user);
+        return preference.shouldReceiveNewAnswerEmail();
     }
 
     @Transactional(readOnly = true)
     public boolean shouldReceiveAnswerAcceptedEmail(User user) {
-        return userNotificationPreferenceValidator.shouldReceiveAnswerAcceptedEmail(user);
+        UserNotificationPreference preference = userNotificationPreferenceReader.getOrCreateDefaultPreference(user);
+        return preference.shouldReceiveAnswerAcceptedEmail();
     }
 }

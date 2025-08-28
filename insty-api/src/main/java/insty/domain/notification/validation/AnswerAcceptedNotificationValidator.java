@@ -1,6 +1,6 @@
 package insty.domain.notification.validation;
 
-import insty.domain.user.service.UserNotificationPreferenceService;
+import insty.domain.user.implement.UserNotificationPreferenceValidator;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AnswerAcceptedNotificationValidator {
 
-    private final UserNotificationPreferenceService userNotificationPreferenceService;
+    private final UserNotificationPreferenceValidator userNotificationPreferenceValidator;
 
     public boolean validateUserNotification(User user) {
-        return userNotificationPreferenceService.shouldReceiveAnswerAcceptedEmail(user);
+        return userNotificationPreferenceValidator.shouldReceiveAnswerAcceptedEmail(user);
     }
 }
