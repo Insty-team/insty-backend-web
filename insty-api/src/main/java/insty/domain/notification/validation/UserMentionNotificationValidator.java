@@ -1,5 +1,6 @@
 package insty.domain.notification.validation;
 
+import insty.domain.user.service.UserNotificationPreferenceService;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +11,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserMentionNotificationValidator {
 
+    private final UserNotificationPreferenceService userNotificationPreferenceService;
+
     public boolean validateUserNotification(User user) {
-        // todo : 실재 체크 알림 검증 로직
-        return true;
+        return userNotificationPreferenceService.shouldReceiveUserMentionEmail(user);
     }
 }
