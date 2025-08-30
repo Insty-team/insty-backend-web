@@ -22,7 +22,7 @@ public class CommunityAnswerReader {
     private final CommunityAnswerRepository communityAnswerRepository;
 
     /**
-     * 커뮤니티 답변에 따른 모든 질문 조회
+     * 특정 질문의 모든 답변 조회
      */
     public List<CommunityAnswer> getAllCommunityAnswersByQuestionId(Long questionId) {
         return communityAnswerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionId(questionId);

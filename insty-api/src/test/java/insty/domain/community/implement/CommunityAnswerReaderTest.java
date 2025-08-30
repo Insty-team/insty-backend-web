@@ -3,6 +3,7 @@ package insty.domain.community.implement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.community.repository.CommunityAnswerRepository;
@@ -207,6 +208,10 @@ class CommunityAnswerReaderTest {
         // then
         assertThat(result.getContent()).containsExactly(a1, a2);
         assertThat(result.getTotalElements()).isEqualTo(2);
-        assertThat(result.getPageable()).isEqualTo(pageable);
+        assertThat(result.getNumber()).isEqualTo(pageable.getPageNumber());
+        assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
+        
+        // 저장소 호출 인자 검증
+        verify(answerRepository).findAllDetailsWithUserAttachmentsByCommunityQuestionIdWithPagination(questionId, pageable);
     }
 }

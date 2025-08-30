@@ -1,15 +1,14 @@
 package insty.domain.community.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.mockito.ArgumentCaptor;
+
 import insty.domain.common.SearchRes;
-import insty.domain.common.dto.PaginationReq;
-import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.CommunityAnswerRes;
 import insty.domain.community.dto.CommunityAnswerSearchReq;
 import insty.domain.community.service.CommunityAnswerService;
@@ -60,7 +59,8 @@ class CommunityAnswerSearchManagerTest {
         CommunityAnswerRes answerRes2 = mock(CommunityAnswerRes.class);
         List<CommunityAnswerRes> answerResList = List.of(answerRes1, answerRes2);
 
-        when(communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), any(Pageable.class)))
+        var captor = ArgumentCaptor.forClass(Pageable.class);
+        when(communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
         when(communityAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
         when(communityAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
@@ -74,6 +74,9 @@ class CommunityAnswerSearchManagerTest {
         assertThat(result.pagination().totalItems()).isEqualTo(2);
         assertThat(result.pagination().currentPage()).isEqualTo(1);
         assertThat(result.pagination().perPage()).isEqualTo(10);
+        // Pageable 변환 검증: 1 -> 0
+        assertThat(captor.getValue().getPageNumber()).isEqualTo(0);
+        assertThat(captor.getValue().getPageSize()).isEqualTo(10);
     }
 
     @Test
@@ -90,7 +93,8 @@ class CommunityAnswerSearchManagerTest {
         CommunityAnswerRes answerRes = mock(CommunityAnswerRes.class);
         List<CommunityAnswerRes> answerResList = List.of(answerRes);
 
-        when(communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), any(Pageable.class)))
+        var captor = ArgumentCaptor.forClass(Pageable.class);
+        when(communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
         when(communityAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
         when(communityAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
@@ -104,5 +108,7 @@ class CommunityAnswerSearchManagerTest {
         assertThat(result.pagination().totalItems()).isEqualTo(10);
         assertThat(result.pagination().currentPage()).isEqualTo(2);
         assertThat(result.pagination().perPage()).isEqualTo(5);
+        assertThat(captor.getValue().getPageNumber()).isEqualTo(1);
+        assertThat(captor.getValue().getPageSize()).isEqualTo(5);
     }
 }

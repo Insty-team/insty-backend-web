@@ -102,6 +102,7 @@ public class CommunityAnswerService {
     /**
      * 특정 질문에 달린 답변을 페이지네이션으로 조회
      */
+    @Transactional(readOnly = true)
     public SearchRes<CommunityAnswerRes> getAnswersByQuestionId(Long questionId, CommunityAnswerSearchReq req) {
         communityValidator.validateQuestionExists(questionId);
         
@@ -110,8 +111,9 @@ public class CommunityAnswerService {
         var videoMap = communityAnswerVideoManager.getVideoMapByAnswers(answersPage.getContent());
         List<CommunityAnswerRes> answerResList = communityAnswerMapper.toCommunityAnswerResList(answersPage.getContent(), videoMap);
         
+        final int totalItems = Math.toIntExact(answersPage.getTotalElements());
         PaginationRes paginationRes = PaginationRes.of(
-                (int) answersPage.getTotalElements(),
+                totalItems,
                 req.page(),
                 req.pageSize()
         );
