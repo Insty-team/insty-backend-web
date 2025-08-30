@@ -175,6 +175,18 @@ public class CommunityController {
         return SuccessRes.of(communityAnswerService.updateAnswer(userId, answerId, communityAnswerUpdateReq, attachments));
     }
 
+    @Operation(summary = "답변 삭제", description = "답변을 삭제한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @DeleteMapping("/answer/{answerId}")
+    public SuccessRes<?> deleteAnswer(
+            @CurrentUser Long userId,
+            @PathVariable @NotNull Long answerId
+    ) {
+        communityAnswerService.deleteAnswer(userId, answerId);
+        return SuccessRes.of(null);
+    }
+
 
     /// ============================== 답변 채택 API  ======================================
 

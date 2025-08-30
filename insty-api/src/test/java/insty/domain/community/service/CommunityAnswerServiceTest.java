@@ -528,7 +528,4 @@ class CommunityAnswerServiceTest {
         assertThat(acceptedCount).isEqualTo(0);
     }
 
-    // TODO: Add integration tests for pagination functionality
-    // Integration tests commented out due to H2 database constraint issues
-    // Unit tests cover the core functionality
 }
