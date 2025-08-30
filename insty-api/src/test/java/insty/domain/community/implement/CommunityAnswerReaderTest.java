@@ -3,6 +3,7 @@ package insty.domain.community.implement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.community.repository.CommunityAnswerRepository;
@@ -19,6 +20,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -182,5 +187,31 @@ class CommunityAnswerReaderTest {
 
         // then
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getCommunityAnswersByQuestionIdWithPagination_정상() {
+        // given
+        Long questionId = 1L;
+        Pageable pageable = PageRequest.of(0, 10);
+        CommunityAnswer a1 = mock(CommunityAnswer.class);
+        CommunityAnswer a2 = mock(CommunityAnswer.class);
+        List<CommunityAnswer> answers = List.of(a1, a2);
+        Page<CommunityAnswer> answerPage = new PageImpl<>(answers, pageable, 2);
+
+        when(answerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionIdWithPagination(questionId, pageable))
+                .thenReturn(answerPage);
+
+        // when
+        Page<CommunityAnswer> result = reader.getCommunityAnswersByQuestionIdWithPagination(questionId, pageable);
+
+        // then
+        assertThat(result.getContent()).containsExactly(a1, a2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getNumber()).isEqualTo(pageable.getPageNumber());
+        assertThat(result.getSize()).isEqualTo(pageable.getPageSize());
+        
+        // 저장소 호출 인자 검증
+        verify(answerRepository).findAllDetailsWithUserAttachmentsByCommunityQuestionIdWithPagination(questionId, pageable);
     }
 }

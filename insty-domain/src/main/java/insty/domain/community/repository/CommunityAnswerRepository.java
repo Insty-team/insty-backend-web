@@ -2,6 +2,8 @@ package insty.domain.community.repository;
 
 import insty.model.community.CommunityAnswer;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +23,21 @@ public interface CommunityAnswerRepository extends JpaRepository<CommunityAnswer
         ORDER BY a.createdAt DESC
     """)
     List<CommunityAnswer> findAllDetailsWithUserAttachmentsByCommunityQuestionId(@Param("questionId") Long questionId);
+
+    @Query(value = """
+        SELECT a FROM CommunityAnswer a
+        JOIN FETCH a.user u
+        WHERE a.communityQuestion.id = :questionId
+          AND a.isDeleted = false
+        ORDER BY a.createdAt DESC
+    """,
+    countQuery = """
+        SELECT COUNT(a.id) FROM CommunityAnswer a
+        WHERE a.communityQuestion.id = :questionId
+          AND a.isDeleted = false
+    """)
+    Page<CommunityAnswer> findAllDetailsWithUserAttachmentsByCommunityQuestionIdWithPagination(
+            @Param("questionId") Long questionId, Pageable pageable);
 
     int countByCommunityQuestionIdAndIsDeletedFalse(Long communityQuestionId);
     

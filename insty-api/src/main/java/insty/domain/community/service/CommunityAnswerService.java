@@ -1,9 +1,12 @@
 package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
+import insty.domain.common.SearchRes;
+import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
+import insty.domain.community.dto.CommunityAnswerSearchReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerAcceptManager;
 import insty.domain.community.implement.CommunityAnswerFileReader;
@@ -24,6 +27,7 @@ import insty.model.user.User;
 import insty.model.video.VideoAnswer;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,6 +97,28 @@ public class CommunityAnswerService {
         List<CommunityAnswer> answers = communityAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
         var videoMap = communityAnswerVideoManager.getVideoMapByAnswers(answers);
         return communityAnswerMapper.toCommunityAnswerResList(answers, videoMap);
+    }
+
+    /**
+     * 특정 질문에 달린 답변을 페이지네이션으로 조회
+     */
+    @Transactional(readOnly = true)
+    public SearchRes<CommunityAnswerRes> getAnswersByQuestionId(Long questionId, CommunityAnswerSearchReq req) {
+        communityValidator.validateQuestionExists(questionId);
+        
+        Page<CommunityAnswer> answersPage = communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(questionId, req.toPaginationReq());
+        
+        var videoMap = communityAnswerVideoManager.getVideoMapByAnswers(answersPage.getContent());
+        List<CommunityAnswerRes> answerResList = communityAnswerMapper.toCommunityAnswerResList(answersPage.getContent(), videoMap);
+        
+        final int totalItems = Math.toIntExact(answersPage.getTotalElements());
+        PaginationRes paginationRes = PaginationRes.of(
+                totalItems,
+                req.page(),
+                req.pageSize()
+        );
+        
+        return SearchRes.from(paginationRes, answerResList);
     }
 
 

@@ -29,9 +29,6 @@ public record CommunityQuestionDetailsRes(
         @Schema(description = "질문 상태 (WAITING: 답변 대기, ANSWERED: 답변 있음, ACCEPTED: 답변 채택됨)", example = "WAITING")
         QuestionStatus status,
 
-        @Schema(description = "질문에 달린 답변 목록 (최신순)")
-        List<CommunityAnswerRes> answers,
-
         @Schema(description = "질문에 첨부된 파일 목록 (id, name=원본파일명, contentType, size, url 포함)")
         List<FileInfo> attachments,
 
@@ -47,8 +44,7 @@ public record CommunityQuestionDetailsRes(
     public static CommunityQuestionDetailsRes from(
             CommunityQuestion question,
             List<FileInfo> attachments,
-            VideoQuestion video,
-            List<CommunityAnswerRes> answers
+            VideoQuestion video
     ) {
         return new CommunityQuestionDetailsRes(
                 question.getId(),
@@ -57,7 +53,6 @@ public record CommunityQuestionDetailsRes(
                 question.getTitle(),
                 question.getContent(),
                 question.getStatus(),
-                Optional.ofNullable(answers).orElse(List.of()),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 VideoInfo.of(video),
                 question.getCreatedAt(),

@@ -9,9 +9,11 @@ import static org.mockito.Mockito.when;
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.FileInfo;
+import insty.domain.common.SearchRes;
 import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
+import insty.domain.community.dto.CommunityAnswerSearchReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.implement.CommunityAnswerAcceptManager;
 import insty.domain.community.implement.CommunityAnswerFileReader;
@@ -210,11 +212,6 @@ class CommunityAnswerServiceTest {
 
         // 기존 첨부파일 ID들 (삭제할 파일들) - 실제 파일 ID 사용
         List<Long> deleteFileIds = filesBeforeUpdate.stream().map(FileInfo::id).toList();
-
-        // 디버깅을 위한 로그 출력
-        System.out.println("Files before update: " + filesBeforeUpdate.stream().map(FileInfo::name).toList());
-        System.out.println("Delete file IDs: " + deleteFileIds);
-        System.out.println("Files before update IDs: " + filesBeforeUpdate.stream().map(FileInfo::id).toList());
 
         CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq(updatedContent, newVideoUuid, deleteFileIds);
 
@@ -525,4 +522,5 @@ class CommunityAnswerServiceTest {
         acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
         assertThat(acceptedCount).isEqualTo(0);
     }
+
 }
