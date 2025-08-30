@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,13 @@ public class CommunityAnswerReader {
      */
     public List<CommunityAnswer> getAllCommunityAnswersByQuestionId(Long questionId) {
         return communityAnswerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionId(questionId);
+    }
+
+    /**
+     * 커뮤니티 답변을 페이지네이션으로 조회
+     */
+    public Page<CommunityAnswer> getCommunityAnswersByQuestionIdWithPagination(Long questionId, Pageable pageable) {
+        return communityAnswerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionIdWithPagination(questionId, pageable);
     }
 
     /**

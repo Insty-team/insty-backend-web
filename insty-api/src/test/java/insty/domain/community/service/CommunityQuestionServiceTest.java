@@ -229,10 +229,6 @@ class CommunityQuestionServiceTest {
         assertThat(res.videoInfo().videoUuid()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000011"));
         assertThat(res.videoInfo().originFileName()).isEqualTo("new_question_video.mp4");
 
-        assertThat(res.answers()).isNotNull();
-        assertThat(res.answers()).hasSize(2);
-        List<String> answerContents = res.answers().stream().map(a -> a.content()).toList();
-        assertThat(answerContents).containsExactlyInAnyOrder("기존 답변 내용 A", "기존 답변 내용 B");
     }
 
     /**
@@ -500,19 +496,6 @@ class CommunityQuestionServiceTest {
         assertThat(res.videoInfo().videoUuid()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000010"));
         assertThat(res.videoInfo().originFileName()).isEqualTo("detail_question_video.mp4");
 
-        assertThat(res.answers()).hasSize(2);
-        assertThat(res.answers().get(0).content()).isEqualTo("상세 답변2 (첨부파일 포함)");
-        assertThat(res.answers().get(0).isAccepted()).isTrue();
-        assertThat(res.answers().get(0).attachments()).hasSize(1);
-        assertThat(res.answers().get(0).attachments().get(0).name()).isEqualTo("detail_answer_attachment1.jpg");
-        assertThat(res.answers().get(0).videoInfo()).isNull();
-
-        assertThat(res.answers().get(1).content()).isEqualTo("상세 답변1 (비디오 포함)");
-        assertThat(res.answers().get(1).isAccepted()).isFalse();
-        assertThat(res.answers().get(1).attachments()).isEmpty();
-        assertThat(res.answers().get(1).videoInfo()).isNotNull();
-        assertThat(res.answers().get(1).videoInfo().videoUuid()).isEqualTo(
-                UUID.fromString("00000000-0000-0000-0000-000000000020"));
     }
 
     /**

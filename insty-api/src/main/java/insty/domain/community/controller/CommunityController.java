@@ -4,6 +4,7 @@ import insty.domain.common.SearchRes;
 import insty.domain.community.dto.AcceptAnswerResultRes;
 import insty.domain.community.dto.CommunityAnswerCreateReq;
 import insty.domain.community.dto.CommunityAnswerRes;
+import insty.domain.community.dto.CommunityAnswerSearchReq;
 import insty.domain.community.dto.CommunityAnswerUpdateReq;
 import insty.domain.community.dto.CommunityQuestionCreateReq;
 import insty.domain.community.dto.CommunityQuestionDetailsRes;
@@ -135,12 +136,15 @@ public class CommunityController {
 
     /// ============================== 답변 API  ======================================
 
-    @Operation(summary = "답변 조회", description = "질문의 답변 목록을 조회한다. (최신순)")
+    @Operation(summary = "답변 조회", description = "질문의 답변 목록을 페이지네이션으로 조회한다. (최신순)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/{questionId}/answer")
-    public SuccessRes<List<CommunityAnswerRes>> retrieveAllAnswers(@PathVariable @NotNull Long questionId) {
-        return SuccessRes.of(communityAnswerService.getAllAnswersByQuestionId(questionId));
+    public SuccessRes<SearchRes<CommunityAnswerRes>> retrieveAnswers(
+            @PathVariable @NotNull Long questionId,
+            @ModelAttribute @Validated CommunityAnswerSearchReq req
+    ) {
+        return SuccessRes.of(communityAnswerService.getAnswersByQuestionId(questionId, req));
     }
 
     @Operation(summary = "답변 작성", description = "질문에 답변을 생성한다.")

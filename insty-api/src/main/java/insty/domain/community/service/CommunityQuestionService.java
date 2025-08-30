@@ -51,7 +51,6 @@ public class CommunityQuestionService {
     private final CommunityValidator communityValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
-    private final CommunityAnswerService communityAnswerService;
     private final CommunityAnswerWriter communityAnswerWriter;
     private final CommunityAnswerFileWriter communityAnswerFileWriter;
     private final CommunityAnswerVideoManager communityAnswerVideoManager;
@@ -76,7 +75,7 @@ public class CommunityQuestionService {
 
         communityNotificationManager.sendNewQuestionNotification(question);
 
-        return CommunityQuestionDetailsRes.from(question, fileInfos, video, null);
+        return CommunityQuestionDetailsRes.from(question, fileInfos, video);
     }
 
     /**
@@ -91,9 +90,8 @@ public class CommunityQuestionService {
 
         List<FileInfo> fileInfos = communityQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
         VideoQuestion video = communityQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
-        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, video, answers);
+        return CommunityQuestionDetailsRes.from(updatedQuestion, fileInfos, video);
     }
 
     /**
@@ -166,9 +164,8 @@ public class CommunityQuestionService {
 
         List<FileInfo> fileInfos =  communityQuestionFileReader.getQuestionFileInfos(question);
         VideoQuestion video = communityQuestionVideoManager.getVideoQuestion(question);
-        List<CommunityAnswerRes> answers = communityAnswerService.getAllAnswersByQuestionId(questionId);
 
-        CommunityQuestionDetailsRes response = CommunityQuestionDetailsRes.from(question, fileInfos, video, answers);
+        CommunityQuestionDetailsRes response = CommunityQuestionDetailsRes.from(question, fileInfos, video);
         
         communityQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, userId);
         
