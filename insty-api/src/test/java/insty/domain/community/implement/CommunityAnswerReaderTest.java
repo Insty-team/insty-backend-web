@@ -7,10 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.community.repository.CommunityAnswerRepository;
+import insty.domain.community.repository.CommunityAnswerFileRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.user.User;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,15 +35,22 @@ class CommunityAnswerReaderTest {
     private CommunityAnswerReader reader;
     @Mock
     private CommunityAnswerRepository answerRepository;
+    @Mock
+    private CommunityAnswerFileRepository answerFileRepository;
 
     @Test
     void getAllCommunityAnswers_ByQuestionId_정상() {
         Long questionId = 1L;
         CommunityAnswer a1 = mock(CommunityAnswer.class);
         CommunityAnswer a2 = mock(CommunityAnswer.class);
+        
+        when(a1.getId()).thenReturn(1L);
+        when(a2.getId()).thenReturn(2L);
+        when(a1.getAttachments()).thenReturn(new ArrayList<>());
+        when(a2.getAttachments()).thenReturn(new ArrayList<>());
 
-        // 실제 서비스에서 호출하는 메서드 이름으로 변경
-        when(answerRepository.findAllDetailsWithUserAttachmentsByCommunityQuestionId(questionId)).thenReturn(List.of(a1, a2));
+        when(answerRepository.findAllDetailsWithUserByCommunityQuestionId(questionId)).thenReturn(List.of(a1, a2));
+        when(answerFileRepository.findAttachmentsByAnswerIds(List.of(1L, 2L))).thenReturn(List.of());
 
         List<CommunityAnswer> result = reader.getAllCommunityAnswersByQuestionId(questionId);
 
@@ -153,7 +162,6 @@ class CommunityAnswerReaderTest {
         Long questionId = 1L;
         User user1 = mock(User.class);
         User user2 = mock(User.class);
-        User user3 = mock(User.class);
         
         CommunityAnswer answer1 = mock(CommunityAnswer.class);
         CommunityAnswer answer2 = mock(CommunityAnswer.class);
@@ -172,7 +180,6 @@ class CommunityAnswerReaderTest {
         // then
         assertThat(result).hasSize(2);
         assertThat(result).contains(user1, user2);
-        // user3은 포함되지 않음 (answer3이 user1을 사용)
     }
 
     @Test
