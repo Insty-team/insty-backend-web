@@ -14,15 +14,13 @@ public interface CommunityAnswerRepository extends JpaRepository<CommunityAnswer
     List<CommunityAnswer> findAllByCommunityQuestionId(@Param("questionId") Long questionId);
 
     @Query("""
-        SELECT DISTINCT a FROM CommunityAnswer a
+        SELECT a FROM CommunityAnswer a
         JOIN FETCH a.user u
-        LEFT JOIN FETCH a.attachments att
-        LEFT JOIN FETCH att.file f
         WHERE a.communityQuestion.id = :questionId
           AND a.isDeleted = false
         ORDER BY a.createdAt DESC
     """)
-    List<CommunityAnswer> findAllDetailsWithUserAttachmentsByCommunityQuestionId(@Param("questionId") Long questionId);
+    List<CommunityAnswer> findAllDetailsWithUserByCommunityQuestionId(@Param("questionId") Long questionId);
 
     @Query(value = """
         SELECT a FROM CommunityAnswer a

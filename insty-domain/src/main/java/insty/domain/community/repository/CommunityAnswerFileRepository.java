@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface CommunityAnswerFileRepository extends JpaRepository<CommunityAnswerFile, Long> {
@@ -29,4 +30,11 @@ public interface CommunityAnswerFileRepository extends JpaRepository<CommunityAn
         WHERE caf.communityAnswer.id = :answerId
     """)
     void deleteAllByAnswerId(Long answerId);
+    
+    @Query("""
+        SELECT att FROM CommunityAnswerFile att
+        JOIN FETCH att.file f
+        WHERE att.communityAnswer.id IN :answerIds
+    """)
+    List<CommunityAnswerFile> findAttachmentsByAnswerIds(@Param("answerIds") List<Long> answerIds);
 }
