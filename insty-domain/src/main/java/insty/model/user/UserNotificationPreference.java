@@ -64,6 +64,14 @@ public class UserNotificationPreference extends BaseEntity {
     @Builder.Default
     private boolean answerAcceptedEmailEnabled = true;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean requestedCourseRegistrationNotificationEnabled = true;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean requestedCourseRegistrationEmailEnabled = true;
+
     public static UserNotificationPreference createDefault(User user) {
         return UserNotificationPreference.builder()
                 .user(user)
@@ -90,6 +98,11 @@ public class UserNotificationPreference extends BaseEntity {
         this.answerAcceptedEmailEnabled = emailEnabled;
     }
 
+    public void updateRequestedCourseRegistrationSettings(boolean notificationEnabled, boolean emailEnabled) {
+        this.requestedCourseRegistrationNotificationEnabled = notificationEnabled;
+        this.requestedCourseRegistrationEmailEnabled = emailEnabled;
+    }
+
     public boolean shouldReceiveUserMentionEmail() {
         return userMentionEmailEnabled && user.isEmailAgreed();
     }
@@ -104,5 +117,9 @@ public class UserNotificationPreference extends BaseEntity {
 
     public boolean shouldReceiveAnswerAcceptedEmail() {
         return answerAcceptedEmailEnabled && user.isEmailAgreed();
+    }
+
+    public boolean shouldReceiveRequestedCourseRegistrationEmail() {
+        return requestedCourseRegistrationEmailEnabled && user.isEmailAgreed();
     }
 }

@@ -48,4 +48,11 @@ public class UserNotificationPreferenceWriter {
         preference.updateAnswerAcceptedSettings(notificationEnabled, emailEnabled);
         return userNotificationPreferenceRepository.save(preference);
     }
+
+    public UserNotificationPreference updateRequestedCourseRegistrationSettings(UserNotificationPreference preference, 
+                                                                              boolean notificationEnabled, 
+                                                                              boolean emailEnabled) {
+        preference.updateRequestedCourseRegistrationSettings(notificationEnabled, emailEnabled);
+        return userNotificationPreferenceRepository.save(preference);
+    }
 }

@@ -19,7 +19,9 @@ public class UserNotificationPreferenceFixture {
                                                                 boolean newAnswerNotification,
                                                                 boolean newAnswerEmail,
                                                                 boolean answerAcceptedNotification,
-                                                                boolean answerAcceptedEmail) {
+                                                                boolean answerAcceptedEmail,
+                                                                boolean requestedCourseRegistrationNotification,
+                                                                boolean requestedCourseRegistrationEmail) {
         return UserNotificationPreference.builder()
                 .user(user)
                 .userMentionNotificationEnabled(userMentionNotification)
@@ -30,14 +32,16 @@ public class UserNotificationPreferenceFixture {
                 .newAnswerEmailEnabled(newAnswerEmail)
                 .answerAcceptedNotificationEnabled(answerAcceptedNotification)
                 .answerAcceptedEmailEnabled(answerAcceptedEmail)
+                .requestedCourseRegistrationNotificationEnabled(requestedCourseRegistrationNotification)
+                .requestedCourseRegistrationEmailEnabled(requestedCourseRegistrationEmail)
                 .build();
     }
 
     public static UserNotificationPreference getAllDisabledPreference(User user) {
-        return getCustomPreference(user, false, false, false, false, false, false, false, false);
+        return getCustomPreference(user, false, false, false, false, false, false, false, false, false, false);
     }
 
     public static UserNotificationPreference getOnlyEmailEnabledPreference(User user) {
-        return getCustomPreference(user, false, true, false, true, false, true, false, true);
+        return getCustomPreference(user, false, true, false, true, false, true, false, true, false, true);
     }
 }

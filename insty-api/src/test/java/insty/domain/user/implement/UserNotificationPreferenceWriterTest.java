@@ -52,6 +52,8 @@ class UserNotificationPreferenceWriterTest {
         assertThat(result.isNewAnswerEmailEnabled()).isTrue();
         assertThat(result.isAnswerAcceptedNotificationEnabled()).isTrue();
         assertThat(result.isAnswerAcceptedEmailEnabled()).isTrue();
+        assertThat(result.isRequestedCourseRegistrationNotificationEnabled()).isTrue();
+        assertThat(result.isRequestedCourseRegistrationEmailEnabled()).isTrue();
 
         verify(userNotificationPreferenceRepository).save(any(UserNotificationPreference.class));
     }
@@ -65,7 +67,7 @@ class UserNotificationPreferenceWriterTest {
         boolean emailEnabled = false;
 
         UserNotificationPreference updatedPreference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, false, false, true, true, true, true, true, true);
+                user, false, false, true, true, true, true, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.save(preference))
@@ -92,7 +94,7 @@ class UserNotificationPreferenceWriterTest {
         boolean emailEnabled = true;
 
         UserNotificationPreference updatedPreference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, true, false, true, true, true, true, true);
+                user, true, true, false, true, true, true, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.save(preference))
@@ -119,7 +121,7 @@ class UserNotificationPreferenceWriterTest {
         boolean emailEnabled = false;
 
         UserNotificationPreference updatedPreference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, true, true, true, true, false, true, true);
+                user, true, true, true, true, true, false, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.save(preference))
@@ -146,7 +148,7 @@ class UserNotificationPreferenceWriterTest {
         boolean emailEnabled = false;
 
         UserNotificationPreference updatedPreference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, true, true, true, true, true, false, false);
+                user, true, true, true, true, true, true, false, false, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.save(preference))
@@ -160,6 +162,33 @@ class UserNotificationPreferenceWriterTest {
         assertThat(result).isNotNull();
         assertThat(result.isAnswerAcceptedNotificationEnabled()).isFalse();
         assertThat(result.isAnswerAcceptedEmailEnabled()).isFalse();
+
+        verify(userNotificationPreferenceRepository).save(preference);
+    }
+
+    @Test
+    void updateRequestedCourseRegistrationSettings_정상() {
+        // given
+        User user = UserFixtureBuilder.getUserWithId();
+        UserNotificationPreference preference = UserNotificationPreferenceFixtureBuilder.getPreferenceWithId(1L, user);
+        boolean notificationEnabled = false;
+        boolean emailEnabled = true;
+
+        UserNotificationPreference updatedPreference = UserNotificationPreferenceFixture.getCustomPreference(
+                user, true, true, true, true, true, true, true, true, false, true);
+
+        // mock
+        when(userNotificationPreferenceRepository.save(preference))
+                .thenReturn(updatedPreference);
+
+        // when
+        UserNotificationPreference result = userNotificationPreferenceWriter.updateRequestedCourseRegistrationSettings(
+                preference, notificationEnabled, emailEnabled);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.isRequestedCourseRegistrationNotificationEnabled()).isFalse();
+        assertThat(result.isRequestedCourseRegistrationEmailEnabled()).isTrue();
 
         verify(userNotificationPreferenceRepository).save(preference);
     }

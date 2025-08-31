@@ -12,7 +12,9 @@ public record UserNotificationPreferenceRes(
         boolean newAnswerNotificationEnabled,
         boolean newAnswerEmailEnabled,
         boolean answerAcceptedNotificationEnabled,
-        boolean answerAcceptedEmailEnabled
+        boolean answerAcceptedEmailEnabled,
+        boolean requestedCourseRegistrationNotificationEnabled,
+        boolean requestedCourseRegistrationEmailEnabled
 ) {
     public static UserNotificationPreferenceRes from(UserNotificationPreference preference) {
         return new UserNotificationPreferenceRes(
@@ -25,7 +27,9 @@ public record UserNotificationPreferenceRes(
                 preference.isNewAnswerNotificationEnabled(),
                 preference.isNewAnswerEmailEnabled(),
                 preference.isAnswerAcceptedNotificationEnabled(),
-                preference.isAnswerAcceptedEmailEnabled()
+                preference.isAnswerAcceptedEmailEnabled(),
+                preference.isRequestedCourseRegistrationNotificationEnabled(),
+                preference.isRequestedCourseRegistrationEmailEnabled()
         );
     }
 }

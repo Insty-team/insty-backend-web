@@ -149,7 +149,8 @@ class UserNotificationPreferenceServiceTest {
                 false, true,   // 멘션: 알림 비활성화, 이메일 활성화
                 true, false,   // 새 질문: 알림 활성화, 이메일 비활성화
                 false, false,  // 새 답변: 알림 비활성화, 이메일 비활성화
-                true, true     // 답변 채택: 알림 활성화, 이메일 활성화
+                true, true,    // 답변 채택: 알림 활성화, 이메일 활성화
+                true, false    // 요청한 강의 등록: 알림 활성화, 이메일 비활성화
         );
 
         // when
@@ -166,6 +167,8 @@ class UserNotificationPreferenceServiceTest {
         assertThat(result.newAnswerEmailEnabled()).isFalse();
         assertThat(result.answerAcceptedNotificationEnabled()).isTrue();
         assertThat(result.answerAcceptedEmailEnabled()).isTrue();
+        assertThat(result.requestedCourseRegistrationNotificationEnabled()).isTrue();
+        assertThat(result.requestedCourseRegistrationEmailEnabled()).isFalse();
 
         // 데이터베이스 상태 확인
         Optional<UserNotificationPreference> savedPreference = userNotificationPreferenceRepository.findByUserId(userId);
@@ -179,6 +182,8 @@ class UserNotificationPreferenceServiceTest {
         assertThat(preference.isNewAnswerEmailEnabled()).isFalse();
         assertThat(preference.isAnswerAcceptedNotificationEnabled()).isTrue();
         assertThat(preference.isAnswerAcceptedEmailEnabled()).isTrue();
+        assertThat(preference.isRequestedCourseRegistrationNotificationEnabled()).isTrue();
+        assertThat(preference.isRequestedCourseRegistrationEmailEnabled()).isFalse();
     }
 
     @Sql(statements = {
@@ -218,8 +223,8 @@ class UserNotificationPreferenceServiceTest {
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'example@example.com', 'example', '1234', null, 'LEARNER', false, null, true, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.user_notification_preferences (id, user_id, user_mention_notification_enabled, user_mention_email_enabled, new_question_notification_enabled, new_question_email_enabled, new_answer_notification_enabled, new_answer_email_enabled, answer_accepted_notification_enabled, answer_accepted_email_enabled, created_at, updated_at) "
-                    + "VALUES (1, 1, true, false, true, true, true, true, true, true, NOW(), NOW());"
+            "INSERT INTO web_service.user_notification_preferences (id, user_id, user_mention_notification_enabled, user_mention_email_enabled, new_question_notification_enabled, new_question_email_enabled, new_answer_notification_enabled, new_answer_email_enabled, answer_accepted_notification_enabled, answer_accepted_email_enabled, requested_course_registration_notification_enabled, requested_course_registration_email_enabled, created_at, updated_at) "
+                    + "VALUES (1, 1, true, false, true, true, true, true, true, true, true, true, NOW(), NOW());"
     })
     @Test
     void shouldReceiveUserMentionEmail_이메일_알림_비활성화() {

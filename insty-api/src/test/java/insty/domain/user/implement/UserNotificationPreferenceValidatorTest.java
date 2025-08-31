@@ -69,7 +69,7 @@ class UserNotificationPreferenceValidatorTest {
         User user = UserFixtureBuilder.getUserWithId();
         user.update(true); // 이메일 수신 동의
         UserNotificationPreference preference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, false, true, true, true, true, true, true);
+                user, true, false, true, true, true, true, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.findByUser(user))
@@ -106,7 +106,7 @@ class UserNotificationPreferenceValidatorTest {
         User user = UserFixtureBuilder.getUserWithId();
         user.update(true); // 이메일 수신 동의
         UserNotificationPreference preference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, true, true, false, true, true, true, true);
+                user, true, true, true, false, true, true, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.findByUser(user))
@@ -143,7 +143,7 @@ class UserNotificationPreferenceValidatorTest {
         User user = UserFixtureBuilder.getUserWithId();
         user.update(true); // 이메일 수신 동의
         UserNotificationPreference preference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, true, true, true, true, false, true, true);
+                user, true, true, true, true, true, false, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.findByUser(user))
@@ -180,7 +180,7 @@ class UserNotificationPreferenceValidatorTest {
         User user = UserFixtureBuilder.getUserWithId();
         user.update(true); // 이메일 수신 동의
         UserNotificationPreference preference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, true, true, true, true, true, true, true, false);
+                user, true, true, true, true, true, true, true, false, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.findByUser(user))
@@ -215,7 +215,7 @@ class UserNotificationPreferenceValidatorTest {
         // given
         User user = UserFixtureBuilder.getUserWithId();
         UserNotificationPreference preference = UserNotificationPreferenceFixture.getCustomPreference(
-                user, false, true, true, true, true, true, true, true);
+                user, false, true, true, true, true, true, true, true, true, true);
 
         // mock
         when(userNotificationPreferenceRepository.findByUser(user))

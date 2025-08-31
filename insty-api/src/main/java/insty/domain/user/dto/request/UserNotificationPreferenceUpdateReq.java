@@ -8,6 +8,8 @@ public record UserNotificationPreferenceUpdateReq(
         boolean newAnswerNotificationEnabled,
         boolean newAnswerEmailEnabled,
         boolean answerAcceptedNotificationEnabled,
-        boolean answerAcceptedEmailEnabled
+        boolean answerAcceptedEmailEnabled,
+        boolean requestedCourseRegistrationNotificationEnabled,
+        boolean requestedCourseRegistrationEmailEnabled
 ) {
 }

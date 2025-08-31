@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS web_service.user_notification_preferences
     new_answer_email_enabled                BOOLEAN      NOT NULL DEFAULT TRUE,
     answer_accepted_notification_enabled    BOOLEAN      NOT NULL DEFAULT TRUE,
     answer_accepted_email_enabled           BOOLEAN      NOT NULL DEFAULT TRUE,
+    requested_course_registration_notification_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    requested_course_registration_email_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at                              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at                              TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES web_service.users(id) ON DELETE CASCADE

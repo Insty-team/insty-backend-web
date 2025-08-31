@@ -78,6 +78,8 @@ public class UserNotificationPreferenceService {
                 preference, req.newAnswerNotificationEnabled(), req.newAnswerEmailEnabled());
         userNotificationPreferenceWriter.updateAnswerAcceptedSettings(
                 preference, req.answerAcceptedNotificationEnabled(), req.answerAcceptedEmailEnabled());
+        userNotificationPreferenceWriter.updateRequestedCourseRegistrationSettings(
+                preference, req.requestedCourseRegistrationNotificationEnabled(), req.requestedCourseRegistrationEmailEnabled());
 
         return UserNotificationPreferenceRes.from(preference);
     }
@@ -104,5 +106,11 @@ public class UserNotificationPreferenceService {
     public boolean shouldReceiveAnswerAcceptedEmail(User user) {
         UserNotificationPreference preference = userNotificationPreferenceReader.getOrCreateDefaultPreference(user);
         return preference.shouldReceiveAnswerAcceptedEmail();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean shouldReceiveRequestedCourseRegistrationEmail(User user) {
+        UserNotificationPreference preference = userNotificationPreferenceReader.getOrCreateDefaultPreference(user);
+        return preference.shouldReceiveRequestedCourseRegistrationEmail();
     }
 }
