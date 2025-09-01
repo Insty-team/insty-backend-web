@@ -41,7 +41,6 @@ public class NaverStrategy implements SocialStrategy {
      */
     @Override
     public User loginBySocial(String code, UserType userType) {
-        log.info("임시로 code 값 조회 {}", code);
         // 네이버 토큰 조회
         NaverTokenRes token = naverService.getTokenFromNaver(code);
         log.info("네이버 로그인 : 토큰 조회 완료");
