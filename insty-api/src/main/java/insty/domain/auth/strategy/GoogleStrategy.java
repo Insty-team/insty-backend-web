@@ -42,7 +42,7 @@ public class GoogleStrategy implements SocialStrategy {
      */
     @Override
     public User loginBySocial(String code, UserType userType) {
-        log.info("임시로 code 값 조회 {}", code);
+
         // 구글 토큰 조회
         GoogleTokenRes token = googleService.getTokenFromGoogle(code);
         log.info("구글 로그인 : 토큰 조회 완료 {}", token);
