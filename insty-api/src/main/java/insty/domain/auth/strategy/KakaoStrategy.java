@@ -43,6 +43,7 @@ public class KakaoStrategy implements SocialStrategy {
     @Override
     @Transactional
     public User loginBySocial(String code, UserType userType) {
+        log.info("임시로 code 값 조회 {}", code);
         // 카카오 토큰 조회
         KakaoTokenRes token = kakaoService.getTokenFromKakao(code);
         log.info("카카오 로그인 : 토큰 조회 완료");
