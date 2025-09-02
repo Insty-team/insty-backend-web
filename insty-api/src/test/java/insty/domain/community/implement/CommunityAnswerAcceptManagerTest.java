@@ -13,6 +13,7 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import insty.model.community.QuestionStatus;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import org.junit.jupiter.api.Tag;
@@ -40,6 +41,7 @@ class CommunityAnswerAcceptManagerTest {
         when(answer.getUser()).thenReturn(user);
         when(user.getUserType()).thenReturn(insty.model.user.UserType.CREATOR);
         when(question.getAcceptedAnswer()).thenReturn(null);
+        when(question.getStatus()).thenReturn(QuestionStatus.ANSWERED); // ACCEPTED 상태가 아님
         when(answer.getId()).thenReturn(1L);
         when(question.getId()).thenReturn(1L);
         when(answer.getCommunityQuestion()).thenReturn(question);
@@ -229,4 +231,29 @@ class CommunityAnswerAcceptManagerTest {
         assertThat(result.accepted()).isFalse();
         assertThat(result.answerId()).isEqualTo(1L);
     }
+
+    @Test
+    void acceptAnswer_에러_질문상태가ACCEPTED이지만acceptedAnswer가null인경우() {
+        // given
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        User user = mock(User.class);
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        
+        when(answer.getUser()).thenReturn(user);
+        when(user.getUserType()).thenReturn(UserType.CREATOR);
+        when(answer.getCommunityQuestion()).thenReturn(question);
+        when(question.getId()).thenReturn(1L);
+        when(question.getAcceptedAnswer()).thenReturn(null); // acceptedAnswer는 null
+        when(question.getStatus()).thenReturn(QuestionStatus.ACCEPTED); // 상태는 ACCEPTED
+
+        // when & then
+        assertThatThrownBy(() -> service.acceptAnswer(question, answer))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
+        verify(question, never()).acceptAnswer(any());
+        verify(question, never()).unacceptAnswer();
+        verify(repository, never()).save(any());
+    }
+
 }

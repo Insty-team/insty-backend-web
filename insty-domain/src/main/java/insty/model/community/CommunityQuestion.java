@@ -132,6 +132,11 @@ public class CommunityQuestion extends BaseEntity {
     }
 
     public void changeStatusByAnswer(boolean hasAnswer) {
+        // 이미 채택된 답변이 있는 경우 채택 상태를 유지
+        if (this.acceptedAnswer != null && this.status == QuestionStatus.ACCEPTED) {
+            return;
+        }
+        
         if (hasAnswer) {
             this.status = QuestionStatus.ANSWERED;
         } else {
