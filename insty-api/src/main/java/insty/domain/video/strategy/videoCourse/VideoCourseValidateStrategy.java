@@ -38,11 +38,8 @@ public class VideoCourseValidateStrategy implements VideoValidateStrategy {
 
     @Override
     public void validateReadable(Long userId, Long videoId) {
-        if (videoCourseRepository.existsByIdAndUserId(videoId, userId)) {
-            return;
-        }
-        // 추가 검증
-        throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        // TODO : 강의 수강자 및 크리에이터 본인만 시청 가능하도록 변경
+        return;
     }
 
     @Override
