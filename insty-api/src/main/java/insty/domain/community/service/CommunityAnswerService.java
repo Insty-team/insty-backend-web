@@ -20,6 +20,7 @@ import insty.domain.community.implement.CommunityNotificationManager;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
@@ -49,6 +50,7 @@ public class CommunityAnswerService {
     private final UserReader userReader;
     private final CommunityNotificationManager communityNotificationManager;
     private final CommunityMentionManager communityMentionManager;
+    private final CommunityQuestionRepository communityQuestionRepository;
 
     /**
      * 새로운 답변을 생성하고 이미지 파일과 비디오 파일을 저장
@@ -139,11 +141,26 @@ public class CommunityAnswerService {
         CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateAnswerAuthor(userId, answer);
         
+        // 채택된 답변 삭제 시 먼저 채택 상태 해제
+        CommunityQuestion question = answer.getCommunityQuestion();
+        boolean wasAccepted = answer.isAccepted();
+        if (wasAccepted) {
+            question.handleAcceptedAnswerDeleted(true); // 임시로 true, 나중에 정확한 값으로 재계산
+        }
+        
         communityAnswerFileWriter.deleteAnswerFiles(answer);
         communityAnswerVideoManager.deleteAnswerVideo(answer);
         communityAnswerWriter.deleteAnswer(answer);
 
-        communityQuestionStatusManager.updateStatusAfterAnswerDeleted(answer);
+        // 채택되지 않은 답변이거나 이미 처리된 경우만 상태 업데이트
+        if (!wasAccepted) {
+            communityQuestionStatusManager.updateStatusAfterAnswerDeleted(answer);
+        } else {
+            // 채택된 답변 삭제 후 정확한 상태로 재설정
+            int remainingAnswers = communityAnswerReader.countActiveAnswersByQuestionId(question.getId());
+            question.changeStatusByAnswer(remainingAnswers > 0);
+            communityQuestionRepository.save(question);
+        }
     }
 
     /**

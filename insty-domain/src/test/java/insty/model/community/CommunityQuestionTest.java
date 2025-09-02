@@ -271,6 +271,34 @@ class CommunityQuestionTest {
     }
 
     @Test
+    void changeStatusByAnswer_채택된답변있음_상태유지() {
+        // given
+        CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        CommunityAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(communityQuestion);
+        communityQuestion.acceptAnswer(answer); // 답변 채택하여 ACCEPTED 상태로 만듦
+        
+        // when
+        communityQuestion.changeStatusByAnswer(true); // 새 답변 추가 시뮬레이션
+        
+        // then
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 상태 유지
+        assertThat(communityQuestion.getAcceptedAnswer()).isEqualTo(answer); // 채택된 답변 유지
+    }
+    
+    @Test
+    void changeStatusByAnswer_채택상태아님_정상변경() {
+        // given
+        CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        // WAITING 상태에서 시작
+        
+        // when
+        communityQuestion.changeStatusByAnswer(true);
+        
+        // then
+        assertThat(communityQuestion.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+    }
+
+    @Test
     void unacceptAnswer_채택된_답변이_없는_경우() {
         // given
         CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
