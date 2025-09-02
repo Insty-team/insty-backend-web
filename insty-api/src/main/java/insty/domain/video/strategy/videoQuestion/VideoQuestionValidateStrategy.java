@@ -38,11 +38,8 @@ public class VideoQuestionValidateStrategy implements VideoValidateStrategy {
 
     @Override
     public void validateReadable(Long userId, Long videoId) {
-        if (videoQuestionRepository.existsByIdAndUserId(videoId, userId)) {
-            return;
-        }
-        // 추가 검증
-        throw new CustomException(VideoErrorCode.VIDEO_CANT_READ);
+        // TODO: 필요하다면 검증 로직 작성
+        return;
     }
 
     @Override
