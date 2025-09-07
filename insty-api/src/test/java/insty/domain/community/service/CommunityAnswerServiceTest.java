@@ -25,7 +25,9 @@ import insty.domain.community.implement.CommunityAnswerWriter;
 import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.community.implement.CommunityQuestionStatusManager;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.domain.user.implement.UserReader;
+import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityAnswer;
@@ -78,6 +80,8 @@ class CommunityAnswerServiceTest {
     private CommunityQuestionReader communityQuestionReader;
     @Autowired
     private CommunityQuestionStatusManager communityQuestionStatusManager;
+    @Autowired
+    private CommunityQuestionRepository communityQuestionRepository;
     @Autowired
     private UserReader userReader;
 
@@ -436,6 +440,10 @@ class CommunityAnswerServiceTest {
         assertThat(remainingAnswers).isEmpty();
     }
 
+    /// ///
+    /// acceptAnswer 통합 테스트 - 답변 채택의 경우 복잡한 로직이므로 상세하게 체크한다.
+    /// ///
+
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'user1@example.com', '사용자1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
@@ -523,6 +531,7 @@ class CommunityAnswerServiceTest {
         assertThat(acceptedCount).isEqualTo(0);
     }
 
+
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'creator@example.com', 'Creator', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
@@ -561,6 +570,154 @@ class CommunityAnswerServiceTest {
         // when & then - LEARNER 질문자가 자신의 답변을 채택 -> 실패
         assertThatThrownBy(() -> communityAnswerService.acceptAnswer(learnerQuestionAuthorId, questionId, learnerSelfAnswerId))
                 .isInstanceOf(CustomException.class);
+
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (3, 'creator2@test.com', 'creator2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
+    })
+    @Test
+    void 답변채택후_새답변작성해도_채택상태유지() {
+        // given - mocks setup
+        when(appProperties.getDomain()).thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
+
+        // given - 첫 번째 크리에이터 답변 작성 및 채택
+        CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
+        var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
+        Long firstAnswerId = firstAnswerRes.answerId();
+
+        // 첫 번째 답변 채택
+        AcceptAnswerResultRes acceptResult = communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId);
+        assertThat(acceptResult.accepted()).isTrue();
+
+        // 채택 후 질문 상태 확인
+        CommunityQuestion questionAfterAccept = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(questionAfterAccept.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(questionAfterAccept.getAcceptedAnswer()).isNotNull();
+        assertThat(questionAfterAccept.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId);
+
+        // when - 두 번째 크리에이터 답변 작성
+        CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
+        communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
+
+        // then - 채택 상태가 유지되어야 함
+        CommunityQuestion questionAfterNewAnswer = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(questionAfterNewAnswer.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
+        assertThat(questionAfterNewAnswer.getAcceptedAnswer()).isNotNull(); // 채택된 답변 유지
+        assertThat(questionAfterNewAnswer.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (3, 'creator2@test.com', 'creator2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
+    })
+    @Test
+    void 채택된답변있는상태에서_다른답변채택시_409에러() {
+        // given - mocks setup
+        when(appProperties.getDomain()).thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
+
+        // given - 첫 번째 답변 작성 및 채택
+        CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
+        var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
+        Long firstAnswerId = firstAnswerRes.answerId();
+        communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId); // 첫 번째 답변 채택
+
+        // 두 번째 답변 작성
+        CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
+        var secondAnswerRes = communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
+        Long secondAnswerId = secondAnswerRes.answerId();
+
+        // when & then - 두 번째 답변 채택 시도 시 409 에러
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, 1L, secondAnswerId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
+
+        // 원래 채택 상태 유지 확인
+        CommunityQuestion question = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (3, 'creator2@test.com', 'creator2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
+    })
+    @Test
+    void 채택된답변삭제시에만_채택상태변경() {
+        // given - mocks setup
+        when(appProperties.getDomain()).thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
+
+        // given - 두 개의 답변 작성
+        CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
+        var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
+        Long firstAnswerId = firstAnswerRes.answerId();
+
+        CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
+        var secondAnswerRes = communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
+        Long secondAnswerId = secondAnswerRes.answerId();
+
+        // 첫 번째 답변 채택
+        communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId);
+
+        CommunityQuestion questionAfterAccept = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(questionAfterAccept.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(questionAfterAccept.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId);
+
+        // when - 채택되지 않은 답변(두 번째) 삭제
+        communityAnswerService.deleteAnswer(3L, secondAnswerId);
+
+        // then - 채택 상태는 여전히 유지되어야 함
+        CommunityQuestion questionAfterDelete = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(questionAfterDelete.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
+        assertThat(questionAfterDelete.getAcceptedAnswer()).isNotNull(); // 채택된 답변 유지
+        assertThat(questionAfterDelete.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
+    })
+    @Test
+    void 채택된답변삭제시_채택상태해제() {
+        // given - mocks setup
+        when(appProperties.getDomain()).thenReturn("insty.test.com");
+        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
+
+        // given - 답변 작성 및 채택
+        CommunityAnswerCreateReq answerReq = new CommunityAnswerCreateReq("크리에이터 답변", null);
+        var answerRes = communityAnswerService.saveAnswer(2L, 1L, answerReq, List.of());
+        Long answerId = answerRes.answerId();
+
+        // 답변 채택
+        communityAnswerService.acceptAnswer(1L, 1L, answerId);
+
+        CommunityQuestion questionAfterAccept = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(questionAfterAccept.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(questionAfterAccept.getAcceptedAnswer().getId()).isEqualTo(answerId);
+
+        // when - 채택된 답변 삭제
+        communityAnswerService.deleteAnswer(2L, answerId);
+
+        // then - 채택 상태가 해제되어야 함
+        CommunityQuestion questionAfterDelete = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(questionAfterDelete.getStatus()).isEqualTo(QuestionStatus.WAITING); // 답변 없으므로 WAITING
+        assertThat(questionAfterDelete.getAcceptedAnswer()).isNull(); // 채택된 답변 없음
+
     }
 
 }

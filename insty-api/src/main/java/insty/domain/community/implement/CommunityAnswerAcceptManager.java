@@ -6,6 +6,7 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
+import insty.model.community.QuestionStatus;
 import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,12 +38,15 @@ public class CommunityAnswerAcceptManager {
         }
 
         CommunityAnswer currentAccepted = question.getAcceptedAnswer();
-        if (currentAccepted == null) {
+
+        boolean hasAcceptedAnswer = (currentAccepted != null) || (question.getStatus() == QuestionStatus.ACCEPTED);
+        
+        if (!hasAcceptedAnswer) {
             question.acceptAnswer(answer);
             communityQuestionRepository.save(question);
             return new AcceptAnswerResultRes(answer.getId(), true);
         }
-        if (currentAccepted.getId().equals(answer.getId())) {
+        if (currentAccepted != null && currentAccepted.getId().equals(answer.getId())) {
             question.unacceptAnswer();
             communityQuestionRepository.save(question);
             return new AcceptAnswerResultRes(answer.getId(), false);

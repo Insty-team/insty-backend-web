@@ -7,7 +7,8 @@ public enum UserErrorCode implements ErrorCode {
     USER_NOT_FOUND("USER_004", "사용자를 찾을 수 없습니다.", 404),
     USER_DUPLICATE_EMAIL("USER_005", "이미 사용 중인 이메일입니다.", 409),
     USER_DUPLICATE_NICKNAME("USER_006", "이미 사용 중인 닉네임입니다.", 409),
-    USER_NEW_PASSWORD_SAME_AS_CURRENT("USER_007", "현재 비밀번호와 변경하려는 비밀번호가 같습니다.", 409)
+    USER_NEW_PASSWORD_SAME_AS_CURRENT("USER_007", "현재 비밀번호와 변경하려는 비밀번호가 같습니다.", 409),
+    USER_NOTIFICATION_PREFERENCE_NOT_FOUND("USER_008", "사용자 알림 설정을 찾을 수 없습니다.", 404)
 
     ;
 
