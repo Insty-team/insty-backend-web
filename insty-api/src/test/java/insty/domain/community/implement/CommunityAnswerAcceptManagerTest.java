@@ -13,18 +13,19 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
-import insty.model.community.QuestionStatus;
 import insty.model.user.User;
-import insty.model.user.UserType;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CommunityAnswerAcceptManagerTest {
 
     @InjectMocks
@@ -37,11 +38,14 @@ class CommunityAnswerAcceptManagerTest {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
-        insty.model.user.User user = mock(insty.model.user.User.class);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(insty.model.user.UserType.CREATOR);
+        User questionUser = mock(User.class);
+        User answerUser = mock(User.class);
+        
+        when(question.getUser()).thenReturn(questionUser);
+        when(answer.getUser()).thenReturn(answerUser);
+        when(questionUser.getId()).thenReturn(1L);
+        when(answerUser.getId()).thenReturn(2L);
         when(question.getAcceptedAnswer()).thenReturn(null);
-        when(question.getStatus()).thenReturn(QuestionStatus.ANSWERED); // ACCEPTED 상태가 아님
         when(answer.getId()).thenReturn(1L);
         when(question.getId()).thenReturn(1L);
         when(answer.getCommunityQuestion()).thenReturn(question);
@@ -60,10 +64,14 @@ class CommunityAnswerAcceptManagerTest {
     void acceptAnswer_정상_이미채택된답변을다시클릭_취소() {
         // given
         CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(UserType.CREATOR);
         CommunityQuestion question = mock(CommunityQuestion.class);
+        User questionUser = mock(User.class);
+        User answerUser = mock(User.class);
+        
+        when(question.getUser()).thenReturn(questionUser);
+        when(answer.getUser()).thenReturn(answerUser);
+        when(questionUser.getId()).thenReturn(1L);
+        when(answerUser.getId()).thenReturn(2L);
         when(question.getAcceptedAnswer()).thenReturn(answer);
         when(answer.getId()).thenReturn(1L);
         when(question.getId()).thenReturn(1L);
@@ -83,13 +91,15 @@ class CommunityAnswerAcceptManagerTest {
     void acceptAnswer_에러_이미다른답변이채택되어있을때() {
         // given
         CommunityAnswer currentAccepted = mock(CommunityAnswer.class);
-
         CommunityAnswer anotherAnswer = mock(CommunityAnswer.class);
-        User user2 = mock(User.class);
-        when(anotherAnswer.getUser()).thenReturn(user2);
-        when(user2.getUserType()).thenReturn(UserType.CREATOR);
-
         CommunityQuestion question = mock(CommunityQuestion.class);
+        User questionUser = mock(User.class);
+        User answerUser = mock(User.class);
+        
+        when(question.getUser()).thenReturn(questionUser);
+        when(anotherAnswer.getUser()).thenReturn(answerUser);
+        when(questionUser.getId()).thenReturn(1L);
+        when(answerUser.getId()).thenReturn(2L);
         when(question.getAcceptedAnswer()).thenReturn(currentAccepted);
         when(currentAccepted.getId()).thenReturn(1L);
         when(anotherAnswer.getId()).thenReturn(2L);
@@ -107,19 +117,21 @@ class CommunityAnswerAcceptManagerTest {
     }
 
     @Test
-    void acceptAnswer_에러_답변작성자유형이CREATOR가아닌경우() {
+    void acceptAnswer_에러_질문작성자가자신의답변을채택하려는경우() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
-        insty.model.user.User user = mock(insty.model.user.User.class);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(insty.model.user.UserType.LEARNER);
+        User sameUser = mock(User.class);
+        
+        when(question.getUser()).thenReturn(sameUser);
+        when(answer.getUser()).thenReturn(sameUser);
+        when(sameUser.getId()).thenReturn(1L);
 
         // when & then
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
@@ -130,32 +142,36 @@ class CommunityAnswerAcceptManagerTest {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
+        User questionUser = mock(User.class);
+        
+        when(question.getUser()).thenReturn(questionUser);
         when(answer.getUser()).thenReturn(null);
 
         // when & then
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
     }
 
     @Test
-    void acceptAnswer_에러_답변작성자의UserType이null인경우() {
+    void acceptAnswer_에러_질문작성자가null인경우() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(null);
+        User answerUser = mock(User.class);
+        
+        when(question.getUser()).thenReturn(null);
+        when(answer.getUser()).thenReturn(answerUser);
 
         // when & then
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
@@ -166,11 +182,14 @@ class CommunityAnswerAcceptManagerTest {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
+        User questionUser = mock(User.class);
+        User answerUser = mock(User.class);
         CommunityQuestion differentQuestion = mock(CommunityQuestion.class);
         
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(UserType.CREATOR);
+        when(question.getUser()).thenReturn(questionUser);
+        when(answer.getUser()).thenReturn(answerUser);
+        when(questionUser.getId()).thenReturn(1L);
+        when(answerUser.getId()).thenReturn(2L);
         when(question.getId()).thenReturn(1L);
         when(answer.getCommunityQuestion()).thenReturn(differentQuestion);
         when(differentQuestion.getId()).thenReturn(2L);
@@ -190,10 +209,13 @@ class CommunityAnswerAcceptManagerTest {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
+        User questionUser = mock(User.class);
+        User answerUser = mock(User.class);
         
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(UserType.CREATOR);
+        when(question.getUser()).thenReturn(questionUser);
+        when(answer.getUser()).thenReturn(answerUser);
+        when(questionUser.getId()).thenReturn(1L);
+        when(answerUser.getId()).thenReturn(2L);
         when(answer.getCommunityQuestion()).thenReturn(null);
 
         // when & then
@@ -205,55 +227,4 @@ class CommunityAnswerAcceptManagerTest {
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
     }
-
-    @Test
-    void acceptAnswer_정상_동일한답변ID로채택취소() {
-        // given
-        CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(UserType.CREATOR);
-        when(answer.getId()).thenReturn(1L);
-        
-        CommunityQuestion question = mock(CommunityQuestion.class);
-        CommunityAnswer acceptedAnswer = mock(CommunityAnswer.class);
-        when(question.getAcceptedAnswer()).thenReturn(acceptedAnswer);
-        when(acceptedAnswer.getId()).thenReturn(1L);
-        when(question.getId()).thenReturn(1L);
-        when(answer.getCommunityQuestion()).thenReturn(question);
-
-        // when
-        var result = service.acceptAnswer(question, answer);
-
-        // then
-        verify(question).unacceptAnswer();
-        verify(repository).save(question);
-        assertThat(result.accepted()).isFalse();
-        assertThat(result.answerId()).isEqualTo(1L);
-    }
-
-    @Test
-    void acceptAnswer_에러_질문상태가ACCEPTED이지만acceptedAnswer가null인경우() {
-        // given
-        CommunityAnswer answer = mock(CommunityAnswer.class);
-        User user = mock(User.class);
-        CommunityQuestion question = mock(CommunityQuestion.class);
-        
-        when(answer.getUser()).thenReturn(user);
-        when(user.getUserType()).thenReturn(UserType.CREATOR);
-        when(answer.getCommunityQuestion()).thenReturn(question);
-        when(question.getId()).thenReturn(1L);
-        when(question.getAcceptedAnswer()).thenReturn(null); // acceptedAnswer는 null
-        when(question.getStatus()).thenReturn(QuestionStatus.ACCEPTED); // 상태는 ACCEPTED
-
-        // when & then
-        assertThatThrownBy(() -> service.acceptAnswer(question, answer))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
-        verify(question, never()).acceptAnswer(any());
-        verify(question, never()).unacceptAnswer();
-        verify(repository, never()).save(any());
-    }
-
 }

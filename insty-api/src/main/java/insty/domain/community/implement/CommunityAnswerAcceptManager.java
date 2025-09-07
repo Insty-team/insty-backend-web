@@ -6,8 +6,7 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
-import insty.model.community.QuestionStatus;
-import insty.model.user.UserType;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +23,16 @@ public class CommunityAnswerAcceptManager {
      * 1. 아무 답변도 채택되지 않은 경우 → 채택
      * 2. 이미 채택된 답변을 다시 클릭 → 취소
      * 3. 이미 다른 답변이 채택되어 있는데, 다른 답변을 채택 요청 → 에러 409
-     * 4. 크리에이터 답변이 아닌 답변 채택 -> 에러 400
+     * 4. 질문 작성자가 자신이 작성한 답변 채택 -> 에러 400
      */
     public AcceptAnswerResultRes acceptAnswer(CommunityQuestion question, CommunityAnswer answer) {
-        if (answer.getUser() == null || answer.getUser().getUserType() != UserType.CREATOR) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID);
+        if (answer.getUser() == null || question.getUser() == null) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID);
+        }
+        
+        // 질문 작성자가 자신의 답변을 채택하는 경우 방지
+        if (Objects.equals(answer.getUser().getId(), question.getUser().getId())) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
         }
 
         // 교차 검증: 요청한 질문의 답변인지 확인
@@ -37,15 +41,12 @@ public class CommunityAnswerAcceptManager {
         }
 
         CommunityAnswer currentAccepted = question.getAcceptedAnswer();
-
-        boolean hasAcceptedAnswer = (currentAccepted != null) || (question.getStatus() == QuestionStatus.ACCEPTED);
-        
-        if (!hasAcceptedAnswer) {
+        if (currentAccepted == null) {
             question.acceptAnswer(answer);
             communityQuestionRepository.save(question);
             return new AcceptAnswerResultRes(answer.getId(), true);
         }
-        if (currentAccepted != null && currentAccepted.getId().equals(answer.getId())) {
+        if (currentAccepted.getId().equals(answer.getId())) {
             question.unacceptAnswer();
             communityQuestionRepository.save(question);
             return new AcceptAnswerResultRes(answer.getId(), false);

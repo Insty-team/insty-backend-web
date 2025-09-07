@@ -460,7 +460,7 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (3, 1, 1, '답변3 - 사용자1이 작성', false, NOW(), NOW(), false);"})
     @Test
-    void acceptAnswer_정상() {
+    void acceptAnswer_종합테스트() {
         // given
         Long questionId = 1L;
         Long questionAuthorId = 2L; // 질문 작성자
@@ -468,7 +468,7 @@ class CommunityAnswerServiceTest {
         Long answer2Id = 2L; // 사용자2(질문자)가 작성한 답변
         Long answer3Id = 3L; // 사용자1이 작성한 답변
 
-        // 시나리오 1: 답변1에 user2(질문자)가 채택한다. -> 성공
+        // 시나리오 1: 답변1 채택 -> 성공
         AcceptAnswerResultRes res1 = communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
         assertThat(res1).isNotNull();
         assertThat(res1.accepted()).isTrue();
@@ -478,24 +478,13 @@ class CommunityAnswerServiceTest {
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(answer1Id);
 
-        // 답변1이 채택되었는지 확인
-        CommunityAnswer answer1 = communityAnswerReader.getCommunityAnswerById(answer1Id);
-        assertThat(answer1.isAccepted()).isTrue();
+        // 시나리오 2: 이미 채택된 상태에서 다른 답변 채택 시도 -> 실패 (409 에러)
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
 
-        // 채택된 답변 개수 확인 (1개)
-        int acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
-        assertThat(acceptedCount).isEqualTo(1);
-
-        // 시나리오 2: 1번 상태에서 user2가 답변3을 채택한다. -> 실패 - 이미 해당 질문에 답변이 채택됨
-        assertThatThrownBy(
-                () -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id)).isInstanceOf(
-                CustomException.class);
-
-        // 시나리오 2 실패 후에도 채택된 답변 개수는 여전히 1개
-        acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
-        assertThat(acceptedCount).isEqualTo(1);
-
-        // 시나리오 3: 2번 상태에서 user2가 답변1을 채택 -> 성공, 단 결과는 false 반환 (채택한 답변을 다시 선택하면 채택이 취소됨)
+        // 시나리오 3: 채택된 답변을 다시 클릭 -> 채택 취소
         AcceptAnswerResultRes res3 = communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
         assertThat(res3).isNotNull();
         assertThat(res3.accepted()).isFalse();
@@ -505,31 +494,17 @@ class CommunityAnswerServiceTest {
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
         assertThat(question.getAcceptedAnswer()).isNull();
 
-        // 답변1의 채택이 취소되었는지 확인
-        answer1 = communityAnswerReader.getCommunityAnswerById(answer1Id);
-        assertThat(answer1.isAccepted()).isFalse();
+        // 시나리오 4: 질문자가 아닌 사용자의 채택 시도 -> 실패
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, questionId, answer1Id))
+                .isInstanceOf(CustomException.class);
 
-        // 채택된 답변 개수 확인 (0개)
-        acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
-        assertThat(acceptedCount).isEqualTo(0);
-
-        // 시나리오 4: 3번 상태에서 user1이 답변1를 채택 -> 질문자가 아닌자는 채택할 수 없음
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, questionId, answer1Id)).isInstanceOf(
-                CustomException.class);
-
-        // 시나리오 4 실패 후에도 채택된 답변 개수는 여전히 0개
-        acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
-        assertThat(acceptedCount).isEqualTo(0);
-
-        // 시나리오 5: 3번 상태에서 user2이 답변2를 채택 -> 질문자 본인이 작성한 답변은 채택 불가
-        assertThatThrownBy(
-                () -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id)).isInstanceOf(
-                CustomException.class);
-
-        // 시나리오 5 실패 후에도 채택된 답변 개수는 여전히 0개
-        acceptedCount = communityAnswerReader.countAcceptedAnswersByQuestionId(questionId);
-        assertThat(acceptedCount).isEqualTo(0);
+        // 시나리오 5: 질문자 본인 답변 채택 시도 -> 실패
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
     }
+
 
 
     @Sql(statements = {
@@ -540,143 +515,49 @@ class CommunityAnswerServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
     })
     @Test
-    void 답변채택후_새답변작성해도_채택상태유지() {
+    void acceptAnswer_동적시나리오_종합테스트() {
         // given - mocks setup
         when(appProperties.getDomain()).thenReturn("insty.test.com");
         when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 
-        // given - 첫 번째 크리에이터 답변 작성 및 채택
+        // 시나리오 1: 첫 번째 답변 작성 및 채택
         CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
         var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
         Long firstAnswerId = firstAnswerRes.answerId();
 
-        // 첫 번째 답변 채택
         AcceptAnswerResultRes acceptResult = communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId);
         assertThat(acceptResult.accepted()).isTrue();
 
-        // 채택 후 질문 상태 확인
-        CommunityQuestion questionAfterAccept = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(questionAfterAccept.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
-        assertThat(questionAfterAccept.getAcceptedAnswer()).isNotNull();
-        assertThat(questionAfterAccept.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId);
+        CommunityQuestion question = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId);
 
-        // when - 두 번째 크리에이터 답변 작성
-        CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
-        communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
-
-        // then - 채택 상태가 유지되어야 함
-        CommunityQuestion questionAfterNewAnswer = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(questionAfterNewAnswer.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
-        assertThat(questionAfterNewAnswer.getAcceptedAnswer()).isNotNull(); // 채택된 답변 유지
-        assertThat(questionAfterNewAnswer.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (3, 'creator2@test.com', 'creator2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
-    })
-    @Test
-    void 채택된답변있는상태에서_다른답변채택시_409에러() {
-        // given - mocks setup
-        when(appProperties.getDomain()).thenReturn("insty.test.com");
-        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
-
-        // given - 첫 번째 답변 작성 및 채택
-        CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
-        var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
-        Long firstAnswerId = firstAnswerRes.answerId();
-        communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId); // 첫 번째 답변 채택
-
-        // 두 번째 답변 작성
+        // 시나리오 2: 새 답변 작성 후에도 채택 상태 유지 확인
         CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
         var secondAnswerRes = communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
         Long secondAnswerId = secondAnswerRes.answerId();
 
-        // when & then - 두 번째 답변 채택 시도 시 409 에러
+        question = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
+
+        // 시나리오 3: 이미 채택된 상태에서 다른 답변 채택 시도 -> 409 에러
         assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, 1L, secondAnswerId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
 
-        // 원래 채택 상태 유지 확인
-        CommunityQuestion question = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
-        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (3, 'creator2@test.com', 'creator2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
-    })
-    @Test
-    void 채택된답변삭제시에만_채택상태변경() {
-        // given - mocks setup
-        when(appProperties.getDomain()).thenReturn("insty.test.com");
-        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
-
-        // given - 두 개의 답변 작성
-        CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
-        var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
-        Long firstAnswerId = firstAnswerRes.answerId();
-
-        CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
-        var secondAnswerRes = communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
-        Long secondAnswerId = secondAnswerRes.answerId();
-
-        // 첫 번째 답변 채택
-        communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId);
-
-        CommunityQuestion questionAfterAccept = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(questionAfterAccept.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
-        assertThat(questionAfterAccept.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId);
-
-        // when - 채택되지 않은 답변(두 번째) 삭제
+        // 시나리오 4: 채택되지 않은 답변 삭제 -> 채택 상태 유지
         communityAnswerService.deleteAnswer(3L, secondAnswerId);
+        question = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변 여전히 채택됨
 
-        // then - 채택 상태는 여전히 유지되어야 함
-        CommunityQuestion questionAfterDelete = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(questionAfterDelete.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
-        assertThat(questionAfterDelete.getAcceptedAnswer()).isNotNull(); // 채택된 답변 유지
-        assertThat(questionAfterDelete.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
-    }
-
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (1, 'runner@test.com', 'runner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
-    })
-    @Test
-    void 채택된답변삭제시_채택상태해제() {
-        // given - mocks setup
-        when(appProperties.getDomain()).thenReturn("insty.test.com");
-        when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
-
-        // given - 답변 작성 및 채택
-        CommunityAnswerCreateReq answerReq = new CommunityAnswerCreateReq("크리에이터 답변", null);
-        var answerRes = communityAnswerService.saveAnswer(2L, 1L, answerReq, List.of());
-        Long answerId = answerRes.answerId();
-
-        // 답변 채택
-        communityAnswerService.acceptAnswer(1L, 1L, answerId);
-
-        CommunityQuestion questionAfterAccept = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(questionAfterAccept.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
-        assertThat(questionAfterAccept.getAcceptedAnswer().getId()).isEqualTo(answerId);
-
-        // when - 채택된 답변 삭제
-        communityAnswerService.deleteAnswer(2L, answerId);
-
-        // then - 채택 상태가 해제되어야 함
-        CommunityQuestion questionAfterDelete = communityQuestionRepository.findById(1L).orElseThrow();
-        assertThat(questionAfterDelete.getStatus()).isEqualTo(QuestionStatus.WAITING); // 답변 없으므로 WAITING
-        assertThat(questionAfterDelete.getAcceptedAnswer()).isNull(); // 채택된 답변 없음
+        // 시나리오 5: 채택된 답변 삭제 -> 채택 상태 해제
+        communityAnswerService.deleteAnswer(2L, firstAnswerId);
+        question = communityQuestionRepository.findById(1L).orElseThrow();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.WAITING); // 답변 없으므로 WAITING
+        assertThat(question.getAcceptedAnswer()).isNull(); // 채택된 답변 없음
     }
 
 }

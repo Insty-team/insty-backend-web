@@ -9,7 +9,8 @@ import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_ID_IS_REQUIRED;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND;
-import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_USER_TYPE_INVALID;
+import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED;
+import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID;
 import static insty.error.CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED;
 import static insty.error.CommunityErrorCode.COMMUNITY_FILE_IS_EMPTY;
 import static insty.error.CommunityErrorCode.COMMUNITY_MAX_FILE_COUNT_EXCEEDED;
@@ -197,7 +198,8 @@ public enum SwaggerResponseDescription {
             COMMUNITY_ANSWER_ALREADY_DELETED,
             COMMUNITY_NOT_ANSWER_AUTHOR,
             COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION,
-            COMMUNITY_ANSWER_USER_TYPE_INVALID,
+            COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED,
+            COMMUNITY_ANSWER_INVALID_USER_ID,
             COMMUNITY_ALREADY_ACCEPTED_ANSWER,
             COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED
     ))),
