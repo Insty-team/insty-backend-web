@@ -523,4 +523,44 @@ class CommunityAnswerServiceTest {
         assertThat(acceptedCount).isEqualTo(0);
     }
 
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'creator@example.com', 'Creator', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'learner@example.com', 'Learner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, 'CREATOR가 작성한 답변', false, NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 2, 1, 'LEARNER가 작성한 답변 - 하지만 질문자와 동일', false, NOW(), NOW(), false);"})
+    @Test
+    void acceptAnswer_정상_다양한UserType_채택가능() {
+        // given - LEARNER가 질문 작성자이고, CREATOR와 LEARNER(다른 사용자)의 답변이 있음
+        Long questionId = 1L;
+        Long learnerQuestionAuthorId = 2L; // 질문 작성자 (LEARNER)
+        Long creatorAnswerId = 1L; // CREATOR가 작성한 답변
+        Long learnerSelfAnswerId = 2L; // 질문 작성자 본인이 작성한 답변
+        
+        // when & then - LEARNER 질문자가 CREATOR의 답변을 채택 -> 성공
+        AcceptAnswerResultRes result = communityAnswerService.acceptAnswer(learnerQuestionAuthorId, questionId, creatorAnswerId);
+        assertThat(result.accepted()).isTrue();
+        assertThat(result.answerId()).isEqualTo(creatorAnswerId);
+        
+        // 채택 상태 확인
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(creatorAnswerId);
+        
+        // 채택 취소
+        AcceptAnswerResultRes cancelResult = communityAnswerService.acceptAnswer(learnerQuestionAuthorId, questionId, creatorAnswerId);
+        assertThat(cancelResult.accepted()).isFalse();
+        
+        // when & then - LEARNER 질문자가 자신의 답변을 채택 -> 실패
+        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(learnerQuestionAuthorId, questionId, learnerSelfAnswerId))
+                .isInstanceOf(CustomException.class);
+    }
+
 }
