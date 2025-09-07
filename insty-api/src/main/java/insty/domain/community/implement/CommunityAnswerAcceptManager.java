@@ -6,8 +6,7 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
-import insty.model.community.QuestionStatus;
-import insty.model.user.UserType;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +26,12 @@ public class CommunityAnswerAcceptManager {
      * 4. 질문 작성자가 자신이 작성한 답변 채택 -> 에러 400
      */
     public AcceptAnswerResultRes acceptAnswer(CommunityQuestion question, CommunityAnswer answer) {
-        if (answer.getUser() == null || question.getUser() == null || 
-            answer.getUser().getId().equals(question.getUser().getId())) {
+        if (answer.getUser() == null || question.getUser() == null) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID);
+        }
+        
+        // 질문 작성자가 자신의 답변을 채택하는 경우 방지
+        if (Objects.equals(answer.getUser().getId(), question.getUser().getId())) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
         }
 
@@ -38,15 +41,12 @@ public class CommunityAnswerAcceptManager {
         }
 
         CommunityAnswer currentAccepted = question.getAcceptedAnswer();
-
-        boolean hasAcceptedAnswer = (currentAccepted != null) || (question.getStatus() == QuestionStatus.ACCEPTED);
-        
-        if (!hasAcceptedAnswer) {
+        if (currentAccepted == null) {
             question.acceptAnswer(answer);
             communityQuestionRepository.save(question);
             return new AcceptAnswerResultRes(answer.getId(), true);
         }
-        if (currentAccepted != null && currentAccepted.getId().equals(answer.getId())) {
+        if (currentAccepted.getId().equals(answer.getId())) {
             question.unacceptAnswer();
             communityQuestionRepository.save(question);
             return new AcceptAnswerResultRes(answer.getId(), false);
