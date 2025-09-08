@@ -20,9 +20,11 @@ import insty.s3.dto.PresignedUrlDto;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -53,14 +55,17 @@ public class VideoService {
     }
 
     public Map<String, String> getVideoCookieMap(Long userId, VideoHlsPlaylistReq req) {
+        log.warn("조회 로직 - {} | {}", req.type(), userId);
         VideoValidateStrategy validateStrategy = videoStrategyFactory.getValidateStrategy(req.type());
         validateStrategy.validateReadable(userId, req.id());
         validateStrategy.verifyEncodingCompletedAndDeleted(req.id());
 
+        log.warn("조회 검증 종료 ");
         UUID videoUuid = videoStrategyFactory.getReadStrategy(req.type())
                 .getVideoUuid(req.id());
         VideoEncoding videoEncoding = videoReader.getVideoEncoding(videoUuid);
 
+        log.warn("조회 완료");
         return videoAccessManager.getSignedCookieMap(videoEncoding.getEncodingVideoDirectoryPath(),
                 videoEncoding.getHlsMasterFileKey(), VideoConstants.VIDEO_EXPIRATION_MINUTES);
     }
