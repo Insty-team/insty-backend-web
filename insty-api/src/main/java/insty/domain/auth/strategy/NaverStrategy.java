@@ -43,7 +43,7 @@ public class NaverStrategy implements SocialStrategy {
     public User loginBySocial(String code, UserType userType) {
         // 네이버 토큰 조회
         NaverTokenRes token = naverService.getTokenFromNaver(code);
-        log.info("네이버 로그인 : 토큰 조회 완료");
+        log.info("네이버 로그인 : 토큰 조회 성공");
 
         // 사용자 정보 조회
         NaverUserInfoRes userProfile = naverService.getUserProfile(token.accessToken());
