@@ -565,4 +565,61 @@ class CommunityAnswerServiceTest {
         assertThat(question.getAcceptedAnswer()).isNull(); // 채택된 답변 없음
     }
 
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'user1@example.com', '사용자1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, 1, '질문A의 채택된 답변', true, DATEADD('MINUTE', -30, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, '질문A의 일반 답변', false, DATEADD('MINUTE', -20, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 2, 2, '질문B의 답변', false, NOW(), NOW(), false);",
+            "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
+                    + "VALUES (1, 'ANSWER_IMAGE', 'image/jpeg', 'accepted_attachment.jpg', 'accepted_attachment.jpg', 1024, NOW(), NOW());",
+            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+                    + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'accepted_attachment.jpg'), NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 2, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/accepted_answer_video.mp4', 'mp4', 'accepted_answer_video.mp4', 20, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
+    @Test
+    void getAcceptedAnswers_정상() {
+        // given
+        Long questionId = 1L;
+
+        // when
+        List<CommunityAnswerRes> result = communityAnswerService.getAcceptedAnswers(questionId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(1);
+
+        CommunityAnswerRes acceptedAnswer = result.get(0);
+        assertThat(acceptedAnswer.answerId()).isEqualTo(1L);
+        assertThat(acceptedAnswer.content()).isEqualTo("질문A의 채택된 답변");
+        assertThat(acceptedAnswer.isAccepted()).isTrue();
+
+        // 사용자 정보 검증
+        assertThat(acceptedAnswer.user().id()).isEqualTo(2L);
+        assertThat(acceptedAnswer.user().nickname()).isEqualTo("사용자2");
+        assertThat(acceptedAnswer.user().userType()).isEqualTo(UserType.LEARNER);
+
+        // 첨부파일 검증
+        assertThat(acceptedAnswer.attachments()).hasSize(1);
+        assertThat(acceptedAnswer.attachments().get(0).name()).isEqualTo("accepted_attachment.jpg");
+        assertThat(acceptedAnswer.attachments().get(0).contentType()).isEqualTo("image/jpeg");
+
+        // 비디오 정보 검증
+        assertThat(acceptedAnswer.videoInfo()).isNotNull();
+        assertThat(acceptedAnswer.videoInfo().videoUuid()).isEqualTo(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        assertThat(acceptedAnswer.videoInfo().originFileName()).isEqualTo("accepted_answer_video.mp4");
+    }
+
 }
