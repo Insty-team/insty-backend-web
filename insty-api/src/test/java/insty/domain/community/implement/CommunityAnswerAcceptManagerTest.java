@@ -117,7 +117,7 @@ class CommunityAnswerAcceptManagerTest {
     }
 
     @Test
-    void acceptAnswer_에러_질문작성자가자신의답변을채택하려는경우() {
+    void acceptAnswer_정상_질문작성자가자신의답변을채택() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         CommunityAnswer answer = mock(CommunityAnswer.class);
@@ -126,15 +126,19 @@ class CommunityAnswerAcceptManagerTest {
         when(question.getUser()).thenReturn(sameUser);
         when(answer.getUser()).thenReturn(sameUser);
         when(sameUser.getId()).thenReturn(1L);
+        when(question.getAcceptedAnswer()).thenReturn(null);
+        when(answer.getId()).thenReturn(1L);
+        when(question.getId()).thenReturn(1L);
+        when(answer.getCommunityQuestion()).thenReturn(question);
 
-        // when & then
-        assertThatThrownBy(() -> service.acceptAnswer(question, answer))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
-        verify(question, never()).acceptAnswer(any());
-        verify(question, never()).unacceptAnswer();
-        verify(repository, never()).save(any());
+        // when
+        var result = service.acceptAnswer(question, answer);
+
+        // then
+        verify(question).acceptAnswer(answer);
+        verify(repository).save(question);
+        assertThat(result.accepted()).isTrue();
+        assertThat(result.answerId()).isEqualTo(1L);
     }
 
     @Test

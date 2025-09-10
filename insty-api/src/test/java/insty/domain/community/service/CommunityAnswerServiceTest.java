@@ -498,11 +498,16 @@ class CommunityAnswerServiceTest {
         assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, questionId, answer1Id))
                 .isInstanceOf(CustomException.class);
 
-        // 시나리오 5: 질문자 본인 답변 채택 시도 -> 실패
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
+        // 시나리오 5: 질문자 본인 답변 채택 시도 -> 성공
+        var res4 = communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id);
+        assertThat(res4.accepted()).isTrue();
+        assertThat(res4.answerId()).isEqualTo(answer2Id);
+        
+        // 질문 상태 확인
+        question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(question.getAcceptedAnswer()).isNotNull();
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(answer2Id);
     }
 
 
