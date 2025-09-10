@@ -163,6 +163,10 @@ public enum SwaggerResponseDescription {
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
             COMMUNITY_QUESTION_NOT_FOUND
     ))),
+    COMMUNITY_ANSWER_ACCEPTED_SEARCH(new LinkedHashSet<>(Set.of(
+            COMMUNITY_QUESTION_ID_IS_REQUIRED,
+            COMMUNITY_QUESTION_NOT_FOUND
+    ))),
     COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
             COMMUNITY_QUESTION_NOT_FOUND,
