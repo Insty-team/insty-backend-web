@@ -9,7 +9,6 @@ import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_ID_IS_REQUIRED;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND;
-import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED;
 import static insty.error.CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID;
 import static insty.error.CommunityErrorCode.COMMUNITY_CONTENT_IS_REQUIRED;
 import static insty.error.CommunityErrorCode.COMMUNITY_FILE_IS_EMPTY;
@@ -164,6 +163,10 @@ public enum SwaggerResponseDescription {
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
             COMMUNITY_QUESTION_NOT_FOUND
     ))),
+    COMMUNITY_ANSWER_ACCEPTED_SEARCH(new LinkedHashSet<>(Set.of(
+            COMMUNITY_QUESTION_ID_IS_REQUIRED,
+            COMMUNITY_QUESTION_NOT_FOUND
+    ))),
     COMMUNITY_ANSWER_CREATE(new LinkedHashSet<>(Set.of(
             COMMUNITY_QUESTION_ID_IS_REQUIRED,
             COMMUNITY_QUESTION_NOT_FOUND,
@@ -198,7 +201,6 @@ public enum SwaggerResponseDescription {
             COMMUNITY_ANSWER_ALREADY_DELETED,
             COMMUNITY_NOT_ANSWER_AUTHOR,
             COMMUNITY_ANSWER_NOT_BELONG_TO_QUESTION,
-            COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED,
             COMMUNITY_ANSWER_INVALID_USER_ID,
             COMMUNITY_ALREADY_ACCEPTED_ANSWER,
             COMMUNITY_ANSWER_ACCEPT_PERMISSION_DENIED

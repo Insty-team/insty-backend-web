@@ -147,6 +147,16 @@ public class CommunityController {
         return SuccessRes.of(communityAnswerService.getAnswersByQuestionId(questionId, req));
     }
 
+    @Operation(summary = "채택된 답변 조회", description = "질문에서 채택된 답변을 조회한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPTED_SEARCH)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/questions/{questionId}/answer/accepted")
+    public SuccessRes<List<CommunityAnswerRes>> getAcceptedAnswers(
+            @PathVariable @NotNull Long questionId
+    ) {
+        return SuccessRes.of(communityAnswerService.getAcceptedAnswers(questionId));
+    }
+
     @Operation(summary = "답변 작성", description = "질문에 답변을 생성한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")

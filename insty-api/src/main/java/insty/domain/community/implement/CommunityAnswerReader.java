@@ -80,4 +80,11 @@ public class CommunityAnswerReader {
                 .map(CommunityAnswer::getUser)
                 .collect(Collectors.toSet());
     }
+
+    /**
+     * 특정 질문의 채택된 답변 조회
+     */
+    public List<CommunityAnswer> getAcceptedAnswersByQuestionId(Long questionId) {
+        return communityAnswerRepository.findAcceptedAnswersByQuestionId(questionId);
+    }
 }

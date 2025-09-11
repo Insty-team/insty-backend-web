@@ -190,6 +190,40 @@ class CommunityAnswerReaderTest {
     }
 
     @Test
+    void getAcceptedAnswersByQuestionId_정상() {
+        // given
+        Long questionId = 1L;
+        CommunityAnswer acceptedAnswer1 = mock(CommunityAnswer.class);
+        CommunityAnswer acceptedAnswer2 = mock(CommunityAnswer.class);
+
+        when(answerRepository.findAcceptedAnswersByQuestionId(questionId))
+                .thenReturn(List.of(acceptedAnswer1, acceptedAnswer2));
+
+        // when
+        List<CommunityAnswer> result = reader.getAcceptedAnswersByQuestionId(questionId);
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(acceptedAnswer1, acceptedAnswer2);
+        verify(answerRepository).findAcceptedAnswersByQuestionId(questionId);
+    }
+
+    @Test
+    void getAcceptedAnswersByQuestionId_빈결과() {
+        // given
+        Long questionId = 1L;
+        when(answerRepository.findAcceptedAnswersByQuestionId(questionId))
+                .thenReturn(List.of());
+
+        // when
+        List<CommunityAnswer> result = reader.getAcceptedAnswersByQuestionId(questionId);
+
+        // then
+        assertThat(result).isEmpty();
+        verify(answerRepository).findAcceptedAnswersByQuestionId(questionId);
+    }
+
+    @Test
     void getCommunityAnswersByQuestionIdWithPagination_정상() {
         // given
         Long questionId = 1L;

@@ -43,4 +43,16 @@ public interface CommunityAnswerRepository extends JpaRepository<CommunityAnswer
     
     @Query("SELECT COUNT(ca) FROM CommunityAnswer ca WHERE ca.communityQuestion.id = :questionId AND ca.isAccepted = true AND ca.isDeleted = false")
     int countAcceptedAnswersByQuestionId(@Param("questionId") Long questionId);
+
+    @Query("""
+        SELECT DISTINCT a FROM CommunityAnswer a
+        JOIN FETCH a.user u
+        LEFT JOIN FETCH a.attachments att
+        LEFT JOIN FETCH att.file f
+        WHERE a.communityQuestion.id = :questionId
+          AND a.isAccepted = true
+          AND a.isDeleted = false
+        ORDER BY a.createdAt DESC
+    """)
+    List<CommunityAnswer> findAcceptedAnswersByQuestionId(@Param("questionId") Long questionId);
 }

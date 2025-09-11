@@ -181,4 +181,17 @@ public class CommunityAnswerService {
         
         return result;
     }
+
+    /**
+     * 특정 질문의 채택된 답변을 조회
+     */
+    @Transactional(readOnly = true)
+    public List<CommunityAnswerRes> getAcceptedAnswers(Long questionId) {
+        communityValidator.validateQuestionExists(questionId);
+        
+        List<CommunityAnswer> acceptedAnswers = communityAnswerReader.getAcceptedAnswersByQuestionId(questionId);
+        var videoMap = communityAnswerVideoManager.getVideoMapByAnswers(acceptedAnswers);
+        
+        return communityAnswerMapper.toCommunityAnswerResList(acceptedAnswers, videoMap);
+    }
 }

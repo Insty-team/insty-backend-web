@@ -23,17 +23,12 @@ public class CommunityAnswerAcceptManager {
      * 1. 아무 답변도 채택되지 않은 경우 → 채택
      * 2. 이미 채택된 답변을 다시 클릭 → 취소
      * 3. 이미 다른 답변이 채택되어 있는데, 다른 답변을 채택 요청 → 에러 409
-     * 4. 질문 작성자가 자신이 작성한 답변 채택 -> 에러 400
      */
     public AcceptAnswerResultRes acceptAnswer(CommunityQuestion question, CommunityAnswer answer) {
         if (answer.getUser() == null || question.getUser() == null) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_INVALID_USER_ID);
         }
         
-        // 질문 작성자가 자신의 답변을 채택하는 경우 방지
-        if (Objects.equals(answer.getUser().getId(), question.getUser().getId())) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_SELF_ACCEPT_NOT_ALLOWED);
-        }
 
         // 교차 검증: 요청한 질문의 답변인지 확인
         if (answer.getCommunityQuestion() == null || !answer.getCommunityQuestion().getId().equals(question.getId())) {
