@@ -251,3 +251,14 @@ CREATE TABLE IF NOT EXISTS web_service.video_encodings
     encoding_s3_key VARCHAR(500) NOT NULL,
     created_at      TIMESTAMP     NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS web_service.course_progress(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    course_id BIGINT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP    NOT NULL,
+    updated_at TIMESTAMP    NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES web_service.courses(id),
+    FOREIGN KEY (user_id) REFERENCES web_service.users(id)
+);

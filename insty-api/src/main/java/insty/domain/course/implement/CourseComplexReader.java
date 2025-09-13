@@ -3,6 +3,7 @@ package insty.domain.course.implement;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.repository.CourseQueryRepository;
@@ -71,6 +72,40 @@ public class CourseComplexReader {
 
     public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId) {
         return courseQueryRepository.countSearchMyCourses(paginationReq, userId);
+    }
+
+    /**
+     * Learner가 (수강했던, 수강중인, 수강이 완료된) 강좌를 필터, 검색 조건, 정렬을 기준으로 검색
+     */
+    public List<CourseProgressSearchInfo> searchCourseProgresses(PaginationReq paginationReq, Long userId) {
+        List<CourseProgressSearchInfo> courseProgresses = courseQueryRepository.searchCourseProgresses(paginationReq, userId);
+        List<Long> courseIds = courseProgresses.stream()
+                .map(CourseProgressSearchInfo::courseId)
+                .toList();
+        Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
+
+        return courseProgresses.stream()
+                .map(dto -> CourseProgressSearchInfo.assembleWithNoUrl(
+                        dto,
+                        thumbnailUrls.get(dto.courseId())
+                ))
+                .toList();
+    }
+
+    /**
+     * Learner가 강좌 총 검색 개수
+     */
+    public PaginationRes countCourseProgresses(PaginationReq paginationReq, Long userId) {
+        return courseQueryRepository.countSearchCourseProgresses(paginationReq,userId);
+    }
+
+    public List<CourseProgressSearchInfo> setBasicThumbnailUrlForCourseProgress(List<CourseProgressSearchInfo> searchInfo) {
+        return setBasicThumbnailUrl(
+                searchInfo,
+                CourseProgressSearchInfo::courseId,
+                CourseProgressSearchInfo::thumbnailUrl,
+                CourseProgressSearchInfo::setThumbnailUrl
+        );
     }
 
     private Map<Long, String> getCourseThumbnailUrlMap(List<Long> courseIds) {

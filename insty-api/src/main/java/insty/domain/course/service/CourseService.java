@@ -4,11 +4,15 @@ import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.community.implement.CommunityQuestionReader;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseMySearchReq;
+import insty.domain.course.dto.CourseProgressRes;
+import insty.domain.course.dto.CourseProgressSearchInfo;
+import insty.domain.course.dto.CourseProgressSearchReq;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
@@ -17,6 +21,8 @@ import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
+import insty.domain.course.implement.CourseProgressValidator;
+import insty.domain.course.implement.CourseProgressWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseValidator;
@@ -24,9 +30,12 @@ import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
+import insty.model.course.CourseProgress;
 import insty.model.user.User;
 import insty.model.video.VideoCourse;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +56,9 @@ public class CourseService {
     private final CourseValidator courseValidator;
     private final CourseComplexReader courseComplexReader;
     private final UserReader userReader;
+    private final CourseProgressWriter courseProgressWriter;
+    private final CourseProgressValidator courseProgressValidator;
+    private final CommunityQuestionReader communityQuestionReader;
 
     public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -134,4 +146,32 @@ public class CourseService {
         return SearchRes.from(paginationRes, searchInfo);
     }
 
+    public SearchRes<CourseProgressSearchInfo> searchCourseProgresses(Long userId, CourseProgressSearchReq req) {
+        PaginationReq paginationReq = req.toPaginationReq();
+
+        List<CourseProgressSearchInfo> searchInfo = courseComplexReader.searchCourseProgresses(paginationReq,userId);
+        searchInfo = courseComplexReader.setBasicThumbnailUrlForCourseProgress(searchInfo);
+
+        Map<Long, Long> commentCounts = searchInfo.stream()
+                .collect(Collectors.toMap(
+                        CourseProgressSearchInfo::courseId,
+                        dto -> (long) communityQuestionReader.getAllCommunityQuestionsByCourseId(dto.courseId()).size()
+                ));
+
+        List<CourseProgressSearchInfo> finalResult = searchInfo.stream()
+                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, commentCounts.get(dto.courseId())))
+                .toList();
+        PaginationRes paginationRes = courseComplexReader.countCourseProgresses(paginationReq,userId);
+
+        return SearchRes.from(paginationRes, finalResult);
+    }
+
+    public CourseProgressRes createCourseProgressAsCompleted(Long userId, Long courseId) {
+        courseProgressValidator.validateCourseProgressExist(userId, courseId);
+        User user = userReader.getUser(userId);
+        Course course = courseReader.getCourseById(courseId);
+
+        CourseProgress courseProgress = courseProgressWriter.saveCourseProgress(user, course);
+        return CourseProgressRes.from(courseProgress);
+    }
 }

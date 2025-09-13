@@ -3,6 +3,7 @@ package insty.domain.course.repository;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import java.util.List;
@@ -22,4 +23,8 @@ public interface CourseQueryRepository {
     PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId);
 
     Map<Long, UUID> getCourseVideoUuids(List<Long> courseIds);
+
+    List<CourseProgressSearchInfo> searchCourseProgresses(PaginationReq pagination, Long userId);
+
+    PaginationRes countSearchCourseProgresses(PaginationReq paginationReq, Long userId);
 }

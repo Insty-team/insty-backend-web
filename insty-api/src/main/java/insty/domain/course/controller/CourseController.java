@@ -5,6 +5,9 @@ import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseMySearchReq;
+import insty.domain.course.dto.CourseProgressRes;
+import insty.domain.course.dto.CourseProgressSearchInfo;
+import insty.domain.course.dto.CourseProgressSearchReq;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
@@ -114,6 +117,28 @@ public class CourseController {
             @ModelAttribute @Validated CourseMySearchReq req
     ) {
         return SuccessRes.of(courseService.searchMyCourse(userId, req));
+    }
+
+    @Operation(summary = "내가 수강중인 강의 목록조회", description = "해당 러너가 수강중인 강의 목록을 조회한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_PROGRESS_SEARCH)
+    @PreAuthorize("hasRole('LEARNER')")
+    @GetMapping("/courseProgress")
+    public SuccessRes<SearchRes<CourseProgressSearchInfo>> courseProgressSearch(
+            @CurrentUser Long userId,
+            @ModelAttribute @Validated CourseProgressSearchReq req
+    ) {
+        return SuccessRes.of(courseService.searchCourseProgresses(userId, req));
+    }
+
+    @Operation(summary = "강좌 수강하기", description = "러너가 수강신청을 통해 강의를 수강한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_PROGRESS_CREATE)
+    @PreAuthorize("hasRole('LEARNER')")
+    @PostMapping("/courseProgress/{courseId}")
+    public SuccessRes<CourseProgressRes> courseProgressCreate(
+            @CurrentUser Long userId,
+            @PathVariable("courseId") Long courseId
+    ) {
+        return SuccessRes.of(courseService.createCourseProgressAsCompleted(userId,courseId));
     }
 
 }
