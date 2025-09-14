@@ -8,6 +8,7 @@ import insty.domain.common.dto.CreatorInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.repository.CourseQueryRepository;
@@ -205,5 +206,55 @@ class CourseComplexReaderTest {
         assertThat(result.get(0).thumbnailUrl()).isEqualTo("업로드된 썸네일 url");
         assertThat(result.get(1).thumbnailUrl()).contains("00000000-0000-0000-0000-000000000001");
         assertThat(result.get(2).thumbnailUrl()).isNull();
+    }
+
+    @Test
+    void searchCourseProgresses_정상(){
+        //given
+        PaginationReq paginationReq = new PaginationReq(1, 10);
+        Long userId = 1L;
+
+        //mock
+        CourseProgressSearchInfo searchInfo = new CourseProgressSearchInfo(1L, "집에 빨리 가는법", 5L, null, Instant.now());
+        when(courseQueryRepository.searchCourseProgresses(paginationReq, userId))
+                .thenReturn(List.of(searchInfo));
+
+        // getCourseThumbnailUrlMap 테스트 세팅
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
+        ReflectionTestUtils.setField(course, "thumbnail", thumbnail);
+        when(courseRepository.findWithThumbnailByCourseIdIn(any()))
+                .thenReturn(List.of(course));
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+
+        // when
+        List<CourseProgressSearchInfo> res = courseComplexReader.searchCourseProgresses(paginationReq, userId);
+
+        // then
+        assertThat(res).hasSize(1);
+        assertThat(res.get(0).title()).isEqualTo("집에 빨리 가는법");
+        assertThat(res.get(0).commentCount()).isEqualTo(5L);
+        assertThat(res.get(0).thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+    }
+
+    @Test
+    void countCourseProgresses_정상() {
+        // given
+        PaginationReq paginationReq = new PaginationReq(1, 10);
+        Long userId = 1L;
+
+        // mock
+        PaginationRes paginationRes = new PaginationRes(1, 1, 1, 10);
+        when(courseQueryRepository.countSearchCourseProgresses(paginationReq, userId))
+                .thenReturn(paginationRes);
+
+        // when
+        PaginationRes res = courseComplexReader.countCourseProgresses(paginationReq, userId);
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res).isEqualTo(paginationRes);
     }
 }

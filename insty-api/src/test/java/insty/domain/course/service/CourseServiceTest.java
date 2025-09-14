@@ -14,6 +14,9 @@ import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseMySearchReq;
+import insty.domain.course.dto.CourseProgressRes;
+import insty.domain.course.dto.CourseProgressSearchInfo;
+import insty.domain.course.dto.CourseProgressSearchReq;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.dto.CourseSearchReq;
 import insty.domain.course.dto.CourseUpdateReq;
@@ -21,6 +24,8 @@ import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
 import insty.domain.course.implement.CourseFileWriter;
+import insty.domain.course.implement.CourseProgressValidator;
+import insty.domain.course.implement.CourseProgressWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseWriter;
@@ -39,6 +44,7 @@ import insty.model.course.Course;
 import insty.model.course.CourseInstallEnvChecklist;
 import insty.model.course.CourseKeypoint;
 import insty.model.course.CoursePracticeFile;
+import insty.model.course.CourseProgressStatus;
 import insty.model.file.File;
 import insty.model.tag.Tags;
 import insty.model.video.VideoCourse;
@@ -103,6 +109,10 @@ class CourseServiceTest {
     private FileRepository fileRepository;
     @Autowired
     private VideoCourseRepository videoCourseRepository;
+    @Autowired
+    private CourseProgressWriter courseProgressWriter;
+    @Autowired
+    private CourseProgressValidator courseProgressValidator;
 
     @MockitoBean
     private S3UrlIssuer s3UrlIssuer;
@@ -485,5 +495,76 @@ class CourseServiceTest {
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
         assertThat(items.get(0).thumbnailUrl()).isEqualTo(
                 "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'example2@example.com', 'example2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
+                    + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 2, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.course_progress (id, user_id, course_id , status , created_at, updated_at) "
+                    + "VALUES (1, 1, 1, 'COMPLETE', NOW(), NOW())",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '테스트 질문1', '테스트 내용1', 'WAITING', NOW(), NOW(), false)",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, '테스트 질문2', '테스트 내용2', 'WAITING', NOW(), NOW(), false)"
+    })
+    @Test
+    void searchCourseProgresses_정상(){
+        //given
+        Long userId = 1L;
+        int page = 1;
+        int pageSize = 10;
+        CourseProgressSearchReq req = new CourseProgressSearchReq(page, pageSize);
+        //mock
+        when(appProperties.getDomain())
+                .thenReturn("insty.test.com");
+        //when
+        SearchRes<CourseProgressSearchInfo> res = courseService.searchCourseProgresses(userId, req);
+        //then
+        List<CourseProgressSearchInfo> items = res.items();
+        PaginationRes pagination = res.pagination();
+
+        assertThat(pagination).isNotNull();
+        assertThat(pagination.totalItems()).isEqualTo(1);
+        assertThat(pagination.totalPages()).isEqualTo(1);
+        assertThat(pagination.currentPage()).isEqualTo(1);
+        assertThat(pagination.perPage()).isEqualTo(10);
+
+        assertThat(items).isNotNull();
+        assertThat(items.size()).isEqualTo(1);
+        assertThat(items.get(0).thumbnailUrl()).isEqualTo(
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+        assertThat(items.get(0).title()).isEqualTo("파이썬 설치 강의");
+        assertThat(items.get(0).commentCount()).isEqualTo(2);
+        assertThat(items.get(0).courseId()).isEqualTo(1);
+
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);"
+    })
+    @Test
+    void createCourseProgressAsCompleted_정상(){
+        //given
+        Long userId = 1L;
+        Long courseId = 1L;
+        //when
+        CourseProgressRes res = courseService.createCourseProgressAsCompleted(userId, courseId);
+        //then
+        assertThat(res).isNotNull();
+        assertThat(res.courseId()).isEqualTo(courseId);
+        assertThat(res.userId()).isEqualTo(userId);
+        assertThat(res.status()).isEqualTo(CourseProgressStatus.COMPLETED);
+
     }
 }

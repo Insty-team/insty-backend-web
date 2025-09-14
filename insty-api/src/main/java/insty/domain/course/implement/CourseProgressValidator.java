@@ -17,6 +17,7 @@ public class CourseProgressValidator {
 
     private final CourseProgressRepository courseProgressRepository;
 
+    @Transactional(readOnly = true)
     public void validateCourseProgressNotExists(Long userId, Long courseId) {
         if(courseProgressRepository.existsByUserIdAndCourseId(userId,courseId)){
             throw new CustomException(CourseProgressErrorCode.COURSE_PROGRESS_DUPLICATE);

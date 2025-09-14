@@ -158,7 +158,7 @@ public class CourseService {
         Map<Long, Long> countByCourseIds = communityQuestionReader.getCountByCourseIds(courseIds);
 
         List<CourseProgressSearchInfo> finalResult = searchInfo.stream()
-                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, countByCourseIds.get(dto.courseId())))
+                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, countByCourseIds.getOrDefault(dto.courseId(), 0L)))
                 .toList();
         PaginationRes paginationRes = courseComplexReader.countCourseProgresses(paginationReq,userId);
 

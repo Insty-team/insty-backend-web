@@ -16,6 +16,7 @@ import insty.exception.CustomException;
 import insty.model.community.CommunityQuestion;
 import insty.model.community.CommunityQuestionFixtureBuilder;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -180,5 +181,23 @@ class CommunityQuestionReaderTest {
 
         // then
         assertThat(result).isEqualTo(question);
+    }
+
+    @Test
+    void getCountByCourseIds_정상() {
+        //given
+        List<Long> courseIds = List.of(1L, 2L);
+        //mock
+        Map<Long, Long> mockMap = Map.of(
+                1L, 2L,
+                2L, 1L
+        );
+        when(communityQuestionQueryRepository.countByCourseIds(courseIds)).thenReturn(mockMap);
+        //when
+        Map<Long, Long> countByCourseIds = reader.getCountByCourseIds(courseIds);
+        //then
+        assertThat(countByCourseIds).hasSize(2);
+        assertThat(countByCourseIds.get(1L)).isEqualTo(2L);
+        assertThat(countByCourseIds.get(2L)).isEqualTo(1L);
     }
 }
