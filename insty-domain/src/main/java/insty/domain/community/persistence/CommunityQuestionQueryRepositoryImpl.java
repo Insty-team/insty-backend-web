@@ -1,7 +1,7 @@
 package insty.domain.community.persistence;
 
-import static insty.model.community.QCommunityQuestion.communityQuestion;
 import static insty.model.community.QCommunityAnswer.communityAnswer;
+import static insty.model.community.QCommunityQuestion.communityQuestion;
 import static insty.model.user.QUser.user;
 
 import com.querydsl.core.types.Projections;
@@ -10,6 +10,7 @@ import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.common.dto.UserInfo;
 import insty.domain.common.repository.QuerydslRepositorySupport;
+import insty.domain.community.dto.CommunityQuestionCountDto;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.repository.CommunityQuestionQueryRepository;
@@ -91,6 +92,31 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
                 .collect(Collectors.toMap(
                         tuple -> tuple.get(communityAnswer.communityQuestion.id),
                         tuple -> tuple.get(countExpr)
+                ));
+    }
+
+
+    @Override
+    public Map<Long, Long> countByCourseIds(List<Long> courseIds) {
+        List<CommunityQuestionCountDto> result = select(
+                        Projections.constructor(
+                                CommunityQuestionCountDto.class,
+                                communityQuestion.course.id,
+                                communityQuestion.count()
+                        )
+                )
+                .from(communityQuestion)
+                .where(
+                        communityQuestion.course.id.in(courseIds),
+                        communityQuestion.isDeleted.isFalse()
+                )
+                .groupBy(communityQuestion.course.id)
+                .fetch();
+
+        return result.stream()
+                .collect(Collectors.toMap(
+                        CommunityQuestionCountDto::courseId,
+                        CommunityQuestionCountDto::count
                 ));
     }
 

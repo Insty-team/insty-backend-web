@@ -23,6 +23,7 @@ import static insty.error.CourseErrorCode.COURSE_NOT_FOUND;
 import static insty.error.CourseErrorCode.COURSE_NOT_FOUND_LINKED_VIDEO;
 import static insty.error.CourseErrorCode.COURSE_THUMBNAIL_INVALID_EXTENSION;
 import static insty.error.CourseErrorCode.COURSE_TOO_MANY_PRACTICE_FILE;
+import static insty.error.CourseProgressErrorCode.COURSE_PROGRESS_DUPLICATE;
 import static insty.error.UserErrorCode.USER_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_BASIC_THUMBNAIL_NOT_FOUND;
 import static insty.error.VideoErrorCode.VIDEO_CANT_READ;
@@ -122,6 +123,13 @@ public enum SwaggerResponseDescription {
     COURSE_SEARCH(new LinkedHashSet<>(Set.of(
     ))),
     COURSE_MY_SEARCH(new LinkedHashSet<>(Set.of(
+    ))),
+    COURSE_PROGRESS_SEARCH(new LinkedHashSet<>(Set.of(
+    ))),
+    COURSE_PROGRESS_CREATE(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND,
+            COURSE_NOT_FOUND,
+            COURSE_PROGRESS_DUPLICATE
     ))),
     COURSE_REQUEST(new LinkedHashSet<>(Set.of(
     ))),

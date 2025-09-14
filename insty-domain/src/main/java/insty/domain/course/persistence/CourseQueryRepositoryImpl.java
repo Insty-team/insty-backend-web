@@ -2,6 +2,7 @@ package insty.domain.course.persistence;
 
 import static insty.model.community.QCommunityQuestion.communityQuestion;
 import static insty.model.course.QCourse.course;
+import static insty.model.course.QCourseProgress.courseProgress;
 import static insty.model.course.QCourseTag.courseTag;
 import static insty.model.tag.QTags.tags;
 import static insty.model.user.QUser.user;
@@ -16,6 +17,7 @@ import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.common.repository.QuerydslRepositorySupport;
 import insty.domain.course.dto.CourseMySearchInfo;
+import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
 import insty.domain.course.repository.CourseQueryRepository;
@@ -139,6 +141,40 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .transform(GroupBy.groupBy(course.id)
                         .as(videoCourse.videoUuid));
     }
+
+    @Override
+    public List<CourseProgressSearchInfo> searchCourseProgresses(PaginationReq pagination, Long userId) {
+        return queryFactory()
+                .select(Projections.constructor(
+                        CourseProgressSearchInfo.class,
+                        course.id,
+                        course.title,
+                        Expressions.nullExpression(Long.class),
+                        Expressions.nullExpression(String.class),
+                        courseProgress.createdAt
+                ))
+                .from(courseProgress)
+                .join(courseProgress.course, course)
+                .where(courseProgress.user.id.eq(userId))
+                .orderBy(courseProgress.createdAt.desc())
+                .offset(pagination.getOffset())
+                .limit(pagination.pageSize())
+                .fetch();
+    }
+
+    @Override
+    public PaginationRes countSearchCourseProgresses(PaginationReq pagination, Long userId) {
+
+        Long total = queryFactory()
+                .select(courseProgress.count())
+                .from(courseProgress)
+                .where(courseProgress.user.id.eq(userId))
+                .fetchOne();
+
+        int totalItems = total != null ? Math.toIntExact(total) : 0;
+        return PaginationRes.of(totalItems, pagination.page(), pagination.pageSize());
+    }
+
 
     /**
      * 필터
