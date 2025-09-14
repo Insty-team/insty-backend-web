@@ -196,6 +196,7 @@ class CommunityQuestionReaderTest {
         //when
         Map<Long, Long> countByCourseIds = reader.getCountByCourseIds(courseIds);
         //then
+        assertThat(countByCourseIds).hasSize(2);
         assertThat(countByCourseIds.get(1L)).isEqualTo(2L);
         assertThat(countByCourseIds.get(2L)).isEqualTo(1L);
     }
