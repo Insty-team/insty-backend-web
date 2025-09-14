@@ -24,4 +24,6 @@ public interface CommunityQuestionQueryRepository {
      * @return Map<질문ID, 답변개수>
      */
     Map<Long, Long> getAnswerCountsByQuestionIds(List<Long> questionIds);
+
+    Map<Long, Long> countByCourseIds(List<Long> courseIds);
 }

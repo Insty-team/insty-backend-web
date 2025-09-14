@@ -58,8 +58,8 @@ public class CommunityQuestionReader {
         return communityQuestionRepository.findAllByCourseId(courseId);
     }
 
-    public List<Object[]> getCountListByCourseIds(List<Long> courseIds) {
-        return communityQuestionRepository.countByCourseIds(courseIds);
+    public Map<Long, Long> getCountByCourseIds(List<Long> courseIds) {
+        return communityQuestionQueryRepository.countByCourseIds(courseIds);
     }
 
     /**

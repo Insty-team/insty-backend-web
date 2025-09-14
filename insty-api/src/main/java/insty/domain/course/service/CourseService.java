@@ -35,7 +35,6 @@ import insty.model.user.User;
 import insty.model.video.VideoCourse;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,15 +155,10 @@ public class CourseService {
         List<Long> courseIds = searchInfo.stream()
                 .map(CourseProgressSearchInfo::courseId)
                 .toList();
-
-        Map<Long, Long> coummnityQuestionCount = communityQuestionReader.getCountListByCourseIds(courseIds).stream()
-                .collect(Collectors.toMap(
-                        row -> (Long) row[0],
-                        row -> (Long) row[1]
-                ));
+        Map<Long, Long> countByCourseIds = communityQuestionReader.getCountByCourseIds(courseIds);
 
         List<CourseProgressSearchInfo> finalResult = searchInfo.stream()
-                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, coummnityQuestionCount.get(dto.courseId())))
+                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, countByCourseIds.get(dto.courseId())))
                 .toList();
         PaginationRes paginationRes = courseComplexReader.countCourseProgresses(paginationReq,userId);
 
