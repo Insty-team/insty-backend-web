@@ -146,20 +146,25 @@ public class CourseService {
         return SearchRes.from(paginationRes, searchInfo);
     }
 
+    @Transactional(readOnly = true)
     public SearchRes<CourseProgressSearchInfo> searchCourseProgresses(Long userId, CourseProgressSearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
 
         List<CourseProgressSearchInfo> searchInfo = courseComplexReader.searchCourseProgresses(paginationReq,userId);
         searchInfo = courseComplexReader.setBasicThumbnailUrlForCourseProgress(searchInfo);
 
-        Map<Long, Long> commentCounts = searchInfo.stream()
+        List<Long> courseIds = searchInfo.stream()
+                .map(CourseProgressSearchInfo::courseId)
+                .toList();
+
+        Map<Long, Long> coummnityQuestionCount = communityQuestionReader.getCountListByCourseIds(courseIds).stream()
                 .collect(Collectors.toMap(
-                        CourseProgressSearchInfo::courseId,
-                        dto -> (long) communityQuestionReader.getAllCommunityQuestionsByCourseId(dto.courseId()).size()
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
                 ));
 
         List<CourseProgressSearchInfo> finalResult = searchInfo.stream()
-                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, commentCounts.get(dto.courseId())))
+                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, coummnityQuestionCount.get(dto.courseId())))
                 .toList();
         PaginationRes paginationRes = courseComplexReader.countCourseProgresses(paginationReq,userId);
 
@@ -167,9 +172,9 @@ public class CourseService {
     }
 
     public CourseProgressRes createCourseProgressAsCompleted(Long userId, Long courseId) {
-        courseProgressValidator.validateCourseProgressExist(userId, courseId);
         User user = userReader.getUser(userId);
         Course course = courseReader.getCourseById(courseId);
+        courseProgressValidator.validateCourseProgressNotExists(userId, courseId);
 
         CourseProgress courseProgress = courseProgressWriter.saveCourseProgress(user, course);
         return CourseProgressRes.from(courseProgress);

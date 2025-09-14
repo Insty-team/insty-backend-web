@@ -58,6 +58,10 @@ public class CommunityQuestionReader {
         return communityQuestionRepository.findAllByCourseId(courseId);
     }
 
+    public List<Object[]> getCountListByCourseIds(List<Long> courseIds) {
+        return communityQuestionRepository.countByCourseIds(courseIds);
+    }
+
     /**
      * 커뮤니티 질문과 첨부파일을 포함한 결과
      * (파일 포함 & 질문 미포함)

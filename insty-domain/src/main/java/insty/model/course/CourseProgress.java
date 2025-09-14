@@ -48,6 +48,9 @@ public class CourseProgress extends BaseEntity {
     private CourseProgressStatus status;  // 수강 완료 상태 여부
 
     public void update(CourseProgressStatus status) {
+        if (status == null) {
+            throw new CustomException(CourseProgressErrorCode.COURSE_PROGRESS_NULL_UPDATE);
+        }
         this.status = status;
     }
 

@@ -156,7 +156,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .from(courseProgress)
                 .join(courseProgress.course, course)
                 .where(courseProgress.user.id.eq(userId))
-                .orderBy(createOrderSpecifier(null))
+                .orderBy(courseProgress.createdAt.desc())
                 .offset(pagination.getOffset())
                 .limit(pagination.pageSize())
                 .fetch();

@@ -23,4 +23,7 @@ public interface CommunityQuestionRepository extends JpaRepository<CommunityQues
 
     @Query("SELECT c.user.id FROM CommunityQuestion q JOIN q.course c WHERE q.id = :questionId")
     Long findCreatorIdByQuestionId(@Param("questionId") Long questionId);
+
+    @Query("SELECT cq.course.id, COUNT(cq) FROM CommunityQuestion cq WHERE cq.course.id IN :courseIds AND cq.isDeleted = false GROUP BY cq.course.id")
+    List<Object[]> countByCourseIds(@Param("courseIds")List<Long> courseIds);
 }

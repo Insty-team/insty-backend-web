@@ -5,9 +5,9 @@ import insty.model.course.Course;
 import insty.model.course.CourseProgress;
 import insty.model.course.CourseProgressStatus;
 import insty.model.user.User;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
