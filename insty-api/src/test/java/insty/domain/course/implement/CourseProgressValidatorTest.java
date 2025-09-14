@@ -37,7 +37,7 @@ class CourseProgressValidatorTest {
         //when
 
         //then
-        assertThatCode(() -> courseProgressValidator.validateCourseProgressExist(courseId, userId))
+        assertThatCode(() -> courseProgressValidator.validateCourseProgressNotExists(courseId, userId))
                 .doesNotThrowAnyException();
 
     }
@@ -54,7 +54,7 @@ class CourseProgressValidatorTest {
         //when
 
         //then
-        assertThatThrownBy(() -> courseProgressValidator.validateCourseProgressExist(courseId, userId))
+        assertThatThrownBy(() -> courseProgressValidator.validateCourseProgressNotExists(courseId, userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseProgressErrorCode.COURSE_PROGRESS_DUPLICATE);
