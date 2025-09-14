@@ -37,7 +37,7 @@ class CourseProgressValidatorTest {
         //when
 
         //then
-        assertThatCode(() -> courseProgressValidator.validateCourseProgressNotExists(courseId, userId))
+        assertThatCode(() -> courseProgressValidator.validateCourseProgressNotExists(userId,courseId))
                 .doesNotThrowAnyException();
 
     }
