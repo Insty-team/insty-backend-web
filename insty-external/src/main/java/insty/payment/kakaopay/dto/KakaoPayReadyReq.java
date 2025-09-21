@@ -43,6 +43,14 @@ public record KakaoPayReadyReq(
         int normalizedTotalAmount = requirePositive(totalAmount, "totalAmount");
         int normalizedTaxFreeAmount = normalizeNonNegative(taxFreeAmount);
 
+        // 비과세 금액은 총 결제금액을 초과할 수 없음
+        if (normalizedTaxFreeAmount > normalizedTotalAmount) {
+            throw new IllegalArgumentException(
+                    "taxFreeAmount must be <= totalAmount (taxFreeAmount=" +
+                            normalizedTaxFreeAmount + ", totalAmount=" + normalizedTotalAmount + ")"
+            );
+        }
+
         return new KakaoPayReadyReq(
                 normalizedOrderId,
                 normalizedUserId,
