@@ -1,8 +1,5 @@
 package insty.payment.kakaopay.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public record KakaoPayReadyRes(
 
         // 카카오페이 결제 고유 id
