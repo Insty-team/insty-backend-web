@@ -16,3 +16,8 @@ video:
       course: 60
       answer: 60
       question: 60
+
+kakaopay:
+  timeout:
+    connectMillis: 5000
+    readMillis: 10000
