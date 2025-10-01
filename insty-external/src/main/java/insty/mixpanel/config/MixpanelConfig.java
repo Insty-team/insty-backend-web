@@ -13,7 +13,7 @@ public class MixpanelConfig {
     @Bean
     public AnalyticsEventPublisher analyticsEventPublisher(
             WebClient.Builder webClientBuilder,
-            @Value("${mixpanel.token:}") String mixpanelToken
+            @Value("${app.mixpanel.token:}") String mixpanelToken
     ) {
         return new MixpanelEventPublisherAdapter(webClientBuilder.build(), mixpanelToken);
     }
