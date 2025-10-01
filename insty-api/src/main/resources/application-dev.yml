@@ -16,3 +16,6 @@ video:
       course: 60
       answer: 60
       question: 60
+
+mixpanel:
+  token: ${MIXPANEL_TOKEN}

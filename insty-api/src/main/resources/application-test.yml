@@ -56,6 +56,9 @@ oauth:
       client_id: test
       client-secret: test
 
+mixpanel:
+  token: ${MIXPANEL_TOKEN}
+
 app:
   health-check-path: /tmp
   domain: "domain"
