@@ -107,3 +107,6 @@ video:
       course: 30
       answer: 10
       question: 10
+
+mixpanel:
+  token: ${MIXPANEL_TOKEN}

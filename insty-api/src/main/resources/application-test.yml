@@ -56,11 +56,6 @@ oauth:
       client_id: test
       client-secret: test
 
-kakaopay:
-  timeout:
-    connectMillis: 5000
-    readMillis: 10000
-
 app:
   health-check-path: /tmp
   domain: "domain"
