@@ -57,7 +57,10 @@ oauth:
       client-secret: test
 
 mixpanel:
-  token: ${MIXPANEL_TOKEN}
+  enabled: false
+  token: ""
+  verbose: false
+  strict: false
 
 app:
   health-check-path: /tmp
