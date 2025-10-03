@@ -1,5 +1,6 @@
 package insty.mixpanel.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import insty.mixpanel.adapter.MixpanelEventPublisherAdapter;
 import insty.trackevent.port.AnalyticsEventPublisher;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,8 @@ public class MixpanelConfig {
             @Value("${mixpanel.residency}") String residency,
             @Value("${mixpanel.verbose}") Boolean verbose,
             @Value("${mixpanel.strict}") Boolean strict,
-            @Value("${mixpanel.timeoutMillis}") Integer timeoutMillis
-    ) {
+            @Value("${mixpanel.timeoutMillis}") Integer timeoutMillis,
+            ObjectMapper objectMapper) {
         // 활성화 및 토큰 체크
         if (Boolean.FALSE.equals(enabled)) {
             log.warn("[Mixpanel] disabled by config. Tracking is OFF.");
@@ -48,7 +49,8 @@ public class MixpanelConfig {
                 verbose,
                 strict,
                 enabled,
-                timeoutMillis
+                timeoutMillis,
+                objectMapper
         );
     }
 }
