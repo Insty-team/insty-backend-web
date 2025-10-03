@@ -107,3 +107,11 @@ video:
       course: 30
       answer: 10
       question: 10
+
+mixpanel:
+  token: ${MIXPANEL_TOKEN}
+  residency: US
+  verbose: true
+  strict: true
+  enabled: true
+  timeoutMillis: 5000

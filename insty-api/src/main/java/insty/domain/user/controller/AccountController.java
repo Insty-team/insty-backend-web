@@ -10,6 +10,8 @@ import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.service.AccountService;
 import insty.global.annotation.CurrentUser;
 import insty.global.response.SuccessRes;
+import insty.trackevent.TrackEvent;
+import insty.trackevent.model.MixpanelEventType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,7 @@ public class AccountController implements AccountControllerDocs {
     private final AccountService accountService;
 
     @PostMapping
+    @TrackEvent(eventType = MixpanelEventType.AUTH_SIGNED_UP)
     public SuccessRes<UserCreateRes> signup(@Valid @RequestBody UserCreateReq req) {
         return SuccessRes.of(accountService.signup(req));
     }

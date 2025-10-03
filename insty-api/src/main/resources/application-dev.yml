@@ -17,7 +17,8 @@ video:
       answer: 60
       question: 60
 
-kakaopay:
-  timeout:
-    connectMillis: 5000
-    readMillis: 10000
+mixpanel:
+  enabled: false
+  token: ""
+  verbose: false
+  strict: false

@@ -10,6 +10,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP를 통한 Log 저장(mixpanel)
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3' // JSON Mapper
 
     compileOnly 'org.projectlombok:lombok'
