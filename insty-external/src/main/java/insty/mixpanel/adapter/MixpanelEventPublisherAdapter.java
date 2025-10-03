@@ -76,15 +76,23 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
         // 비동기 전송 (timeout + retry(backoff), fire-and-forget)
         sendAsyncRequest(formData)
                 .doOnNext(responseBody -> {
+                    // 성공 로그: INFO는 이벤트명만, DEBUG는 응답 전문
                     if (log.isDebugEnabled()) {
                         log.debug("[Mixpanel] response={}", responseBody); // ex) {"status":1,...}
                     } else {
                         log.info("[Mixpanel] published event={}", eventType);
                     }
                 })
-                .doOnError(error ->
-                        log.warn("[Mixpanel] publish fail event={} distinct_id={} error={}",
-                                eventType, normalizedProperties.get(PROPERTY_DISTINCT_ID), error.toString()))
+                .doOnError(error -> {
+                    // 실패 로그: WARN에서는 식별자 제거, DEBUG에서만 distinct_id 출력
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Mixpanel] publish fail event={} distinct_id={} error={}",
+                                eventType, normalizedProperties.get(PROPERTY_DISTINCT_ID), error.toString());
+                    } else {
+                        log.warn("[Mixpanel] publish fail event={} error={}",
+                                eventType, error.toString());
+                    }
+                })
                 .onErrorResume(error -> Mono.empty()) // 실패해도 업무 흐름 영향 X
                 .subscribe(); // fire-and-forget
     }
