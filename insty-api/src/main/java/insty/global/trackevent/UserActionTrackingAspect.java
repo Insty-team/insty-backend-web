@@ -76,7 +76,13 @@ public class UserActionTrackingAspect {
 
         // 트랜잭션 커밋 이후 발행 보장(트랜잭션이 없으면 즉시 발행)
         Runnable publishTask = () -> analyticsEventPublisher.publish(eventType, authenticatedMemberId, eventProperties);
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+        // 커스텀 설정된 트랜잭션 매니저나 일부 비동기 환경에서는 실제 트랜잭션은 열려 있어도 동기화가 활성화되지 않을 수 있음
+        // 이 경우 이벤트 발행 자체가 실패하게 되므로, 동기화 여부를 함께 검사하고 비활성 시에는 즉시 실행으로 폴백하는 방어 로직
+        // TX + Sync O → 커밋 후 정확히 1회 발행
+        // TX O + Sync X → 예외 없이 즉시 발행(폴백)
+        // TX X → 즉시 발행
+        if (TransactionSynchronizationManager.isActualTransactionActive()
+                && TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {

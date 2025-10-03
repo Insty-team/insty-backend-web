@@ -50,44 +50,43 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
                         final Map<String, Object> rawEventProperties) {
 
         // 설정값 검증
-        // 전역 스위치(trackingEnabled), 프로젝트 토큰(projectToken), 호스트(mixpanelHost) 등 유효성 확인
         verifyConfiguration();
 
-        // 이벤트 속성 표준화
-        // 요청으로 넘어온 rawEventProperties를 기반으로 null 값 제거
-        // token, distinct_id, time(epoch sec), $insert_id(중복 방지용) 보강
+        // 이벤트 속성 표준화 (token, distinct_id, time, $insert_id 보강)
         final Map<String, Object> normalizedProperties =
                 buildProperties(distinctId, rawEventProperties);
 
-        // 이벤트 JSON 직렬화
-        // {"event":"...", "properties":{...}} 형태로 직렬화
+        // 이벤트 JSON 직렬화 ({"event": "...", "properties": {...}})
         final String eventJson = serializeEventToJson(eventType, normalizedProperties);
 
-        // 전송 바디 생성 (Mixpanel 표준 포맷)
-        // JSON → base64 인코딩 → application/x-www-form-urlencoded 의 data=<base64(JSON)>
+        // form-urlencoded data=<base64(JSON)> 바디 생성
         final MultiValueMap<String, String> formData =
-                buildFormDataFromBase64Json(eventJson);
+                buildFormData(eventJson);
 
-        // 사전 로깅
-        // 요청 시작 로깅 (token은 마스킹)
-        log.info("[Mixpanel] publish start event={} distinct_id={} properties(maskedToken)={}",
-                eventType, normalizedProperties.get(PROPERTY_DISTINCT_ID),
-                buildMaskedTokenProperties(normalizedProperties));
+        // 로깅 — INFO엔 이벤트명만, 상세는 DEBUG에서만 (PII 최소화)
+        if (log.isDebugEnabled()) {
+            log.debug("[Mixpanel] publish start event={} distinct_id={} properties(masked-token)={}",
+                    eventType,
+                    normalizedProperties.get(PROPERTY_DISTINCT_ID),
+                    buildMaskedTokenProperties(normalizedProperties));
+        } else {
+            log.info("[Mixpanel] publish start event={}", eventType);
+        }
 
-        // 비동기 전송 (fire-and-forget)
-        // sendAsyncRequest(formData): WebClient POST /track 호출
-        // verbose/strict 쿼리 파라미터 반영, timeout + retry(backoff) 포함
-        // 성공 시: 응답 바디(예: {"status":1,...}) INFO 로깅
-        // 실패 시: WARN 로깅 후 onErrorResume으로 스트림 종료(업무 흐름 영향 X)
-        // subscribe() 호출로 실제 요청 트리거
+        // 비동기 전송 (timeout + retry(backoff), fire-and-forget)
         sendAsyncRequest(formData)
-                .doOnNext(responseBody ->
-                        log.info("[Mixpanel] response={}", responseBody)) // 기대: {"status":1,...}
+                .doOnNext(responseBody -> {
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Mixpanel] response={}", responseBody); // ex) {"status":1,...}
+                    } else {
+                        log.info("[Mixpanel] published event={}", eventType);
+                    }
+                })
                 .doOnError(error ->
                         log.warn("[Mixpanel] publish fail event={} distinct_id={} error={}",
                                 eventType, normalizedProperties.get(PROPERTY_DISTINCT_ID), error.toString()))
                 .onErrorResume(error -> Mono.empty()) // 실패해도 업무 흐름 영향 X
-                .subscribe();
+                .subscribe(); // fire-and-forget
     }
 
     // 설정값 검증
@@ -102,18 +101,15 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
     private Map<String, Object> buildProperties(final Long distinctId,
                                                 final Map<String, Object> rawEventProperties) {
         final Map<String, Object> eventProperties = new LinkedHashMap<>();
-
         if (rawEventProperties != null) {
             rawEventProperties.forEach((key, value) -> {
                 if (value != null) eventProperties.put(key, value);
             });
         }
-
         eventProperties.put(PROPERTY_TOKEN, projectToken);
         eventProperties.put(PROPERTY_DISTINCT_ID, (distinctId == null) ? "anonymous" : String.valueOf(distinctId));
         eventProperties.putIfAbsent(PROPERTY_TIME, Instant.now().getEpochSecond());
         eventProperties.putIfAbsent(PROPERTY_INSERT_ID, UUID.randomUUID().toString());
-
         return eventProperties;
     }
 
@@ -132,10 +128,9 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
     }
 
     // data=<base64(JSON)> 형태의 form-urlencoded 바디 생성
-    private MultiValueMap<String, String> buildFormDataFromBase64Json(final String eventJson) {
+    private MultiValueMap<String, String> buildFormData(final String eventJson) {
         final String base64EncodedData =
                 Base64.getEncoder().encodeToString(eventJson.getBytes(StandardCharsets.UTF_8));
-
         final MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("data", base64EncodedData);
         return formData;
@@ -163,7 +158,7 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
                 );
     }
 
-    // 토큰 마스킹하여 로깅
+    // 토큰 마스킹(나머지 값은 DEBUG에서만 출력)
     private Map<String, Object> buildMaskedTokenProperties(final Map<String, Object> originalProperties) {
         final Map<String, Object> masked = new LinkedHashMap<>(originalProperties);
         final Object token = masked.get(PROPERTY_TOKEN);
