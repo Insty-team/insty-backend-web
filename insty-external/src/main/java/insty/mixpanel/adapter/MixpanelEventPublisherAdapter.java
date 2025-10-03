@@ -10,7 +10,6 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
@@ -22,8 +21,10 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 @Slf4j
-@RequiredArgsConstructor
-public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
+public record MixpanelEventPublisherAdapter(WebClient webClient, String projectToken, String mixpanelHost,
+                                            Boolean verboseResponseEnabled, Boolean strictValidationEnabled,
+                                            Boolean trackingEnabled, Integer requestTimeoutMillis,
+                                            ObjectMapper objectMapper) implements AnalyticsEventPublisher {
 
     private static final String TRACK_PATH = "/track";
     private static final String PROPERTY_TOKEN = "token";
@@ -33,16 +34,6 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
 
     private static final String QUERY_VERBOSE_ON = "1";
     private static final String QUERY_STRICT_ON = "1";
-
-    private final WebClient webClient;
-    private final String projectToken;
-    private final String mixpanelHost;        // ex) api.mixpanel.com | api-eu.mixpanel.com
-    private final Boolean verboseResponseEnabled;
-    private final Boolean strictValidationEnabled;
-    private final Boolean trackingEnabled;
-    private final Integer requestTimeoutMillis;
-
-    private final ObjectMapper objectMapper;
 
     @Override
     public void publish(final MixpanelEventType eventType,
@@ -111,7 +102,9 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
         final Map<String, Object> eventProperties = new LinkedHashMap<>();
         if (rawEventProperties != null) {
             rawEventProperties.forEach((key, value) -> {
-                if (value != null) eventProperties.put(key, value);
+                if (value != null) {
+                    eventProperties.put(key, value);
+                }
             });
         }
         eventProperties.put(PROPERTY_TOKEN, projectToken);
@@ -152,7 +145,7 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
                         .host(mixpanelHost)
                         .path(TRACK_PATH)
                         .queryParam("verbose", Boolean.TRUE.equals(verboseResponseEnabled) ? QUERY_VERBOSE_ON : null)
-                        .queryParam("strict",  Boolean.TRUE.equals(strictValidationEnabled) ? QUERY_STRICT_ON : null)
+                        .queryParam("strict", Boolean.TRUE.equals(strictValidationEnabled) ? QUERY_STRICT_ON : null)
                         .build())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(formData))
