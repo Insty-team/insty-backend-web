@@ -41,8 +41,7 @@ public class MixpanelEventPublisherAdapter implements AnalyticsEventPublisher {
     private final Boolean strictValidationEnabled;
     private final Boolean trackingEnabled;
     private final Integer requestTimeoutMillis;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public void publish(final MixpanelEventType eventType,
