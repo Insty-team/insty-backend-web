@@ -35,7 +35,10 @@ public class AccountController implements AccountControllerDocs {
     private final AccountService accountService;
 
     @PostMapping
-    @TrackEvent(eventType = MixpanelEventType.AUTH_SIGNED_UP)
+    @TrackEvent(
+            successEventType = MixpanelEventType.AUTH_SIGNED_UP,
+            failureEventType = MixpanelEventType.AUTH_SIGNUP_FAILED
+    )
     public SuccessRes<UserCreateRes> signup(@Valid @RequestBody UserCreateReq req) {
         return SuccessRes.of(accountService.signup(req));
     }

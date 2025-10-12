@@ -6,7 +6,9 @@ import insty.trackevent.port.AnalyticsEventPublisher;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.AfterReturning;
+import org.slf4j.MDC;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Aspect
@@ -33,65 +36,170 @@ public class UserActionTrackingAspect {
     // Mixpanel 이벤트 지오IP 파싱용 표준 키
     private static final String PROP_IP = "ip";
     private static final String PROP_PATH = "path";
+    // 실패 이벤트에 사용(민감정보 금지, 클래스명 수준)
+    private static final String PROP_EXCEPTION = "exception";
+    private static final String PROP_INSERT_ID = "insert_id";
 
     private static final String HDR_X_FORWARDED_FOR = "X-Forwarded-For";
     private static final String HDR_X_REAL_IP = "X-Real-IP";
     private static final String HDR_CF_CONNECTING_IP = "CF-Connecting-IP";
     private static final String HDR_TRUE_CLIENT_IP = "True-Client-IP";
     private static final String HDR_FORWARDED = "Forwarded";   // RFC 7239: for=1.2.3.4;proto=https
+    private static final String PROP_TRACE_ID = "trace_id";
+    private static final String HDR_X_REQUEST_ID = "X-Request-Id";
 
     // external 모듈의 퍼블리셔 사용
     private final AnalyticsEventPublisher analyticsEventPublisher;
 
-    // @TrackEvent가 붙은 메서드가 정상 리턴된 경우만 처리
-    @AfterReturning(value = "@annotation(trackEvent)", argNames = "trackEvent")
-    public void publishMixpanelEvent(final TrackEvent trackEvent) {
+    // 실패 예외를 롤백 후 사용하기 위해 보관
+    private static final ThreadLocal<Exception> LAST_FAILURE = new ThreadLocal<>();
+
+    // @Around로 변경하여 성공/실패 모두 처리(트랜잭션 결과 기준 afterCompletion 사용)
+    @Around(value = "@annotation(trackEvent)")
+    public Object publishMixpanelEvent(final ProceedingJoinPoint pjp, final TrackEvent trackEvent) throws Throwable {
         // 인증 주체에서 memberId 추출
         Long authenticatedMemberId = extractAuthenticatedMemberId();
 
         // 현재 요청 객체 확보(Controller 경유 시)
         HttpServletRequest request = resolveCurrentHttpServletRequest();
 
-        // 이벤트 속성 구성
-        Map<String, Object> eventProperties = new HashMap<>();
+        // 이벤트 속성 구성(공통)
+        Map<String, Object> baseProperties = new HashMap<>();
         if (authenticatedMemberId != null) {
-            eventProperties.put(PROP_MEMBER_ID, authenticatedMemberId);
+            baseProperties.put(PROP_MEMBER_ID, authenticatedMemberId);
         }
         if (request != null) {
             if (trackEvent.includeHttpMethod()) {
-                eventProperties.put(PROP_HTTP_METHOD, request.getMethod());
+                baseProperties.put(PROP_HTTP_METHOD, request.getMethod());
             }
             if (trackEvent.includeRequestIp()) {
                 String clientIp = resolveClientIp(request);
                 if (clientIp != null && !clientIp.isBlank()) {
-                    eventProperties.put(PROP_IP, clientIp); // 여기서 $ip로 전달
+                    baseProperties.put(PROP_IP, clientIp); // 여기서 $ip로 전달
                 }
             }
-            eventProperties.put(PROP_PATH, request.getRequestURI());
-            eventProperties.putAll(extractPathVariables(request, trackEvent.includePathVars()));
+            if (trackEvent.includeEndpointPath()) { // 추가 옵션 처리
+                baseProperties.put(PROP_PATH, request.getRequestURI());
+            }
+            baseProperties.putAll(extractPathVariables(request, trackEvent.includePathVars()));
         }
 
-        // 이벤트 타입 결정
-        MixpanelEventType eventType = trackEvent.eventType();
+        // trace_id 채우기 (X-Request-Id 우선, 없으면 MDC("traceId"))
+        // 어노테이션 옵션이 true일 때만 trace_id를 붙임
+        if (trackEvent.includeTraceId()) {
+            String traceId = null;
+            // HTTP 요청이 있는 경우, 게이트웨이/프록시/로드밸런서가 심어 준 X-Request-Id 헤더를 먼저 사용
+            if (request != null) {
+                traceId = request.getHeader(HDR_X_REQUEST_ID);
+            }
+            // 헤더가 없거나 비어 있으면 애플리케이션 레벨의 추적 값으로 폴백
+            if (!isNotBlank(traceId)) {
+                try {
+                    traceId = MDC.get("traceId");
+                } catch (Throwable ignored) {}
+            }
+            if (isNotBlank(traceId)) {
+                baseProperties.put(PROP_TRACE_ID, traceId);
+            }
+        }
 
-        // 트랜잭션 커밋 이후 발행 보장(트랜잭션이 없으면 즉시 발행)
-        Runnable publishTask = () -> analyticsEventPublisher.publish(eventType, authenticatedMemberId, eventProperties);
-        // 커스텀 설정된 트랜잭션 매니저나 일부 비동기 환경에서는 실제 트랜잭션은 열려 있어도 동기화가 활성화되지 않을 수 있음
-        // 이 경우 이벤트 발행 자체가 실패하게 되므로, 동기화 여부를 함께 검사하고 비활성 시에는 즉시 실행으로 폴백하는 방어 로직
-        // TX + Sync O → 커밋 후 정확히 1회 발행
-        // TX O + Sync X → 예외 없이 즉시 발행(폴백)
-        // TX X → 즉시 발행
-        if (TransactionSynchronizationManager.isActualTransactionActive()
-                && TransactionSynchronizationManager.isSynchronizationActive()) {
+        // 트랜잭션 활성 여부
+        final boolean txActiveAndSync =
+                trackEvent.publishAfterCommitOnly() &&
+                        TransactionSynchronizationManager.isActualTransactionActive() &&
+                        TransactionSynchronizationManager.isSynchronizationActive();
+
+        // 트랜잭션이 활성화된 경우, '결과 확정 후' 발행을 위해 afterCompletion 등록
+        if (txActiveAndSync) {
+            final MixpanelEventType successType = trackEvent.successEventType();
+            final MixpanelEventType failureType = trackEvent.failureEventType();
+            final Long distinctIdOnSuccess = resolveDistinctIdForSuccess(trackEvent, authenticatedMemberId);
+            final Map<String, Object> snapshotProps = new HashMap<>(baseProperties);
+
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
-                public void afterCommit() {
-                    publishTask.run();
+                public void afterCompletion(int status) {
+                    try {
+                        if (status == TransactionSynchronization.STATUS_COMMITTED && successType != MixpanelEventType.NONE) {
+                            Map<String, Object> props = new HashMap<>(snapshotProps);
+                            props.put(PROP_INSERT_ID, UUID.randomUUID().toString());
+                            analyticsEventPublisher.publish(successType, distinctIdOnSuccess, props);
+                        } else if (status == TransactionSynchronization.STATUS_ROLLED_BACK && failureType != MixpanelEventType.NONE) {
+                            Map<String, Object> props = new HashMap<>(snapshotProps);
+                            props.put(PROP_INSERT_ID, UUID.randomUUID().toString());
+                            Exception ex = LAST_FAILURE.get();
+                            if (ex != null) {
+                                props.put(PROP_EXCEPTION, ex.getClass().getSimpleName()); // 민감정보 X
+                            }
+                            // 실패 시 퍼블리셔 구현에서 anonymous 처리 권장(null 전달)
+                            analyticsEventPublisher.publish(failureType, null, props);
+                        }
+                    } catch (Exception publishEx) {
+                        log.warn("[TrackEvent] publish afterCompletion error={}", publishEx.toString());
+                    } finally {
+                        LAST_FAILURE.remove();
+                    }
                 }
             });
-        } else {
-            publishTask.run();
         }
+
+        try {
+            // 실제 비즈니스 실행
+            Object result = pjp.proceed();
+
+            // 트랜잭션 없거나 동기화 비활성 시, 성공 이벤트 즉시 발행
+            if (!txActiveAndSync) {
+                MixpanelEventType successType = trackEvent.successEventType();
+                if (successType != MixpanelEventType.NONE) {
+                    Map<String, Object> props = new HashMap<>(baseProperties);
+                    props.put(PROP_INSERT_ID, UUID.randomUUID().toString());
+                    Long distinctId = resolveDistinctIdForSuccess(trackEvent, authenticatedMemberId);
+                    try {
+                        analyticsEventPublisher.publish(successType, distinctId, props);
+                    } catch (Exception publishEx) {
+                        log.warn("[TrackEvent] publish immediate success error type={} error={}",
+                                successType, publishEx.toString());
+                    }
+                }
+            }
+
+            return result;
+        } catch (IllegalArgumentException devError) {
+            // 개발 시 나온 오류의 경우, 이벤트를 발행하지 않고 IllegalArgumentException 반환
+            throw devError;
+
+        } catch (Exception ex) {
+            // 실패 예외 저장(롤백 후 afterCompletion에서 사용)
+            LAST_FAILURE.set(ex);
+
+            // 트랜잭션이 없으면(혹은 동기화 비활성) 즉시 실패 이벤트 발행으로 폴백
+            if (!txActiveAndSync && trackEvent.failureEventType() != MixpanelEventType.NONE) {
+                Map<String, Object> props = new HashMap<>(baseProperties);
+                props.put(PROP_INSERT_ID, UUID.randomUUID().toString());
+                props.put(PROP_EXCEPTION, ex.getClass().getSimpleName());
+                try {
+                    analyticsEventPublisher.publish(trackEvent.failureEventType(), null, props);
+                } catch (Exception publishEx) {
+                    log.warn("[TrackEvent] publish immediate failure error type={} error={}",
+                            trackEvent.failureEventType(), publishEx.toString());
+                } finally {
+                    LAST_FAILURE.remove();
+                }
+            }
+            throw ex;
+        } finally {
+            // 트랜잭션 경계가 아니었던 경우 등을 대비한 정리
+            if (!txActiveAndSync) {
+                LAST_FAILURE.remove();
+            }
+        }
+    }
+
+    // 성공 이벤트용 distinct_id 계산: 전략이 ANONYMOUS면 null, 아니면 인증된 memberId
+    private Long resolveDistinctIdForSuccess(TrackEvent trackEvent, Long authenticatedMemberId) {
+        return (trackEvent.distinctIdStrategy() == TrackEvent.DistinctIdStrategy.ANONYMOUS)
+                ? null
+                : authenticatedMemberId;
     }
 
     // SecurityContext 에서 memberId 추출
