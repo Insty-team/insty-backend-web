@@ -2,6 +2,7 @@ package insty.domain.course.service;
 
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
+import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.implement.CommunityQuestionReader;
@@ -110,8 +111,8 @@ public class CourseService {
         courseWriter.deleteCourse(course);
     }
 
-    public CourseDetailRes detailCourse(Long courseId) {
-        Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
+    public CourseDetailRes detailCourse(Long courseId, ViewCountPolicy viewCountPolicy) {
+        Course course = courseCounter.increaseViewCountAndGetCourse(courseId, viewCountPolicy);
         User creator = course.getUser();
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());

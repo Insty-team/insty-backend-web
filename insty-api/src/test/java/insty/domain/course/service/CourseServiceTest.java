@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
+import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
@@ -356,7 +357,7 @@ class CourseServiceTest {
                 .thenReturn("insty.test.com");
 
         // when
-        CourseDetailRes res = courseService.detailCourse(courseId);
+        CourseDetailRes res = courseService.detailCourse(courseId, ViewCountPolicy.INCREASE);
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import insty.domain.common.ViewCountPolicy;
 import insty.domain.course.repository.CourseRepository;
 import insty.model.course.Course;
 import java.util.Optional;
@@ -34,7 +35,7 @@ class CourseCounterTest {
                 .thenReturn(Optional.of(mock(Course.class)));
 
         // when
-        Course course = courseCounter.increaseViewCountAndGetCourse(courseId);
+        Course course = courseCounter.increaseViewCountAndGetCourse(courseId, ViewCountPolicy.INCREASE);
 
         // then
         assertThat(course).isNotNull();
