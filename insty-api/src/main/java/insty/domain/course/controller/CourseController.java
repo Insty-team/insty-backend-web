@@ -1,6 +1,7 @@
 package insty.domain.course.controller;
 
 import insty.domain.common.SearchRes;
+import insty.domain.common.ViewCountPolicy;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
 import insty.domain.course.dto.CourseMySearchInfo;
@@ -88,6 +89,16 @@ public class CourseController {
         return SuccessRes.of(null);
     }
 
+    @Operation(summary = "강의 상세조회(크리에이터용)", description = "크리에이터가 자신의 강의를 조회한다. 조회수는 증가하지 않는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
+    @PreAuthorize("hasRole('CREATOR')")
+    @GetMapping("/creator/{courseId}")
+    public SuccessRes<CourseDetailRes> courseDetailFromCreator(
+            @PathVariable("courseId") Long courseId
+    ) {
+        return SuccessRes.of(courseService.detailCourse(courseId, ViewCountPolicy.SKIP));
+    }
+
     @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
@@ -95,7 +106,7 @@ public class CourseController {
     public SuccessRes<CourseDetailRes> courseDetail(
             @PathVariable("courseId") Long courseId
     ) {
-        return SuccessRes.of(courseService.detailCourse(courseId));
+        return SuccessRes.of(courseService.detailCourse(courseId, ViewCountPolicy.INCREASE));
     }
 
     @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")

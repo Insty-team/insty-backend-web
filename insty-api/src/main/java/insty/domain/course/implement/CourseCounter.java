@@ -1,5 +1,6 @@
 package insty.domain.course.implement;
 
+import insty.domain.common.ViewCountPolicy;
 import insty.domain.course.repository.CourseRepository;
 import insty.error.CourseErrorCode;
 import insty.exception.CustomException;
@@ -21,8 +22,10 @@ public class CourseCounter {
      * @param courseId
      * @return
      */
-    public Course increaseViewCountAndGetCourse(Long courseId) {
-        courseRepository.incrementViewCount(courseId);
+    public Course increaseViewCountAndGetCourse(Long courseId, ViewCountPolicy viewCountPolicy) {
+        if(ViewCountPolicy.SKIP != viewCountPolicy) {
+            courseRepository.incrementViewCount(courseId);
+        }
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(CourseErrorCode.COURSE_NOT_FOUND));
     }
