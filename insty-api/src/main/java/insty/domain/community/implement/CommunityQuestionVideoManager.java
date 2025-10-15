@@ -1,12 +1,16 @@
 package insty.domain.community.implement;
 
 import insty.ai.adapter.AiRequester;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityQuestion;
+import insty.model.video.VideoEncoding;
 import insty.model.video.VideoQuestion;
 import java.util.UUID;
+
+import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityQuestionVideoManager {
 
     private final AiRequester aiRequester;
+    private final S3FileManager s3FileManager;
+    private final VideoEncodingRepository videoEncodingRepository;
     private final VideoQuestionRepository videoQuestionRepository;
 
     /**
@@ -60,7 +66,12 @@ public class CommunityQuestionVideoManager {
         if (videoQuestion == null) {
             return;
         }
+        VideoEncoding videoEncoding = videoEncodingRepository.findByVideoUuid(videoQuestion.getVideoUuid())
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING));
+        String directory = videoEncoding.getEncodingVideoDirectoryPath();
         videoQuestionRepository.delete(videoQuestion);
+        videoEncodingRepository.delete(videoEncoding);
         aiRequester.deleteAiVideoInfo(videoQuestion.getVideoUuid());
+        s3FileManager.deleteAllByDirectory(directory);
     }
 }

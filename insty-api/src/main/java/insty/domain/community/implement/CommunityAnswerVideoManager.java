@@ -2,6 +2,7 @@ package insty.domain.community.implement;
 
 import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoAnswerRepository;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
@@ -10,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import insty.model.video.VideoEncoding;
+import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityAnswerVideoManager {
 
     private final AiRequester aiRequester;
+    private final S3FileManager s3FileManager;
+    private final VideoEncodingRepository videoEncodingRepository;
     private final VideoAnswerRepository videoAnswerRepository;
 
 
@@ -65,8 +71,13 @@ public class CommunityAnswerVideoManager {
         if (videoAnswer == null) {
             return;
         }
+        VideoEncoding videoEncoding = videoEncodingRepository.findByVideoUuid(videoAnswer.getVideoUuid())
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING));
+        String directory = videoEncoding.getEncodingVideoDirectoryPath();
         videoAnswerRepository.delete(videoAnswer);
+        videoEncodingRepository.delete(videoEncoding);
         aiRequester.deleteAiVideoInfo(videoAnswer.getVideoUuid());
+        s3FileManager.deleteAllByDirectory(directory);
     }
 
     /**

@@ -32,13 +32,18 @@ import insty.domain.community.implement.CommunityValidator;
 import insty.domain.community.repository.CommunityQuestionViewRepository;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.global.property.AppProperties;
 import insty.model.community.CommunityQuestionView;
 import insty.model.community.QuestionStatus;
+import static org.mockito.Mockito.mock;
+
 import insty.model.user.UserType;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -105,6 +110,8 @@ class CommunityQuestionServiceTest {
     private CloudFrontSigner cloudFrontSigner;
     @MockitoBean
     private AiRequester aiRequester;
+    @MockitoBean
+    private VideoEncodingRepository videoEncodingRepository;
 
     /**
      * 질문 생성: 첨부파일/비디오 연동을 검증한다.
@@ -211,6 +218,8 @@ class CommunityQuestionServiceTest {
         when(appProperties.getDomain()).thenReturn("insty.test.com");
         when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("new_q_attachment1.jpg")
                 .thenReturn("new_q_attachment2.png");
+
+        when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
 
         CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(userId, questionId, req,
                 newAttachments);
@@ -538,6 +547,8 @@ class CommunityQuestionServiceTest {
         var before = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(before.getAnswers()).hasSize(2);
         assertThat(communityQuestionVideoManager.getVideoQuestion(before)).isNotNull();
+
+        when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
 
         communityQuestionService.deleteQuestion(userId, questionId);
 

@@ -10,14 +10,18 @@ import static org.mockito.Mockito.when;
 
 import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoAnswerRepository;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.video.VideoAnswer;
+import insty.model.video.VideoEncoding;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import insty.s3.adapter.S3FileManager;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +37,10 @@ class CommunityAnswerVideoManagerTest {
     private CommunityAnswerVideoManager videoManager;
     @Mock
     private AiRequester aiRequester;
+    @Mock
+    private S3FileManager s3FileManager;
+    @Mock
+    private VideoEncodingRepository videoEncodingRepository;
     @Mock
     private VideoAnswerRepository videoAnswerRepository;
 
@@ -145,16 +153,23 @@ class CommunityAnswerVideoManagerTest {
         when(answer.getId()).thenReturn(1L);
         VideoAnswer videoAnswer = mock(VideoAnswer.class);
         UUID videoUuid = UUID.randomUUID();
+        VideoEncoding videoEncoding = mock(VideoEncoding.class);
+        String directory = "some/directory";
+
         when(videoAnswerRepository.findByCommunityAnswerIdAndIsDeleted(1L, false))
-                .thenReturn(Optional.of(videoAnswer));
+            .thenReturn(Optional.of(videoAnswer));
         when(videoAnswer.getVideoUuid()).thenReturn(videoUuid);
+        when(videoEncodingRepository.findByVideoUuid(videoUuid)).thenReturn(Optional.of(videoEncoding));
+        when(videoEncoding.getEncodingVideoDirectoryPath()).thenReturn(directory);
 
         // when
         videoManager.deleteAnswerVideo(answer);
 
         // then
         verify(videoAnswerRepository).delete(videoAnswer);
+        verify(videoEncodingRepository).delete(videoEncoding);
         verify(aiRequester).deleteAiVideoInfo(videoUuid);
+        verify(s3FileManager).deleteAllByDirectory(directory);
     }
 
     @Test
@@ -171,6 +186,24 @@ class CommunityAnswerVideoManagerTest {
         // then
         verify(videoAnswerRepository, never()).delete(any());
         verify(aiRequester, never()).deleteAiVideoInfo(any());
+    }
+
+    @Test
+    void deleteAnswerVideo_에러_인코딩이_완료되지_않은_경우() {
+        // given
+        CommunityAnswer answer = mock(CommunityAnswer.class);
+        when(answer.getId()).thenReturn(1L);
+        VideoAnswer videoAnswer = mock(VideoAnswer.class);
+        when(videoAnswerRepository.findByCommunityAnswerIdAndIsDeleted(1L, false))
+            .thenReturn(Optional.of(videoAnswer));
+        when(videoEncodingRepository.findByVideoUuid(any()))
+            .thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> videoManager.deleteAnswerVideo(answer))
+            .isInstanceOf(CustomException.class)
+            .extracting(e -> ((CustomException) e).getErrorCode())
+            .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
     }
 
     @Test
