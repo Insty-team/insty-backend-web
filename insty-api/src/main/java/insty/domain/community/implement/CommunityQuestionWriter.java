@@ -36,7 +36,7 @@ public class CommunityQuestionWriter {
         if (question.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
         }
-        question.update(req.title(), req.content(), question.getAttachments());
+        question.update(req.title(), req.content());
         return communityQuestionRepository.save(question);
     }
 

@@ -68,7 +68,7 @@ class CommunityQuestionWriterTest {
 
         // then
         assertThat(result).isNotNull();
-        verify(question).update("제목", "내용", question.getAttachments());
+        verify(question).update("제목", "내용");
         verify(repository).save(question);
     }
 

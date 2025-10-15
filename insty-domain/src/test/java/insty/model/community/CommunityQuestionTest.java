@@ -184,15 +184,13 @@ class CommunityQuestionTest {
         CommunityQuestion communityQuestion = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
         String title = "수정된 제목";
         String content = "수정된 내용";
-        List<CommunityQuestionFile> attachments = new ArrayList<>();
 
         // when
-        communityQuestion.update(title, content, attachments);
+        communityQuestion.update(title, content);
 
         // then
         assertThat(communityQuestion.getTitle()).isEqualTo(title);
         assertThat(communityQuestion.getContent()).isEqualTo(content);
-        assertThat(communityQuestion.getAttachments()).isEqualTo(attachments);
     }
 
     @Test
