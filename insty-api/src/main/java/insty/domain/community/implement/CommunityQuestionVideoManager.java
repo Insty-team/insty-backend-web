@@ -6,6 +6,7 @@ import insty.domain.video.repository.VideoQuestionRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityQuestion;
+import insty.model.video.VideoAnswer;
 import insty.model.video.VideoEncoding;
 import insty.model.video.VideoQuestion;
 import java.util.UUID;
@@ -43,8 +44,9 @@ public class CommunityQuestionVideoManager {
      * videoUuid가 null이면 기존에 연결된 영상을 반환한다.
      */
     public VideoQuestion updateAndGetLinkedVideo(CommunityQuestion question, UUID videoUuid) {
-        if (videoUuid == null) {
-            return getVideoQuestion(question);
+        VideoQuestion currentVideo = getVideoQuestion(question);
+        if (videoUuid == null || (currentVideo != null && currentVideo.getVideoUuid().equals(videoUuid))) {
+            return currentVideo;
         }
         deleteQuestionVideo(question);
         return attachVideoToQuestion(question, videoUuid);

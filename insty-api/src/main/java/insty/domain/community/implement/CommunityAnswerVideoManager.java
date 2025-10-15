@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import insty.model.video.VideoEncoding;
+import insty.model.video.VideoQuestion;
 import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,8 +49,9 @@ public class CommunityAnswerVideoManager {
      * videoUuid가 null이면 기존에 연결된 영상을 반환한다.
      */
     public VideoAnswer updateAndGetLinkedVideo(CommunityAnswer answer, UUID videoUuid) {
-        if (videoUuid == null) {
-            return getVideoAnswer(answer);
+        VideoAnswer currentVideo = getVideoAnswer(answer);
+        if (videoUuid == null || (currentVideo != null && currentVideo.getVideoUuid().equals(videoUuid))) {
+            return currentVideo;
         }
         deleteAnswerVideo(answer);
         return attachVideoToAnswer(answer, videoUuid);
