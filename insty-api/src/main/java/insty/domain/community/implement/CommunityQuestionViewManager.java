@@ -1,15 +1,15 @@
 package insty.domain.community.implement;
 
 import insty.domain.community.repository.CommunityQuestionViewRepository;
-import insty.domain.community.implement.CommunityQuestionReader;
 import insty.model.community.CommunityQuestion;
 import insty.model.community.CommunityQuestionView;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

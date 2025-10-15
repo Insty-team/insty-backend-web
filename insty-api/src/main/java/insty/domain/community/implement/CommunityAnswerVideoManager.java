@@ -7,17 +7,16 @@ import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.video.VideoAnswer;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import insty.model.video.VideoEncoding;
-import insty.model.video.VideoQuestion;
 import insty.s3.adapter.S3FileManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
