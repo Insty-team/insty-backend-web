@@ -2,17 +2,21 @@ package insty.domain.community.implement;
 
 import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoAnswerRepository;
+import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityAnswer;
 import insty.model.video.VideoAnswer;
+import insty.model.video.VideoEncoding;
+import insty.s3.adapter.S3FileManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -20,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityAnswerVideoManager {
 
     private final AiRequester aiRequester;
+    private final S3FileManager s3FileManager;
+    private final VideoEncodingRepository videoEncodingRepository;
     private final VideoAnswerRepository videoAnswerRepository;
 
 
@@ -42,10 +48,22 @@ public class CommunityAnswerVideoManager {
      * videoUuid가 null이면 기존에 연결된 영상을 반환한다.
      */
     public VideoAnswer updateAndGetLinkedVideo(CommunityAnswer answer, UUID videoUuid) {
+        VideoAnswer currentVideo = getVideoAnswer(answer);
+
         if (videoUuid == null) {
-            return getVideoAnswer(answer);
+            if (currentVideo != null) {
+                deleteAnswerVideo(answer);
+            }
+            return null;
         }
-        deleteAnswerVideo(answer);
+
+        if (currentVideo != null && currentVideo.getVideoUuid().equals(videoUuid)) {
+            return currentVideo;
+        }
+
+        if (currentVideo != null) {
+            deleteAnswerVideo(answer);
+        }
         return attachVideoToAnswer(answer, videoUuid);
     }
 
@@ -65,8 +83,13 @@ public class CommunityAnswerVideoManager {
         if (videoAnswer == null) {
             return;
         }
+        VideoEncoding videoEncoding = videoEncodingRepository.findByVideoUuid(videoAnswer.getVideoUuid())
+                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING));
+        String directory = videoEncoding.getEncodingVideoDirectoryPath();
         videoAnswerRepository.delete(videoAnswer);
+        videoEncodingRepository.delete(videoEncoding);
         aiRequester.deleteAiVideoInfo(videoAnswer.getVideoUuid());
+        s3FileManager.deleteAllByDirectory(directory);
     }
 
     /**

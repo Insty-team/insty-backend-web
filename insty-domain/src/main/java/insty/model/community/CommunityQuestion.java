@@ -106,10 +106,9 @@ public class CommunityQuestion extends BaseEntity {
         }
     }
 
-    public void update(String title, String content, List<CommunityQuestionFile> attachments) {
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
-        this.attachments = attachments;
     }
 
     public void acceptAnswer(CommunityAnswer answer) {
