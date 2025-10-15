@@ -49,10 +49,21 @@ public class CommunityAnswerVideoManager {
      */
     public VideoAnswer updateAndGetLinkedVideo(CommunityAnswer answer, UUID videoUuid) {
         VideoAnswer currentVideo = getVideoAnswer(answer);
-        if (videoUuid == null || (currentVideo != null && currentVideo.getVideoUuid().equals(videoUuid))) {
+
+        if (videoUuid == null) {
+            if (currentVideo != null) {
+                deleteAnswerVideo(answer);
+            }
+            return null;
+        }
+
+        if (currentVideo != null && currentVideo.getVideoUuid().equals(videoUuid)) {
             return currentVideo;
         }
-        deleteAnswerVideo(answer);
+
+        if (currentVideo != null) {
+            deleteAnswerVideo(answer);
+        }
         return attachVideoToAnswer(answer, videoUuid);
     }
 

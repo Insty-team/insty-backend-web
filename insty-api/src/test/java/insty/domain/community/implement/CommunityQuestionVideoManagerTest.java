@@ -75,42 +75,109 @@ class CommunityQuestionVideoManagerTest {
     }
 
     @Test
-    void updateAndGetLinkedVideo_정상_새로운비디오() {
+    void updateAndGetLinkedVideo_새로운비디오_기존비디오없음() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(question.getId()).thenReturn(1L);
+        UUID newVideoUuid = UUID.randomUUID();
+        VideoQuestion newVideoQuestion = mock(VideoQuestion.class);
+        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false)).thenReturn(Optional.empty());
+        when(videoQuestionRepository.findByVideoUuid(newVideoUuid)).thenReturn(Optional.of(newVideoQuestion));
+        when(videoQuestionRepository.save(newVideoQuestion)).thenReturn(newVideoQuestion);
+
+        // when
+        VideoQuestion result = videoManager.updateAndGetLinkedVideo(question, newVideoUuid);
+
+        // then
+        assertThat(result).isEqualTo(newVideoQuestion);
+        verify(videoQuestionRepository, never()).delete(any());
+        verify(newVideoQuestion).updateCommunityQuestion(question);
+    }
+
+    @Test
+    void updateAndGetLinkedVideo_새로운비디오_기존비디오있음() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(question.getId()).thenReturn(1L);
+        UUID oldVideoUuid = UUID.randomUUID();
+        UUID newVideoUuid = UUID.randomUUID();
+        VideoQuestion oldVideoQuestion = mock(VideoQuestion.class);
+        when(oldVideoQuestion.getVideoUuid()).thenReturn(oldVideoUuid);
+        VideoQuestion newVideoQuestion = mock(VideoQuestion.class);
+        VideoEncoding oldVideoEncoding = mock(VideoEncoding.class);
+
+        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false)).thenReturn(Optional.of(oldVideoQuestion));
+        when(videoEncodingRepository.findByVideoUuid(oldVideoUuid)).thenReturn(Optional.of(oldVideoEncoding));
+        when(videoQuestionRepository.findByVideoUuid(newVideoUuid)).thenReturn(Optional.of(newVideoQuestion));
+        when(videoQuestionRepository.save(newVideoQuestion)).thenReturn(newVideoQuestion);
+
+        // when
+        VideoQuestion result = videoManager.updateAndGetLinkedVideo(question, newVideoUuid);
+
+        // then
+        assertThat(result).isEqualTo(newVideoQuestion);
+        verify(videoQuestionRepository).delete(oldVideoQuestion);
+        verify(videoEncodingRepository).delete(oldVideoEncoding);
+        verify(aiRequester).deleteAiVideoInfo(oldVideoUuid);
+        verify(s3FileManager).deleteAllByDirectory(any());
+        verify(newVideoQuestion).updateCommunityQuestion(question);
+    }
+
+    @Test
+    void updateAndGetLinkedVideo_동일비디오() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(question.getId()).thenReturn(1L);
         UUID videoUuid = UUID.randomUUID();
-        VideoQuestion videoQuestion = mock(VideoQuestion.class);
-        when(videoQuestionRepository.findByVideoUuid(videoUuid)).thenReturn(Optional.of(videoQuestion));
-        when(videoQuestionRepository.save(videoQuestion)).thenReturn(videoQuestion);
-        // getVideoQuestion이 null을 반환하도록 설정 (기존 비디오 없음)
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false))
-                .thenReturn(Optional.empty());
+        VideoQuestion existingVideo = mock(VideoQuestion.class);
+        when(existingVideo.getVideoUuid()).thenReturn(videoUuid);
+        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false)).thenReturn(Optional.of(existingVideo));
 
         // when
         VideoQuestion result = videoManager.updateAndGetLinkedVideo(question, videoUuid);
 
         // then
-        assertThat(result).isEqualTo(videoQuestion);
-        verify(videoQuestion).updateCommunityQuestion(question);
-        verify(videoQuestionRepository).save(videoQuestion);
+        assertThat(result).isEqualTo(existingVideo);
+        verify(videoQuestionRepository, never()).delete(any());
+        verify(videoQuestionRepository, never()).save(any());
     }
 
     @Test
-    void updateAndGetLinkedVideo_정상_videoUuid가null() {
+    void updateAndGetLinkedVideo_null_기존비디오있음() {
         // given
         CommunityQuestion question = mock(CommunityQuestion.class);
         when(question.getId()).thenReturn(1L);
-        VideoQuestion existingVideo = mock(VideoQuestion.class);
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false))
-                .thenReturn(Optional.of(existingVideo));
+        UUID oldVideoUuid = UUID.randomUUID();
+        VideoQuestion oldVideoQuestion = mock(VideoQuestion.class);
+        when(oldVideoQuestion.getVideoUuid()).thenReturn(oldVideoUuid);
+        VideoEncoding oldVideoEncoding = mock(VideoEncoding.class);
+        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false)).thenReturn(Optional.of(oldVideoQuestion));
+        when(videoEncodingRepository.findByVideoUuid(oldVideoUuid)).thenReturn(Optional.of(oldVideoEncoding));
 
         // when
         VideoQuestion result = videoManager.updateAndGetLinkedVideo(question, null);
 
         // then
-        assertThat(result).isEqualTo(existingVideo);
-        verify(videoQuestionRepository, never()).findByVideoUuid(any());
+        assertThat(result).isNull();
+        verify(videoQuestionRepository).delete(oldVideoQuestion);
+        verify(videoEncodingRepository).delete(oldVideoEncoding);
+        verify(aiRequester).deleteAiVideoInfo(oldVideoUuid);
+        verify(s3FileManager).deleteAllByDirectory(any());
+    }
+
+    @Test
+    void updateAndGetLinkedVideo_null_기존비디오없음() {
+        // given
+        CommunityQuestion question = mock(CommunityQuestion.class);
+        when(question.getId()).thenReturn(1L);
+        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(1L, false)).thenReturn(Optional.empty());
+
+        // when
+        VideoQuestion result = videoManager.updateAndGetLinkedVideo(question, null);
+
+        // then
+        assertThat(result).isNull();
+        verify(videoQuestionRepository, never()).delete(any());
     }
 
     @Test
