@@ -34,11 +34,11 @@ public class UserActionTrackingAspect {
     private static final String PROP_MEMBER_ID = "memberId";
     private static final String PROP_HTTP_METHOD = "httpMethod";
     // Mixpanel 이벤트 지오IP 파싱용 표준 키
-    private static final String PROP_IP = "ip";
+    private static final String PROP_IP = "$ip";
     private static final String PROP_PATH = "path";
     // 실패 이벤트에 사용(민감정보 금지, 클래스명 수준)
     private static final String PROP_EXCEPTION = "exception";
-    private static final String PROP_INSERT_ID = "insert_id";
+    private static final String PROP_INSERT_ID = "$insert_id";
 
     private static final String HDR_X_FORWARDED_FOR = "X-Forwarded-For";
     private static final String HDR_X_REAL_IP = "X-Real-IP";
