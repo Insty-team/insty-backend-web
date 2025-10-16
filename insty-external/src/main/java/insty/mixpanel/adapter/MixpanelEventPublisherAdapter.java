@@ -108,7 +108,9 @@ public record MixpanelEventPublisherAdapter(WebClient webClient, String projectT
             });
         }
         eventProperties.put(PROPERTY_TOKEN, projectToken);
-        eventProperties.put(PROPERTY_DISTINCT_ID, (distinctId == null) ? "anonymous" : String.valueOf(distinctId));
+        if (distinctId != null) {
+                eventProperties.put(PROPERTY_DISTINCT_ID, String.valueOf(distinctId));
+            }
         eventProperties.putIfAbsent(PROPERTY_TIME, Instant.now().getEpochSecond());
         eventProperties.putIfAbsent(PROPERTY_INSERT_ID, UUID.randomUUID().toString());
         return eventProperties;

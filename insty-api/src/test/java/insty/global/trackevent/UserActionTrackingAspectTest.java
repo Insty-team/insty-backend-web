@@ -91,12 +91,12 @@ class UserActionTrackingAspectTest {
         assertThat(distinctIdCaptor.getValue()).isEqualTo(777L);
         assertThat(props.get("memberId")).isEqualTo(777L);
         assertThat(props.get("httpMethod")).isEqualTo("GET");
-        assertThat(props.get("ip")).isEqualTo("203.0.113.10");
+        assertThat(props.get("$ip")).isEqualTo("203.0.113.10");
         assertThat(props.get("path")).isEqualTo("/api/courses/123");
         assertThat(String.valueOf(props.get("courseId"))).isEqualTo("123");
         // insert_id 는 매번 새 UUID
-        assertThat(props.get("insert_id")).isInstanceOf(String.class);
-        assertThat(((String) props.get("insert_id"))).hasSizeGreaterThan(10);
+        assertThat(props.get("$insert_id")).isInstanceOf(String.class);
+        assertThat(((String) props.get("$insert_id"))).hasSizeGreaterThan(10);
     }
 
     @Test
@@ -126,7 +126,7 @@ class UserActionTrackingAspectTest {
 
         // then
         verify(analyticsEventPublisher).publish(any(), any(), propertiesCaptor.capture());
-        assertThat(propertiesCaptor.getValue().get("ip")).isEqualTo("118.47.11.208");
+        assertThat(propertiesCaptor.getValue().get("$ip")).isEqualTo("118.47.11.208");
     }
 
     @Test
@@ -156,7 +156,7 @@ class UserActionTrackingAspectTest {
 
         // then
         verify(analyticsEventPublisher).publish(any(), any(), propertiesCaptor.capture());
-        assertThat(propertiesCaptor.getValue().get("ip")).isEqualTo("203.0.113.195");
+        assertThat(propertiesCaptor.getValue().get("$ip")).isEqualTo("203.0.113.195");
     }
 
     @Test
@@ -201,8 +201,8 @@ class UserActionTrackingAspectTest {
         assertThat(props.get("memberId")).isEqualTo(888L);
         assertThat(props.containsKey("httpMethod")).isFalse();
         assertThat(props.containsKey("path")).isFalse();
-        assertThat(props.containsKey("ip")).isFalse();
-        assertThat(props.get("insert_id")).isInstanceOf(String.class);
+        assertThat(props.containsKey("$ip")).isFalse();
+        assertThat(props.get("$insert_id")).isInstanceOf(String.class);
     }
 
     @Test
@@ -243,7 +243,7 @@ class UserActionTrackingAspectTest {
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_SIGNUP_FAILED);
         assertThat(distinctIdCaptor.getValue()).isNull();
         assertThat(propertiesCaptor.getValue().get("exception")).isEqualTo("IllegalStateException");
-        assertThat(propertiesCaptor.getValue().get("insert_id")).isInstanceOf(String.class);
+        assertThat(propertiesCaptor.getValue().get("$insert_id")).isInstanceOf(String.class);
     }
 
     @Test
@@ -275,7 +275,7 @@ class UserActionTrackingAspectTest {
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_LOGGED_IN);
         assertThat(distinctIdCaptor.getValue()).isEqualTo(999L);
         assertThat(props.get("memberId")).isEqualTo(999L);
-        assertThat(props.get("insert_id")).isInstanceOf(String.class);
+        assertThat(props.get("$insert_id")).isInstanceOf(String.class);
     }
 
     @Test
@@ -308,7 +308,7 @@ class UserActionTrackingAspectTest {
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_SIGNUP_FAILED);
         assertThat(distinctIdCaptor.getValue()).isNull();
         assertThat(propertiesCaptor.getValue().get("exception")).isEqualTo("RuntimeException");
-        assertThat(propertiesCaptor.getValue().get("insert_id")).isInstanceOf(String.class);
+        assertThat(propertiesCaptor.getValue().get("$insert_id")).isInstanceOf(String.class);
     }
 
     // 테스트에 사용하는 유틸 ---
