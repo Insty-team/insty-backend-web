@@ -243,7 +243,7 @@ class UserActionTrackingAspectTest {
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_SIGNUP_FAILED);
         assertThat(distinctIdCaptor.getValue()).isNull();
         assertThat(propertiesCaptor.getValue().get("exception")).isEqualTo("IllegalStateException");
-        assertThat(propertiesCaptor.getValue().get("insert_id")).isInstanceOf(String.class);
+        assertThat(propertiesCaptor.getValue().get("$insert_id")).isInstanceOf(String.class);
     }
 
     @Test
@@ -275,7 +275,7 @@ class UserActionTrackingAspectTest {
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_LOGGED_IN);
         assertThat(distinctIdCaptor.getValue()).isEqualTo(999L);
         assertThat(props.get("memberId")).isEqualTo(999L);
-        assertThat(props.get("insert_id")).isInstanceOf(String.class);
+        assertThat(props.get("$insert_id")).isInstanceOf(String.class);
     }
 
     @Test
@@ -308,7 +308,7 @@ class UserActionTrackingAspectTest {
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_SIGNUP_FAILED);
         assertThat(distinctIdCaptor.getValue()).isNull();
         assertThat(propertiesCaptor.getValue().get("exception")).isEqualTo("RuntimeException");
-        assertThat(propertiesCaptor.getValue().get("insert_id")).isInstanceOf(String.class);
+        assertThat(propertiesCaptor.getValue().get("$insert_id")).isInstanceOf(String.class);
     }
 
     // 테스트에 사용하는 유틸 ---
