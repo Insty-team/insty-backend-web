@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
-import insty.domain.common.SimpleRes;
 import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseCreateReq;
@@ -585,10 +584,10 @@ class CourseServiceTest {
         Long userId = 1L;
         Long courseId = 1L;
         //when
-        SimpleRes<Boolean> res = courseService.searchCourseProgressExists(userId, courseId);
+        boolean result = courseService.searchCourseProgressExists(userId, courseId);
         //then
-        assertThat(res).isNotNull();
-        assertThat(res.data()).isTrue();
+
+        assertThat(result).isTrue();
 
     }
 }
