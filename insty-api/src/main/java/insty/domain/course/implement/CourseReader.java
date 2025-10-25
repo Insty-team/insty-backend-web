@@ -3,6 +3,7 @@ package insty.domain.course.implement;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
+import insty.domain.course.repository.CourseProgressRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
@@ -24,6 +25,7 @@ public class CourseReader {
     private final CourseInstallEnvChecklistRepository courseInstallEnvChecklistRepository;
     private final CourseKeypointRepository courseKeypointRepository;
     private final CourseTagRepository courseTagRepository;
+    private final CourseProgressRepository courseProgressRepository;
 
     public List<CourseInstallEnvChecklistInfo> getChecklistsByCourseId(Long courseId) {
         return courseInstallEnvChecklistRepository.findAllByCourseId(courseId).stream()
@@ -46,6 +48,10 @@ public class CourseReader {
     public Course getCourseById(Long courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(CourseErrorCode.COURSE_NOT_FOUND));
+    }
+
+    public boolean getCourseProgressExists(Long userId, Long courseId) {
+        return courseProgressRepository.existsByUserIdAndCourseId(userId,courseId);
     }
 
 
