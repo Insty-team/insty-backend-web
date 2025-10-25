@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
+import insty.domain.common.SimpleRes;
 import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.CourseCreateReq;
@@ -517,7 +518,7 @@ class CourseServiceTest {
                     + "VALUES (2, 1, 1, '테스트 질문2', '테스트 내용2', 'WAITING', NOW(), NOW(), false)"
     })
     @Test
-    void searchCourseProgresses_정상(){
+    void searchCourseProgresses_정상() {
         //given
         Long userId = 1L;
         int page = 1;
@@ -555,7 +556,7 @@ class CourseServiceTest {
                     + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);"
     })
     @Test
-    void createCourseProgressAsCompleted_정상(){
+    void createCourseProgressAsCompleted_정상() {
         //given
         Long userId = 1L;
         Long courseId = 1L;
@@ -566,6 +567,28 @@ class CourseServiceTest {
         assertThat(res.courseId()).isEqualTo(courseId);
         assertThat(res.userId()).isEqualTo(userId);
         assertThat(res.status()).isEqualTo(CourseProgressStatus.COMPLETED);
+
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.course_progress (id, user_id, course_id , status , created_at, updated_at) "
+            + "VALUES (1, 1, 1, 'COMPLETE', NOW(), NOW())"
+
+    })
+    @Test
+    void searchCourseProgressExists_정상() {
+        //given
+        Long userId = 1L;
+        Long courseId = 1L;
+        //when
+        SimpleRes<Boolean> res = courseService.searchCourseProgressExists(userId, courseId);
+        //then
+        assertThat(res).isNotNull();
+        assertThat(res.data()).isTrue();
 
     }
 }

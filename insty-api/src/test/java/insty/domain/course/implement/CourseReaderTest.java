@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
+import insty.domain.course.repository.CourseProgressRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.domain.course.repository.CourseTagRepository;
 import insty.error.CourseErrorCode;
@@ -40,6 +41,8 @@ class CourseReaderTest {
     private CourseKeypointRepository courseKeypointRepository;
     @Mock
     private CourseTagRepository courseTagRepository;
+    @Mock
+    private CourseProgressRepository courseProgressRepository;
 
     @Test
     void getChecklistsByCourseId_정상() {
@@ -134,5 +137,21 @@ class CourseReaderTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseErrorCode.COURSE_NOT_FOUND);
+    }
+
+    @Test
+    void getCourseProgressExists_정상() {
+        //given
+        Long userId = 1L;
+        Long courseId = 1L;
+        //mock
+        when(courseProgressRepository.existsByUserIdAndCourseId(userId,courseId))
+                .thenReturn(true);
+        //when
+        boolean courseProgressExists = courseReader.getCourseProgressExists(userId, courseId);
+
+        //then
+        assertThat(courseProgressExists).isTrue();
+
     }
 }

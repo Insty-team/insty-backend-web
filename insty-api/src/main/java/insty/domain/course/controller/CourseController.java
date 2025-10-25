@@ -1,6 +1,7 @@
 package insty.domain.course.controller;
 
 import insty.domain.common.SearchRes;
+import insty.domain.common.SimpleRes;
 import insty.domain.common.ViewCountPolicy;
 import insty.domain.course.dto.CourseCreateReq;
 import insty.domain.course.dto.CourseDetailRes;
@@ -152,4 +153,15 @@ public class CourseController {
         return SuccessRes.of(courseService.createCourseProgressAsCompleted(userId,courseId));
     }
 
+
+    @Operation(summary = "강좌 수강 여부 조회", description = "userId와 courseId를 기준으로 강좌 수강 여부를 단일 조회한다.")
+    @PreAuthorize("hasRole('LEARNER')")
+    @GetMapping("/courseProgress/{courseId}/exists")
+    public SuccessRes<SimpleRes<Boolean>> searchCourseProgressExists(
+            @CurrentUser Long userId,
+            @PathVariable("courseId") Long courseId
+    ) {
+        SimpleRes<Boolean> result = courseService.searchCourseProgressExists(userId, courseId);
+        return SuccessRes.of(result);
+    }
 }

@@ -2,6 +2,7 @@ package insty.domain.course.service;
 
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
+import insty.domain.common.SimpleRes;
 import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
@@ -173,5 +174,9 @@ public class CourseService {
 
         CourseProgress courseProgress = courseProgressWriter.saveCourseProgress(user, course);
         return CourseProgressRes.from(courseProgress);
+    }
+
+    public SimpleRes<Boolean> searchCourseProgressExists(Long userId,  Long courseId) {
+        return SimpleRes.from(courseReader.getCourseProgressExists(userId,courseId));
     }
 }
