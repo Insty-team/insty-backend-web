@@ -1,12 +1,12 @@
 package insty.domain.auth.service;
 
+import insty.domain.auth.dto.response.AuthUserRes;
+import insty.domain.auth.implement.AuthTokenIssuer;
 import insty.domain.auth.implement.AuthTokenRedisWriter;
 import insty.domain.auth.implement.AuthTokenValidator;
 import insty.domain.auth.strategy.SocialStrategy;
 import insty.domain.user.dto.UserAuthTokenDto;
 import insty.domain.user.dto.request.UserLoginReq;
-import insty.domain.auth.dto.response.AuthUserRes;
-import insty.domain.auth.implement.AuthTokenIssuer;
 import insty.domain.user.dto.request.UserSocialLoginReq;
 import insty.domain.user.implement.UserReader;
 import insty.domain.user.implement.UserWriter;
@@ -124,6 +124,8 @@ public class AuthService {
         log.info("{} 로그인 전략 동작", socialName);
 
         // 각 전략에 맞춰 유저 정보 조회
+        // todo 1: social login process 순서가 이상 -> 개선 필요
+        // todo 2: 기존 동일한 email을 보유한 계정이 존재할 경우 migration 필요
         User findUser = socialLoginStrategy.loginBySocial(req.code(), req.userType());
 
         // 마지막 로그인 시간 변경 및 유저타입 변경

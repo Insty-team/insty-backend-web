@@ -1,5 +1,6 @@
 package insty.domain.auth.strategy;
 
+import insty.domain.user.implement.UserValidator;
 import insty.domain.user.repository.UserRepository;
 import insty.generator.NicknameGenerator;
 import insty.model.user.SocialType;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class GoogleStrategy implements SocialStrategy {
 
     private final GoogleService googleService;
+    private final UserValidator userValidator;
     private final UserRepository userRepository;
 
     /**
@@ -57,6 +59,7 @@ public class GoogleStrategy implements SocialStrategy {
 
         return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.GOOGLE)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
+                    userValidator.validateDuplicateEmail(email);
                     User newUser = User.createBySocial(socialId, SocialType.GOOGLE, email, nickname, userType);
                     return userRepository.save(newUser);
                 });

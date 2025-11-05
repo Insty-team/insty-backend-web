@@ -27,6 +27,7 @@ public class UserValidator {
      */
     public void validateDuplicateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
+            // todo: custom exception 확장 필요할듯. 너무 고정적
             throw new CustomException(UserErrorCode.USER_DUPLICATE_EMAIL);
         }
     }
