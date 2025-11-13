@@ -9,12 +9,12 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Getter
 @Entity
+@Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "notification")
+@Table(name = "notifications", schema = "web_service")
 public class Notification extends BaseEntity {
 
     @Id
@@ -22,23 +22,24 @@ public class Notification extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
     private NotificationType type;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String message;
 
+    @Column(name = "redirect_url", length = 255)
     private String redirectUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private NotificationState state;
 
     public static Notification create(User user, NotificationType type, String title, String message,
