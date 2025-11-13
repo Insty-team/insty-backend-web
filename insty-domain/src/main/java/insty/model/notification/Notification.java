@@ -2,12 +2,11 @@ package insty.model.notification;
 
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
+import insty.model.BaseEntity;
 import insty.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Getter
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "notification")
-public class Notification {
+public class Notification extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,8 +41,6 @@ public class Notification {
     @Column(nullable = false)
     private NotificationState state;
 
-    private LocalDateTime createdAt;
-
     public static Notification create(User user, NotificationType type, String title, String message,
                                       String redirectUrl) {
         validateCreate(user, type, title, message, redirectUrl);
@@ -67,5 +64,23 @@ public class Notification {
             log.error("생성 오류 - notification : 알림 제목은 비어 있을 수 없습니다");
             throw new CustomException(NotificationErrorCode.NOTIFICATION_CREATE_ERROR);
         }
+    }
+
+    public void markAsRead() {
+        if (this.state == NotificationState.READ) {
+            return;
+        }
+        this.state = NotificationState.READ;
+    }
+
+    public void markAsUnread() {
+        if (this.state == NotificationState.UNREAD) {
+            return;
+        }
+        this.state = NotificationState.UNREAD;
+    }
+
+    public void markAsDeleted() {
+        this.state = NotificationState.DELETED;
     }
 }
