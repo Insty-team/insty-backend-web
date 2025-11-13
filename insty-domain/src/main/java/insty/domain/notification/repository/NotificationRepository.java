@@ -1,0 +1,17 @@
+package insty.domain.notification.repository;
+
+import insty.model.notification.Notification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
+    @Query("SELECT n FROM Notification n " +
+            "WHERE n.user.id = :userId " +
+            "AND n.state <> DELETED " +
+            "ORDER BY n.createdAt DESC")
+    Page<Notification> findActiveByUserId(@Param("userId") Long userId, Pageable pageable);
+}
