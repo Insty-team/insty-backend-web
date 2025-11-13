@@ -31,7 +31,7 @@ public class NotificationController {
     public SuccessRes<List<NotificationResponse>> getUserNotifications(
             @CurrentUser Long userId
     ) {
-        return SuccessRes.of(notificationService.getUserNotifications(userId).getContent());
+        return SuccessRes.of(notificationService.getUserNotifications(userId));
     }
 
     @Operation(summary = "알림 읽음 처리 및 이동", description = "알림을 읽음 처리하고, 해당 알림의 리다이렉트 URL을 반환한다.")

@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -30,14 +32,14 @@ public class NotificationService {
      * 사용자 알림 조회
      */
     @Transactional(readOnly = true)
-    public Page<NotificationResponse> getUserNotifications(Long userId) {
+    public List<NotificationResponse> getUserNotifications(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(0, NotificationConstants.DEFAULT_NOTIFICATION_SIZE);
         Page<Notification> notifications = notificationRepository.findActiveByUserId(user.getId(), pageable);
 
-        return notifications.map(NotificationResponse::from);
+        return notifications.map(NotificationResponse::from).getContent();
     }
 
     /**
