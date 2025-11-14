@@ -3,7 +3,6 @@ package insty.model.notification;
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
-import insty.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +20,8 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -42,11 +40,11 @@ public class Notification extends BaseEntity {
     @Column(nullable = false, length = 50)
     private NotificationState state;
 
-    public static Notification create(User user, NotificationType type, String title, String message,
+    public static Notification create(Long userId, NotificationType type, String title, String message,
                                       String redirectUrl) {
-        validateCreate(user, type, title, message, redirectUrl);
+        validateCreate(userId, type, title, message, redirectUrl);
         return Notification.builder()
-                .user(user)
+                .userId(userId)
                 .type(type)
                 .title(title)
                 .message(message)
@@ -55,7 +53,7 @@ public class Notification extends BaseEntity {
                 .build();
     }
 
-    private static void validateCreate(User user, NotificationType type, String title, String message,
+    private static void validateCreate(Long userId, NotificationType type, String title, String message,
                                        String redirectUrl) {
         if (type == null) {
             log.error("생성 오류 - notification : 알림 타입은 필수입니다");
