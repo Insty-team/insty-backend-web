@@ -1,14 +1,15 @@
 package insty.model.notification;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
+import insty.notification.NotificationType;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Tag("unit")
 class NotificationTest {
@@ -23,12 +24,12 @@ class NotificationTest {
         String redirectUrl = "/redirect";
 
         // when
-        Notification notification = Notification.create(user, type, title, message, redirectUrl);
+        Notification notification = Notification.create(user.getId(), type, title, message, redirectUrl);
 
         // then
         assertThat(notification).isNotNull();
         assertThat(notification.getId()).isNull();
-        assertThat(notification.getUser()).isEqualTo(user);
+        assertThat(notification.getUserId()).isEqualTo(user.getId());
         assertThat(notification.getType()).isEqualTo(type);
         assertThat(notification.getTitle()).isEqualTo(title);
         assertThat(notification.getMessage()).isEqualTo(message);
@@ -46,7 +47,7 @@ class NotificationTest {
         String redirectUrl = "/redirect";
 
         // when & then
-        assertThatThrownBy(() -> Notification.create(user, type, title, message, redirectUrl))
+        assertThatThrownBy(() -> Notification.create(user.getId(), type, title, message, redirectUrl))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(NotificationErrorCode.NOTIFICATION_CREATE_ERROR);
@@ -62,7 +63,7 @@ class NotificationTest {
         String redirectUrl = "/redirect";
 
         // when & then
-        assertThatThrownBy(() -> Notification.create(user, type, title, message, redirectUrl))
+        assertThatThrownBy(() -> Notification.create(user.getId(), type, title, message, redirectUrl))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(NotificationErrorCode.NOTIFICATION_CREATE_ERROR);
@@ -78,7 +79,7 @@ class NotificationTest {
         String redirectUrl = "/redirect";
 
         // when & then
-        assertThatThrownBy(() -> Notification.create(user, type, title, message, redirectUrl))
+        assertThatThrownBy(() -> Notification.create(user.getId(), type, title, message, redirectUrl))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(NotificationErrorCode.NOTIFICATION_CREATE_ERROR);
