@@ -1,4 +1,4 @@
-package insty.mail.template;
+package insty.mail;
 
 import lombok.RequiredArgsConstructor;
 import org.thymeleaf.spring6.SpringTemplateEngine;

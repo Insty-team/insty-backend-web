@@ -1,5 +1,6 @@
-package insty.notification;
+package insty.domain.notification.common;
 
+import insty.notification.NotificationType;
 import java.util.HashMap;
 import java.util.Map;
 

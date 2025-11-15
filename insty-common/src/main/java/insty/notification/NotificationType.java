@@ -1,9 +1,6 @@
 package insty.notification;
 
-/**
- * 알림 타입 열거형
- * 메타데이터를 포함하여 확장성을 높임
- */
+
 public enum NotificationType {
     INFO("알림", "notification", null),
     NEW_COURSE("새 강의", "new-course", null),

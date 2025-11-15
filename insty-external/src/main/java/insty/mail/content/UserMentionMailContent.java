@@ -1,7 +1,7 @@
-package insty.domain.notification.content;
+package insty.mail.content;
 
-import insty.mail.MailContent;
 import insty.mail.MailType;
+import insty.mail.MailContent;
 import java.util.Map;
 import java.util.Objects;
 

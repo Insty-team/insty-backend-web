@@ -1,6 +1,6 @@
-package insty.mail;
+package insty.mail.template;
 
-import insty.mail.template.MailTemplate;
+import insty.mail.MailTemplate;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;

@@ -1,7 +1,6 @@
 package insty.domain.notification.strategy;
 
-import insty.model.user.UserNotificationPreference;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationRequest;
 import insty.notification.NotificationType;
 
 /**
@@ -15,14 +14,10 @@ public interface InAppNotificationStrategy {
      */
     NotificationType getType();
 
-    /**
-     * 인앱 알림을 전송해야 하는지 검증
-     *
-     * @param request 알림 요청 데이터
-     * @param preference 사용자 알림 설정
-     * @return 알림 전송 여부
-     */
-    boolean shouldSendInAppNotification(NotificationRequest request, UserNotificationPreference preference);
+
+    default boolean shouldSendInAppNotification(NotificationRequest request) {
+        return true;
+    }
 
     /**
      * 알림 데이터를 빌드

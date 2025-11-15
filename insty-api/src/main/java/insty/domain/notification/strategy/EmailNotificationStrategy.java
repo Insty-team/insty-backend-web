@@ -1,8 +1,7 @@
 package insty.domain.notification.strategy;
 
 import insty.mail.MailContent;
-import insty.model.user.UserNotificationPreference;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationRequest;
 import insty.notification.NotificationType;
 
 /**
@@ -17,13 +16,13 @@ public interface EmailNotificationStrategy {
     NotificationType getType();
 
     /**
-     * 이메일을 전송해야 하는지 검증
      *
      * @param request 알림 요청 데이터
-     * @param preference 사용자 알림 설정
      * @return 이메일 전송 여부
      */
-    boolean shouldSendEmail(NotificationRequest request, UserNotificationPreference preference);
+    default boolean shouldSendEmail(NotificationRequest request) {
+        return true; // 기본적으로 모두 허용, 필요 시 오버라이드
+    }
 
     /**
      * 이메일 컨텐츠를 빌드

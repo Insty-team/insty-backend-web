@@ -4,7 +4,7 @@ import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationRequest;
 import java.util.Objects;
 import java.util.Set;
 import java.util.List;

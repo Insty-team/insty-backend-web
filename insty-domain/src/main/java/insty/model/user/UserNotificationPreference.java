@@ -16,6 +16,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * @deprecated 더 이상 사용되지 않으며 추후 제거 예정.
+ */
+@Deprecated
 @Entity
 @Table(schema = "web_service", name = "user_notification_preferences")
 @Getter

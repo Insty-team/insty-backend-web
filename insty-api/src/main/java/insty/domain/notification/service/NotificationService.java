@@ -11,7 +11,7 @@ import insty.exception.CustomException;
 import insty.model.notification.Notification;
 import insty.model.notification.NotificationState;
 import insty.model.user.User;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

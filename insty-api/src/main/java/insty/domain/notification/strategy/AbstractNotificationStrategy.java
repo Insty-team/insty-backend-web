@@ -3,8 +3,8 @@ package insty.domain.notification.strategy;
 import insty.domain.notification.common.NotificationUtils;
 import insty.mail.MailContent;
 import insty.mail.MailType;
-import insty.mail.content.NotificationMailContent;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationMailContent;
+import insty.domain.notification.common.NotificationRequest;
 import insty.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 

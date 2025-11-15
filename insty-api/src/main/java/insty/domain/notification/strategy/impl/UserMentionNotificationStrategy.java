@@ -4,8 +4,7 @@ import insty.constants.NotificationConstants;
 import insty.domain.notification.common.NotificationUtils;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
 import insty.domain.notification.strategy.NotificationData;
-import insty.model.user.UserNotificationPreference;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationRequest;
 import insty.notification.NotificationType;
 import org.springframework.stereotype.Component;
 
@@ -29,11 +28,7 @@ public class UserMentionNotificationStrategy extends AbstractNotificationStrateg
     }
 
     // ==================== 인앱 알림 ====================
-
-    @Override
-    public boolean shouldSendInAppNotification(NotificationRequest request, UserNotificationPreference preference) {
-        return preference.isUserMentionNotificationEnabled();
-    }
+    // shouldSendInAppNotification은 기본 구현 사용 (항상 true)
 
     @Override
     public NotificationData buildNotificationData(NotificationRequest request) {
@@ -52,14 +47,10 @@ public class UserMentionNotificationStrategy extends AbstractNotificationStrateg
     }
 
     // ==================== 이메일 ====================
+    // shouldSendEmail은 기본 구현 사용 (항상 true)
 
     @Override
-    public boolean shouldSendEmail(NotificationRequest request, UserNotificationPreference preference) {
-        return preference.shouldReceiveUserMentionEmail();
-    }
-
-    @Override
-    public Map<String, Object> buildEmailContext(NotificationRequest request) {
+    protected Map<String, Object> buildEmailContext(NotificationRequest request) {
         Map<String, Object> context = new HashMap<>(request.context());
         String contentType = request.getContentType();
         Long relatedId = request.getRelatedId();

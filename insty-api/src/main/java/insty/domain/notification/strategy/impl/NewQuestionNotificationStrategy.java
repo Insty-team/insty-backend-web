@@ -4,8 +4,7 @@ import insty.constants.NotificationConstants;
 import insty.domain.notification.common.NotificationUtils;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
 import insty.domain.notification.strategy.NotificationData;
-import insty.model.user.UserNotificationPreference;
-import insty.notification.NotificationRequest;
+import insty.domain.notification.common.NotificationRequest;
 import insty.notification.NotificationType;
 import org.springframework.stereotype.Component;
 
@@ -31,11 +30,6 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
     // ==================== 인앱 알림 ====================
 
     @Override
-    public boolean shouldSendInAppNotification(NotificationRequest request, UserNotificationPreference preference) {
-        return preference.isNewQuestionNotificationEnabled();
-    }
-
-    @Override
     public NotificationData buildNotificationData(NotificationRequest request) {
         String questionTitle = request.getQuestionTitle();
         String questionAuthorName = request.getQuestionAuthorName();
@@ -55,12 +49,7 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
     // ==================== 이메일 ====================
 
     @Override
-    public boolean shouldSendEmail(NotificationRequest request, UserNotificationPreference preference) {
-        return preference.shouldReceiveNewQuestionEmail();
-    }
-
-    @Override
-    public Map<String, Object> buildEmailContext(NotificationRequest request) {
+    protected Map<String, Object> buildEmailContext(NotificationRequest request) {
         Map<String, Object> context = new HashMap<>(request.context());
         context.put("questionUrl", notificationUtils.buildQuestionUrl(request.getQuestionId()));
         return context;
