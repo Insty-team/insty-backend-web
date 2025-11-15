@@ -1,4 +1,4 @@
-package insty.mail;
+package insty.mail.config;
 
 import java.util.concurrent.Executor;
 import org.springframework.context.annotation.Bean;

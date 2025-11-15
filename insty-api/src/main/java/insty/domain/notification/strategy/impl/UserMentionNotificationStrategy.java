@@ -1,42 +1,42 @@
 package insty.domain.notification.strategy.impl;
 
 import insty.constants.NotificationConstants;
+import insty.domain.notification.common.NotificationUtils;
+import insty.domain.notification.strategy.AbstractNotificationStrategy;
 import insty.domain.notification.strategy.NotificationData;
-import insty.domain.notification.strategy.NotificationStrategy;
-import insty.domain.notification.util.NotificationUrlBuilder;
 import insty.model.user.UserNotificationPreference;
 import insty.notification.NotificationRequest;
 import insty.notification.NotificationType;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * 사용자 멘션 알림 전략
+ * 인앱 알림 + 이메일 모두 지원
+ */
 @Component
-@RequiredArgsConstructor
-public class UserMentionNotificationStrategy implements NotificationStrategy {
+public class UserMentionNotificationStrategy extends AbstractNotificationStrategy {
 
-    private final NotificationUrlBuilder urlBuilder;
+    public UserMentionNotificationStrategy(NotificationUtils notificationUtils) {
+        super(notificationUtils);
+    }
 
     @Override
     public NotificationType getType() {
         return NotificationType.USER_MENTIONED;
     }
 
+    // ==================== 인앱 알림 ====================
+
     @Override
-    public boolean shouldNotify(NotificationRequest request, UserNotificationPreference preference) {
+    public boolean shouldSendInAppNotification(NotificationRequest request, UserNotificationPreference preference) {
         return preference.isUserMentionNotificationEnabled();
     }
 
     @Override
-    public boolean shouldSendEmail(NotificationRequest request, UserNotificationPreference preference) {
-        return preference.shouldReceiveUserMentionEmail();
-    }
-
-    @Override
-    public NotificationData buildNotification(NotificationRequest request) {
+    public NotificationData buildNotificationData(NotificationRequest request) {
         String mentionerNickname = request.getMentionerNickname();
         String content = request.getContent();
         String contentType = request.getContentType();
@@ -46,9 +46,16 @@ public class UserMentionNotificationStrategy implements NotificationStrategy {
         String message = String.format("%s님이 당신을 언급했습니다: %s",
                 mentionerNickname,
                 truncate(content, NotificationConstants.CONTENT_MAX_LENGTH));
-        String redirectUrl = urlBuilder.buildMentionUrl(contentType, relatedId);
+        String redirectUrl = notificationUtils.buildMentionUrl(contentType, relatedId);
 
         return new NotificationData(title, message, redirectUrl);
+    }
+
+    // ==================== 이메일 ====================
+
+    @Override
+    public boolean shouldSendEmail(NotificationRequest request, UserNotificationPreference preference) {
+        return preference.shouldReceiveUserMentionEmail();
     }
 
     @Override
@@ -57,18 +64,8 @@ public class UserMentionNotificationStrategy implements NotificationStrategy {
         String contentType = request.getContentType();
         Long relatedId = request.getRelatedId();
 
-        context.put("mentionUrl", urlBuilder.buildMentionUrl(contentType, relatedId));
+        context.put("mentionUrl", notificationUtils.buildMentionUrl(contentType, relatedId));
 
         return context;
-    }
-
-    private String truncate(String text, int maxLength) {
-        if (text == null) {
-            return "";
-        }
-        if (text.length() <= maxLength) {
-            return text;
-        }
-        return text.substring(0, maxLength) + "...";
     }
 }

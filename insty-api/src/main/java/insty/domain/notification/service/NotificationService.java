@@ -3,6 +3,7 @@ package insty.domain.notification.service;
 import insty.constants.NotificationConstants;
 import insty.domain.notification.dto.NotificationResponse;
 import insty.domain.notification.repository.NotificationRepository;
+import insty.domain.notification.strategy.NotificationData;
 import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
 import insty.error.UserErrorCode;
@@ -10,6 +11,7 @@ import insty.exception.CustomException;
 import insty.model.notification.Notification;
 import insty.model.notification.NotificationState;
 import insty.model.user.User;
+import insty.notification.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,22 @@ public class NotificationService {
         Page<Notification> notifications = notificationRepository.findActiveByUserId(user.getId(), pageable);
 
         return notifications.map(NotificationResponse::from).getContent();
+    }
+
+    /**
+     * 알림 저장
+     */
+    @Transactional
+    public void saveNotification(NotificationRequest request, NotificationData data) {
+        Notification notification = Notification.create(
+                request.receiverId(),
+                request.type(),
+                data.title(),
+                data.message(),
+                data.redirectUrl()
+        );
+
+        notificationRepository.save(notification);
     }
 
     /**
