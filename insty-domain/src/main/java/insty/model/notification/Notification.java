@@ -3,6 +3,7 @@ package insty.model.notification;
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
+import insty.notification.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;

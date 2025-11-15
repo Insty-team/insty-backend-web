@@ -1,12 +1,10 @@
 package insty.domain.community.implement;
 
-import insty.domain.notification.event.NewAnswerNotificationEvent;
-import insty.domain.notification.event.AnswerAcceptedNotificationEvent;
-import insty.domain.notification.event.NewCommunityQuestionEvent;
 import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
+import insty.notification.NotificationRequest;
 import java.util.Objects;
 import java.util.Set;
 import java.util.List;
@@ -36,8 +34,17 @@ public class CommunityNotificationManager {
         Course course = question.getCourse();
         User questionAuthor = question.getUser();
         User courseCreator = course.getUser();
-        
-        eventPublisher.publishEvent(new NewCommunityQuestionEvent(courseCreator, questionAuthor, question, course));
+
+        NotificationRequest request = NotificationRequest.newCommunityQuestion(
+                courseCreator.getId(),
+                question.getId(),
+                question.getTitle(),
+                question.getContent(),
+                questionAuthor.getNickname(),
+                course.getTitle()
+        );
+
+        eventPublisher.publishEvent(request);
     }
 
     /**
@@ -61,9 +68,18 @@ public class CommunityNotificationManager {
             // creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있는지 확인
             boolean hasNewAnswersAfterCreatorLastView = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(
                     question.getId(), creator.getId());
-            
+
             if (hasNewAnswersAfterCreatorLastView) {
-                eventPublisher.publishEvent(new NewAnswerNotificationEvent(creator, answerAuthor, question, answer));
+                NotificationRequest request = NotificationRequest.newAnswer(
+                        creator.getId(),
+                        question.getId(),
+                        answer.getId(),
+                        question.getTitle(),
+                        answer.getContent(),
+                        answerAuthor.getNickname()
+                );
+
+                eventPublisher.publishEvent(request);
             }
         }
     }
@@ -76,13 +92,30 @@ public class CommunityNotificationManager {
         User questionAuthor = question.getUser();
         Set<User> participants = communityAnswerReader.getParticipantsByQuestionId(question.getId());
 
-        eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(creator, questionAuthor, question, answer));
-        
+        // 답변 작성자에게 알림 전송
+        NotificationRequest acceptRequest = NotificationRequest.answerAccepted(
+                answer.getUser().getId(),
+                question.getId(),
+                answer.getId(),
+                question.getTitle(),
+                answer.getContent()
+        );
+        eventPublisher.publishEvent(acceptRequest);
+
+        // 다른 참여자들에게 알림 전송
         participants.stream()
+                .filter(participant -> !participant.getId().equals(answer.getUser().getId()))
                 .filter(participant -> !participant.getId().equals(questionAuthor.getId()))
                 .filter(participant -> !participant.getId().equals(creator.getId()))
                 .forEach(participant -> {
-                    eventPublisher.publishEvent(new AnswerAcceptedNotificationEvent(participant, questionAuthor, question, answer));
+                    NotificationRequest participantRequest = NotificationRequest.answerAccepted(
+                            participant.getId(),
+                            question.getId(),
+                            answer.getId(),
+                            question.getTitle(),
+                            answer.getContent()
+                    );
+                    eventPublisher.publishEvent(participantRequest);
                 });
     }
 }

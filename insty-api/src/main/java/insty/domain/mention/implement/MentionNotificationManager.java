@@ -1,8 +1,8 @@
 package insty.domain.mention.implement;
 
-import insty.domain.notification.event.UserMentionedEvent;
 import insty.model.community.CommunityQuestion;
 import insty.model.mention.Mention;
+import insty.notification.NotificationRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +20,22 @@ public class MentionNotificationManager {
         if (mentions == null || mentions.isEmpty()) {
             return;
         }
-        
+
         for (Mention mention : mentions) {
-            eventPublisher.publishEvent(
-                    new UserMentionedEvent(mention.getMentionedUser(), mention.getMentionerUser(), communityQuestion));
+            String content = mention.getCommunityAnswer() != null
+                    ? mention.getCommunityAnswer().getContent()
+                    : "";
+
+            NotificationRequest request = NotificationRequest.userMentioned(
+                    mention.getMentionedUser().getId(),
+                    mention.getId(),
+                    mention.getMentionerUser().getNickname(),
+                    content,
+                    "ANSWER",
+                    mention.getCommunityAnswer().getId()
+            );
+
+            eventPublisher.publishEvent(request);
         }
     }
 }
