@@ -10,6 +10,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * @deprecated 더 이상 사용되지 않으며 추후 제거 예정.
+ */
+@Deprecated
 @Tag(name = "유저 알림 설정 API")
 public interface UserNotificationPreferenceControllerDocs {
 
