@@ -76,9 +76,9 @@ public class User extends BaseEntity {
                 .password(password)
                 .nickname(nickname)
                 .introduce("")
-                .isEmailAgreed(false) // 기본 false 설정
-                .userType(UserType.NONE)  // 기본 사용자 타입 지정
-                .isDeleted(false)      // 기본 false
+                .isEmailAgreed(true)
+                .userType(UserType.NONE)
+                .isDeleted(false)
                 .build();
     }
 
@@ -91,9 +91,9 @@ public class User extends BaseEntity {
                 .password("")
                 .nickname(nickname)
                 .introduce("")
-                .isEmailAgreed(false) // 기본 false 설정
-                .userType(userType)  // 기본 사용자 타입 지정
-                .isDeleted(false)      // 기본 false
+                .isEmailAgreed(true)
+                .userType(userType)
+                .isDeleted(false)
                 .build();
     }
 
