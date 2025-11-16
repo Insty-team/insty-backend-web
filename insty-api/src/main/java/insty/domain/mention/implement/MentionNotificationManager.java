@@ -2,7 +2,7 @@ package insty.domain.mention.implement;
 
 import insty.model.community.CommunityQuestion;
 import insty.model.mention.Mention;
-import insty.domain.notification.common.NotificationRequest;
+import insty.domain.notification.dto.NotificationRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,7 @@
 package insty.domain.notification.strategy;
 
-import insty.domain.notification.common.NotificationRequest;
+import insty.domain.notification.dto.NotificationData;
+import insty.domain.notification.dto.NotificationRequest;
 import insty.notification.NotificationType;
 
 /**

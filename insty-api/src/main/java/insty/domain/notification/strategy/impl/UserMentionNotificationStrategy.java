@@ -1,10 +1,10 @@
 package insty.domain.notification.strategy.impl;
 
 import insty.constants.NotificationConstants;
-import insty.domain.notification.common.NotificationUtils;
+import insty.domain.notification.dto.NotificationRequest;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
-import insty.domain.notification.strategy.NotificationData;
-import insty.domain.notification.common.NotificationRequest;
+import insty.domain.notification.dto.NotificationData;
+import insty.domain.notification.util.NotificationUtils;
 import insty.notification.NotificationType;
 import org.springframework.stereotype.Component;
 

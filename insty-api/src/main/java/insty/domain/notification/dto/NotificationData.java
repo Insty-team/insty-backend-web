@@ -1,4 +1,4 @@
-package insty.domain.notification.strategy;
+package insty.domain.notification.dto;
 
 /**
  * 알림 데이터 DTO

@@ -1,17 +1,17 @@
 package insty.domain.notification.handler;
 
+import insty.domain.notification.dto.NotificationRequest;
 import insty.domain.notification.service.NotificationPreferenceService;
 import insty.domain.notification.service.NotificationService;
 import insty.domain.notification.strategy.EmailNotificationStrategy;
 import insty.domain.notification.strategy.InAppNotificationStrategy;
-import insty.domain.notification.strategy.NotificationData;
+import insty.domain.notification.dto.NotificationData;
 import insty.domain.notification.strategy.NotificationStrategyRegistry;
 import insty.domain.user.repository.UserRepository;
 import insty.mail.MailContent;
 import insty.mail.MailHelper;
 import insty.model.user.User;
 import insty.notification.NotificationChannel;
-import insty.domain.notification.common.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

@@ -1,9 +1,10 @@
 package insty.domain.notification.service;
 
 import insty.constants.NotificationConstants;
+import insty.domain.notification.dto.NotificationRequest;
 import insty.domain.notification.dto.NotificationResponse;
 import insty.domain.notification.repository.NotificationRepository;
-import insty.domain.notification.strategy.NotificationData;
+import insty.domain.notification.dto.NotificationData;
 import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
 import insty.error.UserErrorCode;
@@ -11,7 +12,6 @@ import insty.exception.CustomException;
 import insty.model.notification.Notification;
 import insty.model.notification.NotificationState;
 import insty.model.user.User;
-import insty.domain.notification.common.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
