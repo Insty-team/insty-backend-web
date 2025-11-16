@@ -1,6 +1,8 @@
 package insty.domain.notification.service;
 
 import insty.domain.user.repository.UserRepository;
+import insty.error.UserErrorCode;
+import insty.exception.CustomException;
 import insty.model.user.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +48,7 @@ public class UserNotificationSettingMigrationService {
     @Transactional
     public void resetUserSettings(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         preferenceService.initializeDefaultSettings(user);
     }
