@@ -1,5 +1,6 @@
 package insty.domain.auth.strategy;
 
+import insty.domain.user.event.UserCreatedEvent;
 import insty.generator.NicknameGenerator;
 import insty.social.kakao.dto.KakaoTokenRes;
 import insty.social.kakao.dto.KakaoUserInfoRes;
@@ -10,6 +11,7 @@ import insty.model.user.User;
 import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class KakaoStrategy implements SocialStrategy {
     private final KakaoService kakaoService;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      *  전략 사용 지원 여부
@@ -59,7 +62,13 @@ public class KakaoStrategy implements SocialStrategy {
         return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.KAKAO)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
                     User newUser = User.createBySocial(String.valueOf(socialId), SocialType.KAKAO, email, nickname, userType);
-                    return userRepository.save(newUser);
+                    User savedUser = userRepository.save(newUser);
+
+                    // User 생성 이벤트 발행
+                    eventPublisher.publishEvent(new UserCreatedEvent(savedUser));
+                    log.info("카카오 소셜 User 생성 이벤트 발행 - userId: {}", savedUser.getId());
+
+                    return savedUser;
                 });
     }
 }

@@ -1,5 +1,6 @@
 package insty.domain.auth.strategy;
 
+import insty.domain.user.event.UserCreatedEvent;
 import insty.domain.user.repository.UserRepository;
 import insty.generator.NicknameGenerator;
 import insty.model.user.SocialType;
@@ -10,6 +11,7 @@ import insty.social.kakao.dto.NaverTokenRes;
 import insty.social.kakao.dto.NaverUserInfoRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class NaverStrategy implements SocialStrategy {
     private final NaverService naverService;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      *  전략 사용 지원 여부
@@ -57,7 +60,13 @@ public class NaverStrategy implements SocialStrategy {
         return userRepository.findBySocialIdAndSocialType(socialId, SocialType.NAVER)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
                     User newUser = User.createBySocial(socialId, SocialType.NAVER, email, nickname, userType);
-                    return userRepository.save(newUser);
+                    User savedUser = userRepository.save(newUser);
+
+                    // User 생성 이벤트 발행
+                    eventPublisher.publishEvent(new UserCreatedEvent(savedUser));
+                    log.info("네이버 소셜 User 생성 이벤트 발행 - userId: {}", savedUser.getId());
+
+                    return savedUser;
                 });
     }
 }
