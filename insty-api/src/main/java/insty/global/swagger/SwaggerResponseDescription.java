@@ -195,6 +195,19 @@ public enum SwaggerResponseDescription {
 
     NOTIFICATION_READ(new LinkedHashSet<>(Set.of(
             NOTIFICATION_NOT_FOUND
+    ))),
+
+    // notification settings
+    NOTIFICATION_SETTING_SEARCH(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
+    ))),
+
+    NOTIFICATION_SETTING_UPDATE(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
+    ))),
+
+    NOTIFICATION_SETTING_BULK_UPDATE(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
     )))
 
     ;
