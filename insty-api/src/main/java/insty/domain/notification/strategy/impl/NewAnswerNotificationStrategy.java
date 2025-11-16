@@ -1,19 +1,17 @@
 package insty.domain.notification.strategy.impl;
 
 import insty.constants.NotificationConstants;
+import insty.domain.notification.dto.NotificationData;
 import insty.domain.notification.dto.NotificationRequest;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
-import insty.domain.notification.dto.NotificationData;
 import insty.domain.notification.util.NotificationUtils;
 import insty.notification.NotificationType;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /**
- * 새로운 답변 알림 전략
- * 인앱 알림 + 이메일 모두 지원
+ * 새로운 답변 알림
  */
 @Component
 public class NewAnswerNotificationStrategy extends AbstractNotificationStrategy {

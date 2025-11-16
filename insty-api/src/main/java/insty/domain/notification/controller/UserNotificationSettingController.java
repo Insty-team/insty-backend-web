@@ -13,17 +13,16 @@ import insty.notification.NotificationType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
-/**
- * 사용자 알림 설정 Controller
- * 사용자가 자신의 알림 수신 설정을 조회하고 변경할 수 있는 API
- */
 @Slf4j
 @Tag(name = "사용자 알림 설정 API")
 @RestController
@@ -43,8 +42,6 @@ public class UserNotificationSettingController {
     public SuccessRes<UserNotificationSettingResponse> getMySettings(
             @CurrentUser Long userId
     ) {
-        log.debug("사용자 알림 설정 조회 - userId: {}", userId);
-
         Map<NotificationType, Map<NotificationChannel, Boolean>> settings =
                 preferenceService.getUserSettings(userId);
 
@@ -64,9 +61,6 @@ public class UserNotificationSettingController {
             @CurrentUser Long userId,
             @Valid @RequestBody UserNotificationSettingUpdateRequest request
     ) {
-        log.info("사용자 알림 설정 변경 - userId: {}, type: {}, inApp: {}, email: {}",
-                userId, request.notificationType(), request.inAppEnabled(), request.emailEnabled());
-
         preferenceService.updateSettingsForType(
                 userId,
                 request.notificationType(),
@@ -88,8 +82,6 @@ public class UserNotificationSettingController {
             @CurrentUser Long userId,
             @Valid @RequestBody BulkNotificationSettingUpdateRequest request
     ) {
-        log.info("사용자 모든 알림 일괄 변경 - userId: {}, enableAll: {}", userId, request.enableAll());
-
         preferenceService.toggleAllNotifications(userId, request.enableAll());
 
         return SuccessRes.of(

@@ -1,13 +1,9 @@
 package insty.domain.notification.mail;
 
-import insty.mail.MailType;
 import insty.mail.MailContent;
+import insty.mail.MailType;
 import java.util.Map;
 
-/**
- * 알림용 메일 컨텐츠
- * NotificationRequest의 context를 그대로 템플릿 변수로 전달
- */
 public class NotificationMailContent extends MailContent {
 
     private final Map<String, Object> variables;
@@ -22,9 +18,6 @@ public class NotificationMailContent extends MailContent {
         return variables;
     }
 
-    /**
-     * 빌더 패턴으로 생성
-     */
     public static NotificationMailContent of(String to, MailType mailType, Map<String, Object> context) {
         return new NotificationMailContent(to, mailType, context);
     }

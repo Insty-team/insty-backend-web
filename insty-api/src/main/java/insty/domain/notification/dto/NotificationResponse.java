@@ -2,7 +2,6 @@ package insty.domain.notification.dto;
 
 import insty.model.notification.Notification;
 import insty.model.notification.NotificationState;
-
 import java.time.Instant;
 
 public record NotificationResponse(

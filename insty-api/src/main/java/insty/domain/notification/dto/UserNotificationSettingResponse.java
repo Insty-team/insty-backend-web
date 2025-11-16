@@ -2,7 +2,6 @@ package insty.domain.notification.dto;
 
 import insty.notification.NotificationChannel;
 import insty.notification.NotificationType;
-
 import java.util.Map;
 
 /**

@@ -1,19 +1,17 @@
 package insty.domain.notification.strategy.impl;
 
 import insty.constants.NotificationConstants;
+import insty.domain.notification.dto.NotificationData;
 import insty.domain.notification.dto.NotificationRequest;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
-import insty.domain.notification.dto.NotificationData;
 import insty.domain.notification.util.NotificationUtils;
 import insty.notification.NotificationType;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /**
- * 새로운 커뮤니티 질문 알림 전략
- * 인앱 알림 + 이메일 모두 지원
+ * 새로운 커뮤니티 질문 알림
  */
 @Component
 public class NewQuestionNotificationStrategy extends AbstractNotificationStrategy {
@@ -45,8 +43,6 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
 
         return new NotificationData(title, message, redirectUrl);
     }
-
-    // ==================== 이메일 ====================
 
     @Override
     protected Map<String, Object> buildEmailContext(NotificationRequest request) {

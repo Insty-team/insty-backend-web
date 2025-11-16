@@ -6,12 +6,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 알림 설정 마이그레이션 Controller (임시)
- * TODO: 마이그레이션 완료 후 삭제 예정
- */
 @Slf4j
 @Tag(name = "알림 설정 마이그레이션 API (임시)")
 @RestController
@@ -52,9 +51,6 @@ public class NotificationSettingMigrationController {
         return SuccessRes.of("사용자 알림 설정이 리셋되었습니다.");
     }
 
-    /**
-     * 마이그레이션 결과 DTO
-     */
     public record MigrationResultDto(
             int migratedCount,
             String message

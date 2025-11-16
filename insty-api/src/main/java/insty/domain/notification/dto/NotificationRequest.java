@@ -4,11 +4,6 @@ import insty.notification.NotificationType;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 알림 요청 DTO
- * 외부 모듈에서 알림 시스템으로 전달되는 통합 이벤트
- * 모든 알림 타입에 대해 이 하나의 클래스만 사용
- */
 public record NotificationRequest(
         NotificationType type,
         Long receiverId,
