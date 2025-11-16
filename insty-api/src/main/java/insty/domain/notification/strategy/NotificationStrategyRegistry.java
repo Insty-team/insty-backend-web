@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * 알림 전략 모드 자동 등록
+ */
 @Slf4j
 @Component
 public class NotificationStrategyRegistry {
