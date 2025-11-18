@@ -47,6 +47,15 @@ public class NotificationPreferenceService {
     }
 
     /**
+     * 사용자의 알림 설정 존재 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean hasUserSettings(Long userId) {
+        List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
+        return !settings.isEmpty();
+    }
+
+    /**
      * 사용자의 모든 알림 설정 조회 (Map 형태로 반환)
      */
     @Transactional(readOnly = true)

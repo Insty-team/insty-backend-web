@@ -27,7 +27,7 @@ public class UserNotificationSettingMigrationService {
         int migratedCount = 0;
 
         for (User user : allUsers) {
-            boolean hasSettings = !preferenceService.getUserSettings(user.getId()).isEmpty();
+            boolean hasSettings = preferenceService.hasUserSettings(user.getId());
 
             if (!hasSettings) {
                 try {

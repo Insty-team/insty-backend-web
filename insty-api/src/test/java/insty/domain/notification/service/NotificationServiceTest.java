@@ -3,6 +3,7 @@ package insty.domain.notification.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -219,6 +220,7 @@ class NotificationServiceTest {
         // Then
         assertEquals(redirectUrl, result);
         verify(notificationRepository).findById(notificationId);
+        verify(notificationRepository, never()).save(any(Notification.class));
         assertEquals(NotificationState.READ, notification.getState());
     }
 }

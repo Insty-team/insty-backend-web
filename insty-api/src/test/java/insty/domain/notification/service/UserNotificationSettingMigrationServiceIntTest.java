@@ -81,15 +81,12 @@ class UserNotificationSettingMigrationServiceIntTest {
         preferenceService.initializeDefaultSettings(user1);
 
         // When
-        // 주의: getUserSettings().isEmpty()는 항상 false이므로, 실제로는 아무도 마이그레이션되지 않음
-        // 이는 서비스 로직의 버그로 보임
         int result = migrationService.migrateAllUsersWithoutSettings();
 
         // Then
-        // 현재 구현상 getUserSettings()는 항상 값을 반환하므로 0명만 마이그레이션됨
-        assertThat(result).isZero();
+        // user2와 user3가 마이그레이션되어야 함
+        assertThat(result).isEqualTo(2);
 
-        // user1만 실제 설정이 있음
         List<UserNotificationSetting> user1Settings = settingRepository.findByUserId(user1.getId());
         List<UserNotificationSetting> user2Settings = settingRepository.findByUserId(user2.getId());
         List<UserNotificationSetting> user3Settings = settingRepository.findByUserId(user3.getId());
@@ -97,8 +94,8 @@ class UserNotificationSettingMigrationServiceIntTest {
         int expectedCount = NotificationType.values().length * NotificationChannel.values().length;
 
         assertThat(user1Settings).hasSize(expectedCount);
-        assertThat(user2Settings).isEmpty();
-        assertThat(user3Settings).isEmpty();
+        assertThat(user2Settings).hasSize(expectedCount);
+        assertThat(user3Settings).hasSize(expectedCount);
     }
 
     @Test
@@ -124,16 +121,18 @@ class UserNotificationSettingMigrationServiceIntTest {
         int result = migrationService.migrateAllUsersWithoutSettings();
 
         // Then
-        // getUserSettings().isEmpty()가 항상 false이므로 아무도 마이그레이션되지 않음
-        assertThat(result).isZero();
+        // 3명 모두 마이그레이션되어야 함
+        assertThat(result).isEqualTo(3);
 
         List<UserNotificationSetting> user1Settings = settingRepository.findByUserId(user1.getId());
         List<UserNotificationSetting> user2Settings = settingRepository.findByUserId(user2.getId());
         List<UserNotificationSetting> user3Settings = settingRepository.findByUserId(user3.getId());
 
-        assertThat(user1Settings).isEmpty();
-        assertThat(user2Settings).isEmpty();
-        assertThat(user3Settings).isEmpty();
+        int expectedCount = NotificationType.values().length * NotificationChannel.values().length;
+
+        assertThat(user1Settings).hasSize(expectedCount);
+        assertThat(user2Settings).hasSize(expectedCount);
+        assertThat(user3Settings).hasSize(expectedCount);
     }
 
     @Test
@@ -225,14 +224,16 @@ class UserNotificationSettingMigrationServiceIntTest {
         int result = migrationService.migrateAllUsersWithoutSettings();
 
         // Then
-        // getUserSettings().isEmpty()가 항상 false이므로 아무도 마이그레이션되지 않음
-        assertThat(result).isZero();
+        // 5명 모두 마이그레이션되어야 함
+        assertThat(result).isEqualTo(5);
 
-        assertThat(settingRepository.findByUserId(user1.getId())).isEmpty();
-        assertThat(settingRepository.findByUserId(user2.getId())).isEmpty();
-        assertThat(settingRepository.findByUserId(user3.getId())).isEmpty();
-        assertThat(settingRepository.findByUserId(user4.getId())).isEmpty();
-        assertThat(settingRepository.findByUserId(user5.getId())).isEmpty();
+        int expectedCount = NotificationType.values().length * NotificationChannel.values().length;
+
+        assertThat(settingRepository.findByUserId(user1.getId())).hasSize(expectedCount);
+        assertThat(settingRepository.findByUserId(user2.getId())).hasSize(expectedCount);
+        assertThat(settingRepository.findByUserId(user3.getId())).hasSize(expectedCount);
+        assertThat(settingRepository.findByUserId(user4.getId())).hasSize(expectedCount);
+        assertThat(settingRepository.findByUserId(user5.getId())).hasSize(expectedCount);
     }
 
     @Test
@@ -248,7 +249,7 @@ class UserNotificationSettingMigrationServiceIntTest {
     }
 
     @Test
-    void 마이그레이션_서비스의_현재_동작_검증() {
+    void 마이그레이션_서비스의_정상_동작_검증() {
         // Given
         // user1과 user2만 설정이 있는 상태
         preferenceService.initializeDefaultSettings(user1);
@@ -258,17 +259,14 @@ class UserNotificationSettingMigrationServiceIntTest {
         int result = migrationService.migrateAllUsersWithoutSettings();
 
         // Then
-        // 현재 구현의 버그로 인해 getUserSettings().isEmpty()가 항상 false를 반환하므로
-        // 설정이 없는 user3도 마이그레이션되지 않음
-        assertThat(result).isZero();
+        // 설정이 없는 user3만 마이그레이션되어야 함
+        assertThat(result).isEqualTo(1);
 
-        // 실제 DB에는 user1, user2만 설정이 있음
-        assertThat(settingRepository.findByUserId(user1.getId())).isNotEmpty();
-        assertThat(settingRepository.findByUserId(user2.getId())).isNotEmpty();
-        assertThat(settingRepository.findByUserId(user3.getId())).isEmpty();
+        int expectedCount = NotificationType.values().length * NotificationChannel.values().length;
 
-        // 이 테스트는 현재 서비스 로직의 버그를 문서화함
-        // 수정 필요: migrateAllUsersWithoutSettings()에서
-        // settingRepository.findByUserId(userId).isEmpty()로 체크해야 함
+        // 이제 모든 유저가 설정을 가지고 있어야 함
+        assertThat(settingRepository.findByUserId(user1.getId())).hasSize(expectedCount);
+        assertThat(settingRepository.findByUserId(user2.getId())).hasSize(expectedCount);
+        assertThat(settingRepository.findByUserId(user3.getId())).hasSize(expectedCount);
     }
 }

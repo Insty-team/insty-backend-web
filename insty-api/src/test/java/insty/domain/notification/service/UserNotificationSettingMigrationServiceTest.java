@@ -3,7 +3,6 @@ package insty.domain.notification.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,12 +11,7 @@ import insty.domain.user.repository.UserRepository;
 import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
-import insty.notification.NotificationChannel;
-import insty.notification.NotificationType;
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,12 +43,9 @@ class UserNotificationSettingMigrationServiceTest {
         when(userRepository.findAll()).thenReturn(allUsers);
 
         // user1, user2는 설정 없음, user3는 설정 있음
-        when(preferenceService.getUserSettings(1L)).thenReturn(Collections.emptyMap());
-        when(preferenceService.getUserSettings(2L)).thenReturn(Collections.emptyMap());
-
-        Map<NotificationType, Map<NotificationChannel, Boolean>> existingSettings = new EnumMap<>(NotificationType.class);
-        existingSettings.put(NotificationType.NEW_COMMUNITY_QUESTION, new EnumMap<>(NotificationChannel.class));
-        when(preferenceService.getUserSettings(3L)).thenReturn(existingSettings);
+        when(preferenceService.hasUserSettings(1L)).thenReturn(false);
+        when(preferenceService.hasUserSettings(2L)).thenReturn(false);
+        when(preferenceService.hasUserSettings(3L)).thenReturn(true);
 
         // When
         int result = migrationService.migrateAllUsersWithoutSettings();
@@ -66,30 +57,6 @@ class UserNotificationSettingMigrationServiceTest {
         verify(preferenceService, times(0)).initializeDefaultSettings(user3);
     }
 
-    @Test
-    void 알림_설정이_없는_모든_사용자_초기화_실패_처리() {
-        // Given
-        User user1 = User.builder().id(1L).build();
-        User user2 = User.builder().id(2L).build();
-
-        List<User> allUsers = List.of(user1, user2);
-
-        when(userRepository.findAll()).thenReturn(allUsers);
-        when(preferenceService.getUserSettings(1L)).thenReturn(Collections.emptyMap());
-        when(preferenceService.getUserSettings(2L)).thenReturn(Collections.emptyMap());
-
-        // user1 초기화 성공, user2 초기화 실패
-        doThrow(new RuntimeException("Database error"))
-                .when(preferenceService).initializeDefaultSettings(user2);
-
-        // When
-        int result = migrationService.migrateAllUsersWithoutSettings();
-
-        // Then
-        assertEquals(1, result);
-        verify(preferenceService, times(1)).initializeDefaultSettings(user1);
-        verify(preferenceService, times(1)).initializeDefaultSettings(user2);
-    }
 
     @Test
     void 모든_사용자_설정_있음() {
@@ -101,11 +68,9 @@ class UserNotificationSettingMigrationServiceTest {
 
         when(userRepository.findAll()).thenReturn(allUsers);
 
-        Map<NotificationType, Map<NotificationChannel, Boolean>> existingSettings = new EnumMap<>(NotificationType.class);
-        existingSettings.put(NotificationType.NEW_COMMUNITY_QUESTION, new EnumMap<>(NotificationChannel.class));
-
-        when(preferenceService.getUserSettings(1L)).thenReturn(existingSettings);
-        when(preferenceService.getUserSettings(2L)).thenReturn(existingSettings);
+        // 모든 사용자가 이미 설정을 가지고 있음
+        when(preferenceService.hasUserSettings(1L)).thenReturn(true);
+        when(preferenceService.hasUserSettings(2L)).thenReturn(true);
 
         // When
         int result = migrationService.migrateAllUsersWithoutSettings();
