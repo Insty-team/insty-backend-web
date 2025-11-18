@@ -1,5 +1,6 @@
 package insty.domain.auth.strategy;
 
+import insty.domain.user.event.UserCreatedEvent;
 import insty.domain.user.repository.UserRepository;
 import insty.generator.NicknameGenerator;
 import insty.model.user.SocialType;
@@ -10,6 +11,7 @@ import insty.social.kakao.dto.GoogleTokenRes;
 import insty.social.kakao.dto.GoogleUserInfoRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -19,6 +21,7 @@ public class GoogleStrategy implements SocialStrategy {
 
     private final GoogleService googleService;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      *  전략 사용 지원 여부 체크
@@ -58,7 +61,13 @@ public class GoogleStrategy implements SocialStrategy {
         return userRepository.findBySocialIdAndSocialType(String.valueOf(socialId), SocialType.GOOGLE)
                 .orElseGet(() -> {                      // 존재 X → 회원가입
                     User newUser = User.createBySocial(socialId, SocialType.GOOGLE, email, nickname, userType);
-                    return userRepository.save(newUser);
+                    User savedUser = userRepository.save(newUser);
+
+                    // User 생성 이벤트 발행
+                    eventPublisher.publishEvent(new UserCreatedEvent(savedUser));
+                    log.info("구글 소셜 User 생성 이벤트 발행 - userId: {}", savedUser.getId());
+
+                    return savedUser;
                 });
     }
 }

@@ -10,11 +10,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "유저 알림 설정 API")
+/**
+ * @deprecated 더 이상 사용되지 않으며 추후 제거 예정.
+ */
+@Deprecated
+@Tag(name = "유저 알림 설정 API (사용중지)")
 public interface UserNotificationPreferenceControllerDocs {
 
     @Operation(
-        summary = "사용자 알림 설정 조회",
+        summary = "사용자 알림 설정 조회 (사용중지)",
         description = """
                 현재 로그인한 사용자의 알림 설정을 조회합니다.
                 
@@ -32,7 +36,7 @@ public interface UserNotificationPreferenceControllerDocs {
     SuccessRes<UserNotificationPreferenceRes> getNotificationPreferences(@CurrentUser Long userId);
 
     @Operation(
-        summary = "사용자 알림 설정 변경",
+        summary = "사용자 알림 설정 변경(사용중지)",
         description = """
                 현재 로그인한 사용자의 알림 설정을 변경합니다.
                 

@@ -1,11 +1,13 @@
 package insty.domain.user.implement;
 
 import insty.domain.course.implement.CourseCleaner;
+import insty.domain.user.event.UserCreatedEvent;
 import insty.domain.user.repository.UserRepository;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +19,18 @@ public class UserWriter {
 
     private final CourseCleaner courseCleaner;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 사용자 생성
      */
     public User save(String email, String password, String nickname) {
         User newUser = User.create(email, password, nickname);
-        return userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+
+        eventPublisher.publishEvent(new UserCreatedEvent(savedUser));
+
+        return savedUser;
     }
 
     /**
