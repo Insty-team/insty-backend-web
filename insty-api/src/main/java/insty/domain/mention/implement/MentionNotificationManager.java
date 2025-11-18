@@ -22,15 +22,15 @@ public class MentionNotificationManager {
         }
 
         for (Mention mention : mentions) {
-            String content = mention.getCommunityAnswer() != null
-                    ? mention.getCommunityAnswer().getContent()
-                    : "";
+            if (mention.getCommunityAnswer() == null) {
+                continue;
+            }
 
             NotificationRequest request = NotificationRequest.userMentioned(
                     mention.getMentionedUser().getId(),
                     mention.getId(),
                     mention.getMentionerUser().getNickname(),
-                    content,
+                    mention.getCommunityAnswer().getContent(),
                     "ANSWER",
                     mention.getCommunityAnswer().getId()
             );
