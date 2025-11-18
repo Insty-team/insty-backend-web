@@ -76,7 +76,7 @@ public class User extends BaseEntity {
                 .password(password)
                 .nickname(nickname)
                 .introduce("")
-                .isEmailAgreed(true)
+                .isEmailAgreed(false)
                 .userType(UserType.NONE)
                 .isDeleted(false)
                 .build();
@@ -91,7 +91,7 @@ public class User extends BaseEntity {
                 .password("")
                 .nickname(nickname)
                 .introduce("")
-                .isEmailAgreed(true)
+                .isEmailAgreed(false)
                 .userType(userType)
                 .isDeleted(false)
                 .build();

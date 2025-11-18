@@ -6,8 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.notification.repository.UserNotificationSettingRepository;
+import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.event.UserCreatedEvent;
 import insty.domain.user.repository.UserRepository;
+import insty.domain.user.service.UserService;
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
 import insty.global.property.AppProperties;
@@ -39,6 +41,9 @@ class NotificationPreferenceServiceIntTest {
 
     @Autowired
     private UserNotificationSettingRepository settingRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -155,6 +160,7 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 이메일_수신_허용_확인_이메일_동의함() {
         // Given
+        userService.updateAgreement(testUser.getId(), new UserAgreementUpdateReq(true));
         notificationPreferenceService.initializeDefaultSettings(testUser);
 
         // When
