@@ -13,7 +13,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query("SELECT n FROM Notification n " +
             "WHERE n.userId = :userId " +
-            "AND n.state <> DELETED " +
+            "AND n.state <> insty.model.notification.NotificationState.DELETED " +
             "ORDER BY n.createdAt DESC")
     Page<Notification> findActiveByUserId(@Param("userId") Long userId, Pageable pageable);
 
