@@ -168,7 +168,8 @@ public class CourseService {
         return courseReader.getCourseProgressExists(userId,courseId);
     }
 
-    public CoursePatchVisibleRes patchCourseVisible(Long courseId, boolean isShow){
+    public CoursePatchVisibleRes patchCourseVisible(Long userId, Long courseId, boolean isShow){
+        courseValidator.validateCourseOwner(courseId,userId);
         Course course = courseWriter.patchCourseIsShow(courseId, isShow);
         return CoursePatchVisibleRes.from(course);
     }

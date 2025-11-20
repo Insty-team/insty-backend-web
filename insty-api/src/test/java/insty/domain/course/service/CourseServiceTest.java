@@ -591,10 +591,11 @@ class CourseServiceTest {
     @Test
     void patchCourseVisible_정상() {
         //given
+        Long userId = 1L;
         Long courseId = 1L;
         boolean isShow = false;
         //when
-        CoursePatchVisibleRes coursePatchVisibleRes = courseService.patchCourseVisible(courseId, isShow);
+        CoursePatchVisibleRes coursePatchVisibleRes = courseService.patchCourseVisible(userId , courseId, isShow);
 
         //then
         assertThat(coursePatchVisibleRes.isShow()).isFalse();
