@@ -6,18 +6,7 @@ import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.implement.CommunityQuestionReader;
-import insty.domain.course.dto.CourseCreateReq;
-import insty.domain.course.dto.CourseDetailRes;
-import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
-import insty.domain.course.dto.CourseMySearchInfo;
-import insty.domain.course.dto.CourseMySearchReq;
-import insty.domain.course.dto.CourseProgressRes;
-import insty.domain.course.dto.CourseProgressSearchInfo;
-import insty.domain.course.dto.CourseProgressSearchReq;
-import insty.domain.course.dto.CourseSearchFilter;
-import insty.domain.course.dto.CourseSearchInfo;
-import insty.domain.course.dto.CourseSearchReq;
-import insty.domain.course.dto.CourseUpdateReq;
+import insty.domain.course.dto.*;
 import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
@@ -177,5 +166,10 @@ public class CourseService {
 
     public boolean searchCourseProgressExists(Long userId,  Long courseId) {
         return courseReader.getCourseProgressExists(userId,courseId);
+    }
+
+    public CoursePatchVisibleRes patchCourseVisible(Long courseId, boolean isShow){
+        Course course = courseWriter.patchCourseIsShow(courseId, isShow);
+        return CoursePatchVisibleRes.from(course);
     }
 }

@@ -32,6 +32,13 @@ public class CourseWriter {
         return courseRepository.save(course);
     }
 
+    public Course patchCourseIsShow(Long courseId,boolean isShow){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CustomException(CourseErrorCode.COURSE_NOT_FOUND));
+        course.changeIsShow(isShow);
+        return course;
+    }
+
     public List<CourseInstallEnvChecklistInfo> saveCourseInstallEnvChecklist(Course course,
                                                                              List<CourseInstallEnvChecklistInfo> checklistInfos) {
         List<CourseInstallEnvChecklist> checklists = checklistInfos.stream()
