@@ -1,8 +1,8 @@
 package insty.domain.notification.controller;
 
-import insty.domain.notification.dto.BulkNotificationSettingUpdateRequest;
-import insty.domain.notification.dto.UserNotificationSettingResponse;
-import insty.domain.notification.dto.UserNotificationSettingUpdateRequest;
+import insty.domain.notification.dto.request.BulkNotificationSettingUpdateReq;
+import insty.domain.notification.dto.response.UserNotificationSettingRes;
+import insty.domain.notification.dto.request.UserNotificationSettingUpdateReq;
 import insty.domain.notification.service.NotificationSettingsService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
@@ -39,13 +39,13 @@ public class UserNotificationSettingController {
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SETTING_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping
-    public SuccessRes<UserNotificationSettingResponse> getMySettings(
+    public SuccessRes<UserNotificationSettingRes> getMySettings(
             @CurrentUser Long userId
     ) {
         Map<NotificationType, Map<NotificationChannel, Boolean>> settings =
                 preferenceService.getUserSettings(userId);
 
-        UserNotificationSettingResponse response = UserNotificationSettingResponse.from(settings);
+        UserNotificationSettingRes response = UserNotificationSettingRes.from(settings);
 
         return SuccessRes.of(response);
     }
@@ -59,7 +59,7 @@ public class UserNotificationSettingController {
     @PutMapping
     public SuccessRes<String> updateSetting(
             @CurrentUser Long userId,
-            @Valid @RequestBody UserNotificationSettingUpdateRequest request
+            @Valid @RequestBody UserNotificationSettingUpdateReq request
     ) {
         preferenceService.updateSettingsForType(
                 userId,
@@ -80,7 +80,7 @@ public class UserNotificationSettingController {
     @PutMapping("/bulk")
     public SuccessRes<String> toggleAllNotifications(
             @CurrentUser Long userId,
-            @Valid @RequestBody BulkNotificationSettingUpdateRequest request
+            @Valid @RequestBody BulkNotificationSettingUpdateReq request
     ) {
         preferenceService.toggleAllNotifications(userId, request.enableAll());
 

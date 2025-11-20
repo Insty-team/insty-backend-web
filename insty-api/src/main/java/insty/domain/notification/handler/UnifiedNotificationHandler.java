@@ -1,7 +1,7 @@
 package insty.domain.notification.handler;
 
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
 import insty.domain.notification.service.NotificationSettingsService;
 import insty.domain.notification.service.NotificationService;
 import insty.domain.notification.strategy.EmailNotificationStrategy;
@@ -44,7 +44,7 @@ public class UnifiedNotificationHandler {
      */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handle(NotificationRequest request) {
+    public void handle(NotificationReq request) {
         try {
             InAppNotificationStrategy inAppStrategy = strategyRegistry.getInAppStrategy(request.type());
             EmailNotificationStrategy emailStrategy = strategyRegistry.getEmailStrategy(request.type());
@@ -68,7 +68,7 @@ public class UnifiedNotificationHandler {
     }
 
     /* 인앱 알림 처리 */
-    private void processInAppNotification(NotificationRequest request, InAppNotificationStrategy strategy) {
+    private void processInAppNotification(NotificationReq request, InAppNotificationStrategy strategy) {
         try {
             // 1. 사용자 설정 확인
             boolean enabled = preferenceService.isNotificationEnabled(
@@ -98,7 +98,7 @@ public class UnifiedNotificationHandler {
     /**
      * 이메일 처리
      */
-    private void processEmail(NotificationRequest request, EmailNotificationStrategy strategy, User user) {
+    private void processEmail(NotificationReq request, EmailNotificationStrategy strategy, User user) {
         try {
             // 1. 이메일 수신 설정 확인 (사용자 설정 + 이메일 동의 여부)
             boolean enabled = preferenceService.isEmailEnabled(user, request.type());

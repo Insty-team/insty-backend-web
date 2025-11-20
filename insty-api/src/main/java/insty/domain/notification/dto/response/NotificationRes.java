@@ -1,4 +1,4 @@
-package insty.domain.notification.dto;
+package insty.domain.notification.dto.response;
 
 import insty.model.notification.Notification;
 import insty.model.notification.NotificationState;
@@ -9,7 +9,7 @@ import java.time.Instant;
  * 알림 설정 변경 요청 DTO
  */
 @Schema(description = "알림 조회 요청 결과")
-public record NotificationResponse(
+public record NotificationRes(
         Long id,
 
         @Schema(description = "알림 제목")
@@ -27,10 +27,10 @@ public record NotificationResponse(
         @Schema(description = "알림 생성일")
         Instant createdAt
 ) {
-    public static NotificationResponse from(
+    public static NotificationRes from(
             Notification notification
     ){
-        return new NotificationResponse(
+        return new NotificationRes(
                 notification.getId(),
                 notification.getTitle(),
                 notification.getMessage(),

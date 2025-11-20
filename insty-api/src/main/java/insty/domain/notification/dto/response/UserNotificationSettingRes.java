@@ -1,4 +1,4 @@
-package insty.domain.notification.dto;
+package insty.domain.notification.dto.response;
 
 import insty.notification.NotificationChannel;
 import insty.notification.NotificationType;
@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * 사용자 알림 설정 조회 응답 DTO
  */
-public record UserNotificationSettingResponse(
+public record UserNotificationSettingRes(
         Map<NotificationType, NotificationChannelSettings> settings
 ) {
     /**
@@ -22,7 +22,7 @@ public record UserNotificationSettingResponse(
     /**
      * NotificationPreferenceService의 Map 결과를 DTO로 변환
      */
-    public static UserNotificationSettingResponse from(Map<NotificationType, Map<NotificationChannel, Boolean>> settingsMap) {
+    public static UserNotificationSettingRes from(Map<NotificationType, Map<NotificationChannel, Boolean>> settingsMap) {
         Map<NotificationType, NotificationChannelSettings> transformed = settingsMap.entrySet().stream()
                 .collect(java.util.stream.Collectors.toMap(
                         Map.Entry::getKey,
@@ -35,6 +35,6 @@ public record UserNotificationSettingResponse(
                         }
                 ));
 
-        return new UserNotificationSettingResponse(transformed);
+        return new UserNotificationSettingRes(transformed);
     }
 }

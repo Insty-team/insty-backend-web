@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import insty.constants.NotificationConstants;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
 import insty.domain.notification.util.NotificationUtils;
 import insty.mail.MailContent;
 import insty.mail.MailType;
@@ -29,11 +29,11 @@ class NewAnswerNotificationStrategyTest {
     @Mock
     private NotificationUtils notificationUtils;
 
-    private NotificationRequest request;
+    private NotificationReq request;
 
     @BeforeEach
     void setUp() {
-        request = NotificationRequest.newAnswer(
+        request = NotificationReq.newAnswer(
                 1L,
                 100L,
                 200L,
@@ -78,7 +78,7 @@ class NewAnswerNotificationStrategyTest {
         String longTitle = "a".repeat(200);
         String truncatedTitle = "a".repeat(100) + "...";
 
-        NotificationRequest longTitleRequest = NotificationRequest.newAnswer(
+        NotificationReq longTitleRequest = NotificationReq.newAnswer(
                 1L,
                 100L,
                 200L,

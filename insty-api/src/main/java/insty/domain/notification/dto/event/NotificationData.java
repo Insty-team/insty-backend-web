@@ -1,4 +1,4 @@
-package insty.domain.notification.dto;
+package insty.domain.notification.dto.event;
 
 /**
  * 알림 데이터 DTO

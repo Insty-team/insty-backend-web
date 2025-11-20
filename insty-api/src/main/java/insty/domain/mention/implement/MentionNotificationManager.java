@@ -2,7 +2,7 @@ package insty.domain.mention.implement;
 
 import insty.model.community.CommunityQuestion;
 import insty.model.mention.Mention;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationReq;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class MentionNotificationManager {
                 continue;
             }
 
-            NotificationRequest request = NotificationRequest.userMentioned(
+            NotificationReq request = NotificationReq.userMentioned(
                     mention.getMentionedUser().getId(),
                     mention.getId(),
                     mention.getMentionerUser().getNickname(),

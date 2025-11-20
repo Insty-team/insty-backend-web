@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
-import insty.domain.notification.dto.NotificationResponse;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
+import insty.domain.notification.dto.response.NotificationRes;
 import insty.domain.notification.repository.NotificationRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
@@ -95,18 +95,18 @@ class NotificationServiceIntTest {
         notificationRepository.save(notification2);
 
         // When
-        List<NotificationResponse> result = notificationService.getUserNotifications(testUser.getId());
+        List<NotificationRes> result = notificationService.getUserNotifications(testUser.getId());
 
         // Then
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(NotificationResponse::title)
+        assertThat(result).extracting(NotificationRes::title)
                 .containsExactlyInAnyOrder("새로운 질문", "새로운 답변");
     }
 
     @Test
     void 사용자_알림_조회_빈_리스트() {
         // When
-        List<NotificationResponse> result = notificationService.getUserNotifications(testUser.getId());
+        List<NotificationRes> result = notificationService.getUserNotifications(testUser.getId());
 
         // Then
         assertThat(result).isEmpty();
@@ -126,7 +126,7 @@ class NotificationServiceIntTest {
     @Test
     void 알림_저장_성공() {
         // Given
-        NotificationRequest request = NotificationRequest.newCommunityQuestion(
+        NotificationReq request = NotificationReq.newCommunityQuestion(
                 testUser.getId(),
                 1L,
                 "자바 스프링 질문입니다",
@@ -245,17 +245,17 @@ class NotificationServiceIntTest {
     @Test
     void 여러_알림_타입_저장_및_조회() {
         // Given
-        NotificationRequest request1 = NotificationRequest.newCommunityQuestion(
+        NotificationReq request1 = NotificationReq.newCommunityQuestion(
                 testUser.getId(), 1L, "질문 제목", "질문 내용", "작성자1", "강의명"
         );
         NotificationData data1 = new NotificationData("새로운 질문", "질문이 등록되었습니다", "/questions/1");
 
-        NotificationRequest request2 = NotificationRequest.newAnswer(
+        NotificationReq request2 = NotificationReq.newAnswer(
                 testUser.getId(), 1L, 2L, "질문 제목", "답변 내용", "작성자2"
         );
         NotificationData data2 = new NotificationData("새로운 답변", "답변이 등록되었습니다", "/questions/1#answer-2");
 
-        NotificationRequest request3 = NotificationRequest.answerAccepted(
+        NotificationReq request3 = NotificationReq.answerAccepted(
                 testUser.getId(), 1L, 2L, "질문 제목", "답변 내용"
         );
         NotificationData data3 = new NotificationData("답변 채택", "답변이 채택되었습니다", "/questions/1#answer-2");
@@ -266,9 +266,9 @@ class NotificationServiceIntTest {
         notificationService.saveNotification(request3, data3);
 
         // Then
-        List<NotificationResponse> notifications = notificationService.getUserNotifications(testUser.getId());
+        List<NotificationRes> notifications = notificationService.getUserNotifications(testUser.getId());
         assertThat(notifications).hasSize(3);
-        assertThat(notifications).extracting(NotificationResponse::title)
+        assertThat(notifications).extracting(NotificationRes::title)
                 .containsExactlyInAnyOrder("새로운 질문", "새로운 답변", "답변 채택");
 
         // 데이터베이스에 직접 저장된 알림 타입 검증

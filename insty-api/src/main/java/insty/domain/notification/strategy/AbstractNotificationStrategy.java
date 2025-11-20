@@ -1,6 +1,6 @@
 package insty.domain.notification.strategy;
 
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationReq;
 import insty.domain.notification.mail.NotificationMailContent;
 import insty.domain.notification.util.NotificationUtils;
 import insty.mail.MailContent;
@@ -36,11 +36,11 @@ public abstract class AbstractNotificationStrategy
     }
 
     /* 이메일 컨텍스트 빌드 (서브클래스에서 구현) */
-    protected abstract Map<String, Object> buildEmailContext(NotificationRequest request);
+    protected abstract Map<String, Object> buildEmailContext(NotificationReq request);
 
     /* MailContent 빌드 (기본 구현) */
     @Override
-    public MailContent buildMailContent(NotificationRequest request, String recipientEmail) {
+    public MailContent buildMailContent(NotificationReq request, String recipientEmail) {
         Map<String, Object> context = buildEmailContext(request);
         return NotificationMailContent.of(recipientEmail, getMailType(), context);
     }
