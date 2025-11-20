@@ -29,7 +29,7 @@ class UserNotificationSettingMigrationServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private NotificationPreferenceService preferenceService;
+    private NotificationSettingsService preferenceService;
 
     @Test
     void 알림_설정이_없는_모든_사용자_초기화_성공() {

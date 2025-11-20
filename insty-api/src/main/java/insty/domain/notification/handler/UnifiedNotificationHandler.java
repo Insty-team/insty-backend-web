@@ -2,7 +2,7 @@ package insty.domain.notification.handler;
 
 import insty.domain.notification.dto.NotificationData;
 import insty.domain.notification.dto.NotificationRequest;
-import insty.domain.notification.service.NotificationPreferenceService;
+import insty.domain.notification.service.NotificationSettingsService;
 import insty.domain.notification.service.NotificationService;
 import insty.domain.notification.strategy.EmailNotificationStrategy;
 import insty.domain.notification.strategy.InAppNotificationStrategy;
@@ -35,7 +35,7 @@ public class UnifiedNotificationHandler {
 
     private final NotificationStrategyRegistry strategyRegistry;
     private final NotificationService notificationService;
-    private final NotificationPreferenceService preferenceService;
+    private final NotificationSettingsService preferenceService;
     private final UserRepository userRepository;
     private final MailHelper mailHelper;
 

@@ -19,7 +19,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationPreferenceService {
+public class NotificationSettingsService {
 
     private final UserNotificationSettingRepository settingRepository;
 

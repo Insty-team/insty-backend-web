@@ -3,7 +3,7 @@ package insty.domain.notification.controller;
 import insty.domain.notification.dto.BulkNotificationSettingUpdateRequest;
 import insty.domain.notification.dto.UserNotificationSettingResponse;
 import insty.domain.notification.dto.UserNotificationSettingUpdateRequest;
-import insty.domain.notification.service.NotificationPreferenceService;
+import insty.domain.notification.service.NotificationSettingsService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserNotificationSettingController {
 
-    private final NotificationPreferenceService preferenceService;
+    private final NotificationSettingsService preferenceService;
 
     @Operation(
             summary = "내 알림 설정 조회",

@@ -36,7 +36,7 @@ class UserNotificationSettingMigrationServiceIntTest {
     private UserNotificationSettingMigrationService migrationService;
 
     @Autowired
-    private NotificationPreferenceService preferenceService;
+    private NotificationSettingsService preferenceService;
 
     @Autowired
     private UserNotificationSettingRepository settingRepository;
