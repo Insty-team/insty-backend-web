@@ -119,4 +119,8 @@ public class Course extends BaseEntity {
     public void deleteThumbnail() {
         this.thumbnail = null;
     }
+
+    public void changeIsShow(boolean isShow){
+        this.isShow = isShow;
+    }
 }

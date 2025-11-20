@@ -10,17 +10,7 @@ import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
 import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationRes;
-import insty.domain.course.dto.CourseCreateReq;
-import insty.domain.course.dto.CourseDetailRes;
-import insty.domain.course.dto.CourseInstallEnvChecklistInfo;
-import insty.domain.course.dto.CourseMySearchInfo;
-import insty.domain.course.dto.CourseMySearchReq;
-import insty.domain.course.dto.CourseProgressRes;
-import insty.domain.course.dto.CourseProgressSearchInfo;
-import insty.domain.course.dto.CourseProgressSearchReq;
-import insty.domain.course.dto.CourseSearchInfo;
-import insty.domain.course.dto.CourseSearchReq;
-import insty.domain.course.dto.CourseUpdateReq;
+import insty.domain.course.dto.*;
 import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
 import insty.domain.course.implement.CourseFileReader;
@@ -588,6 +578,28 @@ class CourseServiceTest {
         //then
 
         assertThat(result).isTrue();
+
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+
+    })
+    @Test
+    void patchCourseVisible_정상() {
+        //given
+        Long userId = 1L;
+        Long courseId = 1L;
+        boolean isShow = false;
+        //when
+        CoursePatchVisibleRes coursePatchVisibleRes = courseService.patchCourseVisible(userId , courseId, isShow);
+
+        //then
+        assertThat(coursePatchVisibleRes.isShow()).isFalse();
+        assertThat(coursePatchVisibleRes.courseId()).isEqualTo(courseId);
 
     }
 }

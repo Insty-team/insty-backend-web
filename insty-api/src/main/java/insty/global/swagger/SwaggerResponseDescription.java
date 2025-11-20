@@ -107,6 +107,10 @@ public enum SwaggerResponseDescription {
     ))),
     COURSE_REQUEST(new LinkedHashSet<>(Set.of(
     ))),
+    COURSE_VISIBLE(new LinkedHashSet<>(Set.of(
+            COURSE_NOT_FOUND ,
+            COURSE_CANT_CHANGE
+    ))),
     //community
     COMMUNITY_QUESTION_SEARCH(new LinkedHashSet<>(Set.of(
     ))),

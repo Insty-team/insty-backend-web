@@ -2,16 +2,7 @@ package insty.domain.course.controller;
 
 import insty.domain.common.SearchRes;
 import insty.domain.common.ViewCountPolicy;
-import insty.domain.course.dto.CourseCreateReq;
-import insty.domain.course.dto.CourseDetailRes;
-import insty.domain.course.dto.CourseMySearchInfo;
-import insty.domain.course.dto.CourseMySearchReq;
-import insty.domain.course.dto.CourseProgressRes;
-import insty.domain.course.dto.CourseProgressSearchInfo;
-import insty.domain.course.dto.CourseProgressSearchReq;
-import insty.domain.course.dto.CourseSearchInfo;
-import insty.domain.course.dto.CourseSearchReq;
-import insty.domain.course.dto.CourseUpdateReq;
+import insty.domain.course.dto.*;
 import insty.domain.course.service.CourseService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
@@ -27,15 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "강의 API")
@@ -161,5 +144,17 @@ public class CourseController {
             @PathVariable("courseId") Long courseId
     ) {
         return SuccessRes.of(courseService.searchCourseProgressExists(userId, courseId));
+    }
+
+    @Operation(summary = "강좌의 visible 상태 변경", description = "강좌의 visible상태를 변경함으로써 러너에게 보여질지 말지를 결정할 수 있다.")
+    @PreAuthorize("hasRole('CREATOR')")
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_VISIBLE)
+    @PutMapping("/{courseId}/visibility")
+    public SuccessRes<CoursePatchVisibleRes> updateCourseVisibility(
+            @PathVariable("courseId") Long courseId,
+            @CurrentUser Long userId,
+            @RequestParam("isShow") boolean isShow
+    ) {
+        return SuccessRes.of(courseService.patchCourseVisible(userId,courseId, isShow));
     }
 }

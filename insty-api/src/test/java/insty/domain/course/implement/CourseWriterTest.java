@@ -224,4 +224,22 @@ class CourseWriterTest {
         assertThatCode(() -> courseWriter.deleteCourse(course))
                 .doesNotThrowAnyException();
     }
+
+    @Test
+    void patchCourseIsShow_정상(){
+
+        //given
+        Long courseId = 1L;
+        boolean isShow = false;
+        Course courseFixtureVisibleTrue = CourseFixtureBuilder.getCourseWithIdAndUser(); // 최초 생성시 isShow Ture
+        Course courseFixtureVisibleFalse = CourseFixtureBuilder.getCourseWithIdAndUser();// 최초 생성시 isShow Ture
+        //mock
+
+        when(courseRepository.findById(courseId)).thenReturn(Optional.ofNullable(courseFixtureVisibleFalse));
+        //when
+        Course course = courseWriter.patchCourseIsShow(courseId, isShow);
+        //then
+        assertThat(courseFixtureVisibleTrue.isShow()).isTrue();
+        assertThat(course.isShow()).isFalse();
+    }
 }
