@@ -2,7 +2,9 @@ package insty.domain.notification.service;
 
 import insty.domain.notification.repository.UserNotificationSettingRepository;
 import insty.domain.user.event.UserCreatedEvent;
+import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
+import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.notification.UserNotificationSetting;
 import insty.model.user.User;
@@ -22,6 +24,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationSettingsService {
 
     private final UserNotificationSettingRepository settingRepository;
+    private final UserRepository userRepository;
 
     /**
      * 특정 알림 타입과 채널에 대한 수신 허용 여부 확인
@@ -84,6 +87,41 @@ public class NotificationSettingsService {
     }
 
     /**
+     * 사용자의 알림 설정 조회, 없으면 기본값으로 생성
+     */
+    @Transactional
+    public Map<NotificationType, Map<NotificationChannel, Boolean>> getOrCreateUserSettings(Long userId) {
+        List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
+
+        if (settings.isEmpty()) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            initializeDefaultSettings(user);
+            settings = settingRepository.findByUserId(userId);
+        }
+
+        Map<NotificationType, Map<NotificationChannel, Boolean>> result = new EnumMap<>(NotificationType.class);
+
+        for (NotificationType type : NotificationType.getUserConfigurableTypes()) {
+            Map<NotificationChannel, Boolean> channelMap = new EnumMap<>(NotificationChannel.class);
+
+            for (NotificationChannel channel : NotificationChannel.values()) {
+                boolean enabled = settings.stream()
+                        .filter(s -> s.getNotificationType() == type && s.getChannel() == channel)
+                        .findFirst()
+                        .map(UserNotificationSetting::isEnabled)
+                        .orElse(true);
+
+                channelMap.put(channel, enabled);
+            }
+
+            result.put(type, channelMap);
+        }
+
+        return result;
+    }
+
+    /**
      * 신규 사용자 알림 설정 초기화
      */
     @Transactional
@@ -103,7 +141,11 @@ public class NotificationSettingsService {
     public void updateSetting(Long userId, NotificationType type, NotificationChannel channel, boolean enabled) {
         UserNotificationSetting setting = settingRepository
                 .findByUserIdAndNotificationTypeAndChannel(userId, type, channel)
-                .orElseThrow(() -> new CustomException(NotificationErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+                    return settingRepository.save(UserNotificationSetting.createDefault(user, type, channel));
+                });
 
         setting.updateEnabled(enabled);
     }
@@ -123,6 +165,14 @@ public class NotificationSettingsService {
     @Transactional
     public void toggleAllNotifications(Long userId, boolean enableAll) {
         List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
+
+        if (settings.isEmpty()) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            initializeDefaultSettings(user);
+            settings = settingRepository.findByUserId(userId);
+        }
+
         settings.forEach(setting -> setting.updateEnabled(enableAll));
     }
 

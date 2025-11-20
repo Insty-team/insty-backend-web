@@ -1,7 +1,6 @@
 package insty.domain.notification.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
@@ -10,8 +9,6 @@ import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.event.UserCreatedEvent;
 import insty.domain.user.repository.UserRepository;
 import insty.domain.user.service.UserService;
-import insty.error.NotificationErrorCode;
-import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.notification.UserNotificationSetting;
 import insty.model.user.User;
@@ -230,16 +227,23 @@ class NotificationSettingsServiceIntTest {
     }
 
     @Test
-    void 알림_설정_변경_실패_설정_없음() {
-        // When & Then
-        assertThatThrownBy(() -> notificationSettingsService.updateSetting(
+    void 알림_설정_변경_설정_없음_자동_생성() {
+        // When
+        notificationSettingsService.updateSetting(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP,
                 false
-        ))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", NotificationErrorCode.NOTIFICATION_SETTING_NOT_FOUND);
+        );
+
+        // Then
+        UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
+                testUser.getId(),
+                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationChannel.IN_APP
+        ).orElseThrow();
+
+        assertThat(setting.isEnabled()).isFalse();
     }
 
     @Test

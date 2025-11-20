@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.notification.repository.UserNotificationSettingRepository;
 import insty.domain.user.event.UserCreatedEvent;
+import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
 import insty.model.notification.UserNotificationSetting;
@@ -34,6 +35,9 @@ class NotificationSettingsServiceTest {
 
     @Mock
     private UserNotificationSettingRepository settingRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     void 알림_수신_허용_확인_설정_있음() {
@@ -187,20 +191,28 @@ class NotificationSettingsServiceTest {
     }
 
     @Test
-    void 알림_설정_변경_실패_설정_없음() {
+    void 알림_설정_변경_설정_없음_자동_생성() {
         // Given
         Long userId = 1L;
+        User user = User.builder().id(userId).build();
         NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
         NotificationChannel channel = NotificationChannel.IN_APP;
 
+        UserNotificationSetting newSetting = UserNotificationSetting.createDefault(user, type, channel);
+
         when(settingRepository.findByUserIdAndNotificationTypeAndChannel(userId, type, channel))
                 .thenReturn(Optional.empty());
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+        when(settingRepository.save(any(UserNotificationSetting.class)))
+                .thenReturn(newSetting);
 
-        // When & Then
-        CustomException exception = assertThrows(CustomException.class,
-                () -> notificationSettingsService.updateSetting(userId, type, channel, false));
+        // When
+        notificationSettingsService.updateSetting(userId, type, channel, false);
 
-        assertEquals(NotificationErrorCode.NOTIFICATION_SETTING_NOT_FOUND, exception.getErrorCode());
+        // Then
+        verify(settingRepository).save(any(UserNotificationSetting.class));
+        assertFalse(newSetting.isEnabled());
     }
 
     @Test
