@@ -34,7 +34,7 @@ public class UserNotificationSettingController {
 
     @Operation(
             summary = "내 알림 설정 조회",
-            description = "로그인한 사용자의 모든 알림 타입별 설정을 조회합니다. 설정이 없으면 기본값으로 자동 생성됩니다."
+            description = "로그인한 사용자의 모든 알림 타입별 설정을 조회합니다."
     )
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SETTING_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
