@@ -62,7 +62,7 @@ public class NotificationSettingsService {
     /**
      * 사용자의 모든 알림 설정 조회 (Map 형태로 반환)
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<NotificationType, Map<NotificationChannel, Boolean>> getUserSettings(Long userId) {
         List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
 
