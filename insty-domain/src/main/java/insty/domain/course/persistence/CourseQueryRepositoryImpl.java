@@ -89,7 +89,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
     }
 
     @Override
-    public List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId) {
+    public List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow) {
         return select(
                 Projections.constructor(
                         CourseMySearchInfo.class,
@@ -108,7 +108,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .join(user).on(user.id.eq(course.user.id)
                         .and(user.id.eq(userId)))
                 .leftJoin(communityQuestion).on(communityQuestion.course.id.eq(course.id))
-                .where(searchMyCourseConditions())
+                .where(searchIsShow(isShow))
                 .groupBy(course.id)
                 .orderBy(createOrderSpecifier(null))
                 .offset(paginationReq.getOffset())
@@ -117,12 +117,12 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
     }
 
     @Override
-    public PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId) {
+    public PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow) {
         Long totalItems = select(course.count())
                 .from(course)
                 .join(user).on(user.id.eq(course.user.id)
                         .and(user.id.eq(userId)))
-                .where(searchMyCourseConditions())
+                .where(searchIsShow(isShow))
                 .fetchOne();
 
         if (totalItems == null) {
@@ -185,9 +185,8 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
         };
     }
 
-    private BooleanExpression[] searchMyCourseConditions() {
-        return new BooleanExpression[]{
-        };
+    private BooleanExpression searchIsShow(Boolean isShow) {
+        return isShow != null ? course.isShow.eq(isShow) : null;
     }
 
     private BooleanExpression searchFilter(String search) {

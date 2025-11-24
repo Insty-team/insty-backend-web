@@ -18,9 +18,9 @@ public interface CourseQueryRepository {
 
     Map<Long, List<String>> getCourseTags(List<Long> courseIds);
 
-    List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId);
+    List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow);
 
-    PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId);
+    PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow);
 
     Map<Long, UUID> getCourseVideoUuids(List<Long> courseIds);
 
