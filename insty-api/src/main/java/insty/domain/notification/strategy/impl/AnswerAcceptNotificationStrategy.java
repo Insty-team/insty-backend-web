@@ -1,8 +1,8 @@
 package insty.domain.notification.strategy.impl;
 
 import insty.constants.NotificationConstants;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
 import insty.domain.notification.util.NotificationUtils;
 import insty.notification.NotificationType;
@@ -23,7 +23,7 @@ public class AnswerAcceptNotificationStrategy extends AbstractNotificationStrate
     }
 
     @Override
-    public NotificationData buildNotificationData(NotificationRequest request) {
+    public NotificationData buildNotificationData(NotificationReq request) {
         String questionTitle = request.getQuestionTitle();
         Long questionId = request.getQuestionId();
         Long answerId = request.getAnswerId();
@@ -37,7 +37,7 @@ public class AnswerAcceptNotificationStrategy extends AbstractNotificationStrate
     }
 
     @Override
-    protected Map<String, Object> buildEmailContext(NotificationRequest request) {
+    protected Map<String, Object> buildEmailContext(NotificationReq request) {
         Map<String, Object> context = new HashMap<>(request.context());
         Long questionId = request.getQuestionId();
         Long answerId = request.getAnswerId();

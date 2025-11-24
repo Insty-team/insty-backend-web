@@ -1,4 +1,4 @@
-package insty.domain.notification.dto;
+package insty.domain.notification.dto.request;
 
 import insty.notification.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
  * 알림 설정 변경 요청 DTO
  */
 @Schema(description = "알림 설정 변경 요청")
-public record UserNotificationSettingUpdateRequest(
+public record UserNotificationSettingUpdateReq(
 
         @Schema(description = "알림 타입", example = "NEW_COMMUNITY_QUESTION")
         @NotNull(message = "알림 타입은 필수입니다")

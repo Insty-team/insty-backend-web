@@ -1,7 +1,7 @@
 package insty.domain.notification.controller;
 
 
-import insty.domain.notification.dto.NotificationResponse;
+import insty.domain.notification.dto.response.NotificationRes;
 import insty.domain.notification.service.NotificationService;
 import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
@@ -31,7 +31,7 @@ public class NotificationController {
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping
-    public SuccessRes<List<NotificationResponse>> getUserNotifications(
+    public SuccessRes<List<NotificationRes>> getUserNotifications(
             @CurrentUser Long userId
     ) {
         return SuccessRes.of(notificationService.getUserNotifications(userId));

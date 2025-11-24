@@ -1,7 +1,6 @@
 package insty.domain.notification.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
@@ -10,8 +9,6 @@ import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.event.UserCreatedEvent;
 import insty.domain.user.repository.UserRepository;
 import insty.domain.user.service.UserService;
-import insty.error.NotificationErrorCode;
-import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.notification.UserNotificationSetting;
 import insty.model.user.User;
@@ -34,10 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @Transactional
 @Tag("integration")
-class NotificationPreferenceServiceIntTest {
+class NotificationSettingsServiceIntTest {
 
     @Autowired
-    private NotificationPreferenceService notificationPreferenceService;
+    private NotificationSettingsService notificationSettingsService;
 
     @Autowired
     private UserNotificationSettingRepository settingRepository;
@@ -78,7 +75,7 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 알림_수신_허용_확인_설정_있음_활성화() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
@@ -89,7 +86,7 @@ class NotificationPreferenceServiceIntTest {
         setting.updateEnabled(true);
 
         // When
-        boolean result = notificationPreferenceService.isNotificationEnabled(
+        boolean result = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP
@@ -102,7 +99,7 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 알림_수신_허용_확인_설정_있음_비활성화() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
@@ -113,7 +110,7 @@ class NotificationPreferenceServiceIntTest {
         setting.updateEnabled(false);
 
         // When
-        boolean result = notificationPreferenceService.isNotificationEnabled(
+        boolean result = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP
@@ -126,7 +123,7 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 알림_수신_허용_확인_설정_없음_기본값_true() {
         // When
-        boolean result = notificationPreferenceService.isNotificationEnabled(
+        boolean result = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP
@@ -148,7 +145,7 @@ class NotificationPreferenceServiceIntTest {
         userRepository.save(user);
 
         // When
-        boolean result = notificationPreferenceService.isEmailEnabled(
+        boolean result = notificationSettingsService.isEmailEnabled(
                 user,
                 NotificationType.NEW_COMMUNITY_QUESTION
         );
@@ -161,10 +158,10 @@ class NotificationPreferenceServiceIntTest {
     void 이메일_수신_허용_확인_이메일_동의함() {
         // Given
         userService.updateAgreement(testUser.getId(), new UserAgreementUpdateReq(true));
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // When
-        boolean result = notificationPreferenceService.isEmailEnabled(
+        boolean result = notificationSettingsService.isEmailEnabled(
                 testUser,
                 NotificationType.NEW_COMMUNITY_QUESTION
         );
@@ -176,11 +173,11 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 사용자_모든_알림_설정_조회() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // When
         Map<NotificationType, Map<NotificationChannel, Boolean>> result =
-                notificationPreferenceService.getUserSettings(testUser.getId());
+                notificationSettingsService.getUserSettings(testUser.getId());
 
         // Then
         assertThat(result).isNotEmpty();
@@ -194,7 +191,7 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 신규_사용자_알림_설정_초기화() {
         // When
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // Then
         List<UserNotificationSetting> settings = settingRepository.findByUserId(testUser.getId());
@@ -209,10 +206,10 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 알림_설정_변경_성공() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // When
-        notificationPreferenceService.updateSetting(
+        notificationSettingsService.updateSetting(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP,
@@ -230,25 +227,32 @@ class NotificationPreferenceServiceIntTest {
     }
 
     @Test
-    void 알림_설정_변경_실패_설정_없음() {
-        // When & Then
-        assertThatThrownBy(() -> notificationPreferenceService.updateSetting(
+    void 알림_설정_변경_설정_없음_자동_생성() {
+        // When
+        notificationSettingsService.updateSetting(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP,
                 false
-        ))
-                .isInstanceOf(CustomException.class)
-                .hasFieldOrPropertyWithValue("errorCode", NotificationErrorCode.NOTIFICATION_SETTING_NOT_FOUND);
+        );
+
+        // Then
+        UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
+                testUser.getId(),
+                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationChannel.IN_APP
+        ).orElseThrow();
+
+        assertThat(setting.isEnabled()).isFalse();
     }
 
     @Test
     void 일괄_설정_변경() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // When
-        notificationPreferenceService.updateSettingsForType(
+        notificationSettingsService.updateSettingsForType(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 true,
@@ -275,10 +279,10 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 모든_알림_끄기() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // When
-        notificationPreferenceService.toggleAllNotifications(testUser.getId(), false);
+        notificationSettingsService.toggleAllNotifications(testUser.getId(), false);
 
         // Then
         List<UserNotificationSetting> settings = settingRepository.findByUserId(testUser.getId());
@@ -288,11 +292,11 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 모든_알림_켜기() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
-        notificationPreferenceService.toggleAllNotifications(testUser.getId(), false);
+        notificationSettingsService.initializeDefaultSettings(testUser);
+        notificationSettingsService.toggleAllNotifications(testUser.getId(), false);
 
         // When
-        notificationPreferenceService.toggleAllNotifications(testUser.getId(), true);
+        notificationSettingsService.toggleAllNotifications(testUser.getId(), true);
 
         // Then
         List<UserNotificationSetting> settings = settingRepository.findByUserId(testUser.getId());
@@ -312,7 +316,7 @@ class NotificationPreferenceServiceIntTest {
         UserCreatedEvent event = new UserCreatedEvent(newUser);
 
         // When
-        notificationPreferenceService.handleUserCreatedEvent(event);
+        notificationSettingsService.handleUserCreatedEvent(event);
 
         // Then
         List<UserNotificationSetting> settings = settingRepository.findByUserId(newUser.getId());
@@ -324,10 +328,10 @@ class NotificationPreferenceServiceIntTest {
     @Test
     void 특정_타입_설정만_변경() {
         // Given
-        notificationPreferenceService.initializeDefaultSettings(testUser);
+        notificationSettingsService.initializeDefaultSettings(testUser);
 
         // When
-        notificationPreferenceService.updateSetting(
+        notificationSettingsService.updateSetting(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.EMAIL,
@@ -335,19 +339,19 @@ class NotificationPreferenceServiceIntTest {
         );
 
         // Then
-        boolean emailDisabled = notificationPreferenceService.isNotificationEnabled(
+        boolean emailDisabled = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.EMAIL
         );
 
-        boolean inAppEnabled = notificationPreferenceService.isNotificationEnabled(
+        boolean inAppEnabled = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 NotificationChannel.IN_APP
         );
 
-        boolean otherTypeEnabled = notificationPreferenceService.isNotificationEnabled(
+        boolean otherTypeEnabled = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
                 NotificationType.NEW_COMMUNITY_ANSWER,
                 NotificationChannel.EMAIL

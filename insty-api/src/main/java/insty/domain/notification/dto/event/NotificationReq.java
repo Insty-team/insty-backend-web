@@ -1,10 +1,10 @@
-package insty.domain.notification.dto;
+package insty.domain.notification.dto.event;
 
 import insty.notification.NotificationType;
 import java.util.HashMap;
 import java.util.Map;
 
-public record NotificationRequest(
+public record NotificationReq(
         NotificationType type,
         Long receiverId,
         Map<String, Object> context
@@ -15,7 +15,7 @@ public record NotificationRequest(
     /**
      * 새로운 커뮤니티 질문 알림 생성
      */
-    public static NotificationRequest newCommunityQuestion(
+    public static NotificationReq newCommunityQuestion(
             Long receiverId,
             Long questionId,
             String questionTitle,
@@ -30,7 +30,7 @@ public record NotificationRequest(
         context.put("questionAuthorName", questionAuthorName);
         context.put("courseName", courseName);
 
-        return new NotificationRequest(
+        return new NotificationReq(
                 NotificationType.NEW_COMMUNITY_QUESTION,
                 receiverId,
                 context
@@ -40,7 +40,7 @@ public record NotificationRequest(
     /**
      * 새로운 답변 알림 생성
      */
-    public static NotificationRequest newAnswer(
+    public static NotificationReq newAnswer(
             Long receiverId,
             Long questionId,
             Long answerId,
@@ -55,7 +55,7 @@ public record NotificationRequest(
         context.put("answerContent", answerContent);
         context.put("answerAuthorNickname", answerAuthorNickname);
 
-        return new NotificationRequest(
+        return new NotificationReq(
                 NotificationType.NEW_COMMUNITY_ANSWER,
                 receiverId,
                 context
@@ -65,7 +65,7 @@ public record NotificationRequest(
     /**
      * 답변 채택 알림 생성
      */
-    public static NotificationRequest answerAccepted(
+    public static NotificationReq answerAccepted(
             Long receiverId,
             Long questionId,
             Long answerId,
@@ -78,7 +78,7 @@ public record NotificationRequest(
         context.put("questionTitle", questionTitle);
         context.put("answerContent", answerContent);
 
-        return new NotificationRequest(
+        return new NotificationReq(
                 NotificationType.COMMUNITY_ANSWER_ACCEPT,
                 receiverId,
                 context
@@ -88,7 +88,7 @@ public record NotificationRequest(
     /**
      * 사용자 멘션 알림 생성
      */
-    public static NotificationRequest userMentioned(
+    public static NotificationReq userMentioned(
             Long receiverId,
             Long mentionId,
             String mentionerNickname,
@@ -103,7 +103,7 @@ public record NotificationRequest(
         context.put("contentType", contentType);
         context.put("relatedId", relatedId);
 
-        return new NotificationRequest(
+        return new NotificationReq(
                 NotificationType.USER_MENTIONED,
                 receiverId,
                 context

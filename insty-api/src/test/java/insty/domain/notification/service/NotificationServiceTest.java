@@ -7,10 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.constants.NotificationConstants;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
-import insty.domain.notification.dto.NotificationResponse;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
+import insty.domain.notification.dto.response.NotificationRes;
 import insty.domain.notification.repository.NotificationRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
@@ -76,7 +75,7 @@ class NotificationServiceTest {
                 .thenReturn(notificationPage);
 
         // When
-        List<NotificationResponse> result = notificationService.getUserNotifications(userId);
+        List<NotificationRes> result = notificationService.getUserNotifications(userId);
 
         // Then
         assertEquals(2, result.size());
@@ -101,7 +100,7 @@ class NotificationServiceTest {
     void 알림_저장_성공() {
         // Given
         Long receiverId = 1L;
-        NotificationRequest request = NotificationRequest.newCommunityQuestion(
+        NotificationReq request = NotificationReq.newCommunityQuestion(
                 receiverId,
                 1L,
                 "질문 제목",

@@ -1,9 +1,9 @@
 package insty.domain.notification.service;
 
 import insty.constants.NotificationConstants;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
-import insty.domain.notification.dto.NotificationResponse;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
+import insty.domain.notification.dto.response.NotificationRes;
 import insty.domain.notification.repository.NotificationRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
@@ -32,21 +32,21 @@ public class NotificationService {
      * 사용자 알림 조회
      */
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getUserNotifications(Long userId) {
+    public List<NotificationRes> getUserNotifications(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         Pageable pageable = PageRequest.of(0, NotificationConstants.DEFAULT_NOTIFICATION_SIZE);
         Page<Notification> notifications = notificationRepository.findActiveByUserId(user.getId(), pageable);
 
-        return notifications.map(NotificationResponse::from).getContent();
+        return notifications.map(NotificationRes::from).getContent();
     }
 
     /**
      * 알림 저장
      */
     @Transactional
-    public void saveNotification(NotificationRequest request, NotificationData data) {
+    public void saveNotification(NotificationReq request, NotificationData data) {
         Notification notification = Notification.create(
                 request.receiverId(),
                 request.type(),

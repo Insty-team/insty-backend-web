@@ -2,10 +2,13 @@ package insty.domain.notification.service;
 
 import insty.domain.notification.repository.UserNotificationSettingRepository;
 import insty.domain.user.event.UserCreatedEvent;
+import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
+import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.notification.UserNotificationSetting;
 import insty.model.user.User;
+import insty.model.user.UserType;
 import insty.notification.NotificationChannel;
 import insty.notification.NotificationType;
 import java.util.EnumMap;
@@ -19,9 +22,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationPreferenceService {
+public class NotificationSettingsService {
 
     private final UserNotificationSettingRepository settingRepository;
+    private final UserRepository userRepository;
 
     /**
      * 특정 알림 타입과 채널에 대한 수신 허용 여부 확인
@@ -58,13 +62,52 @@ public class NotificationPreferenceService {
     /**
      * 사용자의 모든 알림 설정 조회 (Map 형태로 반환)
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<NotificationType, Map<NotificationChannel, Boolean>> getUserSettings(Long userId) {
         List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
         Map<NotificationType, Map<NotificationChannel, Boolean>> result = new EnumMap<>(NotificationType.class);
 
-        for (NotificationType type : NotificationType.getUserConfigurableTypes()) {
+        for (NotificationType type : getApplicableNotificationTypes(user)) {
+            Map<NotificationChannel, Boolean> channelMap = new EnumMap<>(NotificationChannel.class);
+
+            for (NotificationChannel channel : NotificationChannel.values()) {
+                boolean enabled = settings.stream()
+                        .filter(s -> s.getNotificationType() == type && s.getChannel() == channel)
+                        .findFirst()
+                        .map(UserNotificationSetting::isEnabled)
+                        .orElse(true);
+
+                channelMap.put(channel, enabled);
+            }
+
+            result.put(type, channelMap);
+        }
+
+        return result;
+    }
+
+    /**
+     * 사용자의 알림 설정 조회, 없으면 기본값으로 생성
+     */
+    @Transactional
+    public Map<NotificationType, Map<NotificationChannel, Boolean>> getOrCreateUserSettings(Long userId) {
+        List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        if (settings.isEmpty()) {
+            initializeDefaultSettings(user);
+            settings = settingRepository.findByUserId(userId);
+        }
+
+        Map<NotificationType, Map<NotificationChannel, Boolean>> result = new EnumMap<>(NotificationType.class);
+
+        for (NotificationType type : getApplicableNotificationTypes(user)) {
             Map<NotificationChannel, Boolean> channelMap = new EnumMap<>(NotificationChannel.class);
 
             for (NotificationChannel channel : NotificationChannel.values()) {
@@ -103,7 +146,11 @@ public class NotificationPreferenceService {
     public void updateSetting(Long userId, NotificationType type, NotificationChannel channel, boolean enabled) {
         UserNotificationSetting setting = settingRepository
                 .findByUserIdAndNotificationTypeAndChannel(userId, type, channel)
-                .orElseThrow(() -> new CustomException(NotificationErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+                    return settingRepository.save(UserNotificationSetting.createDefault(user, type, channel));
+                });
 
         setting.updateEnabled(enabled);
     }
@@ -123,6 +170,14 @@ public class NotificationPreferenceService {
     @Transactional
     public void toggleAllNotifications(Long userId, boolean enableAll) {
         List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
+
+        if (settings.isEmpty()) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+            initializeDefaultSettings(user);
+            settings = settingRepository.findByUserId(userId);
+        }
+
         settings.forEach(setting -> setting.updateEnabled(enableAll));
     }
 
@@ -133,5 +188,32 @@ public class NotificationPreferenceService {
     public void handleUserCreatedEvent(UserCreatedEvent event) {
         User user = event.user();
         initializeDefaultSettings(user);
+    }
+
+    /**
+     * 사용자 역할에 따라 노출할 알림 타입 필터링
+     */
+    private NotificationType[] getApplicableNotificationTypes(User user) {
+        UserType userType = user.getUserType();
+
+        if (userType == UserType.LEARNER) {
+            return new NotificationType[]{
+                    NotificationType.NEW_COURSE,
+                    NotificationType.NEW_COMMUNITY_ANSWER,
+                    NotificationType.COMMUNITY_ANSWER_ACCEPT,
+                    NotificationType.USER_MENTIONED
+            };
+        }
+
+        if (userType == UserType.CREATOR) {
+            return new NotificationType[]{
+                    NotificationType.NEW_COMMUNITY_QUESTION,
+                    NotificationType.NEW_COMMUNITY_ANSWER,
+                    NotificationType.USER_MENTIONED
+            };
+        }
+
+        // 역할이 지정되지 않은 경우에는 기존과 동일하게 모든 사용자 설정 가능 타입을 반환
+        return NotificationType.getUserConfigurableTypes();
     }
 }

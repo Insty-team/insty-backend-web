@@ -4,7 +4,7 @@ import insty.model.community.CommunityAnswer;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationReq;
 import java.util.Objects;
 import java.util.Set;
 import java.util.List;
@@ -35,7 +35,7 @@ public class CommunityNotificationManager {
         User questionAuthor = question.getUser();
         User courseCreator = course.getUser();
 
-        NotificationRequest request = NotificationRequest.newCommunityQuestion(
+        NotificationReq request = NotificationReq.newCommunityQuestion(
                 courseCreator.getId(),
                 question.getId(),
                 question.getTitle(),
@@ -70,7 +70,7 @@ public class CommunityNotificationManager {
                     question.getId(), creator.getId());
 
             if (hasNewAnswersAfterCreatorLastView) {
-                NotificationRequest request = NotificationRequest.newAnswer(
+                NotificationReq request = NotificationReq.newAnswer(
                         creator.getId(),
                         question.getId(),
                         answer.getId(),
@@ -93,7 +93,7 @@ public class CommunityNotificationManager {
         Set<User> participants = communityAnswerReader.getParticipantsByQuestionId(question.getId());
 
         // 답변 작성자에게 알림 전송
-        NotificationRequest acceptRequest = NotificationRequest.answerAccepted(
+        NotificationReq acceptRequest = NotificationReq.answerAccepted(
                 answer.getUser().getId(),
                 question.getId(),
                 answer.getId(),
@@ -108,7 +108,7 @@ public class CommunityNotificationManager {
                 .filter(participant -> !participant.getId().equals(questionAuthor.getId()))
                 .filter(participant -> !participant.getId().equals(creator.getId()))
                 .forEach(participant -> {
-                    NotificationRequest participantRequest = NotificationRequest.answerAccepted(
+                    NotificationReq participantRequest = NotificationReq.answerAccepted(
                             participant.getId(),
                             question.getId(),
                             answer.getId(),

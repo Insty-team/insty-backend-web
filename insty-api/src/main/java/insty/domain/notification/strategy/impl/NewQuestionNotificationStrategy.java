@@ -1,8 +1,8 @@
 package insty.domain.notification.strategy.impl;
 
 import insty.constants.NotificationConstants;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
 import insty.domain.notification.strategy.AbstractNotificationStrategy;
 import insty.domain.notification.util.NotificationUtils;
 import insty.notification.NotificationType;
@@ -28,7 +28,7 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
     // ==================== 인앱 알림 ====================
 
     @Override
-    public NotificationData buildNotificationData(NotificationRequest request) {
+    public NotificationData buildNotificationData(NotificationReq request) {
         String questionTitle = request.getQuestionTitle();
         String questionAuthorName = request.getQuestionAuthorName();
         String courseName = request.getCourseName();
@@ -45,7 +45,7 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
     }
 
     @Override
-    protected Map<String, Object> buildEmailContext(NotificationRequest request) {
+    protected Map<String, Object> buildEmailContext(NotificationReq request) {
         Map<String, Object> context = new HashMap<>(request.context());
         context.put("questionUrl", notificationUtils.buildQuestionUrl(request.getQuestionId()));
         return context;

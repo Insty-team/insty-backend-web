@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.notification.repository.UserNotificationSettingRepository;
 import insty.domain.user.event.UserCreatedEvent;
+import insty.domain.user.repository.UserRepository;
 import insty.error.NotificationErrorCode;
 import insty.exception.CustomException;
 import insty.model.notification.UserNotificationSetting;
@@ -27,13 +28,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class NotificationPreferenceServiceTest {
+class NotificationSettingsServiceTest {
 
     @InjectMocks
-    private NotificationPreferenceService notificationPreferenceService;
+    private NotificationSettingsService notificationSettingsService;
 
     @Mock
     private UserNotificationSettingRepository settingRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     void 알림_수신_허용_확인_설정_있음() {
@@ -50,7 +54,7 @@ class NotificationPreferenceServiceTest {
                 .thenReturn(Optional.of(setting));
 
         // When
-        boolean result = notificationPreferenceService.isNotificationEnabled(userId, type, channel);
+        boolean result = notificationSettingsService.isNotificationEnabled(userId, type, channel);
 
         // Then
         assertTrue(result);
@@ -67,7 +71,7 @@ class NotificationPreferenceServiceTest {
                 .thenReturn(Optional.empty());
 
         // When
-        boolean result = notificationPreferenceService.isNotificationEnabled(userId, type, channel);
+        boolean result = notificationSettingsService.isNotificationEnabled(userId, type, channel);
 
         // Then
         assertTrue(result);
@@ -85,7 +89,7 @@ class NotificationPreferenceServiceTest {
         NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
 
         // When
-        boolean result = notificationPreferenceService.isEmailEnabled(user, type);
+        boolean result = notificationSettingsService.isEmailEnabled(user, type);
 
         // Then
         assertFalse(result);
@@ -110,7 +114,7 @@ class NotificationPreferenceServiceTest {
                 .thenReturn(Optional.of(setting));
 
         // When
-        boolean result = notificationPreferenceService.isEmailEnabled(user, type);
+        boolean result = notificationSettingsService.isEmailEnabled(user, type);
 
         // Then
         assertTrue(result);
@@ -137,10 +141,11 @@ class NotificationPreferenceServiceTest {
         List<UserNotificationSetting> settings = List.of(setting1, setting2, setting3);
 
         when(settingRepository.findByUserId(userId)).thenReturn(settings);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // When
         Map<NotificationType, Map<NotificationChannel, Boolean>> result =
-                notificationPreferenceService.getUserSettings(userId);
+                notificationSettingsService.getUserSettings(userId);
 
         // Then
         assertTrue(result.containsKey(NotificationType.NEW_COMMUNITY_QUESTION));
@@ -159,7 +164,7 @@ class NotificationPreferenceServiceTest {
         User user = User.builder().id(userId).build();
 
         // When
-        notificationPreferenceService.initializeDefaultSettings(user);
+        notificationSettingsService.initializeDefaultSettings(user);
 
         // Then
         int expectedCount = NotificationType.values().length * NotificationChannel.values().length;
@@ -180,27 +185,35 @@ class NotificationPreferenceServiceTest {
                 .thenReturn(Optional.of(setting));
 
         // When
-        notificationPreferenceService.updateSetting(userId, type, channel, false);
+        notificationSettingsService.updateSetting(userId, type, channel, false);
 
         // Then
         assertFalse(setting.isEnabled());
     }
 
     @Test
-    void 알림_설정_변경_실패_설정_없음() {
+    void 알림_설정_변경_설정_없음_자동_생성() {
         // Given
         Long userId = 1L;
+        User user = User.builder().id(userId).build();
         NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
         NotificationChannel channel = NotificationChannel.IN_APP;
 
+        UserNotificationSetting newSetting = UserNotificationSetting.createDefault(user, type, channel);
+
         when(settingRepository.findByUserIdAndNotificationTypeAndChannel(userId, type, channel))
                 .thenReturn(Optional.empty());
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+        when(settingRepository.save(any(UserNotificationSetting.class)))
+                .thenReturn(newSetting);
 
-        // When & Then
-        CustomException exception = assertThrows(CustomException.class,
-                () -> notificationPreferenceService.updateSetting(userId, type, channel, false));
+        // When
+        notificationSettingsService.updateSetting(userId, type, channel, false);
 
-        assertEquals(NotificationErrorCode.NOTIFICATION_SETTING_NOT_FOUND, exception.getErrorCode());
+        // Then
+        verify(settingRepository).save(any(UserNotificationSetting.class));
+        assertFalse(newSetting.isEnabled());
     }
 
     @Test
@@ -223,7 +236,7 @@ class NotificationPreferenceServiceTest {
                 .thenReturn(Optional.of(emailSetting));
 
         // When
-        notificationPreferenceService.updateSettingsForType(userId, type, true, false);
+        notificationSettingsService.updateSettingsForType(userId, type, true, false);
 
         // Then
         assertTrue(inAppSetting.isEnabled());
@@ -249,7 +262,7 @@ class NotificationPreferenceServiceTest {
         when(settingRepository.findByUserId(userId)).thenReturn(settings);
 
         // When
-        notificationPreferenceService.toggleAllNotifications(userId, false);
+        notificationSettingsService.toggleAllNotifications(userId, false);
 
         // Then
         assertFalse(setting1.isEnabled());
@@ -275,7 +288,7 @@ class NotificationPreferenceServiceTest {
         when(settingRepository.findByUserId(userId)).thenReturn(settings);
 
         // When
-        notificationPreferenceService.toggleAllNotifications(userId, true);
+        notificationSettingsService.toggleAllNotifications(userId, true);
 
         // Then
         assertTrue(setting1.isEnabled());
@@ -290,7 +303,7 @@ class NotificationPreferenceServiceTest {
         UserCreatedEvent event = new UserCreatedEvent(user);
 
         // When
-        notificationPreferenceService.handleUserCreatedEvent(event);
+        notificationSettingsService.handleUserCreatedEvent(event);
 
         // Then
         int expectedCount = NotificationType.values().length * NotificationChannel.values().length;

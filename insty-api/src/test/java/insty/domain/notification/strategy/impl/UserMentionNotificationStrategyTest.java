@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import insty.constants.NotificationConstants;
-import insty.domain.notification.dto.NotificationData;
-import insty.domain.notification.dto.NotificationRequest;
+import insty.domain.notification.dto.event.NotificationData;
+import insty.domain.notification.dto.event.NotificationReq;
 import insty.domain.notification.util.NotificationUtils;
 import insty.mail.MailContent;
 import insty.mail.MailType;
@@ -29,11 +29,11 @@ class UserMentionNotificationStrategyTest {
     @Mock
     private NotificationUtils notificationUtils;
 
-    private NotificationRequest request;
+    private NotificationReq request;
 
     @BeforeEach
     void setUp() {
-        request = NotificationRequest.userMentioned(
+        request = NotificationReq.userMentioned(
                 1L,
                 300L,
                 "홍길동",
@@ -80,7 +80,7 @@ class UserMentionNotificationStrategyTest {
         String longContent = "a".repeat(500);
         String truncatedContent = "a".repeat(200) + "...";
 
-        NotificationRequest longContentRequest = NotificationRequest.userMentioned(
+        NotificationReq longContentRequest = NotificationReq.userMentioned(
                 1L,
                 300L,
                 "홍길동",
@@ -132,7 +132,7 @@ class UserMentionNotificationStrategyTest {
     @Test
     void 이메일_컨텐츠_빌드_답변_타입() {
         // Given
-        NotificationRequest answerMentionRequest = NotificationRequest.userMentioned(
+        NotificationReq answerMentionRequest = NotificationReq.userMentioned(
                 1L,
                 300L,
                 "홍길동",
@@ -163,7 +163,7 @@ class UserMentionNotificationStrategyTest {
     @Test
     void 이메일_컨텐츠_빌드_댓글_타입() {
         // Given
-        NotificationRequest commentMentionRequest = NotificationRequest.userMentioned(
+        NotificationReq commentMentionRequest = NotificationReq.userMentioned(
                 1L,
                 300L,
                 "홍길동",

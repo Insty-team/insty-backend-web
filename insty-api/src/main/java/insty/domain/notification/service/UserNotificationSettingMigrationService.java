@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserNotificationSettingMigrationService {
 
     private final UserRepository userRepository;
-    private final NotificationPreferenceService preferenceService;
+    private final NotificationSettingsService preferenceService;
 
     /**
         알림 설정이 없는 모든 사용자에 대해 기본 설정 초기화
