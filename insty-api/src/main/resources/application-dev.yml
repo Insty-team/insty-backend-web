@@ -13,9 +13,9 @@ swagger:
 video:
   upload:
     max-minute:
-      course: 60
-      answer: 60
-      question: 60
+      course: 6000
+      answer: 6000
+      question: 6000
 
 mixpanel:
   enabled: false
