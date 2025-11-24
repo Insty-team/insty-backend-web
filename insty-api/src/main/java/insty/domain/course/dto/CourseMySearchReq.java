@@ -10,7 +10,8 @@ public record CourseMySearchReq(
         @Min(1)
         int page,
         @Min(1) @Max(100)
-        int pageSize
+        int pageSize,
+        Boolean isShow
 ) {
 
     public PaginationReq toPaginationReq() {

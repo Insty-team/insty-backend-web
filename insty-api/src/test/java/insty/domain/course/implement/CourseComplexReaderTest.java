@@ -104,10 +104,25 @@ class CourseComplexReaderTest {
         Long userId = 1L;
 
         // mock
-        CourseMySearchInfo searchInfo = new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, null, null, true,
-                Instant.now());
-        when(courseQueryRepository.searchMyCourses(paginationReq, userId))
-                .thenReturn(List.of(searchInfo));
+        when(courseQueryRepository.searchMyCourses(any(), any(), any()))
+                .thenAnswer(invocation -> {
+                    PaginationReq req = invocation.getArgument(0);
+                    Long uid = invocation.getArgument(1);
+                    Boolean isShow = invocation.getArgument(2);
+
+                    if (Boolean.TRUE.equals(isShow)) {
+                        return List.of(new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L,
+                                null, null, true, Instant.now()));
+                    } else if (Boolean.FALSE.equals(isShow)) {
+                        return List.of(new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L,
+                                null, null, false, Instant.now()));
+                    } else { // isShow == null
+                        return List.of(
+                                new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, null, null, true, Instant.now()),
+                                new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L, null, null, false, Instant.now())
+                        );
+                    }
+                });
         Map<Long, List<String>> courseTag = Map.of(1L, List.of("태그1", "태그2"));
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
@@ -120,16 +135,28 @@ class CourseComplexReaderTest {
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
 
-        // when
-        List<CourseMySearchInfo> res = courseComplexReader.searchMyCourse(paginationReq, userId);
-
-        // then
-        assertThat(res).hasSize(1);
-        assertThat(res).hasSize(1);
-        assertThat(res.get(0).title()).isEqualTo("파이썬 강의");
-        assertThat(res.get(0).tags()).containsExactlyInAnyOrder("태그1", "태그2");
-        assertThat(res.get(0).thumbnailUrl()).isEqualTo(
+        // when & then: isShow = true
+        List<CourseMySearchInfo> resTrue = courseComplexReader.searchMyCourse(paginationReq, userId, true);
+        assertThat(resTrue).hasSize(1);
+        assertThat(resTrue.get(0).title()).isEqualTo("파이썬 강의");
+        assertThat(resTrue.get(0).tags()).containsExactlyInAnyOrder("태그1", "태그2");
+        assertThat(resTrue.get(0).isShow()).isTrue();
+        assertThat(resTrue.get(0).thumbnailUrl()).isEqualTo(
                 "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+
+        // when & then: isShow = false
+        List<CourseMySearchInfo> resFalse = courseComplexReader.searchMyCourse(paginationReq, userId, false);
+        assertThat(resFalse).hasSize(1);
+        assertThat(resFalse.get(0).title()).isEqualTo("자바 강의");
+        assertThat(resFalse.get(0).isShow()).isFalse();
+
+
+        // when & then: isShow = null
+        List<CourseMySearchInfo> resNull = courseComplexReader.searchMyCourse(paginationReq, userId, null);
+        assertThat(resNull).hasSize(2);
+        assertThat(resNull).extracting(CourseMySearchInfo::title)
+                .containsExactlyInAnyOrder("파이썬 강의", "자바 강의");
+
     }
 
     @Test
@@ -139,16 +166,31 @@ class CourseComplexReaderTest {
         Long userId = 1L;
 
         // mock
-        PaginationRes paginationRes = new PaginationRes(1, 1, 1, 10);
-        when(courseQueryRepository.countSearchMyCourses(paginationReq, userId))
-                .thenReturn(paginationRes);
+        when(courseQueryRepository.countSearchMyCourses(any(), any(), any()))
+                .thenAnswer(invocation -> {
+                    PaginationReq req = invocation.getArgument(0);
+                    Long uid = invocation.getArgument(1);
+                    Boolean isShow = invocation.getArgument(2);
 
-        // when
-        PaginationRes res = courseComplexReader.countSearchMyCourse(paginationReq, userId);
+                    if (Boolean.TRUE.equals(isShow)) {
+                        return new PaginationRes(1, 1, 1, 10);
+                    } else if (Boolean.FALSE.equals(isShow)) {
+                        return new PaginationRes(1, 1, 1, 10);
+                    } else { // isShow == null
+                        return new PaginationRes(2, 1, 1, 10);
+                    }
+                });
 
-        // then
-        assertThat(res).isNotNull();
-        assertThat(res).isEqualTo(paginationRes);
+        // when && then : isShow = true
+        PaginationRes resTrue = courseComplexReader.countSearchMyCourse(paginationReq, userId, true);
+        assertThat(resTrue).isNotNull();
+        assertThat(resTrue.totalItems()).isEqualTo(1);
+
+        // when && then : isShow = null
+        PaginationRes resNull = courseComplexReader.countSearchMyCourse(paginationReq, userId, null);
+        assertThat(resNull).isNotNull();
+        assertThat(resNull.totalItems()).isEqualTo(2);
+
     }
 
     @Test

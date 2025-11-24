@@ -52,8 +52,8 @@ public class CourseComplexReader {
         return courseQueryRepository.countSearchCourses(paginationReq, filter);
     }
 
-    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId) {
-        List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId);
+    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId, Boolean isShow) {
+        List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId, isShow);
 
         List<Long> courseIds = courses.stream()
                 .map(CourseMySearchInfo::courseId)
@@ -70,8 +70,8 @@ public class CourseComplexReader {
                 .toList();
     }
 
-    public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId) {
-        return courseQueryRepository.countSearchMyCourses(paginationReq, userId);
+    public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId, Boolean isShow) {
+        return courseQueryRepository.countSearchMyCourses(paginationReq, userId, isShow);
     }
 
     /**

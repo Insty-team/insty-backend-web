@@ -448,7 +448,11 @@ class CourseServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '파이썬 설치 강의', '설명', 20000, 0, 0, '파이썬 개발 환경 설치가 처음인 초보자', 1, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 2, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (2, 2, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, false, NOW(), NOW(), false);",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 2, 'C 설치 강의', '사람이 올린 영상', 20000, 0, 0, 'C개발 환경 설치가 처음인 초보자', null, false, NOW(), NOW(), false);",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 2, 'JS 설치 강의', '영상', 20000, 0, 0, 'JS개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
                     "VALUES (1, '존재하고 강의에 연결된 태그', NOW(), NOW())",
             "INSERT INTO web_service.tags (id, tag_name, created_at, updated_at) " +
@@ -462,18 +466,17 @@ class CourseServiceTest {
         Long userId = 1L;
         int page = 1;
         int pageSize = 10;
-        CourseMySearchReq req = new CourseMySearchReq(page, pageSize);
-
+        CourseMySearchReq reqTrue = new CourseMySearchReq(page, pageSize, true);
+        CourseMySearchReq reqFalse = new CourseMySearchReq(page, pageSize, false);
+        CourseMySearchReq reqNull = new CourseMySearchReq(page, pageSize, null);
         // mock
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
 
-        // when
-        SearchRes<CourseMySearchInfo> res = courseService.searchMyCourse(userId, req);
-
-        // then
-        List<CourseMySearchInfo> items = res.items();
-        PaginationRes pagination = res.pagination();
+        // when && then : isShow = true
+        SearchRes<CourseMySearchInfo> resTrue = courseService.searchMyCourse(userId, reqTrue);
+        List<CourseMySearchInfo> items = resTrue.items();
+        PaginationRes pagination = resTrue.pagination();
 
         assertThat(pagination).isNotNull();
         assertThat(pagination.totalItems()).isEqualTo(1);
@@ -483,9 +486,25 @@ class CourseServiceTest {
 
         assertThat(items).isNotNull();
         assertThat(items.size()).isEqualTo(1);
+        assertThat(items.get(0).title()).isEqualTo("파이썬 설치 강의");
         assertThat(items.get(0).tags()).containsExactlyInAnyOrder("존재하고 강의에 연결된 태그");
         assertThat(items.get(0).thumbnailUrl()).isEqualTo(
                 "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+
+        // when && then : isShow = false
+        userId = 2L;
+        SearchRes<CourseMySearchInfo> resFalse = courseService.searchMyCourse(userId, reqFalse);
+        List<CourseMySearchInfo> itemsFalse = resFalse.items();
+        assertThat(itemsFalse).isNotNull();
+        assertThat(itemsFalse.size()).isEqualTo(2);
+        assertThat(itemsFalse.get(0).title()).isEqualTo("자바 설치 강의");
+        assertThat(itemsFalse.get(1).title()).isEqualTo("C 설치 강의");
+
+        // when && then : isShow = null
+        SearchRes<CourseMySearchInfo> resNull = courseService.searchMyCourse(userId, reqNull);
+        List<CourseMySearchInfo> itemsNull = resNull.items();
+        assertThat(itemsNull).isNotNull();
+        assertThat(itemsNull.size()).isEqualTo(3);
     }
 
     @Sql(statements = {
