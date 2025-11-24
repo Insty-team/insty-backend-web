@@ -8,6 +8,7 @@ import insty.error.UserErrorCode;
 import insty.exception.CustomException;
 import insty.model.notification.UserNotificationSetting;
 import insty.model.user.User;
+import insty.model.user.UserType;
 import insty.notification.NotificationChannel;
 import insty.notification.NotificationType;
 import java.util.EnumMap;
@@ -65,9 +66,12 @@ public class NotificationSettingsService {
     public Map<NotificationType, Map<NotificationChannel, Boolean>> getUserSettings(Long userId) {
         List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
         Map<NotificationType, Map<NotificationChannel, Boolean>> result = new EnumMap<>(NotificationType.class);
 
-        for (NotificationType type : NotificationType.getUserConfigurableTypes()) {
+        for (NotificationType type : getApplicableNotificationTypes(user)) {
             Map<NotificationChannel, Boolean> channelMap = new EnumMap<>(NotificationChannel.class);
 
             for (NotificationChannel channel : NotificationChannel.values()) {
@@ -93,16 +97,17 @@ public class NotificationSettingsService {
     public Map<NotificationType, Map<NotificationChannel, Boolean>> getOrCreateUserSettings(Long userId) {
         List<UserNotificationSetting> settings = settingRepository.findByUserId(userId);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
         if (settings.isEmpty()) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
             initializeDefaultSettings(user);
             settings = settingRepository.findByUserId(userId);
         }
 
         Map<NotificationType, Map<NotificationChannel, Boolean>> result = new EnumMap<>(NotificationType.class);
 
-        for (NotificationType type : NotificationType.getUserConfigurableTypes()) {
+        for (NotificationType type : getApplicableNotificationTypes(user)) {
             Map<NotificationChannel, Boolean> channelMap = new EnumMap<>(NotificationChannel.class);
 
             for (NotificationChannel channel : NotificationChannel.values()) {
@@ -183,5 +188,32 @@ public class NotificationSettingsService {
     public void handleUserCreatedEvent(UserCreatedEvent event) {
         User user = event.user();
         initializeDefaultSettings(user);
+    }
+
+    /**
+     * 사용자 역할에 따라 노출할 알림 타입 필터링
+     */
+    private NotificationType[] getApplicableNotificationTypes(User user) {
+        UserType userType = user.getUserType();
+
+        if (userType == UserType.LEARNER) {
+            return new NotificationType[]{
+                    NotificationType.NEW_COURSE,
+                    NotificationType.NEW_COMMUNITY_ANSWER,
+                    NotificationType.COMMUNITY_ANSWER_ACCEPT,
+                    NotificationType.USER_MENTIONED
+            };
+        }
+
+        if (userType == UserType.CREATOR) {
+            return new NotificationType[]{
+                    NotificationType.NEW_COMMUNITY_QUESTION,
+                    NotificationType.NEW_COMMUNITY_ANSWER,
+                    NotificationType.USER_MENTIONED
+            };
+        }
+
+        // 역할이 지정되지 않은 경우에는 기존과 동일하게 모든 사용자 설정 가능 타입을 반환
+        return NotificationType.getUserConfigurableTypes();
     }
 }

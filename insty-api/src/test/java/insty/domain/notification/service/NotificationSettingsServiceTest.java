@@ -141,6 +141,7 @@ class NotificationSettingsServiceTest {
         List<UserNotificationSetting> settings = List.of(setting1, setting2, setting3);
 
         when(settingRepository.findByUserId(userId)).thenReturn(settings);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // When
         Map<NotificationType, Map<NotificationChannel, Boolean>> result =
