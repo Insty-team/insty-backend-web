@@ -49,7 +49,7 @@ public class ApiLoggingAspect {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - startTime;
 
-            log.info("ID={} |  Endpoint={} {} | | User IP={} | Time={}ms",
+            log.info("ID={} |  Endpoint={} {} | User IP={} | Time={}ms",
                     id,
                     request.getMethod(),
                     request.getRequestURI(),
