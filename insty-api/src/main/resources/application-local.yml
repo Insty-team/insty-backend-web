@@ -4,3 +4,7 @@ spring:
 
 swagger:
   server-url: http://localhost:8080
+
+aop:
+  api-logging:
+    enabled: true

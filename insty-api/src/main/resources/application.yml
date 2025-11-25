@@ -106,6 +106,10 @@ video:
       answer: 10
       question: 10
 
+aop:
+  api-logging:
+    enabled: false
+
 mixpanel:
   token: ${MIXPANEL_TOKEN}
   residency: US

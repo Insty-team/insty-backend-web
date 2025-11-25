@@ -22,3 +22,7 @@ mixpanel:
   token: ""
   verbose: false
   strict: false
+
+aop:
+  api-logging:
+    enabled: true
