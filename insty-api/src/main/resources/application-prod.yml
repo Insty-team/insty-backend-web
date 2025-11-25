@@ -12,3 +12,7 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+aop:
+  api-logging:
+    enabled: false

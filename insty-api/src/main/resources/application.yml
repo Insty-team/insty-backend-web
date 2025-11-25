@@ -98,6 +98,7 @@ app:
 logging:
   level:
     org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport: WARN
+    insty.aop.API: INFO
 
 video:
   upload:
@@ -105,6 +106,10 @@ video:
       course: 30
       answer: 10
       question: 10
+
+aop:
+  api-logging:
+    enabled: false
 
 mixpanel:
   token: ${MIXPANEL_TOKEN}
