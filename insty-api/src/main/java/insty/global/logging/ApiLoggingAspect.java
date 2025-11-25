@@ -1,5 +1,6 @@
 package insty.global.logging;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,10 +17,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Aspect
 @Component
-@ConditionalOnProperty(name = "aop.api-logging.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "aop.api-logging.enabled", havingValue = "true", matchIfMissing = true)
 public class ApiLoggingAspect {
 
     private static final Logger log = LoggerFactory.getLogger("insty.aop.API");
+
+    @PostConstruct
+    public void init() {
+        log.info("ApiLoggingAspect 초기화 됨");
+    }
 
     private static final AtomicLong REQUEST_ID_COUNTER = new AtomicLong(0);
 

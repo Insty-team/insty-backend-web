@@ -98,6 +98,7 @@ app:
 logging:
   level:
     org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport: WARN
+    insty.aop.API: INFO
 
 video:
   upload:
