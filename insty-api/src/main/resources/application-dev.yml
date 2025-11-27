@@ -12,6 +12,10 @@ spring:
       max-file-size: 500MB
       max-request-size: 10000MB
 
+server:
+  tomcat:
+    max-http-form-post-size: 50MB
+
 swagger:
   server-url: ${SWAGGER_SERVER_URL}
 
