@@ -88,6 +88,10 @@ public class ExceptionAdvice {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
     public FailRes<?> handleMaxUploadSizeExceededExceptions(MaxUploadSizeExceededException e) {
+
+        log.warn("[UPLOAD SIZE EXCEEDED] maxUploadSize={} bytes, message={}",
+                e.getMaxUploadSize(), e.getMessage());
+
         return FailRes.of(ErrorInfo.of(CommonErrorCode.REQUEST_TOO_LARGE));
     }
 
