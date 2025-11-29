@@ -77,9 +77,10 @@ public class CourseController {
     @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/creator/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetailFromCreator(
+            @CurrentUser Long userId,
             @PathVariable("courseId") Long courseId
     ) {
-        return SuccessRes.of(courseService.detailCourse(courseId, ViewCountPolicy.SKIP));
+        return SuccessRes.of(courseService.detailCourse(userId, courseId, ViewCountPolicy.SKIP));
     }
 
     @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
@@ -87,9 +88,10 @@ public class CourseController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetail(
+            @CurrentUser Long userId,
             @PathVariable("courseId") Long courseId
     ) {
-        return SuccessRes.of(courseService.detailCourse(courseId, ViewCountPolicy.INCREASE));
+        return SuccessRes.of(courseService.detailCourse(userId, courseId, ViewCountPolicy.INCREASE));
     }
 
     @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")

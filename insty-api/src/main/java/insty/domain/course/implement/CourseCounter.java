@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseCounter {
 
     private final CourseRepository courseRepository;
+    private final CourseViewCountLimiter courseViewCountLimiter;
 
     /**
      * 동시성을 제어하기 위해 비관적 락, 수정 쿼리, 낙관적 락, Redis 등 여러가지 방식이 있다.<br> 가장 간단하고 실행 시간도 합리적인 수정 쿼리 방식을 사용한다.
@@ -22,8 +23,8 @@ public class CourseCounter {
      * @param courseId
      * @return
      */
-    public Course increaseViewCountAndGetCourse(Long courseId, ViewCountPolicy viewCountPolicy) {
-        if(ViewCountPolicy.SKIP != viewCountPolicy) {
+    public Course increaseViewCountAndGetCourse(Long courseId, Long userId, ViewCountPolicy viewCountPolicy) {
+        if (ViewCountPolicy.INCREASE == viewCountPolicy && courseViewCountLimiter.allowIncrease(courseId, userId)) {
             courseRepository.incrementViewCount(courseId);
         }
         return courseRepository.findById(courseId)

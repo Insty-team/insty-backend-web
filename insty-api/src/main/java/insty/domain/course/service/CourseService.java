@@ -100,8 +100,8 @@ public class CourseService {
         courseWriter.deleteCourse(course);
     }
 
-    public CourseDetailRes detailCourse(Long courseId, ViewCountPolicy viewCountPolicy) {
-        Course course = courseCounter.increaseViewCountAndGetCourse(courseId, viewCountPolicy);
+    public CourseDetailRes detailCourse(Long userId, Long courseId, ViewCountPolicy viewCountPolicy) {
+        Course course = courseCounter.increaseViewCountAndGetCourse(courseId, userId, viewCountPolicy);
         User creator = course.getUser();
         List<CourseInstallEnvChecklistInfo> checklists = courseReader.getChecklistsByCourseId(course.getId());
         List<String> keypoints = courseReader.getKeypointContentsByCourseId(course.getId());

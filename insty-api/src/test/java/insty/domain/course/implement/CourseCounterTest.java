@@ -24,18 +24,23 @@ class CourseCounterTest {
 
     @Mock
     private CourseRepository courseRepository;
+    @Mock
+    private CourseViewCountLimiter courseViewCountLimiter;
 
     @Test
     void increaseViewCountAndGetCourse_정상() {
         // given
         Long courseId = 1L;
+        Long userId = 1L;
 
         // mock
         when(courseRepository.findById(courseId))
                 .thenReturn(Optional.of(mock(Course.class)));
+        when(courseViewCountLimiter.allowIncrease(courseId, userId))
+                .thenReturn(true);
 
         // when
-        Course course = courseCounter.increaseViewCountAndGetCourse(courseId, ViewCountPolicy.INCREASE);
+        Course course = courseCounter.increaseViewCountAndGetCourse(courseId, userId, ViewCountPolicy.INCREASE);
 
         // then
         assertThat(course).isNotNull();

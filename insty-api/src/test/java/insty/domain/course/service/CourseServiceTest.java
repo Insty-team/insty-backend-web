@@ -19,6 +19,7 @@ import insty.domain.course.implement.CourseProgressValidator;
 import insty.domain.course.implement.CourseProgressWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseTagWriter;
+import insty.domain.course.implement.CourseViewCountLimiter;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
@@ -115,6 +116,8 @@ class CourseServiceTest {
     private AiRequester aiRequester;
     @MockitoBean
     private AppProperties appProperties;
+    @MockitoBean
+    private CourseViewCountLimiter courseViewCountLimiter;
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
@@ -341,13 +344,16 @@ class CourseServiceTest {
     void detailCourse_정상() {
         // given
         Long courseId = 1L;
+        Long userId = 2L;
 
         // mock
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
+        when(courseViewCountLimiter.allowIncrease(courseId, userId))
+                .thenReturn(true);
 
         // when
-        CourseDetailRes res = courseService.detailCourse(courseId, ViewCountPolicy.INCREASE);
+        CourseDetailRes res = courseService.detailCourse(userId, courseId, ViewCountPolicy.INCREASE);
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);
