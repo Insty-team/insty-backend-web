@@ -18,10 +18,8 @@ public class CourseCounter {
     private final CourseViewCountLimiter courseViewCountLimiter;
 
     /**
-     * 동시성을 제어하기 위해 비관적 락, 수정 쿼리, 낙관적 락, Redis 등 여러가지 방식이 있다.<br> 가장 간단하고 실행 시간도 합리적인 수정 쿼리 방식을 사용한다.
-     *
-     * @param courseId
-     * @return
+     * 동시성을 제어하기 위해 비관적 락, 수정 쿼리, 낙관적 락, Redis 등 여러가지 방식이 있다.<br>
+     * 가장 간단하고 실행 시간도 합리적인 수정 쿼리 방식을 사용한다.
      */
     public Course increaseViewCountAndGetCourse(Long courseId, Long userId, ViewCountPolicy viewCountPolicy) {
         if (ViewCountPolicy.INCREASE == viewCountPolicy && courseViewCountLimiter.allowIncrease(courseId, userId)) {
