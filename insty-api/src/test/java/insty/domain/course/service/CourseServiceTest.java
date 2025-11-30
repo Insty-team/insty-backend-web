@@ -3,12 +3,12 @@ package insty.domain.course.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
-import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.*;
 import insty.domain.course.implement.CourseComplexReader;
@@ -19,7 +19,6 @@ import insty.domain.course.implement.CourseProgressValidator;
 import insty.domain.course.implement.CourseProgressWriter;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.course.implement.CourseTagWriter;
-import insty.domain.course.implement.CourseViewCountLimiter;
 import insty.domain.course.implement.CourseWriter;
 import insty.domain.course.repository.CourseInstallEnvChecklistRepository;
 import insty.domain.course.repository.CourseKeypointRepository;
@@ -116,8 +115,6 @@ class CourseServiceTest {
     private AiRequester aiRequester;
     @MockitoBean
     private AppProperties appProperties;
-    @MockitoBean
-    private CourseViewCountLimiter courseViewCountLimiter;
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
@@ -282,6 +279,8 @@ class CourseServiceTest {
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'learner@example.com', 'learner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
                     + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
@@ -349,11 +348,9 @@ class CourseServiceTest {
         // mock
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
-        when(courseViewCountLimiter.allowIncrease(courseId, userId))
-                .thenReturn(true);
-
         // when
-        CourseDetailRes res = courseService.detailCourse(userId, courseId, ViewCountPolicy.INCREASE);
+        CourseViewContext viewContext = CourseViewContext.of(userId);
+        CourseDetailRes res = courseService.detailCourse(courseId, viewContext);
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);
