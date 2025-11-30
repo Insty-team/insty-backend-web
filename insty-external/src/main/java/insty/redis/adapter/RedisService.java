@@ -16,6 +16,12 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, value, ttl);
     }
 
+    // 값이 없을 때만 넣기
+    public boolean saveIfAbsent(String key, String value, Duration ttl) {
+        Boolean result = redisTemplate.opsForValue().setIfAbsent(key, value, ttl);
+        return Boolean.TRUE.equals(result);
+    }
+
     // 값 가져오기
     public Optional<String> find(String key){
         return Optional.ofNullable(redisTemplate.opsForValue().get(key));

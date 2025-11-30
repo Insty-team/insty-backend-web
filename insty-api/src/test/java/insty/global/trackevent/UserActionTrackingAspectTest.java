@@ -89,7 +89,7 @@ class UserActionTrackingAspectTest {
         Map<String, Object> props = propertiesCaptor.getValue();
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.COURSE_LEARNING_STARTED);
         assertThat(distinctIdCaptor.getValue()).isEqualTo(777L);
-        assertThat(props.get("memberId")).isEqualTo(777L);
+        assertThat(props.get("userId")).isEqualTo(777L);
         assertThat(props.get("httpMethod")).isEqualTo("GET");
         assertThat(props.get("$ip")).isEqualTo("203.0.113.10");
         assertThat(props.get("path")).isEqualTo("/api/courses/123");
@@ -198,7 +198,7 @@ class UserActionTrackingAspectTest {
         Map<String, Object> props = propertiesCaptor.getValue();
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.COURSE_LEARNING_STARTED);
         assertThat(distinctIdCaptor.getValue()).isEqualTo(888L);
-        assertThat(props.get("memberId")).isEqualTo(888L);
+        assertThat(props.get("userId")).isEqualTo(888L);
         assertThat(props.containsKey("httpMethod")).isFalse();
         assertThat(props.containsKey("path")).isFalse();
         assertThat(props.containsKey("$ip")).isFalse();
@@ -274,7 +274,7 @@ class UserActionTrackingAspectTest {
         Map<String, Object> props = propertiesCaptor.getValue();
         assertThat(eventTypeCaptor.getValue()).isEqualTo(MixpanelEventType.AUTH_LOGGED_IN);
         assertThat(distinctIdCaptor.getValue()).isEqualTo(999L);
-        assertThat(props.get("memberId")).isEqualTo(999L);
+        assertThat(props.get("userId")).isEqualTo(999L);
         assertThat(props.get("$insert_id")).isInstanceOf(String.class);
     }
 

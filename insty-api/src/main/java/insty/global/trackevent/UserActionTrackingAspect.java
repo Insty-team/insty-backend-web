@@ -31,7 +31,7 @@ public class UserActionTrackingAspect {
 
     private static final String ATTR_URI_TEMPLATE_VARS = HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE;
 
-    private static final String PROP_MEMBER_ID = "memberId";
+    private static final String PROP_MEMBER_ID = "userId";
     private static final String PROP_HTTP_METHOD = "httpMethod";
     // Mixpanel 이벤트 지오IP 파싱용 표준 키
     private static final String PROP_IP = "$ip";
@@ -57,7 +57,7 @@ public class UserActionTrackingAspect {
     // @Around로 변경하여 성공/실패 모두 처리(트랜잭션 결과 기준 afterCompletion 사용)
     @Around(value = "@annotation(trackEvent)")
     public Object publishMixpanelEvent(final ProceedingJoinPoint pjp, final TrackEvent trackEvent) throws Throwable {
-        // 인증 주체에서 memberId 추출
+        // 인증 주체에서 userId 추출
         Long authenticatedMemberId = extractAuthenticatedMemberId();
 
         // 현재 요청 객체 확보(Controller 경유 시)
@@ -195,14 +195,14 @@ public class UserActionTrackingAspect {
         }
     }
 
-    // 성공 이벤트용 distinct_id 계산: 전략이 ANONYMOUS면 null, 아니면 인증된 memberId
+    // 성공 이벤트용 distinct_id 계산: 전략이 ANONYMOUS면 null, 아니면 인증된 userId
     private Long resolveDistinctIdForSuccess(TrackEvent trackEvent, Long authenticatedMemberId) {
         return (trackEvent.distinctIdStrategy() == TrackEvent.DistinctIdStrategy.ANONYMOUS)
                 ? null
                 : authenticatedMemberId;
     }
 
-    // SecurityContext 에서 memberId 추출
+    // SecurityContext 에서 userId 추출
     private Long extractAuthenticatedMemberId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() == null) {
@@ -214,7 +214,7 @@ public class UserActionTrackingAspect {
             Object value = method.invoke(principal);
             return (value instanceof Number) ? ((Number) value).longValue() : null;
         } catch (Exception exception) {
-            log.debug("Cannot extract memberId from principal: {}", exception.toString());
+            log.debug("Cannot extract userId from principal: {}", exception.toString());
             return null;
         }
     }

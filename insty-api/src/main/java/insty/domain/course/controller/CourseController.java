@@ -1,7 +1,6 @@
 package insty.domain.course.controller;
 
 import insty.domain.common.SearchRes;
-import insty.domain.common.ViewCountPolicy;
 import insty.domain.course.dto.*;
 import insty.domain.course.service.CourseService;
 import insty.global.annotation.CurrentUser;
@@ -72,14 +71,22 @@ public class CourseController {
         return SuccessRes.of(null);
     }
 
-    @Operation(summary = "강의 상세조회(크리에이터용)", description = "크리에이터가 자신의 강의를 조회한다. 조회수는 증가하지 않는다.")
+    @Deprecated(since = "2026-01-01", forRemoval = true)
+    @Operation(
+            summary = "강의 상세조회(크리에이터용) - 제거 예정",
+            description = "/api/v1/courses/{courseId}와 동일하며 곧 제거될 예정입니다. "
+                    + "대체 엔드포인트 사용을 권장합니다.",
+            deprecated = true
+    )
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
     @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/creator/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetailFromCreator(
+            @CurrentUser Long userId,
             @PathVariable("courseId") Long courseId
     ) {
-        return SuccessRes.of(courseService.detailCourse(courseId, ViewCountPolicy.SKIP));
+        CourseViewContext viewContext = CourseViewContext.of(userId);
+        return SuccessRes.of(courseService.detailCourse(courseId, viewContext));
     }
 
     @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
@@ -87,9 +94,11 @@ public class CourseController {
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetail(
+            @CurrentUser Long userId,
             @PathVariable("courseId") Long courseId
     ) {
-        return SuccessRes.of(courseService.detailCourse(courseId, ViewCountPolicy.INCREASE));
+        CourseViewContext viewContext = CourseViewContext.of(userId);
+        return SuccessRes.of(courseService.detailCourse(courseId, viewContext));
     }
 
     @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")

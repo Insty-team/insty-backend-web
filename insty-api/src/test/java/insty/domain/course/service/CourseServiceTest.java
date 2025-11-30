@@ -3,12 +3,12 @@ package insty.domain.course.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.SearchRes;
-import insty.domain.common.ViewCountPolicy;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.course.dto.*;
 import insty.domain.course.implement.CourseComplexReader;
@@ -279,6 +279,8 @@ class CourseServiceTest {
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'learner@example.com', 'learner', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
                     + "VALUES (1, 'COURSE_THUMBNAIL', 1, '00000000-0000-0000-0000-000000000001.jpg', 'thumbnail.jpg', 'image/jpeg', 20, NOW(), NOW())",
             "INSERT INTO web_service.files (id, container_type, container_id, name, original_name, content_type, size, created_at, updated_at) "
@@ -341,13 +343,14 @@ class CourseServiceTest {
     void detailCourse_정상() {
         // given
         Long courseId = 1L;
+        Long userId = 2L;
 
         // mock
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");
-
         // when
-        CourseDetailRes res = courseService.detailCourse(courseId, ViewCountPolicy.INCREASE);
+        CourseViewContext viewContext = CourseViewContext.of(userId);
+        CourseDetailRes res = courseService.detailCourse(courseId, viewContext);
 
         // then
         Optional<Course> course = courseRepository.findById(courseId);
