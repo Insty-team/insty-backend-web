@@ -32,12 +32,19 @@ public class UserValidator {
     }
 
     /**
-     * 사용자 닉네임 중복 체크
+     * 사용자 닉네임 중복 체크 In 회원가입
      */
     public void validateDuplicateNickname(String nickname) {
-        if(userRepository.existsByNickname(nickname)) {
+        if(existsNickname(nickname)) {
             throw new CustomException(UserErrorCode.USER_DUPLICATE_NICKNAME);
         };
+    }
+
+    /**
+     * 닉네임 중복 체크
+     */
+    public boolean existsNickname(String nickname){
+        return userRepository.existsByNickname(nickname);
     }
 
     /**
