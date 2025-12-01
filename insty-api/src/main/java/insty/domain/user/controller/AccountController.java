@@ -5,7 +5,7 @@ import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
-import insty.domain.user.dto.response.NicknameCheckRes;
+import insty.domain.user.dto.response.DuplicateCheckRes;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.service.AccountService;
@@ -52,7 +52,7 @@ public class AccountController implements AccountControllerDocs {
     }
 
     @GetMapping("/nickname/check")
-    public SuccessRes<NicknameCheckRes> nicknameCheck(@Valid @ModelAttribute UserNicknameCheckReq req) {
+    public SuccessRes<DuplicateCheckRes> nicknameCheck(@Valid @ModelAttribute UserNicknameCheckReq req) {
         return SuccessRes.of(accountService.existCheckByNickname(req));
     }
 

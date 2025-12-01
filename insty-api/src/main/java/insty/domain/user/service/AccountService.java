@@ -6,7 +6,7 @@ import insty.domain.user.dto.request.UserCreateReq;
 import insty.domain.user.dto.request.UserEmailCheckReq;
 import insty.domain.user.dto.request.UserNicknameCheckReq;
 import insty.domain.user.dto.request.UserPasswordUpdateReq;
-import insty.domain.user.dto.response.NicknameCheckRes;
+import insty.domain.user.dto.response.DuplicateCheckRes;
 import insty.domain.user.dto.response.UserCreateRes;
 import insty.domain.user.dto.response.UserDetailRes;
 import insty.domain.user.implement.UserFileReader;
@@ -61,9 +61,9 @@ public class AccountService {
     /**
      * 닉네임 존재여부 체크
      */
-    public NicknameCheckRes existCheckByNickname(UserNicknameCheckReq req) {
+    public DuplicateCheckRes existCheckByNickname(UserNicknameCheckReq req) {
         boolean duplicateFlag = userValidator.existsNickname(req.nickname());
-        return NicknameCheckRes.of(duplicateFlag);
+        return DuplicateCheckRes.of(duplicateFlag);
     }
 
     /**
