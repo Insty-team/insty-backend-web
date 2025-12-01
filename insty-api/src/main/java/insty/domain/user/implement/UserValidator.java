@@ -23,21 +23,35 @@ public class UserValidator {
     private final EmailVerificationReader emailVerificationReader;
 
     /**
-     * 사용자 이메일 중복 체크
+     * 사용자 이메일 중복 체크 In 회원가입
      */
     public void validateDuplicateEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
+        if (existsEmail(email)) {
             throw new CustomException(UserErrorCode.USER_DUPLICATE_EMAIL);
         }
     }
 
     /**
-     * 사용자 닉네임 중복 체크
+     * 사용자 이메일 중복 체크
+     */
+    public boolean existsEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 사용자 닉네임 중복 체크 In 회원가입
      */
     public void validateDuplicateNickname(String nickname) {
-        if(userRepository.existsByNickname(nickname)) {
+        if(existsNickname(nickname)) {
             throw new CustomException(UserErrorCode.USER_DUPLICATE_NICKNAME);
         };
+    }
+
+    /**
+     * 닉네임 중복 체크
+     */
+    public boolean existsNickname(String nickname){
+        return userRepository.existsByNickname(nickname);
     }
 
     /**
