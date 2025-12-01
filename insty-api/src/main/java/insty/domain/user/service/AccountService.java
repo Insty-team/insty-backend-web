@@ -54,8 +54,9 @@ public class AccountService {
     /**
      * 이메일 존재여부 체크
      */
-    public void existCheckByEmail(UserEmailCheckReq req) {
-        userValidator.validateDuplicateEmail(req.email());
+    public DuplicateCheckRes existCheckByEmail(UserEmailCheckReq req) {
+        boolean duplicateFlag = userValidator.existsEmail(req.email());
+        return DuplicateCheckRes.of(duplicateFlag);
     }
 
     /**

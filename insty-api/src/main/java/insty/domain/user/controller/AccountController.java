@@ -46,9 +46,8 @@ public class AccountController implements AccountControllerDocs {
     }
 
     @GetMapping("/email/check")
-    public SuccessRes<Void> emailCheck(@Valid @ModelAttribute UserEmailCheckReq req) {
-        accountService.existCheckByEmail(req);
-        return SuccessRes.of();
+    public SuccessRes<DuplicateCheckRes> emailCheck(@Valid @ModelAttribute UserEmailCheckReq req) {
+        return SuccessRes.of(accountService.existCheckByEmail(req));
     }
 
     @GetMapping("/nickname/check")

@@ -24,7 +24,7 @@ public interface AccountControllerDocs {
 
     @Operation(summary = "이메일 중복 체크", description = "이메일이 이미 사용중인지 중복체크를 합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
-    SuccessRes<Void> emailCheck(@ParameterObject UserEmailCheckReq req);
+    SuccessRes<DuplicateCheckRes> emailCheck(@ParameterObject UserEmailCheckReq req);
 
     @Operation(summary = "닉네임 중복 체크", description = "닉네임이 이미 사용중인지 중복체크를 합니다.")
     @CustomExceptionDescription(SwaggerResponseDescription.USER_INFO)
