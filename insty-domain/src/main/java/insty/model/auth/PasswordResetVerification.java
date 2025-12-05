@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import static insty.error.AuthErrorCode.INVALID_EMAIL_FORMAT;
 
 @Getter
-public class PassWordResetVerification {
+public class PasswordResetVerification {
 
     private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
     private static final Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
@@ -20,27 +20,27 @@ public class PassWordResetVerification {
     private boolean verified;
     private final LocalDateTime expiredAt;
 
-    private PassWordResetVerification(String email,String code,LocalDateTime expiredAt){
+    private PasswordResetVerification(String email,String code,LocalDateTime expiredAt){
         this.email = email;
         this.code = code;
         this.expiredAt = expiredAt;
         this.verified = false;
     }
 
-    public static PassWordResetVerification create(String email,TokenGenerator generator){
+    public static PasswordResetVerification create(String email,TokenGenerator generator){
 
         if (email == null || email.isBlank() || !PATTERN.matcher(email).matches()) {
             throw new CustomException(INVALID_EMAIL_FORMAT);
         }
 
-        return new PassWordResetVerification(
+        return new PasswordResetVerification(
                 email,
                 generator.generate(TOKEN_LENGTH),
                 LocalDateTime.now().plusMinutes(5));
     }
 
-    public PassWordResetVerification reissue(TokenGenerator generator){
-        return new PassWordResetVerification(
+    public PasswordResetVerification reissue(TokenGenerator generator){
+        return new PasswordResetVerification(
                 this.email,
                 generator.generate(TOKEN_LENGTH),
                 LocalDateTime.now().plusMinutes(5)

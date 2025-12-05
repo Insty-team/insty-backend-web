@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
-class PassWordResetVerificationTest {
+class PasswordResetVerificationTest {
 
     @Test
     void 이메일_정보로_6자리_토큰을_가진_인증되지_않은_이메일_인증_정보가_생성된다() {
@@ -21,7 +21,7 @@ class PassWordResetVerificationTest {
         TokenGenerator tokenGenerator = length -> token;
 
         // when
-        PassWordResetVerification verification = PassWordResetVerification.create(email, tokenGenerator);
+        PasswordResetVerification verification = PasswordResetVerification.create(email, tokenGenerator);
 
         // then
         assertThat(verification.getCode()).isEqualTo(token);
@@ -49,7 +49,7 @@ class PassWordResetVerificationTest {
         TokenGenerator tokenGenerator = length -> "123456";
 
         // when & then
-        assertThatThrownBy(() -> PassWordResetVerification.create(invalidEmail, tokenGenerator))
+        assertThatThrownBy(() -> PasswordResetVerification.create(invalidEmail, tokenGenerator))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", AuthErrorCode.INVALID_EMAIL_FORMAT);
     }
@@ -61,10 +61,10 @@ class PassWordResetVerificationTest {
         String email = "testEmail@insty.com";
         TokenGenerator tokenGenerator = length -> "123456";
         String inputCode = "123456";
-        PassWordResetVerification verification = PassWordResetVerification.create(email, tokenGenerator);
+        PasswordResetVerification verification = PasswordResetVerification.create(email, tokenGenerator);
         //when
         verification.verify(inputCode);
-        PassWordResetVerification reissue = verification.reissue(tokenGenerator);
+        PasswordResetVerification reissue = verification.reissue(tokenGenerator);
         //then
         assertThat(verification.isVerified()).isTrue();
         assertThat(reissue.isVerified()).isFalse();
@@ -77,7 +77,7 @@ class PassWordResetVerificationTest {
         String email = "testEmail@insty.com";
         TokenGenerator tokenGenerator = length -> "123456";
         String inputCode = "123456";
-        PassWordResetVerification verification = PassWordResetVerification.create(email, tokenGenerator);
+        PasswordResetVerification verification = PasswordResetVerification.create(email, tokenGenerator);
 
         //when
         verification.verify(inputCode);
@@ -91,7 +91,7 @@ class PassWordResetVerificationTest {
         String email = "testEmail@insty.com";
         TokenGenerator tokenGenerator = length -> "123456";
         String inputCode = "abcdef";
-        PassWordResetVerification verification = PassWordResetVerification.create(email, tokenGenerator);
+        PasswordResetVerification verification = PasswordResetVerification.create(email, tokenGenerator);
 
         //when & then
         assertThatThrownBy(() -> verification.verify(inputCode))
@@ -105,7 +105,7 @@ class PassWordResetVerificationTest {
         String email = "testEmail@insty.com";
         TokenGenerator tokenGenerator = length -> "123456";
         String inputCode = "123456";
-        PassWordResetVerification verification = PassWordResetVerification.create(email, tokenGenerator);
+        PasswordResetVerification verification = PasswordResetVerification.create(email, tokenGenerator);
 
         //when & then
         verification.verify(inputCode);
