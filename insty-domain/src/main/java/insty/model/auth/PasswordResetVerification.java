@@ -3,6 +3,7 @@ package insty.model.auth;
 import insty.error.AuthErrorCode;
 import insty.exception.CustomException;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
@@ -18,7 +19,13 @@ public class PasswordResetVerification {
     private String email;
     private String code;
     private boolean verified;
-    private final LocalDateTime expiredAt;
+    private LocalDateTime expiredAt;
+
+    private PasswordResetVerification(){
+        this.email = null;
+        this.code = null;
+        this.verified = false;
+    }
 
     private PasswordResetVerification(String email,String code,LocalDateTime expiredAt){
         this.email = email;
