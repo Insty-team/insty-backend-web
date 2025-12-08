@@ -32,7 +32,7 @@ public class UserValidator {
     }
 
     /**
-     * 사용자 이메일 중복 체크 return boolean
+     * 사용자 이메일 존재 여부 체크
      */
     public boolean existsEmail(String email) {
         return userRepository.existsByEmail(email);
@@ -48,7 +48,7 @@ public class UserValidator {
     }
 
     /**
-     * 닉네임 중복 체크 return boolean
+     * 닉네임 중복 존재 여부 체크
      */
     public boolean existsNickname(String nickname){
         return userRepository.existsByNickname(nickname);
