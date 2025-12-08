@@ -3,6 +3,7 @@ package insty.domain.auth.implement.passwordreset;
 import insty.domain.auth.util.StringObjectMapper;
 import insty.model.auth.PasswordResetVerification;
 import insty.redis.adapter.RedisService;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import java.time.Duration;
 
 import static org.mockito.Mockito.*;
 
+@Tag("unit")
 @ExtendWith(MockitoExtension.class)
 class PasswordResetWriterTest {
 
