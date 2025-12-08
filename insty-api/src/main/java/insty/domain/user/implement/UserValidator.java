@@ -23,7 +23,7 @@ public class UserValidator {
     private final EmailVerificationReader emailVerificationReader;
 
     /**
-     * 사용자 이메일 중복 체크 In 회원가입
+     * 사용자 이메일 중복 체크 return Exception
      */
     public void validateDuplicateEmail(String email) {
         if (existsEmail(email)) {
@@ -32,14 +32,14 @@ public class UserValidator {
     }
 
     /**
-     * 사용자 이메일 중복 체크
+     * 사용자 이메일 중복 체크 return boolean
      */
     public boolean existsEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
     /**
-     * 사용자 닉네임 중복 체크 In 회원가입
+     * 사용자 닉네임 중복 체크 return Exception
      */
     public void validateDuplicateNickname(String nickname) {
         if(existsNickname(nickname)) {
@@ -48,7 +48,7 @@ public class UserValidator {
     }
 
     /**
-     * 닉네임 중복 체크
+     * 닉네임 중복 체크 return boolean
      */
     public boolean existsNickname(String nickname){
         return userRepository.existsByNickname(nickname);
