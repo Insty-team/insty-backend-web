@@ -18,11 +18,19 @@ public class UserReader {
     private final UserRepository userRepository;
 
     /**
-     * 사용자 정보 조회
+     * 사용자 정보 조회 by id
      */
     public User getUser(Long userId) {
         log.debug("유저 번호로 사용자 조회 >> {}", userId);
         return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    /**
+     * 사용자 정보 조회 by email
+     */
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 
