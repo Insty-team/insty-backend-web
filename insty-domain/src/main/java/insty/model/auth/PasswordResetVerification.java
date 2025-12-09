@@ -63,6 +63,7 @@ public class PasswordResetVerification {
             throw new CustomException(AuthErrorCode.INVALID_TOKEN_CODE);
         }
         this.verified = true;
+        this.expiredAt = LocalDateTime.now().plusMinutes(5);
     }
 
 
