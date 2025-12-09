@@ -2,8 +2,10 @@ package insty.model.auth;
 
 import java.security.SecureRandom;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 @Getter
+@Component
 public class SimpleTokenGenerator implements TokenGenerator {
 
     private static final String DIGITS = "0123456789";
