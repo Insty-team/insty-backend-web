@@ -39,4 +39,18 @@ class PasswordResetWriterTest {
         );
     }
 
+    @Test
+    void delete시_redis_호출_확인(){
+        //given
+        PasswordResetVerification verification = PasswordResetVerification.create("test@insty.com", length -> "abcdef");
+        String expectedJson = StringObjectMapper.toJson(verification);
+        passwordResetWriter.save(verification);
+        //when
+        passwordResetWriter.deleteByEmail(verification.getEmail());
+        //then
+        verify(redisService).delete(
+                eq("pw-reset:test@insty.com")
+        );
+    }
+
 }

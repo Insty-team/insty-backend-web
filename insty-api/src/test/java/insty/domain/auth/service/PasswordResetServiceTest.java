@@ -84,6 +84,7 @@ class PasswordResetServiceTest {
 
     private static final String TEST_EMAIL_EXIST = "example@example.com";
     private static final String TEST_EMAIL_NOT_EXIST = "notfound@test.com";
+    private static final String PASSWORD_HEADER_PREFIX = "pw-reset:";
     private static final String TEST_CODE = "abcdef";
     private static final String EXPIRED_TIME = LocalDateTime.now().toString();
     private static final String TEST_JSON =  String.format(
@@ -154,6 +155,31 @@ class PasswordResetServiceTest {
 
        //then
         assertThat(userByEmail.getPassword()).isEqualTo("encodedPw");
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 성공후 토큰 삭제")
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());"
+    })
+    void delete_token_success() {
+        // given
+        User userByEmail = userReader.getUserByEmail(TEST_EMAIL_EXIST);
+        //mock
+        when(bCryptPasswordEncoder.encode(RAW_PASSWORD)).thenReturn("encodedPw");
+        when(redisService.find(anyString())).thenReturn(Optional.of(TEST_JSON_VERIFIED));
+        doAnswer(invocation -> {
+            // delete가 호출되면, 이후 find(redisKey) 호출은 빈 Optional을 반환하도록 재설정
+            when(redisService.find(PASSWORD_HEADER_PREFIX + TEST_EMAIL_EXIST)).thenReturn(Optional.empty());
+            return null;
+        }).when(redisService).delete(PASSWORD_HEADER_PREFIX + TEST_EMAIL_EXIST);
+        // when
+        passwordResetService.updatePassword(TEST_EMAIL_EXIST, RAW_PASSWORD);
+
+        //then
+        Optional<String> afterDelete = redisService.find(PASSWORD_HEADER_PREFIX + TEST_EMAIL_EXIST);
+        assertThat(afterDelete).isEmpty(); // Mock이 Empty를 반환하는지 확인
     }
 
     @Test

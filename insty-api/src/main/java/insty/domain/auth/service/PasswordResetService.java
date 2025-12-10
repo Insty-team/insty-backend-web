@@ -71,8 +71,8 @@ public class PasswordResetService {
         }
         User userByEmail = userReader.getUserByEmail(email);
         userByEmail.changePassword(passwordEncoder.encode(newPassword));
+        passwordResetWriter.deleteByEmail(email);
         return PasswordUpdateRes.from(email,true, LocalDateTime.now());
     }
-
 
 }
