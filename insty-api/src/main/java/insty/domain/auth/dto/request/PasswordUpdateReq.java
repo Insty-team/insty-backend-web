@@ -10,7 +10,7 @@ public record PasswordUpdateReq(
         String email,
 
         @NotBlank(message = "새 비밀번호를 입력해주세요.")
-        @Pattern(regexp="^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*()-+=]).{8,}$\n" ,
+        @Pattern(regexp="^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*()-+=]).{8,}$" ,
                  message="비밀번호 양식을 확인해주세요")
         String newPassword
 ) {
