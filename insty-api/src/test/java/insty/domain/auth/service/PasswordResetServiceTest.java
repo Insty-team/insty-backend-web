@@ -124,22 +124,6 @@ class PasswordResetServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 이메일이면 예외 발생")
-    @Sql(statements = {
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());"
-    })
-    void sendResetMail_userNotFound() {
-        // given
-
-        // when & then
-        assertThatThrownBy(() -> passwordResetService.sendResetMail(TEST_EMAIL_NOT_EXIST))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(UserErrorCode.USER_NOT_FOUND);
-    }
-
-    @Test
     @DisplayName("인증코드 검증 성공")
     void verifyCode_success() {
         // given

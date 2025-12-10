@@ -40,7 +40,6 @@ public enum SwaggerResponseDescription {
     ))),
     //auth(password)
     PASSWORD_RESET_SEND_MAIL(new LinkedHashSet<>(Set.of(
-            USER_NOT_FOUND,
             INVALID_EMAIL_FORMAT
     ))),
     PASSWORD_RESET_VERIFY(new LinkedHashSet<>(Set.of(

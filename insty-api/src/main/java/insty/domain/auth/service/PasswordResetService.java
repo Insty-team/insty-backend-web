@@ -18,6 +18,7 @@ import insty.model.user.User;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 @Transactional
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class PasswordResetService {
 
     private final PasswordResetWriter passwordResetWriter;
@@ -49,7 +51,9 @@ public class PasswordResetService {
             passwordResetWriter.save(passwordResetVerification);
             return PasswordResetMailRes.from(email,passwordResetVerification.getExpiredAt());
         }else{
-            throw new CustomException(UserErrorCode.USER_NOT_FOUND);
+            // 존재하지 않는 email도 동일한 성공 응답 처리 ( 계정 존재 여부 숨기기 위함 )
+            log.debug("사용자 이메일 [{}]가 존재하지 않아 메일 발송을 생략합니다.", email);
+            return PasswordResetMailRes.from(email,LocalDateTime.now());
         }
     }
 
