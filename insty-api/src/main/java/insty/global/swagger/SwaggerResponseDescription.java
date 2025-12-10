@@ -11,6 +11,7 @@ import java.util.Set;
 import static insty.ai.error.AiErrorCode.AI_API_REQUEST_FAILED;
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL;
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL;
+import static insty.error.AuthErrorCode.*;
 import static insty.error.CommunityErrorCode.*;
 import static insty.error.CourseErrorCode.*;
 import static insty.error.CourseProgressErrorCode.COURSE_PROGRESS_DUPLICATE;
@@ -35,6 +36,20 @@ public enum SwaggerResponseDescription {
             USER_NOT_FOUND
     ))),
     USER_DELETE(new LinkedHashSet<>(Set.of(
+            USER_NOT_FOUND
+    ))),
+    //auth(password)
+    PASSWORD_RESET_SEND_MAIL(new LinkedHashSet<>(Set.of(
+            INVALID_EMAIL_FORMAT
+    ))),
+    PASSWORD_RESET_VERIFY(new LinkedHashSet<>(Set.of(
+            REQUIRES_EMAIL_VERIFICATION_REQUEST,
+            ALREADY_VERIFIES_EMAIL,
+            INVALID_TOKEN_CODE,
+            TOKEN_EXPIRED
+    ))),
+    PASSWORD_RESET_UPDATE(new LinkedHashSet<>(Set.of(
+            EMAIL_NOT_VERIFIED,
             USER_NOT_FOUND
     ))),
     // video

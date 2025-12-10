@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = "email")
 public class EmailVerification {
 
-    private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+    private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,15}$";
     private static final Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
     private static final int TOKEN_LENGTH = 6;
 
