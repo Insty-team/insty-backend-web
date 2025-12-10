@@ -45,7 +45,8 @@ public enum SwaggerResponseDescription {
     PASSWORD_RESET_VERIFY(new LinkedHashSet<>(Set.of(
             REQUIRES_EMAIL_VERIFICATION_REQUEST,
             ALREADY_VERIFIES_EMAIL,
-            INVALID_TOKEN_CODE
+            INVALID_TOKEN_CODE,
+            TOKEN_EXPIRED
     ))),
     PASSWORD_RESET_UPDATE(new LinkedHashSet<>(Set.of(
             EMAIL_NOT_VERIFIED,

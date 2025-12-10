@@ -2,6 +2,7 @@ package insty.model.auth;
 
 import insty.error.AuthErrorCode;
 import insty.exception.CustomException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -11,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 class PasswordResetVerificationTest {
 
     @Test
