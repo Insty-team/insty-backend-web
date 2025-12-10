@@ -12,7 +12,7 @@ import static insty.error.AuthErrorCode.INVALID_EMAIL_FORMAT;
 @Getter
 public class PasswordResetVerification {
 
-    private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,15}$";
     private static final Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
     private static final int TOKEN_LENGTH = 6;
 
