@@ -59,11 +59,11 @@ public class PasswordResetVerification {
             throw new CustomException(AuthErrorCode.ALREADY_VERIFIES_EMAIL);
         }
 
-        if(LocalDateTime.now().isAfter(this.expiredAt)){
+        if( this.expiredAt == null ||LocalDateTime.now().isAfter(this.expiredAt)){
             throw new CustomException(AuthErrorCode.TOKEN_EXPIRED);
         }
 
-        if(!this.code.equals(inputCode)){
+        if( this.code == null || !this.code.equals(inputCode)){
             throw new CustomException(AuthErrorCode.INVALID_TOKEN_CODE);
         }
         this.verified = true;
