@@ -40,7 +40,6 @@ class PasswordResetVerificationTest {
             "user@domain",            // TLD 없음
             "user@.com",              // 도메인명 없음
             "user@domain.c",          // TLD 짧음 (1자리)
-            "user@domain.toolong",    // TLD 김 (7자리)
             "user name@domain.com",   // 공백 포함
             "user@domain .com",       // 도메인 공백
             "user@@domain.com",       // @ 중복

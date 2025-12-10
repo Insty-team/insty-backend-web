@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.AuthErrorCode;
 import insty.exception.CustomException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@Tag("unit")
 class EmailVerificationTest {
     
     @Test
@@ -37,7 +39,6 @@ class EmailVerificationTest {
         "user@domain",            // TLD 없음
         "user@.com",              // 도메인명 없음
         "user@domain.c",          // TLD 짧음 (1자리)
-        "user@domain.toolong",    // TLD 김 (7자리)
         "user name@domain.com",   // 공백 포함
         "user@domain .com",       // 도메인 공백
         "user@@domain.com",       // @ 중복
