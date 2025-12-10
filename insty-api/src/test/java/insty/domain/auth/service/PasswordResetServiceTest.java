@@ -86,7 +86,7 @@ class PasswordResetServiceTest {
     private static final String TEST_EMAIL_NOT_EXIST = "notfound@test.com";
     private static final String PASSWORD_HEADER_PREFIX = "pw-reset:";
     private static final String TEST_CODE = "abcdef";
-    private static final String EXPIRED_TIME = LocalDateTime.now().toString();
+    private static final String EXPIRED_TIME = LocalDateTime.now().plusMinutes(5).toString();
     private static final String TEST_JSON =  String.format(
             "{\"email\":\"example@example.com\",\"code\":\"abcdef\",\"verified\":false,\"expiredAt\":\"%s\"}",
             EXPIRED_TIME
