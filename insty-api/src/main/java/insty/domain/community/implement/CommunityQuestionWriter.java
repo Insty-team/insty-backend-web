@@ -23,7 +23,13 @@ public class CommunityQuestionWriter {
      * 커뮤니티 질문 생성 및 저장
      */
     public CommunityQuestion saveQuestion(User user, Course course, CommunityQuestionCreateReq req) {
-        CommunityQuestion question = CommunityQuestion.create(course, user, req.title(), req.content());
+        CommunityQuestion question = CommunityQuestion.create(
+                course,
+                user,
+                req.title(),
+                req.content(),
+                req.boardType()
+        );
         return communityQuestionRepository.save(question);
     }
 

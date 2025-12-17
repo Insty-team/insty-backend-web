@@ -67,6 +67,10 @@ public class CommunityQuestion extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "board_type", nullable = false)
+    private CommunityBoardType boardType;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "status")
@@ -75,7 +79,8 @@ public class CommunityQuestion extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CommunityQuestion create(Course course, User user, String title, String content) {
+    public static CommunityQuestion create(Course course, User user, String title, String content,
+                                           CommunityBoardType boardType) {
         validateCreate(course, user, title, content);
         return CommunityQuestion.builder()
                 .course(course)
@@ -84,6 +89,7 @@ public class CommunityQuestion extends BaseEntity {
                 .content(content)
                 .status(QuestionStatus.WAITING)
                 .isDeleted(false)
+                .boardType(boardType != null ? boardType : CommunityBoardType.QNA)
                 .build();
     }
 
