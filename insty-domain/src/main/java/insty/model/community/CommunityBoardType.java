@@ -8,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CommunityBoardType {
     QNA,       // 강의 Q&A
-    FEED       // 커뮤니티
+    COMMUNITY  // 커뮤니티
 }

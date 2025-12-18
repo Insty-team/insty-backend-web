@@ -613,6 +613,53 @@ class CommunityQuestionServiceTest {
         assertThat(authorViewAfter).isNotNull();
         assertThat(creatorViewAfter).isNotNull();
     }
+
+    /**
+     * 게시판 타입(QNA / COMMUNITY) 별로 필터링되는지 검증한다.
+     */
+    @Test
+    @Sql(statements = {
+            // 유저 / 코스 기본 데이터
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'user1@example.com', '사용자1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '코스1', '설명1', 10000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, 'QNA 질문 1', 'QNA 내용 1', 'ANSWERED', DATEADD('MINUTE', -10, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 1, 1, 'QNA 질문 2', 'QNA 내용 2', 'WAITING', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (3, 1, 1, '커뮤니티 글 1', 'COMMUNITY 내용 1', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
+            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (4, 1, 1, '커뮤니티 글 2', 'COMMUNITY 내용 2', 'WAITING', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
+            "UPDATE web_service.community_questions SET board_type = 'QNA' WHERE id IN (1, 2);",
+            "UPDATE web_service.community_questions SET board_type = 'COMMUNITY' WHERE id IN (3, 4);"
+    })
+    void searchQuestions_게시판타입별_필터링_정상() {
+        // QNA 전용 조회
+        CommunityQuestionSearchReq qnaReq =
+                new CommunityQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.QNA);
+
+        SearchRes<CommunityQuestionRes> qnaRes = communityQuestionService.searchQuestions(qnaReq);
+
+        assertThat(qnaRes).isNotNull();
+        assertThat(qnaRes.items()).hasSize(2);
+        assertThat(qnaRes.items())
+                .extracting(CommunityQuestionRes::title)
+                .containsExactlyInAnyOrder("QNA 질문 1", "QNA 질문 2");
+
+        // COMMUNITY 전용 조회
+        CommunityQuestionSearchReq communityReq =
+                new CommunityQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.COMMUNITY);
+
+        SearchRes<CommunityQuestionRes> communityRes = communityQuestionService.searchQuestions(communityReq);
+
+        assertThat(communityRes).isNotNull();
+        assertThat(communityRes.items()).hasSize(2);
+        assertThat(communityRes.items())
+                .extracting(CommunityQuestionRes::title)
+                .containsExactlyInAnyOrder("커뮤니티 글 1", "커뮤니티 글 2");
+    }
 }
 
 
