@@ -43,7 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(
         name = "커뮤니티/Q&A API",
         description = "강의별 Q&A(질문/답변)와 자유 커뮤니티 게시글을 관리하는 공용 API입니다. " +
-                "현재는 boardType(QNA/FEED) 파라미터로 Q&A와 커뮤니티를 구분하고 있으며," +
+                "현재는 boardType(QNA/COMMUNITY) 파라미터로 Q&A와 커뮤니티를 구분하고 있으며," +
                 "여건이 된다면 이 둘을 서로 다른 Factory로 분리 예정입니다."
 )
 @RestController

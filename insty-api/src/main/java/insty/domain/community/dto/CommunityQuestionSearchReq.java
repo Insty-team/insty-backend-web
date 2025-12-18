@@ -34,7 +34,7 @@ public record CommunityQuestionSearchReq(
         @Schema(description = "질문 상태 필터 (다중 선택)", example = "[\"WAITING\", \"ANSWERED\"]")
         List<QuestionStatus> statuses,
 
-        @Schema(description = "게시판 타입(QA / COMMUNITY)", example = "QA")
+        @Schema(description = "게시판 타입(QA / COMMUNITY)", example = "QNA")
         CommunityBoardType boardType
 ) {
     public PaginationReq toPaginationReq() {
