@@ -59,6 +59,9 @@ public class CommunityAnswerService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
+        // 답변 이미지 파일은 한 개로 보장
+        communityValidator.validateAnswerFileCount(attachments);
+
         CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
         User user = userReader.getUser(userId);
 
@@ -82,8 +85,9 @@ public class CommunityAnswerService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
-        CommunityAnswer answer = communityAnswerWriter.updateAnswer(answerId, req);
+        CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
         communityValidator.validateAnswerAuthor(userId, answer);
+        communityValidator.validateAnswerFileCountForUpdate(answer, attachments, req.deleteFileIds());
 
         List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
         VideoAnswer video = communityAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
