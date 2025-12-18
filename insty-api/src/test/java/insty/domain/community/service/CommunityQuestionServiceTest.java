@@ -34,6 +34,7 @@ import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.domain.video.repository.VideoEncodingRepository;
 import insty.global.property.AppProperties;
+import insty.model.community.CommunityBoardType;
 import insty.model.community.CommunityQuestionView;
 import insty.model.community.QuestionStatus;
 import static org.mockito.Mockito.mock;
@@ -130,7 +131,7 @@ class CommunityQuestionServiceTest {
         Long userId = 1L;
         Long courseId = 1L;
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(courseId, "테스트 질문 제목", "테스트 질문 내용", videoUuid);
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(courseId, "테스트 질문 제목", "테스트 질문 내용", CommunityBoardType.QNA, videoUuid);
 
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("attachment", "question_img1.jpg", "image/jpeg", "q-content-1".getBytes()));
@@ -275,7 +276,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (11, 1, 2, '[키워드] 다른코스 WAIT', '내용', 'WAITING', DATEADD('MINUTE', -1, NOW()), NOW(), false);"})
     void searchQuestions_정상() {
-        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED));
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED), null);
 
         SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestions(req);
 
@@ -289,13 +290,13 @@ class CommunityQuestionServiceTest {
         assertThat(res.pagination().perPage()).isEqualTo(5);
         assertThat(res.pagination().totalItems()).isEqualTo(7);
 
-        CommunityQuestionSearchReq page2Req = new CommunityQuestionSearchReq(2, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED));
+        CommunityQuestionSearchReq page2Req = new CommunityQuestionSearchReq(2, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED), null);
 
         SearchRes<CommunityQuestionRes> resPage2 = communityQuestionService.searchQuestions(page2Req);
         assertThat(resPage2.items()).hasSize(2);
         assertThat(resPage2.items().get(0).createdAt()).isAfter(resPage2.items().get(1).createdAt());
 
-        CommunityQuestionSearchReq waitingReq = new CommunityQuestionSearchReq(1, 10, null, null, "키워드", java.util.List.of(QuestionStatus.WAITING));
+        CommunityQuestionSearchReq waitingReq = new CommunityQuestionSearchReq(1, 10, null, null, "키워드", java.util.List.of(QuestionStatus.WAITING), null);
 
         SearchRes<CommunityQuestionRes> waitingRes = communityQuestionService.searchQuestions(waitingReq);
         assertThat(waitingRes.items()).extracting(CommunityQuestionRes::status).containsOnly(QuestionStatus.WAITING);
@@ -375,7 +376,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (10, 1, 7, '질문7 자기답변', false, DATEADD('MINUTE', -38, NOW()), NOW(), false);"})
     void searchQuestionsByUserId_정상() {
-        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null, null);
 
         SearchRes<CommunityQuestionMyRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
 
@@ -436,7 +437,7 @@ class CommunityQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (5, 2, 2, 'C2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
     void searchQuestionsByCourseId_정상() {
-        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null);
+        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null, null);
 
         SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
 

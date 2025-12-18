@@ -12,6 +12,7 @@ import insty.domain.community.dto.CommunityQuestionUpdateReq;
 import insty.domain.community.repository.CommunityQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
+import insty.model.community.CommunityBoardType;
 import insty.model.community.CommunityQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -37,7 +38,7 @@ class CommunityQuestionWriterTest {
         // given
         User user = mock(User.class);
         Course course = mock(Course.class);
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(1L, "제목", "내용", null);
+        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(1L, "제목", "내용", CommunityBoardType.QNA, null);
 
         when(repository.save(any(CommunityQuestion.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
