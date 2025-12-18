@@ -85,14 +85,16 @@ public class CommunityAnswerService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
-        CommunityAnswer answer = communityAnswerReader.getCommunityAnswerById(answerId);
-        communityValidator.validateAnswerAuthor(userId, answer);
-        communityValidator.validateAnswerFileCountForUpdate(answer, attachments, req.deleteFileIds());
+        CommunityAnswer current = communityAnswerReader.getCommunityAnswerById(answerId);
+        communityValidator.validateAnswerAuthor(userId, current);
+        communityValidator.validateAnswerFileCountForUpdate(current, attachments, req.deleteFileIds());
 
-        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
-        VideoAnswer video = communityAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
+        CommunityAnswer updatedAnswer = communityAnswerWriter.updateAnswer(answerId, req);
 
-        return CommunityAnswerRes.from(answer, fileInfos, video);
+        List<FileInfo> fileInfos = communityAnswerFileWriter.updateAnswerFiles(updatedAnswer, attachments, req.deleteFileIds());
+        VideoAnswer video = communityAnswerVideoManager.updateAndGetLinkedVideo(updatedAnswer, req.videoUuid());
+
+        return CommunityAnswerRes.from(updatedAnswer, fileInfos, video);
     }
 
     /**
