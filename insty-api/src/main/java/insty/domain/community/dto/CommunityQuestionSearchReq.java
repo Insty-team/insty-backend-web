@@ -1,6 +1,7 @@
 package insty.domain.community.dto;
 
 import insty.domain.common.dto.PaginationReq;
+import insty.model.community.CommunityBoardType;
 import insty.model.community.QuestionStatus;
 import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,7 +32,10 @@ public record CommunityQuestionSearchReq(
         String keyword,
 
         @Schema(description = "질문 상태 필터 (다중 선택)", example = "[\"WAITING\", \"ANSWERED\"]")
-        List<QuestionStatus> statuses
+        List<QuestionStatus> statuses,
+
+        @Schema(description = "게시판 타입(QA / COMMUNITY)", example = "QNA")
+        CommunityBoardType boardType
 ) {
     public PaginationReq toPaginationReq() {
         return new PaginationReq(page, pageSize);
@@ -47,6 +51,12 @@ public record CommunityQuestionSearchReq(
      * 필터 객체로 변환
      */
     public CommunityQuestionSearchFilter toFilter(Long userId, Long courseId) {
-        return new CommunityQuestionSearchFilter(keyword, statuses, courseId, userId);
+        return new CommunityQuestionSearchFilter(
+                this.keyword,
+                this.statuses,
+                courseId,
+                userId,
+                this.boardType
+        );
     }
 }

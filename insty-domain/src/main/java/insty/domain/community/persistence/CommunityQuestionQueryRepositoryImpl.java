@@ -14,6 +14,7 @@ import insty.domain.community.dto.CommunityQuestionCountDto;
 import insty.domain.community.dto.CommunityQuestionSearchFilter;
 import insty.domain.community.dto.CommunityQuestionSearchInfo;
 import insty.domain.community.repository.CommunityQuestionQueryRepository;
+import insty.model.community.CommunityBoardType;
 import insty.model.community.CommunityQuestion;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +127,7 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
                 statusesIn(filter.statuses()),
                 queryContains(filter.query()),
                 userIdEq(filter.userId()),
+                boardTypeEq(filter.boardType()),
                 communityQuestion.isDeleted.eq(false)
         };
     }
@@ -140,6 +142,10 @@ public class CommunityQuestionQueryRepositoryImpl extends QuerydslRepositorySupp
 
     private BooleanExpression userIdEq(Long userId) {
         return userId != null ? communityQuestion.user.id.eq(userId) : null;
+    }
+
+    private BooleanExpression boardTypeEq(CommunityBoardType boardType) {
+        return boardType != null ? communityQuestion.boardType.eq(boardType) : null;
     }
 
     private BooleanExpression queryContains(String query) {

@@ -197,12 +197,8 @@ class CommunityAnswerServiceTest {
                     + "VALUES (1, 1, 1, '기존 답변 내용', false, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'image/jpeg', 'old_attachment1.jpg', 'old_attachment1.jpg', 1024, NOW(), NOW());",
-            "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
-                    + "VALUES (1, 'ANSWER_IMAGE', 'image/png', 'old_attachment2.png', 'old_attachment2.png', 2048, NOW(), NOW());",
             "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'old_attachment1.jpg'), NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
-                    + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'old_attachment2.png'), NOW(), NOW());",
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/old_answer_video.mp4', 'mp4', 'old_answer_video.mp4', 15, 'COMPLETED', NOW(), NOW(), NOW(), false);",
             "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
@@ -218,7 +214,7 @@ class CommunityAnswerServiceTest {
         // 수정 전 기존 파일들 확인
         CommunityAnswer answerBeforeUpdate = communityAnswerReader.getCommunityAnswerById(answerId);
         List<FileInfo> filesBeforeUpdate = communityAnswerFileReader.getAnswerFileInfos(answerBeforeUpdate);
-        assertThat(filesBeforeUpdate).hasSize(2);
+        assertThat(filesBeforeUpdate).hasSize(1);
 
         // 기존 첨부파일 ID들 (삭제할 파일들) - 실제 파일 ID 사용
         List<Long> deleteFileIds = filesBeforeUpdate.stream().map(FileInfo::id).toList();
@@ -227,8 +223,7 @@ class CommunityAnswerServiceTest {
 
         // 새로운 첨부파일들
         List<MultipartFile> newAttachments = List.of(
-                new MockMultipartFile("attachment1", "new_attachment1.jpg", "image/jpeg", "new_content1".getBytes()),
-                new MockMultipartFile("attachment2", "new_attachment2.png", "image/png", "new_content2".getBytes()));
+                new MockMultipartFile("attachment1", "new_attachment1.jpg", "image/jpeg", "new_content1".getBytes()));
 
         // mock
         when(appProperties.getDomain()).thenReturn("insty.test.com");
@@ -255,12 +250,9 @@ class CommunityAnswerServiceTest {
         assertThat(res.videoInfo().originFileName()).isEqualTo("new_answer_video.mp4");
 
         // 첨부파일 수정 검증 (기존 파일들이 삭제되고 새로운 파일들로 교체)
-        assertThat(res.attachments()).hasSize(2);
-        assertThat(res.attachments().get(0).name()).isEqualTo("new_attachment1.jpg");
-        assertThat(res.attachments().get(0).contentType()).isEqualTo("image/jpeg");
-        assertThat(res.attachments().get(1).name()).isEqualTo("new_attachment2.png");
-        assertThat(res.attachments().get(1).contentType()).isEqualTo("image/png");
-
+        assertThat(res.attachments()).hasSize(1);
+        assertThat(res.attachments().getFirst().name()).isEqualTo("new_attachment1.jpg");
+        assertThat(res.attachments().getFirst().contentType()).isEqualTo("image/jpeg");
     }
 
     @Sql(statements = {

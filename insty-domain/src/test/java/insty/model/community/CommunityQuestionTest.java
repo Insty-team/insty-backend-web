@@ -28,7 +28,7 @@ class CommunityQuestionTest {
         String content = "질문 내용";
 
         // when
-        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, title, content);
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, title, content, null);
 
         // then
         assertThat(communityQuestion).isNotNull();
@@ -52,7 +52,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -70,7 +70,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -87,7 +87,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -104,7 +104,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -121,7 +121,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -138,7 +138,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -155,7 +155,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -172,7 +172,7 @@ class CommunityQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content))
+        assertThatThrownBy(() -> CommunityQuestion.create(course, user, title, content, null))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -314,7 +314,7 @@ class CommunityQuestionTest {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixtureBuilder.getUserWithId();
-        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용", null);
         
         CommunityAnswer acceptedAnswer = CommunityAnswer.create(communityQuestion, user, "채택된 답변");
         acceptedAnswer.accept();
@@ -334,7 +334,7 @@ class CommunityQuestionTest {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixtureBuilder.getUserWithId();
-        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용", null);
         
         CommunityAnswer acceptedAnswer = CommunityAnswer.create(communityQuestion, user, "채택된 답변");
         acceptedAnswer.accept();
@@ -354,7 +354,7 @@ class CommunityQuestionTest {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixtureBuilder.getUserWithId();
-        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용");
+        CommunityQuestion communityQuestion = CommunityQuestion.create(course, user, "질문", "내용", null);
 
         // when
         communityQuestion.handleAcceptedAnswerDeleted(true); // 남은 답변 있음

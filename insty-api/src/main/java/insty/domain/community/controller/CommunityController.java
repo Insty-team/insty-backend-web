@@ -40,7 +40,12 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "커뮤니티 API")
+@Tag(
+        name = "커뮤니티/Q&A API",
+        description = "강의별 Q&A(질문/답변)와 자유 커뮤니티 게시글을 관리하는 공용 API입니다. " +
+                "현재는 boardType(QNA/COMMUNITY) 파라미터로 Q&A와 커뮤니티를 구분하고 있으며," +
+                "여건이 된다면 이 둘을 서로 다른 Factory로 분리 예정입니다."
+)
 @RestController
 @RequestMapping("/api/v1/community/")
 @RequiredArgsConstructor
@@ -51,7 +56,7 @@ public class CommunityController {
 
     /// ============================== 질문 API  ======================================
 
-    @Operation(summary = "커뮤니티 질문 검색", description = "질문 목록을 조회한다. (제목/내용 키워드 검색)")
+    @Operation(summary = "질문 목록 검색 (Q&A/커뮤니티 공용)", description = "질문 목록을 조회한다. (제목/내용 키워드 검색)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions")
@@ -61,7 +66,7 @@ public class CommunityController {
         return SuccessRes.of(communityQuestionService.searchQuestions(req));
     }
 
-    @Operation(summary = "강좌별 질문 검색", description = "특정 강좌의 질문 목록을 조회한다.")
+    @Operation(summary = "강좌별 질문 검색 (Q&A/커뮤니티 공용)", description = "특정 강좌의 질문 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_COURSE_SEARCH)
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/questions/course/{courseId}")
@@ -72,7 +77,7 @@ public class CommunityController {
         return SuccessRes.of(communityQuestionService.searchQuestionsByCourseId(req, courseId));
     }
 
-    @Operation(summary = "유저 질문 검색", description = "러너 자신이 작성한 질문 목록을 조회한다. (인증 사용자 기준)")
+    @Operation(summary = "내가 작성한 질문 검색 (Q&A/커뮤니티 공용)", description = "러너 자신이 작성한 질문 목록을 조회한다. (인증 사용자 기준)")
     @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
     @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/questions/my")

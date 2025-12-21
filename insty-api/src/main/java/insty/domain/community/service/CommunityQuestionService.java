@@ -64,6 +64,9 @@ public class CommunityQuestionService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
+        // 기획 상, 최대 파일은 2개로 제한
+        communityValidator.validateQuestionFileCount(attachments);
+
         Course course = courseReader.getCourseById(req.courseId());
         User user = userReader.getUser(userId);
 
@@ -85,6 +88,10 @@ public class CommunityQuestionService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validateQuestionAuthor(userId, questionId);
+
+        // 질문 가져와서 파일 개수 검증
+        CommunityQuestion question = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
+        communityValidator.validateQuestionFileCountForUpdate(question, attachments, req.deleteFileIds());
 
         CommunityQuestion updatedQuestion = communityQuestionWriter.updateQuestion(questionId, req);
 

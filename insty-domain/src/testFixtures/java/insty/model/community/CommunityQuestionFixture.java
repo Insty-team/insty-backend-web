@@ -13,10 +13,10 @@ public class CommunityQuestionFixture {
     }
 
     public static CommunityQuestion getCommunityQuestion(Course course, User user) {
-        return CommunityQuestion.create(course, user, "질문 제목", "질문 내용");
+        return CommunityQuestion.create(course, user, "질문 제목", "질문 내용", CommunityBoardType.QNA);
     }
 
     public static CommunityQuestion getCommunityQuestion(Course course, User user, String title, String content) {
-        return CommunityQuestion.create(course, user, title, content);
+        return CommunityQuestion.create(course, user, title, content, CommunityBoardType.QNA);
     }
 }

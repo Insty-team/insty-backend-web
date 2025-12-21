@@ -43,7 +43,7 @@ class CommunityQuestionReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null, null);
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null, null, null, null, null);
         String sort = "createdAt:desc";
 
         CommunityQuestionSearchInfo question = CommunityQuestionFixtureBuilder.getCommunityQuestionSearchInfo(1L, 1L,"질문1", "내용1");
@@ -67,7 +67,7 @@ class CommunityQuestionReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null,  null, null, null);
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter(null,  null, null, null, null);
         String sort = "createdAt:desc";
 
         CommunityQuestionSearchInfo q1 = CommunityQuestionFixtureBuilder.getCommunityQuestionSearchInfo(1L, 1L, "질문1", "내용1");
@@ -92,7 +92,7 @@ class CommunityQuestionReaderTest {
 
         // given
         PaginationReq paginationReq = new PaginationReq(1, 10);
-        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter("테스트", null, null, null);
+        CommunityQuestionSearchFilter filter = new CommunityQuestionSearchFilter("테스트", null, null, null, null);
         PaginationRes paginationRes = new PaginationRes(1, 1, 1, 10);
         when(communityQuestionQueryRepository.countSearchQuestions(paginationReq, filter))
                 .thenReturn(paginationRes);
