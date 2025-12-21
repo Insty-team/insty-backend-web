@@ -66,7 +66,8 @@ jobs:
 
       - name: Cleanup Docker and Cache
         run: |
-          docker system prune -af --volumes
+          docker image prune -af || true
+          docker container prune -f || true
           rm -rf ~/.gradle/caches
 
       - name: Check ping
