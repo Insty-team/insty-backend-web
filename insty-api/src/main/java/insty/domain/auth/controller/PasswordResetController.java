@@ -11,11 +11,13 @@ import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "인증 및 토큰 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class PasswordResetController {
