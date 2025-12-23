@@ -251,8 +251,8 @@ class CommunityAnswerServiceTest {
 
         // 첨부파일 수정 검증 (기존 파일들이 삭제되고 새로운 파일들로 교체)
         assertThat(res.attachments()).hasSize(1);
-        assertThat(res.attachments().getFirst().name()).isEqualTo("new_attachment1.jpg");
-        assertThat(res.attachments().getFirst().contentType()).isEqualTo("image/jpeg");
+        assertThat(res.attachments().get(0).name()).isEqualTo("new_attachment1.jpg");
+        assertThat(res.attachments().get(0).contentType()).isEqualTo("image/jpeg");
     }
 
     @Sql(statements = {
