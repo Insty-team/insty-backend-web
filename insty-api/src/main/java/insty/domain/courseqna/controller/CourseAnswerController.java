@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,6 +58,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping(value = "/{questionId}/answers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public SuccessRes<CourseAnswerRes> createAnswer(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -81,14 +84,14 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @DeleteMapping("/{questionId}/answers/{answerId}")
-    public SuccessRes<?> deleteAnswer(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAnswer(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @PathVariable @NotNull Long answerId
     ) {
         courseAnswerService.deleteAnswer(userId, answerId);
-        return SuccessRes.of(null);
     }
 
     @PreAuthorize("hasRole('LEARNER')")

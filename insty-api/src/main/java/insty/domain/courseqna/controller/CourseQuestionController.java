@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,6 +70,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
 
     @PreAuthorize("hasRole('LEARNER')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public SuccessRes<CourseQuestionDetailsRes> createQuestion(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -92,12 +95,12 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
 
     @PreAuthorize("hasRole('LEARNER')")
     @DeleteMapping("/{questionId}")
-    public SuccessRes<?> deleteQuestion(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteQuestion(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId
     ) {
         courseQuestionService.deleteQuestion(userId, questionId);
-        return SuccessRes.of(null);
     }
 }
