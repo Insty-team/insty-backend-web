@@ -19,7 +19,7 @@ public class AnswerAcceptNotificationStrategy extends AbstractNotificationStrate
 
     @Override
     public NotificationType getType() {
-        return NotificationType.COMMUNITY_ANSWER_ACCEPT;
+        return NotificationType.COURSE_ANSWER_ACCEPT;
     }
 
     @Override

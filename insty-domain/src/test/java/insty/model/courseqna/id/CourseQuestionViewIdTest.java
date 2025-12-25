@@ -66,7 +66,7 @@ public class CourseQuestionViewIdTest {
         assertThatThrownBy(() -> CourseQuestionViewId.create(questionId, userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test
@@ -79,6 +79,6 @@ public class CourseQuestionViewIdTest {
         assertThatThrownBy(() -> CourseQuestionViewId.create(questionId, userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
     }
 }

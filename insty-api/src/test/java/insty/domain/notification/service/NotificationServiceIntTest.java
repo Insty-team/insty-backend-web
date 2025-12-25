@@ -77,7 +77,7 @@ class NotificationServiceIntTest {
         // Given
         Notification notification1 = Notification.create(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 "/questions/1"
@@ -85,7 +85,7 @@ class NotificationServiceIntTest {
 
         Notification notification2 = Notification.create(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_ANSWER,
+                NotificationType.NEW_COURSE_ANSWER,
                 "새로운 답변",
                 "답변이 등록되었습니다",
                 "/questions/1#answer-1"
@@ -150,7 +150,7 @@ class NotificationServiceIntTest {
 
         Notification savedNotification = notifications.get(0);
         assertThat(savedNotification.getUserId()).isEqualTo(testUser.getId());
-        assertThat(savedNotification.getType()).isEqualTo(NotificationType.NEW_COMMUNITY_QUESTION);
+        assertThat(savedNotification.getType()).isEqualTo(NotificationType.NEW_COURSE_QUESTION);
         assertThat(savedNotification.getTitle()).isEqualTo("새로운 질문");
         assertThat(savedNotification.getMessage()).isEqualTo("질문이 등록되었습니다");
         assertThat(savedNotification.getRedirectUrl()).isEqualTo("/questions/1");
@@ -163,7 +163,7 @@ class NotificationServiceIntTest {
         String redirectUrl = "/questions/1";
         Notification notification = Notification.create(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 redirectUrl
@@ -204,7 +204,7 @@ class NotificationServiceIntTest {
 
         Notification notification = Notification.create(
                 anotherUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 "/questions/1"
@@ -224,7 +224,7 @@ class NotificationServiceIntTest {
         String redirectUrl = "/questions/1";
         Notification notification = Notification.create(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 redirectUrl
@@ -275,9 +275,9 @@ class NotificationServiceIntTest {
         List<Notification> savedNotifications = notificationRepository.findAll();
         assertThat(savedNotifications).extracting(Notification::getType)
                 .containsExactlyInAnyOrder(
-                        NotificationType.NEW_COMMUNITY_QUESTION,
-                        NotificationType.NEW_COMMUNITY_ANSWER,
-                        NotificationType.COMMUNITY_ANSWER_ACCEPT
+                        NotificationType.NEW_COURSE_QUESTION,
+                        NotificationType.NEW_COURSE_ANSWER,
+                        NotificationType.COURSE_ANSWER_ACCEPT
                 );
     }
 }

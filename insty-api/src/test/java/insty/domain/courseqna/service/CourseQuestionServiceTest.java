@@ -615,7 +615,7 @@ class CourseQuestionServiceTest {
     }
 
     /**
-     * 게시판 타입(QNA / COMMUNITY) 별로 필터링되는지 검증한다.
+     * 게시판 타입(QNA / COURSE) 별로 필터링되는지 검증한다.
      */
     @Test
     @Sql(statements = {
@@ -629,11 +629,11 @@ class CourseQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, 1, 'QNA 질문 2', 'QNA 내용 2', 'WAITING', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (3, 1, 1, '커뮤니티 글 1', 'COMMUNITY 내용 1', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
+                    + "VALUES (3, 1, 1, '커뮤니티 글 1', 'COURSE 내용 1', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (4, 1, 1, '커뮤니티 글 2', 'COMMUNITY 내용 2', 'WAITING', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
+                    + "VALUES (4, 1, 1, '커뮤니티 글 2', 'COURSE 내용 2', 'WAITING', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
             "UPDATE web_service.community_questions SET board_type = 'QNA' WHERE id IN (1, 2);",
-            "UPDATE web_service.community_questions SET board_type = 'COMMUNITY' WHERE id IN (3, 4);"
+            "UPDATE web_service.community_questions SET board_type = 'COURSE' WHERE id IN (3, 4);"
     })
     void searchQuestions_게시판타입별_필터링_정상() {
         // QNA 전용 조회
@@ -648,9 +648,9 @@ class CourseQuestionServiceTest {
                 .extracting(CourseQuestionRes::title)
                 .containsExactlyInAnyOrder("QNA 질문 1", "QNA 질문 2");
 
-        // COMMUNITY 전용 조회
+        // COURSE 전용 조회
         CourseQuestionSearchReq communityReq =
-                new CourseQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.COMMUNITY);
+                new CourseQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.COURSE);
 
         SearchRes<CourseQuestionRes> communityRes = courseQuestionService.searchQuestions(communityReq);
 

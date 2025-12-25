@@ -18,11 +18,11 @@ public enum MixpanelEventType {
     COURSE_LEARNING_STARTED,       // 강의 수강 시작(성공: 등록/진행 상태 전이 커밋 후)
     COURSE_LEARNING_START_FAILED,  // 강의 수강 시작 실패(등록/상태 전이 실패)
 
-    // COMMUNITY
-    COMMUNITY_QUESTION_CREATED,    // 질문 작성 성공
-    COMMUNITY_QUESTION_CREATE_FAILED, // 질문 작성 실패
-    COMMUNITY_ANSWER_CREATED,      // 답변 작성 성공
-    COMMUNITY_ANSWER_CREATE_FAILED,// 답변 작성 실패
-    COMMUNITY_ANSWER_ACCEPTED,     // 답변 채택 성공
-    COMMUNITY_ANSWER_ACCEPT_FAILED // 답변 채택 실패
+    // COURSE
+    COURSE_QUESTION_CREATED,    // 질문 작성 성공
+    COURSE_QUESTION_CREATE_FAILED, // 질문 작성 실패
+    COURSE_ANSWER_CREATED,      // 답변 작성 성공
+    COURSE_ANSWER_CREATE_FAILED,// 답변 작성 실패
+    COURSE_ANSWER_ACCEPTED,     // 답변 채택 성공
+    COURSE_ANSWER_ACCEPT_FAILED // 답변 채택 실패
 }

@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS web_service.community_questions (
     user_id     BIGINT NOT null references web_service.users(id), -- 사용자 ID
     title       VARCHAR(255) NOT NULL, -- 질문 게시글 제목
     content     TEXT NOT NULL, -- 질문 게시글 내용
-    board_type  VARCHAR(20) NOT NULL DEFAULT 'QNA', -- 게시판 타입(QNA / COMMUNITY)
+    board_type  VARCHAR(20) NOT NULL DEFAULT 'QNA', -- 게시판 타입(QNA / COURSE)
     status      VARCHAR(15) NOT NULL DEFAULT 'WAITING' CHECK (status IN ('WAITING', 'ANSWERED', 'ACCEPTED')), -- 질문 상태
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 생성 시각
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 수정 시각

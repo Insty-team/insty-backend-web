@@ -78,7 +78,7 @@ class CourseAnswerReaderTest {
         assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND);
+                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test
@@ -92,7 +92,7 @@ class CourseAnswerReaderTest {
         assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
     }
 
     @Test
@@ -117,7 +117,7 @@ class CourseAnswerReaderTest {
         assertThatThrownBy(() -> reader.getCommunityAnswerByIdIncludingDeleted(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND);
+                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test

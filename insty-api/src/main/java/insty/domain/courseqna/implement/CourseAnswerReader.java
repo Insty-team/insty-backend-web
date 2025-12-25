@@ -61,10 +61,10 @@ public class CourseAnswerReader {
      */
     public CourseAnswer getCommunityAnswerById(Long answerId) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
 
         if (answer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
 
         return answer;
@@ -75,7 +75,7 @@ public class CourseAnswerReader {
      */
     public CourseAnswer getCommunityAnswerByIdIncludingDeleted(Long answerId) {
         return courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
     }
 
     /**

@@ -32,9 +32,9 @@ public class CourseAnswerWriter {
      */
     public CourseAnswer updateAnswer(Long answerId, CourseAnswerUpdateReq req) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
         if (answer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
         answer.update(req.content());
         return courseAnswerRepository.save(answer);
@@ -45,7 +45,7 @@ public class CourseAnswerWriter {
      */
     public void deleteAnswer(CourseAnswer courseAnswer) {
         if (courseAnswer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
         courseAnswerRepository.delete(courseAnswer);
     }

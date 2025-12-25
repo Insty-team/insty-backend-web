@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 @Schema(description = "알림 설정 변경 요청")
 public record UserNotificationSettingUpdateReq(
 
-        @Schema(description = "알림 타입", example = "NEW_COMMUNITY_QUESTION")
+        @Schema(description = "알림 타입", example = "NEW_COURSE_QUESTION")
         @NotNull(message = "알림 타입은 필수입니다")
         NotificationType notificationType,
 

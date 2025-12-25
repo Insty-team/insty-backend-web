@@ -49,7 +49,7 @@ class NewAnswerNotificationStrategyTest {
         NotificationType type = strategy.getType();
 
         // Then
-        assertEquals(NotificationType.NEW_COMMUNITY_ANSWER, type);
+        assertEquals(NotificationType.NEW_COURSE_ANSWER, type);
     }
 
     @Test
@@ -119,7 +119,7 @@ class NewAnswerNotificationStrategyTest {
         // Then
         assertNotNull(mailContent);
         assertEquals(recipientEmail, mailContent.to());
-        assertEquals(MailType.COMMUNITY_ANSWER, mailContent.mailType());
+        assertEquals(MailType.COURSE_ANSWER, mailContent.mailType());
 
         Map<String, Object> variables = mailContent.variables();
         assertEquals(100L, variables.get("questionId"));

@@ -30,14 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 public interface CourseQuestionControllerDocs {
 
     @Operation(summary = "질문 목록 검색 (강의별)", description = "해당 강의의 질문 목록을 조회한다. (제목/내용 키워드 검색)")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_SEARCH)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_SEARCH)
     SuccessRes<SearchRes<CourseQuestionRes>> searchQuestions(
             @PathVariable @NotNull Long courseId,
             @ModelAttribute CourseQuestionSearchReq req
     );
 
     @Operation(summary = "내가 작성한 질문 검색 (강의별)", description = "해당 강의에서 러너 자신이 작성한 질문 목록을 조회한다. (인증 사용자 기준)")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_MY_SEARCH)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_MY_SEARCH)
     SuccessRes<SearchRes<CourseQuestionMyRes>> searchQuestionsByUser(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -45,7 +45,7 @@ public interface CourseQuestionControllerDocs {
     );
 
     @Operation(summary = "질문 상세 조회", description = "질문의 상세 정보를 조회한다. (답변 최신순)")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DETAIL)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_DETAIL)
     SuccessRes<CourseQuestionDetailsRes> getQuestionDetails(
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long questionId,
@@ -53,7 +53,7 @@ public interface CourseQuestionControllerDocs {
     );
 
     @Operation(summary = "질문 작성", description = "질문을 생성한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_CREATE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_CREATE)
     SuccessRes<CourseQuestionDetailsRes> createQuestion(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -63,7 +63,7 @@ public interface CourseQuestionControllerDocs {
     );
 
     @Operation(summary = "질문 수정", description = "질문을 수정한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_UPDATE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_UPDATE)
     SuccessRes<CourseQuestionDetailsRes> updateQuestion(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -74,7 +74,7 @@ public interface CourseQuestionControllerDocs {
     );
 
     @Operation(summary = "질문 삭제", description = "질문을 삭제한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_QUESTION_DELETE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_DELETE)
     SuccessRes<?> deleteQuestion(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,

@@ -50,11 +50,11 @@ public class CourseQuestionFileId implements Serializable {
     private static void validateCreate(Long questionId, Long fileId) {
         if (questionId == null) {
             log.error("생성 오류 - questionId : null");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
         }
         if (fileId == null) {
             log.error("생성 오류 - fileId : null");
-            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
         }
     }
 }

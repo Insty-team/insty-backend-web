@@ -22,7 +22,7 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
 
     @Override
     public NotificationType getType() {
-        return NotificationType.NEW_COMMUNITY_QUESTION;
+        return NotificationType.NEW_COURSE_QUESTION;
     }
 
     // ==================== 인앱 알림 ====================

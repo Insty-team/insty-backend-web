@@ -53,7 +53,7 @@ class NotificationServiceTest {
 
         Notification notification1 = Notification.create(
                 userId,
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 "/questions/1"
@@ -61,7 +61,7 @@ class NotificationServiceTest {
 
         Notification notification2 = Notification.create(
                 userId,
-                NotificationType.NEW_COMMUNITY_ANSWER,
+                NotificationType.NEW_COURSE_ANSWER,
                 "새로운 답변",
                 "답변이 등록되었습니다",
                 "/questions/1#answer-1"
@@ -124,7 +124,7 @@ class NotificationServiceTest {
 
         Notification savedNotification = captor.getValue();
         assertEquals(receiverId, savedNotification.getUserId());
-        assertEquals(NotificationType.NEW_COMMUNITY_QUESTION, savedNotification.getType());
+        assertEquals(NotificationType.NEW_COURSE_QUESTION, savedNotification.getType());
         assertEquals("새로운 질문", savedNotification.getTitle());
         assertEquals("질문이 등록되었습니다", savedNotification.getMessage());
         assertEquals("/questions/1", savedNotification.getRedirectUrl());
@@ -139,7 +139,7 @@ class NotificationServiceTest {
 
         Notification notification = Notification.create(
                 userId,
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 redirectUrl
@@ -180,7 +180,7 @@ class NotificationServiceTest {
 
         Notification notification = Notification.create(
                 differentUserId,
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 "/questions/1"
@@ -204,7 +204,7 @@ class NotificationServiceTest {
 
         Notification notification = Notification.create(
                 userId,
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 "새로운 질문",
                 "질문이 등록되었습니다",
                 redirectUrl

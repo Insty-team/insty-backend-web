@@ -151,7 +151,7 @@ class CourseQuestionReaderTest {
         assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND);
+                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND);
     }
 
     @Test
@@ -166,7 +166,7 @@ class CourseQuestionReaderTest {
         assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
     }
 
     @Test

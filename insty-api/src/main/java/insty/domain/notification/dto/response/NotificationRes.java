@@ -13,12 +13,12 @@ public record NotificationRes(
         @Schema(description = """
                 알림 타입:
                 - NEW_COURSE: 새 강의 알림 - 새로운 강의가 등록되었을 때 수강중인 Runner에게 발송 (수신자 : RUNNER)
-                - NEW_COMMUNITY_QUESTION: 새 질문 알림 - 구독/관심있는 커뮤니티에 새로운 질문이 등록되었을 때 발송 (수신자 : CREATOR)
-                - NEW_COMMUNITY_ANSWER: 새 답변 알림 - 내가 작성한 질문에 새로운 답변이 달렸을 때 발송 (수신자 : RUNNER / CREATOR)
-                - COMMUNITY_ANSWER_ACCEPT: 답변 채택 알림 - 내가 작성한 답변이 채택되었을 때 발송 (수신자 : RUNNER)
+                - NEW_COURSE_QUESTION: 새 질문 알림 - 구독/관심있는 커뮤니티에 새로운 질문이 등록되었을 때 발송 (수신자 : CREATOR)
+                - NEW_COURSE_ANSWER: 새 답변 알림 - 내가 작성한 질문에 새로운 답변이 달렸을 때 발송 (수신자 : RUNNER / CREATOR)
+                - COURSE_ANSWER_ACCEPT: 답변 채택 알림 - 내가 작성한 답변이 채택되었을 때 발송 (수신자 : RUNNER)
                 - USER_MENTIONED: 멘션 알림 - 커뮤니티 질문/답변에서 다른 사용자가 나를 멘션했을 때 발송 (수신자 : RUNNER / CREATOR)
                 """,
-                example = "NEW_COMMUNITY_ANSWER")
+                example = "NEW_COURSE_ANSWER")
         NotificationType type,
 
         @Schema(description = "알림 제목")

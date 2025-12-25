@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface CourseAnswerControllerDocs {
 
     @Operation(summary = "답변 조회", description = "질문의 답변 목록을 페이지네이션으로 조회한다. (최신순)")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_SEARCH)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_SEARCH)
     SuccessRes<SearchRes<CourseAnswerRes>> retrieveAnswers(
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long questionId,
@@ -37,14 +37,14 @@ public interface CourseAnswerControllerDocs {
     );
 
     @Operation(summary = "채택된 답변 조회", description = "질문에서 채택된 답변을 조회한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPTED_SEARCH)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_ACCEPTED_SEARCH)
     SuccessRes<List<CourseAnswerRes>> getAcceptedAnswers(
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long questionId
     );
 
     @Operation(summary = "답변 작성", description = "질문에 답변을 생성한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_CREATE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_CREATE)
     SuccessRes<CourseAnswerRes> createAnswer(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -55,7 +55,7 @@ public interface CourseAnswerControllerDocs {
     );
 
     @Operation(summary = "답변 수정", description = "답변을 수정한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_UPDATE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_UPDATE)
     SuccessRes<CourseAnswerRes> updateAnswer(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -67,7 +67,7 @@ public interface CourseAnswerControllerDocs {
     );
 
     @Operation(summary = "답변 삭제", description = "답변을 삭제한다.")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_DELETE)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_DELETE)
     SuccessRes<?> deleteAnswer(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
@@ -76,7 +76,7 @@ public interface CourseAnswerControllerDocs {
     );
 
     @Operation(summary = "답변 채택", description = "질문자가 답변을 채택/해제한다. (토글)")
-    @CustomExceptionDescription(SwaggerResponseDescription.COMMUNITY_ANSWER_ACCEPT)
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_ACCEPT)
     SuccessRes<CourseQnaAcceptAnswerResultRes> acceptAnswer(
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,

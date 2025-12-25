@@ -68,9 +68,9 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCommunityQuestionWithFilesById(Long questionId) {
         CourseQuestion question = courseQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
         }
         return question;
     }
@@ -81,9 +81,9 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCommunityQuestionWithAnswerById(Long questionId){
         CourseQuestion question = courseQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
         }
         return question;
     }
@@ -93,7 +93,7 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCommunityQuestionDetailsByIdIncludingDeleted(Long questionId) {
         return courseQuestionRepository.findById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
     }
 
     /**

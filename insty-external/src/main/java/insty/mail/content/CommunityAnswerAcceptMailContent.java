@@ -15,7 +15,7 @@ public final class CommunityAnswerAcceptMailContent extends MailContent {
 
     private CommunityAnswerAcceptMailContent(String to, String questionTitle, String answerContent,
                                              String answerAuthorName, String questionAuthorName, String questionUrl) {
-        super(to, MailType.COMMUNITY_ANSWER_ACCEPT);
+        super(to, MailType.COURSE_ANSWER_ACCEPT);
         this.questionTitle = Objects.requireNonNull(questionTitle);
         this.answerContent = Objects.requireNonNull(answerContent);
         this.answerAuthorName = Objects.requireNonNull(answerAuthorName);

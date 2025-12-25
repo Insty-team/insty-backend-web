@@ -13,7 +13,7 @@ public final class NewAnswerMailContent extends MailContent {
     private final String questionUrl;
 
     private NewAnswerMailContent(String to, String questionTitle, String answerContent, String answerAuthorNickname, String questionUrl) {
-        super(to, MailType.COMMUNITY_ANSWER);
+        super(to, MailType.COURSE_ANSWER);
         this.questionTitle = Objects.requireNonNull(questionTitle);
         this.answerContent = Objects.requireNonNull(answerContent);
         this.answerAuthorNickname = Objects.requireNonNull(answerAuthorNickname);

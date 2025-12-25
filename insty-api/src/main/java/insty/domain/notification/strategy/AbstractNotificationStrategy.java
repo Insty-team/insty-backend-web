@@ -27,9 +27,9 @@ public abstract class AbstractNotificationStrategy
     /* NotificationType을 MailType으로 매핑 */
     protected MailType getMailType() {
         return switch (getType()) {
-            case NEW_COMMUNITY_QUESTION -> MailType.COMMUNITY_QUESTION;
-            case NEW_COMMUNITY_ANSWER -> MailType.COMMUNITY_ANSWER;
-            case COMMUNITY_ANSWER_ACCEPT -> MailType.COMMUNITY_ANSWER_ACCEPT;
+            case NEW_COURSE_QUESTION -> MailType.COURSE_QUESTION;
+            case NEW_COURSE_ANSWER -> MailType.COURSE_ANSWER;
+            case COURSE_ANSWER_ACCEPT -> MailType.COURSE_ANSWER_ACCEPT;
             case USER_MENTIONED -> MailType.MENTION;
             default -> throw new IllegalStateException("매핑되지 않은 NotificationType: " + getType());
         };
