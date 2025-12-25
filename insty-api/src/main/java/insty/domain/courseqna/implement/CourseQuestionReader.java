@@ -54,9 +54,9 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCourseQuestionWithFilesById(Long questionId) {
         CourseQuestion question = courseQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
-                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_ALREADY_DELETED);
         }
         return question;
     }
@@ -67,9 +67,9 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCourseQuestionWithAnswerById(Long questionId){
         CourseQuestion question = courseQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
-                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_ALREADY_DELETED);
         }
         return question;
     }

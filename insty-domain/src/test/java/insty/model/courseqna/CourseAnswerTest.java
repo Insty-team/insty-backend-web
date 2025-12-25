@@ -46,7 +46,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
     }
 
     @Test
@@ -62,7 +62,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
     }
 
     @Test
@@ -78,7 +78,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
     }
 
     @Test
@@ -94,7 +94,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
     }
 
     @Test

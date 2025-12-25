@@ -127,7 +127,7 @@ class CourseQuestionReaderTest {
         assertThatThrownBy(() -> reader.getCourseQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_QUESTION_NOT_FOUND);
     }
 
     @Test
@@ -142,7 +142,7 @@ class CourseQuestionReaderTest {
         assertThatThrownBy(() -> reader.getCourseQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_QUESTION_ALREADY_DELETED);
     }
 
     @Test

@@ -87,7 +87,7 @@ class CourseAnswerWriterTest {
         assertThatThrownBy(() -> writer.updateAnswer(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_ANSWER_ALREADY_DELETED);
     }
 
     @Test
@@ -101,7 +101,7 @@ class CourseAnswerWriterTest {
         assertThatThrownBy(() -> writer.updateAnswer(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_ANSWER_NOT_FOUND);
     }
 
     @Test

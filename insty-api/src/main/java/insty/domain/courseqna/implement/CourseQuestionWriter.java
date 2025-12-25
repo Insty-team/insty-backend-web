@@ -37,9 +37,9 @@ public class CourseQuestionWriter {
      */
     public CourseQuestion updateQuestion(Long questionId, CourseQuestionUpdateReq req) {
         CourseQuestion question = courseQuestionRepository.findById(questionId)
-                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_ALREADY_DELETED);
         }
         question.update(req.title(), req.content());
         return courseQuestionRepository.save(question);
@@ -50,7 +50,7 @@ public class CourseQuestionWriter {
      */
     public void deleteQuestion(CourseQuestion courseQuestion) {
         if (courseQuestion.isDeleted()) {
-            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_QUESTION_ALREADY_DELETED);
         }
         courseQuestionRepository.delete(courseQuestion);
     }

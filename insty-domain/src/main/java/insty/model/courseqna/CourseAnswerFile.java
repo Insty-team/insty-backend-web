@@ -55,11 +55,11 @@ public class CourseAnswerFile extends BaseEntity {
     private static void validateCreate(CourseAnswer courseAnswer, File file) {
         if (courseAnswer == null) {
             log.error("생성 오류 - courseAnswer : null");
-            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
         }
         if (file == null) {
             log.error("생성 오류 - file : null");
-            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
         }
     }
 }

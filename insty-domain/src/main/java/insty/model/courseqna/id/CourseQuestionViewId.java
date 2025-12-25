@@ -49,11 +49,11 @@ public class CourseQuestionViewId implements Serializable {
     private static void validateCreate(Long questionId, Long userId) {
         if (questionId == null) {
             log.error("생성 오류 - questionId : null");
-            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
         }
         if (userId == null) {
             log.error("생성 오류 - userId : null");
-            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
         }
     }
 }

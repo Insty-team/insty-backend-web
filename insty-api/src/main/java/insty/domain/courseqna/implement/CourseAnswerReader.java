@@ -61,10 +61,10 @@ public class CourseAnswerReader {
      */
     public CourseAnswer getCourseAnswerById(Long answerId) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QNA_ANSWER_NOT_FOUND));
 
         if (answer.isDeleted()) {
-            throw new CustomException(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_ANSWER_ALREADY_DELETED);
         }
 
         return answer;
