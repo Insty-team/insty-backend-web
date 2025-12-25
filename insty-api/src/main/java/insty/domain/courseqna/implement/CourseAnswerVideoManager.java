@@ -38,7 +38,7 @@ public class CourseAnswerVideoManager {
         }
         VideoAnswer videoAnswer = videoAnswerRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
-        videoAnswer.updateCommunityAnswer(answer);
+        videoAnswer.updateCourseAnswer(answer);
         return videoAnswerRepository.save(videoAnswer);
     }
 

@@ -33,7 +33,7 @@ class NewQuestionNotificationStrategyTest {
 
     @BeforeEach
     void setUp() {
-        request = NotificationReq.newCommunityQuestion(
+        request = NotificationReq.newCourseQuestion(
                 1L,
                 100L,
                 "자바 스프링 질문입니다",
@@ -79,7 +79,7 @@ class NewQuestionNotificationStrategyTest {
         String longTitle = "a".repeat(200);
         String truncatedTitle = "a".repeat(100) + "...";
 
-        NotificationReq longTitleRequest = NotificationReq.newCommunityQuestion(
+        NotificationReq longTitleRequest = NotificationReq.newCourseQuestion(
                 1L,
                 100L,
                 longTitle,

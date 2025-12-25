@@ -204,7 +204,7 @@ class CourseQuestionServiceTest {
         Long userId = 1L;
         Long questionId = 1L;
 
-        var before = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
+        var before = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
         List<FileInfo> existingFiles = courseQuestionFileReader.getQuestionFileInfos(before);
         assertThat(existingFiles).hasSize(2);
         List<Long> deleteFileIds = existingFiles.stream().map(FileInfo::id).toList();
@@ -545,7 +545,7 @@ class CourseQuestionServiceTest {
         Long userId = 1L;
         Long questionId = 1L;
 
-        var before = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        var before = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(before.getAnswers()).hasSize(2);
         assertThat(courseQuestionVideoManager.getVideoQuestion(before)).isNotNull();
 
@@ -553,11 +553,11 @@ class CourseQuestionServiceTest {
 
         courseQuestionService.deleteQuestion(userId, questionId);
 
-        assertThatThrownBy(() -> courseQuestionReader.getCommunityQuestionWithAnswerById(questionId)).isInstanceOf(
+        assertThatThrownBy(() -> courseQuestionReader.getCourseQuestionWithAnswerById(questionId)).isInstanceOf(
                 insty.exception.CustomException.class);
-        assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(1L)).isInstanceOf(
+        assertThatThrownBy(() -> communityAnswerReader.getCourseAnswerById(1L)).isInstanceOf(
                 insty.exception.CustomException.class);
-        assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(2L)).isInstanceOf(
+        assertThatThrownBy(() -> communityAnswerReader.getCourseAnswerById(2L)).isInstanceOf(
                 insty.exception.CustomException.class);
     }
 

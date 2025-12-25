@@ -60,7 +60,7 @@ class CourseAnswerSearchManagerTest {
         List<CourseAnswerRes> answerResList = List.of(answerRes1, answerRes2);
 
         var captor = ArgumentCaptor.forClass(Pageable.class);
-        when(courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
+        when(courseAnswerReader.getCourseAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
         when(courseAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
         when(courseAnswerMapper.toCourseAnswerResList(answers, videoMap)).thenReturn(answerResList);
@@ -94,7 +94,7 @@ class CourseAnswerSearchManagerTest {
         List<CourseAnswerRes> answerResList = List.of(answerRes);
 
         var captor = ArgumentCaptor.forClass(Pageable.class);
-        when(courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
+        when(courseAnswerReader.getCourseAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
         when(courseAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
         when(courseAnswerMapper.toCourseAnswerResList(answers, videoMap)).thenReturn(answerResList);

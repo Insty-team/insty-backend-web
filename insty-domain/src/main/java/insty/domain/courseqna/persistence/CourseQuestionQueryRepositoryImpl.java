@@ -14,7 +14,6 @@ import insty.domain.courseqna.dto.CourseQuestionCountDto;
 import insty.domain.courseqna.dto.CourseQuestionSearchFilter;
 import insty.domain.courseqna.dto.CourseQuestionSearchInfo;
 import insty.domain.courseqna.repository.CourseQuestionQueryRepository;
-import insty.model.courseqna.CommunityBoardType;
 import insty.model.courseqna.CourseQuestion;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +43,10 @@ public class CourseQuestionQueryRepositoryImpl extends QuerydslRepositorySupport
                         courseQuestion.course.id,
                         courseQuestion.title,
                         courseQuestion.content,
-                        courseQuestion.status,
-                        courseQuestion.createdAt,
-                        courseQuestion.updatedAt
-                )
+                courseQuestion.status,
+                courseQuestion.createdAt,
+                courseQuestion.updatedAt
+            )
         )
                 .from(courseQuestion)
                 .join(courseQuestion.user, user)
@@ -128,7 +127,6 @@ public class CourseQuestionQueryRepositoryImpl extends QuerydslRepositorySupport
                 statusesIn(filter.statuses()),
                 queryContains(filter.query()),
                 userIdEq(filter.userId()),
-                boardTypeEq(filter.boardType()),
                 courseQuestion.isDeleted.eq(false)
         };
     }
@@ -143,10 +141,6 @@ public class CourseQuestionQueryRepositoryImpl extends QuerydslRepositorySupport
 
     private BooleanExpression userIdEq(Long userId) {
         return userId != null ? courseQuestion.user.id.eq(userId) : null;
-    }
-
-    private BooleanExpression boardTypeEq(CommunityBoardType boardType) {
-        return boardType != null ? courseQuestion.boardType.eq(boardType) : null;
     }
 
     private BooleanExpression queryContains(String query) {

@@ -62,7 +62,7 @@ public class CourseAnswerService {
         // 답변 이미지 파일은 한 개로 보장
         courseQnaValidator.validateAnswerFileCount(attachments);
 
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
         User user = userReader.getUser(userId);
 
         CourseAnswer answer = courseAnswerWriter.saveAnswer(user, question, req);
@@ -85,7 +85,7 @@ public class CourseAnswerService {
         courseQnaValidator.validateContent(req.content());
         courseQnaValidator.validateFiles(attachments);
 
-        CourseAnswer current = courseAnswerReader.getCommunityAnswerById(answerId);
+        CourseAnswer current = courseAnswerReader.getCourseAnswerById(answerId);
         courseQnaValidator.validateAnswerAuthor(userId, current);
         courseQnaValidator.validateAnswerFileCountForUpdate(current, attachments, req.deleteFileIds());
 
@@ -102,7 +102,7 @@ public class CourseAnswerService {
      */
     public List<CourseAnswerRes> getAllAnswersByQuestionId(Long questionId) {
         courseQnaValidator.validateQuestionExists(questionId);
-        List<CourseAnswer> answers = courseAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
+        List<CourseAnswer> answers = courseAnswerReader.getAllCourseAnswersByQuestionId(questionId);
         var videoMap = courseAnswerVideoManager.getVideoMapByAnswers(answers);
         return courseAnswerMapper.toCourseAnswerResList(answers, videoMap);
     }
@@ -114,7 +114,7 @@ public class CourseAnswerService {
     public SearchRes<CourseAnswerRes> getAnswersByQuestionId(Long questionId, CourseAnswerSearchReq req) {
         courseQnaValidator.validateQuestionExists(questionId);
         
-        Page<CourseAnswer> answersPage = courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(questionId, req.toPaginationReq());
+        Page<CourseAnswer> answersPage = courseAnswerReader.getCourseAnswersByQuestionIdWithPagination(questionId, req.toPaginationReq());
         
         var videoMap = courseAnswerVideoManager.getVideoMapByAnswers(answersPage.getContent());
         List<CourseAnswerRes> answerResList = courseAnswerMapper.toCourseAnswerResList(answersPage.getContent(), videoMap);
@@ -134,7 +134,7 @@ public class CourseAnswerService {
      * 답변의 모든 정보와 첨부 파일을 포함하여 조회
      */
     public CourseAnswerRes getAnswerDetails(Long answerId) {
-        CourseAnswer answer = courseAnswerReader.getCommunityAnswerById(answerId);
+        CourseAnswer answer = courseAnswerReader.getCourseAnswerById(answerId);
         List<FileInfo> fileInfos = courseAnswerFileReader.getAnswerFileInfos(answer);
         VideoAnswer video = courseAnswerVideoManager.getVideoAnswer(answer);
         return CourseAnswerRes.from(answer, fileInfos, video);
@@ -144,7 +144,7 @@ public class CourseAnswerService {
      * 답변과 관련된 모든 데이터(첨부 파일 등)를 함께 삭제
      */
     public void deleteAnswer(Long userId, Long answerId) {
-        CourseAnswer answer = courseAnswerReader.getCommunityAnswerById(answerId);
+        CourseAnswer answer = courseAnswerReader.getCourseAnswerById(answerId);
         courseQnaValidator.validateAnswerAuthor(userId, answer);
         
         // 채택된 답변 삭제 시 먼저 채택 상태 해제
@@ -174,8 +174,8 @@ public class CourseAnswerService {
      * -> 한 질문에는 하나의 답변만 채택할 수 있습니다.
      */
     public CourseQnaAcceptAnswerResultRes acceptAnswer(Long userId, Long questionId, Long answerId) {
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
-        CourseAnswer answer = courseAnswerReader.getCommunityAnswerById(answerId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
+        CourseAnswer answer = courseAnswerReader.getCourseAnswerById(answerId);
         courseQnaValidator.validateQuestionAuthor(userId, questionId);
         courseQnaValidator.validateAnswerBelongsToQuestion(answer, question);
 

@@ -1,7 +1,6 @@
 package insty.domain.courseqna.dto;
 
 import insty.domain.common.dto.PaginationReq;
-import insty.model.courseqna.CommunityBoardType;
 import insty.model.courseqna.QuestionStatus;
 import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,8 +33,8 @@ public record CourseQuestionSearchReq(
         @Schema(description = "질문 상태 필터 (다중 선택)", example = "[\"WAITING\", \"ANSWERED\"]")
         List<QuestionStatus> statuses,
 
-        @Schema(description = "게시판 타입(QA / COURSE)", example = "QNA")
-        CommunityBoardType boardType
+        @Schema(description = "게시판 타입 필터는 사용하지 않습니다.", deprecated = true, hidden = true)
+        String boardType
 ) {
     public PaginationReq toPaginationReq() {
         return new PaginationReq(page, pageSize);
@@ -56,7 +55,7 @@ public record CourseQuestionSearchReq(
                 this.statuses,
                 courseId,
                 userId,
-                this.boardType
+                null
         );
     }
 }

@@ -52,86 +52,47 @@ class CourseAnswerReaderTest {
         when(answerRepository.findAllDetailsWithUserByCourseQuestionId(questionId)).thenReturn(List.of(a1, a2));
         when(answerFileRepository.findAttachmentsByAnswerIds(List.of(1L, 2L))).thenReturn(List.of());
 
-        List<CourseAnswer> result = reader.getAllCommunityAnswersByQuestionId(questionId);
+        List<CourseAnswer> result = reader.getAllCourseAnswersByQuestionId(questionId);
 
         assertThat(result).containsExactly(a1, a2);
     }
 
     @Test
-    void getCommunityAnswerById_정상() {
+    void getCourseAnswerById_정상() {
         // given
         Long id = 1L;
         CourseAnswer answer = mock(CourseAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         // when
-        CourseAnswer result = reader.getCommunityAnswerById(id);
+        CourseAnswer result = reader.getCourseAnswerById(id);
         // then
         assertThat(result).isEqualTo(answer);
     }
 
     @Test
-    void getCommunityAnswerById_에러_존재하지않음() {
+    void getCourseAnswerById_에러_존재하지않음() {
         // given
         Long id = 1L;
         when(answerRepository.findById(id)).thenReturn(Optional.empty());
         // when & then
-        assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
+        assertThatThrownBy(() -> reader.getCourseAnswerById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test
-    void getCommunityAnswerById_에러_삭제된답변() {
+    void getCourseAnswerById_에러_삭제된답변() {
         // given
         Long id = 1L;
         CourseAnswer answer = mock(CourseAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         when(answer.isDeleted()).thenReturn(true);
         // when & then
-        assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
+        assertThatThrownBy(() -> reader.getCourseAnswerById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
-    }
-
-    @Test
-    void getCommunityAnswerByIdIncludingDeleted_정상() {
-        // given
-        Long id = 1L;
-        CourseAnswer answer = mock(CourseAnswer.class);
-        when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
-        // when
-        CourseAnswer result = reader.getCommunityAnswerByIdIncludingDeleted(id);
-        // then
-        assertThat(result).isEqualTo(answer);
-    }
-
-    @Test
-    void getCommunityAnswerByIdIncludingDeleted_에러_존재하지않음() {
-        // given
-        Long id = 1L;
-        when(answerRepository.findById(id)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> reader.getCommunityAnswerByIdIncludingDeleted(id))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
-    }
-
-    @Test
-    void getCommunityAnswerByIdIncludingDeleted_정상_삭제된답변도조회() {
-        // given
-        Long id = 1L;
-        CourseAnswer deletedAnswer = mock(CourseAnswer.class);
-        when(answerRepository.findById(id)).thenReturn(Optional.of(deletedAnswer));
-
-        // when
-        CourseAnswer result = reader.getCommunityAnswerByIdIncludingDeleted(id);
-
-        // then
-        assertThat(result).isEqualTo(deletedAnswer);
     }
 
     @Test
@@ -143,17 +104,6 @@ class CourseAnswerReaderTest {
         int result = reader.countActiveAnswersByQuestionId(questionId);
         // then
         assertThat(result).isEqualTo(5);
-    }
-
-    @Test
-    void countAcceptedAnswersByQuestionId_정상() {
-        // given
-        Long questionId = 1L;
-        when(answerRepository.countAcceptedAnswersByQuestionId(questionId)).thenReturn(2);
-        // when
-        int result = reader.countAcceptedAnswersByQuestionId(questionId);
-        // then
-        assertThat(result).isEqualTo(2);
     }
 
     @Test
@@ -231,7 +181,7 @@ class CourseAnswerReaderTest {
     }
 
     @Test
-    void getCommunityAnswersByQuestionIdWithPagination_정상() {
+    void getCourseAnswersByQuestionIdWithPagination_정상() {
         // given
         Long questionId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
@@ -244,7 +194,7 @@ class CourseAnswerReaderTest {
                 .thenReturn(answerPage);
 
         // when
-        Page<CourseAnswer> result = reader.getCommunityAnswersByQuestionIdWithPagination(questionId, pageable);
+        Page<CourseAnswer> result = reader.getCourseAnswersByQuestionIdWithPagination(questionId, pageable);
 
         // then
         assertThat(result.getContent()).containsExactly(a1, a2);

@@ -89,7 +89,7 @@ public class CourseQuestionService {
         courseQnaValidator.validateQuestionAuthor(userId, questionId);
 
         // 질문 가져와서 파일 개수 검증
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
         courseQnaValidator.validateQuestionFileCountForUpdate(question, attachments, req.deleteFileIds());
 
         CourseQuestion updatedQuestion = courseQuestionWriter.updateQuestion(questionId, req);
@@ -166,7 +166,7 @@ public class CourseQuestionService {
      * 질문 상세 조회 (첨부 파일 포함)
      */
     public CourseQuestionDetailsRes getQuestionDetails(Long questionId, Long userId) {
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
 
         List<FileInfo> fileInfos =  courseQuestionFileReader.getQuestionFileInfos(question);
         VideoQuestion video = courseQuestionVideoManager.getVideoQuestion(question);
@@ -182,7 +182,7 @@ public class CourseQuestionService {
      * 질문과 관련된 모든 데이터(답변, 첨부 파일 등)를 함께 삭제
      */
     public void deleteQuestion(Long userId, Long questionId) {
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         courseQnaValidator.validateQuestionAuthor(userId, questionId);
         
         // 연관된 모든 답변 삭제

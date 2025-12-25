@@ -149,7 +149,7 @@ class CourseAnswerServiceTest {
         assertThat(firstRes.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
         assertThat(firstRes.videoInfo().originFileName()).isEqualTo("answer_video.mp4");
 
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
         CourseAnswerRes secondRes = courseAnswerService.saveAnswer(questionAuthorId, questionId, secondReq,
@@ -164,7 +164,7 @@ class CourseAnswerServiceTest {
         assertThat(secondRes.attachments()).isEmpty();
         assertThat(secondRes.videoInfo()).isNull();
 
-        question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
         List<CourseAnswerRes> allAnswers = courseAnswerService.getAllAnswersByQuestionId(questionId);
@@ -210,7 +210,7 @@ class CourseAnswerServiceTest {
         UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
         // 수정 전 기존 파일들 확인
-        CourseAnswer answerBeforeUpdate = communityAnswerReader.getCommunityAnswerById(answerId);
+        CourseAnswer answerBeforeUpdate = communityAnswerReader.getCourseAnswerById(answerId);
         List<FileInfo> filesBeforeUpdate = communityAnswerFileReader.getAnswerFileInfos(answerBeforeUpdate);
         assertThat(filesBeforeUpdate).hasSize(1);
 
@@ -409,7 +409,7 @@ class CourseAnswerServiceTest {
         Long questionId = 1L;
 
         // 삭제 전 상태 확인
-        CourseAnswer answerBeforeDelete = communityAnswerReader.getCommunityAnswerById(answerId);
+        CourseAnswer answerBeforeDelete = communityAnswerReader.getCourseAnswerById(answerId);
         assertThat(answerBeforeDelete.isDeleted()).isFalse();
         assertThat(answerBeforeDelete.isAccepted()).isTrue();
 
@@ -426,11 +426,11 @@ class CourseAnswerServiceTest {
         courseAnswerService.deleteAnswer(userId, answerId);
 
         // then
-        assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(answerId)).isInstanceOf(
+        assertThatThrownBy(() -> communityAnswerReader.getCourseAnswerById(answerId)).isInstanceOf(
                 CustomException.class);
 
         // 질문 상태가 올바르게 변경되었는지 확인 (모든 답변이 삭제되었으므로 WAITING)
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.WAITING);
         assertThat(question.getAcceptedAnswer()).isNull();
 
@@ -473,7 +473,7 @@ class CourseAnswerServiceTest {
         assertThat(res1.accepted()).isTrue();
 
         // 질문 상태가 ACCEPTED로 변경되었는지 확인
-        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(answer1Id);
 
@@ -489,7 +489,7 @@ class CourseAnswerServiceTest {
         assertThat(res3.accepted()).isFalse();
 
         // 질문 상태가 ANSWERED로 변경되었는지 확인
-        question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
         assertThat(question.getAcceptedAnswer()).isNull();
 
@@ -503,7 +503,7 @@ class CourseAnswerServiceTest {
         assertThat(res4.answerId()).isEqualTo(answer2Id);
         
         // 질문 상태 확인
-        question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(question.getAcceptedAnswer()).isNotNull();
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(answer2Id);

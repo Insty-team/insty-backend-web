@@ -58,7 +58,7 @@ class CourseAnswerVideoManagerTest {
 
         // then
         assertThat(result).isEqualTo(videoAnswer);
-        verify(videoAnswer).updateCommunityAnswer(answer);
+        verify(videoAnswer).updateCourseAnswer(answer);
         verify(videoAnswerRepository).save(videoAnswer);
     }
 
@@ -93,7 +93,7 @@ class CourseAnswerVideoManagerTest {
         // then
         assertThat(result).isEqualTo(newVideoAnswer);
         verify(videoAnswerRepository, never()).delete(any());
-        verify(newVideoAnswer).updateCommunityAnswer(answer);
+        verify(newVideoAnswer).updateCourseAnswer(answer);
     }
 
     @Test
@@ -122,7 +122,7 @@ class CourseAnswerVideoManagerTest {
         verify(videoEncodingRepository).delete(oldVideoEncoding);
         verify(aiRequester).deleteAiVideoInfo(oldVideoUuid);
         verify(s3FileManager).deleteAllByDirectory(any());
-        verify(newVideoAnswer).updateCommunityAnswer(answer);
+        verify(newVideoAnswer).updateCourseAnswer(answer);
     }
 
     @Test

@@ -107,31 +107,31 @@ class CourseQuestionReaderTest {
 
 
     @Test
-    void getCommunityQuestionWithFilesById_정상() {
+    void getCourseQuestionWithFilesById_정상() {
         // given
         Long id = 1L;
         CourseQuestion q = mock(CourseQuestion.class);
         when(repository.findDetailsWithUserAttachmentsById(id)).thenReturn(Optional.of(q));
         // when
-        CourseQuestion result = reader.getCommunityQuestionWithFilesById(id);
+        CourseQuestion result = reader.getCourseQuestionWithFilesById(id);
         // then
         assertThat(result).isEqualTo(q);
     }
 
     @Test
-    void getCommunityQuestionWithFilesById_에러_존재하지않음() {
+    void getCourseQuestionWithFilesById_에러_존재하지않음() {
         // given
         Long id = 1L;
         when(repository.findDetailsWithUserAttachmentsById(id)).thenReturn(Optional.empty());
         // when & then
-        assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
+        assertThatThrownBy(() -> reader.getCourseQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND);
     }
 
     @Test
-    void getCommunityQuestionWithFilesById_에러_삭제된질문() {
+    void getCourseQuestionWithFilesById_에러_삭제된질문() {
         // given
         Long id = 1L;
         CourseQuestion deletedQuestion = mock(CourseQuestion.class);
@@ -139,7 +139,7 @@ class CourseQuestionReaderTest {
         when(repository.findDetailsWithUserAttachmentsById(id)).thenReturn(Optional.of(deletedQuestion));
 
         // when & then
-        assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
+        assertThatThrownBy(() -> reader.getCourseQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);

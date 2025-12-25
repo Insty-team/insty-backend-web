@@ -157,14 +157,14 @@ class VideoAnswerTest {
     }
 
     @Test
-    void updateCommunityAnswer_정상() {
+    void updateCourseAnswer_정상() {
         // given
         VideoAnswer videoAnswer = VideoFixtureBuilder.getVideoAnswerWithIdAndUser();
         CourseQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
         CourseAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question);
 
         // when
-        videoAnswer.updateCommunityAnswer(answer);
+        videoAnswer.updateCourseAnswer(answer);
 
         // then
         assertThat(videoAnswer.getCourseAnswer()).isEqualTo(answer);

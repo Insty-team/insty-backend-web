@@ -123,7 +123,7 @@ public class VideoQuestion extends BaseEntity implements BaseVideo {
         return "vod/" + VideoType.QUESTION + "/" + extension + "/" + uuid + "/" + fileName;
     }
 
-    public void updateCommunityQuestion(CourseQuestion courseQuestion) {
+    public void updateCourseQuestion(CourseQuestion courseQuestion) {
         this.courseQuestion = courseQuestion;
     }
 }

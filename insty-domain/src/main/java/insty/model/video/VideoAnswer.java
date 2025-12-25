@@ -123,7 +123,7 @@ public class VideoAnswer extends BaseEntity implements BaseVideo {
         return "vod/" + VideoType.ANSWER + "/" + extension + "/" + uuid + "/" + fileName;
     }
 
-    public void updateCommunityAnswer(CourseAnswer courseAnswer) {
+    public void updateCourseAnswer(CourseAnswer courseAnswer) {
         this.courseAnswer = courseAnswer;
     }
 }

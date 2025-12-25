@@ -156,13 +156,13 @@ class VideoQuestionTest {
 
 
     @Test
-    void updateCommunityQuestion_정상() {
+    void updateCourseQuestion_정상() {
         // given
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
         CourseQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
 
         // when
-        videoQuestion.updateCommunityQuestion(question);
+        videoQuestion.updateCourseQuestion(question);
 
         // then
         assertThat(videoQuestion.getCourseQuestion()).isEqualTo(question);

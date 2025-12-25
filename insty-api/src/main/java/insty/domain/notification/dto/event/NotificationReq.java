@@ -15,7 +15,7 @@ public record NotificationReq(
     /**
      * 새로운 커뮤니티 질문 알림 생성
      */
-    public static NotificationReq newCommunityQuestion(
+    public static NotificationReq newCourseQuestion(
             Long receiverId,
             Long questionId,
             String questionTitle,

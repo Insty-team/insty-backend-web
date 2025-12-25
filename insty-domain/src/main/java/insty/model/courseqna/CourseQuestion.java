@@ -68,19 +68,13 @@ public class CourseQuestion extends BaseEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "board_type", nullable = false)
-    private CommunityBoardType boardType;
-
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "status")
     private QuestionStatus status;
 
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CourseQuestion create(Course course, User user, String title, String content,
-                                        CommunityBoardType boardType) {
+    public static CourseQuestion create(Course course, User user, String title, String content) {
         validateCreate(course, user, title, content);
         return CourseQuestion.builder()
                 .course(course)
@@ -89,7 +83,6 @@ public class CourseQuestion extends BaseEntity {
                 .content(content)
                 .status(QuestionStatus.WAITING)
                 .isDeleted(false)
-                .boardType(boardType != null ? boardType : CommunityBoardType.QNA)
                 .build();
     }
 

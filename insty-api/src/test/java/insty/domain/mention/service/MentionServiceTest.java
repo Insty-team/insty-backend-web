@@ -122,7 +122,7 @@ class MentionServiceTest {
     @Test
     void processMentions_정상() {
         // given
-        CourseAnswer courseAnswer = courseAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님!";
 
@@ -157,7 +157,7 @@ class MentionServiceTest {
     @Test
     void processMentions_멘션없음_정상() {
         // given
-        CourseAnswer courseAnswer = courseAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요! 멘션 없습니다.";
 
@@ -186,7 +186,7 @@ class MentionServiceTest {
     @Test
     void processMentions_다중멘션_정상() {
         // given
-        CourseAnswer courseAnswer = courseAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님과 @[김철수](3)님!";
 

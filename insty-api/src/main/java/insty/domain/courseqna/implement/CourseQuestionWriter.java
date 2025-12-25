@@ -27,8 +27,7 @@ public class CourseQuestionWriter {
                 course,
                 user,
                 req.title(),
-                req.content(),
-                req.boardType()
+                req.content()
         );
         return courseQuestionRepository.save(question);
     }

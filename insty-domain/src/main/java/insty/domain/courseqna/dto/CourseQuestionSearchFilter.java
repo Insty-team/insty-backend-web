@@ -1,6 +1,5 @@
 package insty.domain.courseqna.dto;
 
-import insty.model.courseqna.CommunityBoardType;
 import insty.model.courseqna.QuestionStatus;
 import java.util.List;
 public record CourseQuestionSearchFilter(
@@ -8,5 +7,5 @@ public record CourseQuestionSearchFilter(
         List<QuestionStatus> statuses,
         Long courseId,
         Long userId,
-        CommunityBoardType boardType
+        String boardType
 ) {}

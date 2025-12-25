@@ -126,7 +126,7 @@ class NotificationServiceIntTest {
     @Test
     void 알림_저장_성공() {
         // Given
-        NotificationReq request = NotificationReq.newCommunityQuestion(
+        NotificationReq request = NotificationReq.newCourseQuestion(
                 testUser.getId(),
                 1L,
                 "자바 스프링 질문입니다",
@@ -245,7 +245,7 @@ class NotificationServiceIntTest {
     @Test
     void 여러_알림_타입_저장_및_조회() {
         // Given
-        NotificationReq request1 = NotificationReq.newCommunityQuestion(
+        NotificationReq request1 = NotificationReq.newCourseQuestion(
                 testUser.getId(), 1L, "질문 제목", "질문 내용", "작성자1", "강의명"
         );
         NotificationData data1 = new NotificationData("새로운 질문", "질문이 등록되었습니다", "/questions/1");

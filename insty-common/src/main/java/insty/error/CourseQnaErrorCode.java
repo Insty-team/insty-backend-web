@@ -35,10 +35,7 @@ public enum CourseQnaErrorCode implements ErrorCode {
     // Conflict Errors (409)
     COURSE_ALREADY_ACCEPTED_ANSWER("COURSE_023", "이미 채택된 답변이 존재합니다.", 409),
     COURSE_QUESTION_ALREADY_DELETED("COURSE_024", "이미 삭제된 질문입니다.", 409),
-    COURSE_ANSWER_ALREADY_DELETED("COURSE_025", "이미 삭제된 답변입니다.", 409),
-
-    ;
-
+    COURSE_ANSWER_ALREADY_DELETED("COURSE_025", "이미 삭제된 답변입니다.", 409);
 
     private final String code;
     private final String message;
@@ -47,7 +44,7 @@ public enum CourseQnaErrorCode implements ErrorCode {
     CourseQnaErrorCode(String code, String message, int httpCode) {
         this.code = code;
         this.message = message;
-        this.httpCode = httpCode; // Default HTTP code for not found
+        this.httpCode = httpCode;
     }
 
     @Override

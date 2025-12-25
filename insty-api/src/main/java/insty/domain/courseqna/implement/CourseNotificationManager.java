@@ -35,7 +35,7 @@ public class CourseNotificationManager {
         User questionAuthor = question.getUser();
         User courseCreator = course.getUser();
 
-        NotificationReq request = NotificationReq.newCommunityQuestion(
+        NotificationReq request = NotificationReq.newCourseQuestion(
                 courseCreator.getId(),
                 question.getId(),
                 question.getTitle(),

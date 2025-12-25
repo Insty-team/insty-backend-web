@@ -42,7 +42,7 @@ public class CourseQuestionViewManager {
 	 * 질문 작성자 또는 강의 개시자인 경우 조회 기록을 업데이트한다.
 	 */
 	public void recordQuestionViewIfAuthorOrCreator(Long questionId, Long userId) {
-		CourseQuestion question = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
+		CourseQuestion question = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
 		
 		// 질문 작성자 또는 강의 개시자인 경우에만 조회 기록 업데이트
 		Long creatorId = courseQuestionReader.getCreatorIdByQuestionId(questionId);

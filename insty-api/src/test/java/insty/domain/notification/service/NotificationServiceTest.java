@@ -100,7 +100,7 @@ class NotificationServiceTest {
     void 알림_저장_성공() {
         // Given
         Long receiverId = 1L;
-        NotificationReq request = NotificationReq.newCommunityQuestion(
+        NotificationReq request = NotificationReq.newCourseQuestion(
                 receiverId,
                 1L,
                 "질문 제목",

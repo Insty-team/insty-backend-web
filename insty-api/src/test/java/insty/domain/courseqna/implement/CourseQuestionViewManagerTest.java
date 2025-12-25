@@ -86,7 +86,7 @@ class CourseQuestionViewManagerTest {
         
         CourseQuestion question = createMockQuestionWithUser(questionId, questionAuthorId);
 
-        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCourseQuestionWithFilesById(questionId))
                 .thenReturn(question);
         when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(2L);
@@ -110,7 +110,7 @@ class CourseQuestionViewManagerTest {
         
         CourseQuestion question = createMockQuestionWithUser(questionId, 1L);
 
-        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCourseQuestionWithFilesById(questionId))
                 .thenReturn(question);
         when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(courseCreatorId);
@@ -134,7 +134,7 @@ class CourseQuestionViewManagerTest {
         
         CourseQuestion question = createMockQuestionWithUser(questionId, 1L);
 
-        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCourseQuestionWithFilesById(questionId))
                 .thenReturn(question);
         when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(2L);
@@ -154,7 +154,7 @@ class CourseQuestionViewManagerTest {
 
         CourseQuestion question = createMockQuestionWithUser(questionId, authorCreatorId);
 
-        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCourseQuestionWithFilesById(questionId))
                 .thenReturn(question);
         when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(authorCreatorId);
