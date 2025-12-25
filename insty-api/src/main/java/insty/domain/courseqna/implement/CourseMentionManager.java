@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 커뮤니티 맨션 관리 서비스
+ * 강좌 맨션 관리 서비스
  */
 @Slf4j
 @Component

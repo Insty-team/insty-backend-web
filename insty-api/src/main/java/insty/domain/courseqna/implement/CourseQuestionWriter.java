@@ -20,7 +20,7 @@ public class CourseQuestionWriter {
     private final CourseQuestionRepository courseQuestionRepository;
 
     /**
-     * 커뮤니티 질문 생성 및 저장
+     * 강좌 질문 생성 및 저장
      */
     public CourseQuestion saveQuestion(User user, Course course, CourseQuestionCreateReq req) {
         CourseQuestion question = CourseQuestion.create(
@@ -33,7 +33,7 @@ public class CourseQuestionWriter {
     }
 
     /**
-     * 커뮤니티 질문 수정 (id로 직접 조회)
+     * 강좌 질문 수정 (id로 직접 조회)
      */
     public CourseQuestion updateQuestion(Long questionId, CourseQuestionUpdateReq req) {
         CourseQuestion question = courseQuestionRepository.findById(questionId)
@@ -46,7 +46,7 @@ public class CourseQuestionWriter {
     }
 
     /**
-     * 커뮤니티 질문 삭제
+     * 강좌 질문 삭제
      */
     public void deleteQuestion(CourseQuestion courseQuestion) {
         if (courseQuestion.isDeleted()) {

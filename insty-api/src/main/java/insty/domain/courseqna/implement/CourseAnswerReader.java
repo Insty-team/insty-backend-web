@@ -41,7 +41,7 @@ public class CourseAnswerReader {
     }
 
     /**
-     * 커뮤니티 답변을 페이지네이션으로 조회
+     * 강좌 답변을 페이지네이션으로 조회
      */
     public Page<CourseAnswer> getCourseAnswersByQuestionIdWithPagination(Long questionId, Pageable pageable) {
         Page<CourseAnswer> answerPage = courseAnswerRepository.findAllDetailsWithUserAttachmentsByCourseQuestionIdWithPagination(questionId, pageable);
@@ -57,7 +57,7 @@ public class CourseAnswerReader {
     }
 
     /**
-     * 커뮤니티 답변 상세 조회
+     * 강좌 답변 상세 조회
      */
     public CourseAnswer getCourseAnswerById(Long answerId) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)

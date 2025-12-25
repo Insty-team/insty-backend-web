@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 커뮤니티 알림 전송 서비스
+ * 강좌 알림 전송 서비스
  */
 @Slf4j
 @Service

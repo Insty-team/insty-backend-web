@@ -7,9 +7,9 @@ public enum CourseQnaErrorCode implements ErrorCode {
     COURSE_ANSWER_NOT_FOUND("COURSE_002", "답변을 찾을 수 없습니다.", 404),
 
     // Server Errors (500)
-    COURSE_CREATE_ERROR("COURSE_003", "커뮤니티 생성에 실패했습니다.", 500),
-    COURSE_UPDATE_ERROR("COURSE_004", "커뮤니티 수정에 실패했습니다.", 500),
-    COURSE_DELETE_ERROR("COURSE_005", "커뮤니티 삭제에 실패했습니다.", 500),
+    COURSE_CREATE_ERROR("COURSE_003", "강좌 생성에 실패했습니다.", 500),
+    COURSE_UPDATE_ERROR("COURSE_004", "강좌 수정에 실패했습니다.", 500),
+    COURSE_DELETE_ERROR("COURSE_005", "강좌 삭제에 실패했습니다.", 500),
 
     // Bad Request Errors (400)
     COURSE_INVALID_VIDEO_UUID("COURSE_006", "잘못된 비디오 UUID 형식입니다.", 400),

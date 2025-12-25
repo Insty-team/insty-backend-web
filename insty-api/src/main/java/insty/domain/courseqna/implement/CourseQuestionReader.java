@@ -49,7 +49,7 @@ public class CourseQuestionReader {
     }
 
     /**
-     * 커뮤니티 질문과 첨부파일을 포함한 결과
+     * 강좌 질문과 첨부파일을 포함한 결과
      * (파일 포함 & 질문 미포함)
      */
     public CourseQuestion getCourseQuestionWithFilesById(Long questionId) {
@@ -62,7 +62,7 @@ public class CourseQuestionReader {
     }
 
     /**
-     * 커뮤니티 질문과 답변 리스트를 포함한 결과
+     * 강좌 질문과 답변 리스트를 포함한 결과
      * (파일 미포함 & 질문 미포함 - 질문 파일은 미포함)
      */
     public CourseQuestion getCourseQuestionWithAnswerById(Long questionId){

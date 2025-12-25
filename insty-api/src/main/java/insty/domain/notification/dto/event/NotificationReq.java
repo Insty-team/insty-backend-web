@@ -13,7 +13,7 @@ public record NotificationReq(
     // ==================== Factory Methods ====================
 
     /**
-     * 새로운 커뮤니티 질문 알림 생성
+     * 새로운 강좌 질문 알림 생성
      */
     public static NotificationReq newCourseQuestion(
             Long receiverId,

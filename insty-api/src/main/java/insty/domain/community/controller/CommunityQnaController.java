@@ -35,8 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag(
-        name = "커뮤니티/Q&A API (Deprecated)",
-        description = "더 이상 사용되지 않는 커뮤니티 Q&A API, 더미 응답을 반환합니다."
+        name = "강좌/Q&A API (Deprecated)",
+        description = "더 이상 사용되지 않는 강좌 Q&A API, 더미 응답을 반환합니다."
 )
 @Deprecated
 @RestController

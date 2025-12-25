@@ -57,7 +57,7 @@ public class CourseQuestionService {
     private final CourseQuestionViewManager courseQuestionViewManager;
 
     /**
-     * 새로운 커뮤니티 질문을 생성하고 첨부 파일을 저장
+     * 새로운 강좌 질문을 생성하고 첨부 파일을 저장
      */
     public CourseQuestionDetailsRes saveQuestion(Long userId, Long courseId, CourseQuestionCreateReq req, List<MultipartFile> attachments) {
         courseQnaValidator.validateContent(req.content());
@@ -101,7 +101,7 @@ public class CourseQuestionService {
     }
 
     /**
-     * 커뮤니티 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
+     * 강좌 질문을 필터, 정렬, 키워드, 페이지네이션 조건으로 검색
      */
     public SearchRes<CourseQuestionRes> searchQuestions(CourseQuestionSearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
@@ -118,7 +118,7 @@ public class CourseQuestionService {
     }
 
     /**
-     * User(러너)가 작성한 커뮤니티 질문을 검색
+     * User(러너)가 작성한 강좌 질문을 검색
      */
     public SearchRes<CourseQuestionMyRes> searchQuestionsByUserId(CourseQuestionSearchReq req, Long userId) {
         PaginationReq paginationReq = req.toPaginationReq();

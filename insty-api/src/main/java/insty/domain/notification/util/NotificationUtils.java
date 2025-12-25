@@ -21,12 +21,12 @@ public class NotificationUtils {
         return content.substring(0, maxLength) + "...";
     }
 
-    /* 커뮤니티 질문 상세 페이지 URL 생성 */
+    /* 강좌 질문 상세 페이지 URL 생성 */
     public String buildQuestionUrl(Long questionId) {
         return String.format("%s/community/questions/%d", appProperties.getDomain(), questionId);
     }
 
-    /* 커뮤니티 답변으로 이동하는 URL 생성 (특정 답변으로 스크롤) */
+    /* 강좌 답변으로 이동하는 URL 생성 (특정 답변으로 스크롤) */
     public String buildAnswerUrl(Long questionId, Long answerId) {
         return String.format("%s/community/questions/%d#answer-%d", appProperties.getDomain(), questionId, answerId);
     }

@@ -20,7 +20,7 @@ public class CourseAnswerWriter {
     private final CourseAnswerRepository courseAnswerRepository;
 
     /**
-     * 커뮤니티 답변 생성 및 저장
+     * 강좌 답변 생성 및 저장
      */
     public CourseAnswer saveAnswer(User user, CourseQuestion question, CourseAnswerCreateReq req) {
         CourseAnswer answer = CourseAnswer.create(question, user, req.content());
@@ -28,7 +28,7 @@ public class CourseAnswerWriter {
     }
 
     /**
-     * 커뮤니티 답변 수정 (id로 직접 조회)
+     * 강좌 답변 수정 (id로 직접 조회)
      */
     public CourseAnswer updateAnswer(Long answerId, CourseAnswerUpdateReq req) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
@@ -41,7 +41,7 @@ public class CourseAnswerWriter {
     }
 
     /**
-     * 커뮤니티 답변 삭제
+     * 강좌 답변 삭제
      */
     public void deleteAnswer(CourseAnswer courseAnswer) {
         if (courseAnswer.isDeleted()) {

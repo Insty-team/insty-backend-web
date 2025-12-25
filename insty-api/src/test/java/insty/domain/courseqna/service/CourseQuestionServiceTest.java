@@ -629,9 +629,9 @@ class CourseQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, 1, 'QNA 질문 2', 'QNA 내용 2', 'WAITING', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (3, 1, 1, '커뮤니티 글 1', 'COURSE 내용 1', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
+                    + "VALUES (3, 1, 1, '강좌 글 1', 'COURSE 내용 1', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (4, 1, 1, '커뮤니티 글 2', 'COURSE 내용 2', 'WAITING', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
+                    + "VALUES (4, 1, 1, '강좌 글 2', 'COURSE 내용 2', 'WAITING', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
             "UPDATE web_service.community_questions SET board_type = 'QNA' WHERE id IN (1, 2);",
             "UPDATE web_service.community_questions SET board_type = 'COURSE' WHERE id IN (3, 4);"
     })
@@ -658,7 +658,7 @@ class CourseQuestionServiceTest {
         assertThat(communityRes.items()).hasSize(2);
         assertThat(communityRes.items())
                 .extracting(CourseQuestionRes::title)
-                .containsExactlyInAnyOrder("커뮤니티 글 1", "커뮤니티 글 2");
+                .containsExactlyInAnyOrder("강좌 글 1", "강좌 글 2");
     }
 }
 
