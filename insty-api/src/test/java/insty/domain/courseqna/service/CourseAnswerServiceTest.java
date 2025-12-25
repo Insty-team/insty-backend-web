@@ -25,7 +25,7 @@ import insty.domain.courseqna.implement.CourseQuestionStatusManager;
 import insty.domain.courseqna.implement.CourseQnaValidator;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
 import insty.domain.user.implement.UserReader;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.global.property.AppProperties;
 import insty.model.courseqna.CourseAnswer;
@@ -481,7 +481,7 @@ class CourseAnswerServiceTest {
         assertThatThrownBy(() -> courseAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ALREADY_ACCEPTED_ANSWER);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ALREADY_ACCEPTED_ANSWER);
 
         // 시나리오 3: 채택된 답변을 다시 클릭 -> 채택 취소
         CourseQnaAcceptAnswerResultRes res3 = courseAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
@@ -549,7 +549,7 @@ class CourseAnswerServiceTest {
         assertThatThrownBy(() -> courseAnswerService.acceptAnswer(1L, 1L, secondAnswerId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ALREADY_ACCEPTED_ANSWER);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ALREADY_ACCEPTED_ANSWER);
 
         // 시나리오 4: 채택되지 않은 답변 삭제 -> 채택 상태 유지
         courseAnswerService.deleteAnswer(3L, secondAnswerId);

@@ -1,6 +1,6 @@
 package insty.model.courseqna;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.course.Course;
@@ -96,19 +96,19 @@ public class CourseQuestion extends BaseEntity {
     private static void validateCreate(Course course, User user, String title, String content) {
         if (course == null || course.getId() == null) {
             log.error("생성 오류 - course : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
         if (user == null || user.getId() == null) {
             log.error("생성 오류 - user : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
         if (title == null || title.isBlank()) {
             log.error("생성 오류 - title : 비었음");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
         if (content == null || content.isBlank()) {
             log.error("생성 오류 - content : 비었음");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
     }
 

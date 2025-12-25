@@ -1,6 +1,6 @@
 package insty.model.courseqna;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.id.CourseQuestionViewId;
 import jakarta.persistence.Column;
@@ -55,11 +55,11 @@ public class CourseQuestionView {
     private static void validateCreate(CourseQuestion courseQuestion, Long userId) {
         if (courseQuestion == null) {
             log.error("생성 오류 - courseQuestion : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
         if (userId == null) {
             log.error("생성 오류 - userId : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
     }
 }

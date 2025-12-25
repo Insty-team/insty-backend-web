@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.courseqna.repository.CourseQuestionRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
@@ -110,7 +110,7 @@ class CourseAnswerAcceptManagerTest {
         assertThatThrownBy(() -> service.acceptAnswer(question, anotherAnswer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ALREADY_ACCEPTED_ANSWER);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ALREADY_ACCEPTED_ANSWER);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
@@ -155,7 +155,7 @@ class CourseAnswerAcceptManagerTest {
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_INVALID_USER_ID);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_INVALID_USER_ID);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
@@ -175,7 +175,7 @@ class CourseAnswerAcceptManagerTest {
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_INVALID_USER_ID);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_INVALID_USER_ID);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
@@ -202,7 +202,7 @@ class CourseAnswerAcceptManagerTest {
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());
@@ -226,7 +226,7 @@ class CourseAnswerAcceptManagerTest {
         assertThatThrownBy(() -> service.acceptAnswer(question, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
         verify(question, never()).acceptAnswer(any());
         verify(question, never()).unacceptAnswer();
         verify(repository, never()).save(any());

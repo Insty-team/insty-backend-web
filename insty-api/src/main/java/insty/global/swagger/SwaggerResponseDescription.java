@@ -12,7 +12,7 @@ import static insty.ai.error.AiErrorCode.AI_API_REQUEST_FAILED;
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_PRESIGNED_URL_FAIL;
 import static insty.cloudfront.error.CloudFrontErrorCode.CLOUD_FRONT_GENERATE_SIGNED_COOKIE_FAIL;
 import static insty.error.AuthErrorCode.*;
-import static insty.error.CommunityErrorCode.*;
+import static insty.error.CourseQnaErrorCode.*;
 import static insty.error.CourseErrorCode.*;
 import static insty.error.CourseProgressErrorCode.COURSE_PROGRESS_DUPLICATE;
 import static insty.error.UserErrorCode.USER_NOT_FOUND;

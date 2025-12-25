@@ -3,7 +3,7 @@ package insty.model.courseqna.id;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ public class CourseQuestionFileIdTest {
         assertThatThrownBy(() -> CourseQuestionFileId.create(questionId, fileId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test
@@ -63,6 +63,6 @@ public class CourseQuestionFileIdTest {
         assertThatThrownBy(() -> CourseQuestionFileId.create(fileId, questionId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 }

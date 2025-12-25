@@ -6,7 +6,7 @@ import insty.domain.courseqna.dto.CourseQuestionSearchFilter;
 import insty.domain.courseqna.dto.CourseQuestionSearchInfo;
 import insty.domain.courseqna.repository.CourseQuestionQueryRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseQuestion;
 import java.util.List;
@@ -68,9 +68,9 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCommunityQuestionWithFilesById(Long questionId) {
         CourseQuestion question = courseQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
         }
         return question;
     }
@@ -81,9 +81,9 @@ public class CourseQuestionReader {
      */
     public CourseQuestion getCommunityQuestionWithAnswerById(Long questionId){
         CourseQuestion question = courseQuestionRepository.findDetailsWithUserAttachmentsById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
         if (question.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
         }
         return question;
     }

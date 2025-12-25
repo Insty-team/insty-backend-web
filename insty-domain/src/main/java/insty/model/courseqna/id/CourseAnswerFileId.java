@@ -1,6 +1,6 @@
 package insty.model.courseqna.id;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
@@ -50,11 +50,11 @@ public class CourseAnswerFileId implements Serializable {
     private static void validateCreate(Long answerId, Long fileId) {
         if (answerId == null) {
             log.error("생성 오류 - answerId : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
         if (fileId == null) {
             log.error("생성 오류 - fileId : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
     }
 }

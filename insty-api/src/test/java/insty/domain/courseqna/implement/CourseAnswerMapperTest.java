@@ -30,7 +30,7 @@ class CourseAnswerMapperTest {
     private CourseAnswerFileReader courseAnswerFileReader;
 
     @Test
-    void toCommunityAnswerResList_정상_비디오존재() {
+    void toCourseAnswerResList_정상_비디오존재() {
         // given
         CourseAnswer answer1 = mock(CourseAnswer.class);
         CourseAnswer answer2 = mock(CourseAnswer.class);
@@ -60,7 +60,7 @@ class CourseAnswerMapperTest {
         List<CourseAnswer> answers = List.of(answer1, answer2);
 
         // when
-        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCourseAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).hasSize(2);
@@ -69,7 +69,7 @@ class CourseAnswerMapperTest {
     }
 
     @Test
-    void toCommunityAnswerResList_정상_비디오없음() {
+    void toCourseAnswerResList_정상_비디오없음() {
         // given
         CourseAnswer answer = mock(CourseAnswer.class);
         User user = mock(User.class);
@@ -88,7 +88,7 @@ class CourseAnswerMapperTest {
         List<CourseAnswer> answers = List.of(answer);
 
         // when
-        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCourseAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).hasSize(1);
@@ -96,20 +96,20 @@ class CourseAnswerMapperTest {
     }
 
     @Test
-    void toCommunityAnswerResList_정상_빈리스트() {
+    void toCourseAnswerResList_정상_빈리스트() {
         // given
         List<CourseAnswer> answers = List.of();
         Map<Long, VideoAnswer> videoMap = Map.of();
 
         // when
-        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCourseAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).isEmpty();
     }
 
     @Test
-    void toCommunityAnswerResList_정상_일부비디오만존재() {
+    void toCourseAnswerResList_정상_일부비디오만존재() {
         // given
         CourseAnswer answer1 = mock(CourseAnswer.class);
         CourseAnswer answer2 = mock(CourseAnswer.class);
@@ -138,7 +138,7 @@ class CourseAnswerMapperTest {
         List<CourseAnswer> answers = List.of(answer1, answer2);
 
         // when
-        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCourseAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).hasSize(2);

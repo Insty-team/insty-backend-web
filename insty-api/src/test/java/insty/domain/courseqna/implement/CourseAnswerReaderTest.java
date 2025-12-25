@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseAnswerFileRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.user.User;
@@ -78,7 +78,7 @@ class CourseAnswerReaderTest {
         assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test
@@ -92,7 +92,7 @@ class CourseAnswerReaderTest {
         assertThatThrownBy(() -> reader.getCommunityAnswerById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
     }
 
     @Test
@@ -117,7 +117,7 @@ class CourseAnswerReaderTest {
         assertThatThrownBy(() -> reader.getCommunityAnswerByIdIncludingDeleted(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
@@ -51,7 +51,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateQuestionExists(1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND);
     }
 
     @Test
@@ -63,7 +63,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateQuestionExists(1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
     }
 
     @Test
@@ -83,7 +83,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateAnswerExists(1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test
@@ -95,7 +95,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateAnswerExists(1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
     }
 
     @Test
@@ -121,7 +121,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateQuestionAuthor(10L, 1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_NOT_QUESTION_AUTHOR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_NOT_QUESTION_AUTHOR);
     }
 
     @Test
@@ -145,7 +145,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateAnswerAuthor(10L, answer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_NOT_ANSWER_AUTHOR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_NOT_ANSWER_AUTHOR);
     }
 
     @Test
@@ -178,7 +178,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateAnswerBelongsToQuestion(answer, question))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
     }
 
     @Test
@@ -210,7 +210,7 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateFiles(files))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_FILE_IS_EMPTY);
+                .isEqualTo(CourseQnaErrorCode.COURSE_FILE_IS_EMPTY);
     }
 
     @Test
@@ -249,6 +249,6 @@ class CourseQnaValidatorTest {
         assertThatThrownBy(() -> courseQnaValidator.validateAndParseVideoUuid(videoUuid))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_INVALID_VIDEO_UUID);
+                .isEqualTo(CourseQnaErrorCode.COURSE_INVALID_VIDEO_UUID);
     }
 }

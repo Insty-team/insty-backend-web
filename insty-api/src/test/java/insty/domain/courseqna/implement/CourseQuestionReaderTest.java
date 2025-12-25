@@ -11,7 +11,7 @@ import insty.domain.courseqna.dto.CourseQuestionSearchFilter;
 import insty.domain.courseqna.dto.CourseQuestionSearchInfo;
 import insty.domain.courseqna.repository.CourseQuestionQueryRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseQuestion;
 import insty.model.courseqna.CommunityQuestionFixtureBuilder;
@@ -107,30 +107,6 @@ class CourseQuestionReaderTest {
 
 
     @Test
-    void getAllCommunityQuestions_정상() {
-        // given
-        CourseQuestion q1 = mock(CourseQuestion.class);
-        CourseQuestion q2 = mock(CourseQuestion.class);
-        when(repository.findAll()).thenReturn(List.of(q1, q2));
-        // when
-        List<CourseQuestion> result = reader.getAllCommunityQuestions();
-        // then
-        assertThat(result).containsExactly(q1, q2);
-    }
-
-    @Test
-    void getAllCommunityQuestionsByCourseId_정상() {
-        // given
-        Long courseId = 1L;
-        CourseQuestion q1 = mock(CourseQuestion.class);
-        when(repository.findAllByCourseId(courseId)).thenReturn(List.of(q1));
-        // when
-        List<CourseQuestion> result = reader.getAllCommunityQuestionsByCourseId(courseId);
-        // then
-        assertThat(result).containsExactly(q1);
-    }
-
-    @Test
     void getCommunityQuestionWithFilesById_정상() {
         // given
         Long id = 1L;
@@ -151,7 +127,7 @@ class CourseQuestionReaderTest {
         assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND);
     }
 
     @Test
@@ -166,21 +142,7 @@ class CourseQuestionReaderTest {
         assertThatThrownBy(() -> reader.getCommunityQuestionWithFilesById(id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
-    }
-
-    @Test
-    void getCommunityQuestionWithFilesByIdIncludingDeleted_정상() {
-        // given
-        Long id = 1L;
-        CourseQuestion question = mock(CourseQuestion.class);
-        when(repository.findById(id)).thenReturn(Optional.of(question));
-
-        // when
-        CourseQuestion result = reader.getCommunityQuestionDetailsByIdIncludingDeleted(id);
-
-        // then
-        assertThat(result).isEqualTo(question);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
     }
 
     @Test

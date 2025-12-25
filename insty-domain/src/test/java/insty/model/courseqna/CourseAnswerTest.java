@@ -3,7 +3,7 @@ package insty.model.courseqna;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
@@ -46,7 +46,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test
@@ -62,7 +62,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test
@@ -78,7 +78,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test
@@ -94,7 +94,7 @@ class CourseAnswerTest {
         assertThatThrownBy(() -> CourseAnswer.create(courseQuestion, user, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test

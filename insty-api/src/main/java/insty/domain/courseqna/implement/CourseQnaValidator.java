@@ -2,7 +2,7 @@ package insty.domain.courseqna.implement;
 
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
@@ -29,10 +29,10 @@ public class CourseQnaValidator {
      */
     public void validateQuestionExists(Long questionId) {
         CourseQuestion question = courseQuestionRepository.findById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
 
         if (question.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
         }
     }
 
@@ -41,10 +41,10 @@ public class CourseQnaValidator {
      */
     public void validateAnswerExists(Long answerId) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND));
 
         if (answer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
     }
 
@@ -53,10 +53,10 @@ public class CourseQnaValidator {
      */
     public void validateQuestionAuthor(Long userId, Long questionId) {
         CourseQuestion question = courseQuestionRepository.findById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND));
         Long authorId = question.getUser().getId();
         if (!authorId.equals(userId)) {
-            throw new CustomException(CommunityErrorCode.COURSE_NOT_QUESTION_AUTHOR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_NOT_QUESTION_AUTHOR);
         }
     }
 
@@ -66,7 +66,7 @@ public class CourseQnaValidator {
     public void validateAnswerAuthor(Long userId, CourseAnswer answer) {
         Long authorId = answer.getUser().getId();
         if (!authorId.equals(userId)) {
-            throw new CustomException(CommunityErrorCode.COURSE_NOT_ANSWER_AUTHOR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_NOT_ANSWER_AUTHOR);
         }
     }
 
@@ -75,7 +75,7 @@ public class CourseQnaValidator {
      */
     public void validateAnswerBelongsToQuestion(CourseAnswer answer, CourseQuestion question) {
         if (!answer.getCourseQuestion().getId().equals(question.getId())) {
-            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
+            throw new CustomException(CourseQnaErrorCode.COURSE_ANSWER_NOT_BELONG_TO_QUESTION);
         }
     }
 
@@ -84,7 +84,7 @@ public class CourseQnaValidator {
      */
     public void validateContent(String content) {
         if (content == null || content.trim().isEmpty()) {
-            throw new CustomException(CommunityErrorCode.COURSE_CONTENT_IS_REQUIRED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CONTENT_IS_REQUIRED);
         }
     }
 
@@ -98,7 +98,7 @@ public class CourseQnaValidator {
 
         for (MultipartFile file : files) {
             if (file.isEmpty()) {
-                throw new CustomException(CommunityErrorCode.COURSE_FILE_IS_EMPTY);
+                throw new CustomException(CourseQnaErrorCode.COURSE_FILE_IS_EMPTY);
             }
             // todo : 파일 크기, 확장자 등 추가 검증 로직
         }
@@ -115,7 +115,7 @@ public class CourseQnaValidator {
         try {
             return UUID.fromString(videoUuid);
         } catch (IllegalArgumentException e) {
-            throw new CustomException(CommunityErrorCode.COURSE_INVALID_VIDEO_UUID);
+            throw new CustomException(CourseQnaErrorCode.COURSE_INVALID_VIDEO_UUID);
         }
     }
 
@@ -132,7 +132,7 @@ public class CourseQnaValidator {
                 .count();
 
         if (fileCount > MAX_QUESTION_FILE_COUNT) {
-            throw new CustomException(CommunityErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
         }
     }
 
@@ -146,7 +146,7 @@ public class CourseQnaValidator {
         int finalCount = currentCount - deleteCount + addCount;
 
         if (finalCount > MAX_QUESTION_FILE_COUNT) {
-            throw new CustomException(CommunityErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
         }
     }
 
@@ -163,7 +163,7 @@ public class CourseQnaValidator {
                 .count();
 
         if (fileCount > MAX_ANSWER_FILE_COUNT) {
-            throw new CustomException(CommunityErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
         }
     }
 
@@ -177,7 +177,7 @@ public class CourseQnaValidator {
         int finalCount = currentCount - deleteCount + addCount;
 
         if (finalCount > MAX_ANSWER_FILE_COUNT) {
-            throw new CustomException(CommunityErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_MAX_FILE_COUNT_EXCEEDED);
         }
     }
 }

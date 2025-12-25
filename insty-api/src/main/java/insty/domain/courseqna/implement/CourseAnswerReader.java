@@ -3,7 +3,7 @@ package insty.domain.courseqna.implement;
 
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseAnswerFileRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseAnswerFile;
@@ -61,10 +61,10 @@ public class CourseAnswerReader {
      */
     public CourseAnswer getCommunityAnswerById(Long answerId) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND));
 
         if (answer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
 
         return answer;
@@ -75,7 +75,7 @@ public class CourseAnswerReader {
      */
     public CourseAnswer getCommunityAnswerByIdIncludingDeleted(Long answerId) {
         return courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND));
     }
 
     /**

@@ -3,7 +3,7 @@ package insty.domain.courseqna.implement;
 import insty.domain.courseqna.dto.CourseAnswerCreateReq;
 import insty.domain.courseqna.dto.CourseAnswerUpdateReq;
 import insty.domain.courseqna.repository.CourseAnswerRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
@@ -32,9 +32,9 @@ public class CourseAnswerWriter {
      */
     public CourseAnswer updateAnswer(Long answerId, CourseAnswerUpdateReq req) {
         CourseAnswer answer = courseAnswerRepository.findById(answerId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND));
         if (answer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
         answer.update(req.content());
         return courseAnswerRepository.save(answer);
@@ -45,7 +45,7 @@ public class CourseAnswerWriter {
      */
     public void deleteAnswer(CourseAnswer courseAnswer) {
         if (courseAnswer.isDeleted()) {
-            throw new CustomException(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+            throw new CustomException(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
         }
         courseAnswerRepository.delete(courseAnswer);
     }

@@ -3,7 +3,7 @@ package insty.model.courseqna;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import java.time.Instant;
 import org.junit.jupiter.api.Tag;
@@ -41,7 +41,7 @@ class CourseQuestionViewTest {
         assertThatThrownBy(() -> CourseQuestionView.create(courseQuestion, userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test
@@ -54,7 +54,7 @@ class CourseQuestionViewTest {
         assertThatThrownBy(() -> CourseQuestionView.create(courseQuestion, userId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_CREATE_ERROR);
+                .isEqualTo(CourseQnaErrorCode.COURSE_CREATE_ERROR);
     }
 
     @Test

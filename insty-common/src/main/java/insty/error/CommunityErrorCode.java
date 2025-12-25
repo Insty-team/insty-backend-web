@@ -1,6 +1,6 @@
 package insty.error;
 
-public enum CommunityErrorCode implements ErrorCode {
+public enum CourseQnaErrorCode implements ErrorCode {
 
     // Not Found Errors (404)
     COURSE_QUESTION_NOT_FOUND("COURSE_001", "질문을 찾을 수 없습니다.", 404),
@@ -44,7 +44,7 @@ public enum CommunityErrorCode implements ErrorCode {
     private final String message;
     private final int httpCode;
 
-    CommunityErrorCode(String code, String message, int httpCode) {
+    CourseQnaErrorCode(String code, String message, int httpCode) {
         this.code = code;
         this.message = message;
         this.httpCode = httpCode; // Default HTTP code for not found

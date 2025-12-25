@@ -63,7 +63,7 @@ class CourseAnswerSearchManagerTest {
         when(courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
         when(courseAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
-        when(courseAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
+        when(courseAnswerMapper.toCourseAnswerResList(answers, videoMap)).thenReturn(answerResList);
 
         // when
         SearchRes<CourseAnswerRes> result = courseAnswerService.getAnswersByQuestionId(questionId, req);
@@ -97,7 +97,7 @@ class CourseAnswerSearchManagerTest {
         when(courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
         when(courseAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
-        when(courseAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
+        when(courseAnswerMapper.toCourseAnswerResList(answers, videoMap)).thenReturn(answerResList);
 
         // when
         SearchRes<CourseAnswerRes> result = courseAnswerService.getAnswersByQuestionId(questionId, req);

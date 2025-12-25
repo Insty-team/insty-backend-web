@@ -1,6 +1,6 @@
 package insty.model.courseqna;
 
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
 import insty.model.courseqna.id.CourseQuestionFileId;
@@ -55,11 +55,11 @@ public class CourseQuestionFile extends BaseEntity {
     private static void validateCreate(CourseQuestion courseQuestion, File file) {
         if (courseQuestion == null) {
             log.error("생성 오류 - courseQuestion : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
         if (file == null) {
             log.error("생성 오류 - file : null");
-            throw new CustomException(CommunityErrorCode.COURSE_CREATE_ERROR);
+            throw new CustomException(CourseQnaErrorCode.COURSE_CREATE_ERROR);
         }
     }
 }

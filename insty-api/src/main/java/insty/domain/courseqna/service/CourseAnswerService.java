@@ -104,7 +104,7 @@ public class CourseAnswerService {
         courseQnaValidator.validateQuestionExists(questionId);
         List<CourseAnswer> answers = courseAnswerReader.getAllCommunityAnswersByQuestionId(questionId);
         var videoMap = courseAnswerVideoManager.getVideoMapByAnswers(answers);
-        return courseAnswerMapper.toCommunityAnswerResList(answers, videoMap);
+        return courseAnswerMapper.toCourseAnswerResList(answers, videoMap);
     }
 
     /**
@@ -117,7 +117,7 @@ public class CourseAnswerService {
         Page<CourseAnswer> answersPage = courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(questionId, req.toPaginationReq());
         
         var videoMap = courseAnswerVideoManager.getVideoMapByAnswers(answersPage.getContent());
-        List<CourseAnswerRes> answerResList = courseAnswerMapper.toCommunityAnswerResList(answersPage.getContent(), videoMap);
+        List<CourseAnswerRes> answerResList = courseAnswerMapper.toCourseAnswerResList(answersPage.getContent(), videoMap);
         
         final int totalItems = Math.toIntExact(answersPage.getTotalElements());
         PaginationRes paginationRes = PaginationRes.of(
@@ -198,6 +198,6 @@ public class CourseAnswerService {
         List<CourseAnswer> acceptedAnswers = courseAnswerReader.getAcceptedAnswersByQuestionId(questionId);
         var videoMap = courseAnswerVideoManager.getVideoMapByAnswers(acceptedAnswers);
         
-        return courseAnswerMapper.toCommunityAnswerResList(acceptedAnswers, videoMap);
+        return courseAnswerMapper.toCourseAnswerResList(acceptedAnswers, videoMap);
     }
 }

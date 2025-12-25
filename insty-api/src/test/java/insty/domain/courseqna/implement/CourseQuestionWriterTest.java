@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import insty.domain.courseqna.dto.CourseQuestionCreateReq;
 import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CommunityBoardType;
 import insty.model.courseqna.CourseQuestion;
@@ -85,7 +85,7 @@ class CourseQuestionWriterTest {
         assertThatThrownBy(() -> writer.updateQuestion(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_NOT_FOUND);
     }
 
     @Test
@@ -101,7 +101,7 @@ class CourseQuestionWriterTest {
         assertThatThrownBy(() -> writer.updateQuestion(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_QUESTION_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
     }
 
     @Test

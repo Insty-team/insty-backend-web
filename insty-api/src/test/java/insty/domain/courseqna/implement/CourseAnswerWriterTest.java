@@ -11,7 +11,7 @@ import insty.domain.courseqna.dto.CourseAnswerCreateReq;
 import insty.domain.courseqna.dto.CourseAnswerUpdateReq;
 import insty.domain.courseqna.repository.CourseAnswerFileRepository;
 import insty.domain.courseqna.repository.CourseAnswerRepository;
-import insty.error.CommunityErrorCode;
+import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
@@ -87,7 +87,7 @@ class CourseAnswerWriterTest {
         assertThatThrownBy(() -> writer.updateAnswer(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_ALREADY_DELETED);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_ALREADY_DELETED);
     }
 
     @Test
@@ -101,7 +101,7 @@ class CourseAnswerWriterTest {
         assertThatThrownBy(() -> writer.updateAnswer(id, req))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(CommunityErrorCode.COURSE_ANSWER_NOT_FOUND);
+                .isEqualTo(CourseQnaErrorCode.COURSE_ANSWER_NOT_FOUND);
     }
 
     @Test
