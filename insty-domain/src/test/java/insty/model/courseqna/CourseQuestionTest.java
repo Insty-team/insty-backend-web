@@ -26,7 +26,7 @@ class CourseQuestionTest {
         String content = "질문 내용";
 
         // when
-        CourseQuestion courseQuestion = CourseQuestion.create(course, user, title, content, null);
+        CourseQuestion courseQuestion = CourseQuestion.create(course, user, title, content);
 
         // then
         assertThat(courseQuestion).isNotNull();
@@ -50,7 +50,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -68,7 +68,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -85,7 +85,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -102,7 +102,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -119,7 +119,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -136,7 +136,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -153,7 +153,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -170,7 +170,7 @@ class CourseQuestionTest {
         // when
 
         // then
-        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content, null))
+        assertThatThrownBy(() -> CourseQuestion.create(course, user, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CourseQnaErrorCode.COURSE_QNA_CREATE_ERROR);
@@ -312,7 +312,7 @@ class CourseQuestionTest {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixtureBuilder.getUserWithId();
-        CourseQuestion courseQuestion = CourseQuestion.create(course, user, "질문", "내용", null);
+        CourseQuestion courseQuestion = CourseQuestion.create(course, user, "질문", "내용");
         
         CourseAnswer acceptedAnswer = CourseAnswer.create(courseQuestion, user, "채택된 답변");
         acceptedAnswer.accept();
@@ -332,7 +332,7 @@ class CourseQuestionTest {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixtureBuilder.getUserWithId();
-        CourseQuestion courseQuestion = CourseQuestion.create(course, user, "질문", "내용", null);
+        CourseQuestion courseQuestion = CourseQuestion.create(course, user, "질문", "내용");
         
         CourseAnswer acceptedAnswer = CourseAnswer.create(courseQuestion, user, "채택된 답변");
         acceptedAnswer.accept();
@@ -352,7 +352,7 @@ class CourseQuestionTest {
         // given
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixtureBuilder.getUserWithId();
-        CourseQuestion courseQuestion = CourseQuestion.create(course, user, "질문", "내용", null);
+        CourseQuestion courseQuestion = CourseQuestion.create(course, user, "질문", "내용");
 
         // when
         courseQuestion.handleAcceptedAnswerDeleted(true); // 남은 답변 있음

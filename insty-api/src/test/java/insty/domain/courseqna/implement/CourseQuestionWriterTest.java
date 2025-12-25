@@ -12,7 +12,6 @@ import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
 import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
-import insty.model.courseqna.CommunityBoardType;
 import insty.model.courseqna.CourseQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
@@ -38,7 +37,7 @@ class CourseQuestionWriterTest {
         // given
         User user = mock(User.class);
         Course course = mock(Course.class);
-        CourseQuestionCreateReq req = new CourseQuestionCreateReq(1L, "제목", "내용", CommunityBoardType.QNA, null);
+        CourseQuestionCreateReq req = new CourseQuestionCreateReq(1L, "제목", "내용", null);
 
         when(repository.save(any(CourseQuestion.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));

@@ -34,7 +34,6 @@ import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.domain.video.repository.VideoEncodingRepository;
 import insty.global.property.AppProperties;
-import insty.model.courseqna.CommunityBoardType;
 import insty.model.courseqna.CourseQuestionView;
 import insty.model.courseqna.QuestionStatus;
 import static org.mockito.Mockito.mock;
@@ -131,7 +130,7 @@ class CourseQuestionServiceTest {
         Long userId = 1L;
         Long courseId = 1L;
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        CourseQuestionCreateReq req = new CourseQuestionCreateReq(courseId, "테스트 질문 제목", "테스트 질문 내용", CommunityBoardType.QNA, videoUuid);
+        CourseQuestionCreateReq req = new CourseQuestionCreateReq(courseId, "테스트 질문 제목", "테스트 질문 내용", videoUuid);
 
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("attachment", "question_img1.jpg", "image/jpeg", "q-content-1".getBytes()));
@@ -617,48 +616,4 @@ class CourseQuestionServiceTest {
     /**
      * 게시판 타입(QNA / COURSE) 별로 필터링되는지 검증한다.
      */
-    @Test
-    @Sql(statements = {
-            // 유저 / 코스 기본 데이터
-            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1, 'user1@example.com', '사용자1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
-            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, '코스1', '설명1', 10000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, 'QNA 질문 1', 'QNA 내용 1', 'ANSWERED', DATEADD('MINUTE', -10, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 1, 1, 'QNA 질문 2', 'QNA 내용 2', 'WAITING', DATEADD('MINUTE', -5, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (3, 1, 1, '강좌 글 1', 'COURSE 내용 1', 'ANSWERED', DATEADD('MINUTE', -8, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (4, 1, 1, '강좌 글 2', 'COURSE 내용 2', 'WAITING', DATEADD('MINUTE', -3, NOW()), NOW(), false);",
-            "UPDATE web_service.community_questions SET board_type = 'QNA' WHERE id IN (1, 2);",
-            "UPDATE web_service.community_questions SET board_type = 'COURSE' WHERE id IN (3, 4);"
-    })
-    void searchQuestions_게시판타입별_필터링_정상() {
-        // QNA 전용 조회
-        CourseQuestionSearchReq qnaReq =
-                new CourseQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.QNA);
-
-        SearchRes<CourseQuestionRes> qnaRes = courseQuestionService.searchQuestions(qnaReq);
-
-        assertThat(qnaRes).isNotNull();
-        assertThat(qnaRes.items()).hasSize(2);
-        assertThat(qnaRes.items())
-                .extracting(CourseQuestionRes::title)
-                .containsExactlyInAnyOrder("QNA 질문 1", "QNA 질문 2");
-
-        // COURSE 전용 조회
-        CourseQuestionSearchReq communityReq =
-                new CourseQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.COURSE);
-
-        SearchRes<CourseQuestionRes> communityRes = courseQuestionService.searchQuestions(communityReq);
-
-        assertThat(communityRes).isNotNull();
-        assertThat(communityRes.items()).hasSize(2);
-        assertThat(communityRes.items())
-                .extracting(CourseQuestionRes::title)
-                .containsExactlyInAnyOrder("강좌 글 1", "강좌 글 2");
-    }
 }
-
