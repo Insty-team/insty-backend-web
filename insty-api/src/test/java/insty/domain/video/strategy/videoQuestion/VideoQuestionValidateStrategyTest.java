@@ -128,7 +128,7 @@ class VideoQuestionValidateStrategyTest {
         // mock
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
         ReflectionTestUtils.setField(videoQuestion, "encodingStatus", EncodingStatus.COMPLETED);
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+        when(videoQuestionRepository.findByCourseQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoQuestion));
 
         // when
@@ -160,7 +160,7 @@ class VideoQuestionValidateStrategyTest {
         // mock
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
         ReflectionTestUtils.setField(videoQuestion, "encodingStatus", EncodingStatus.FAILED);
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+        when(videoQuestionRepository.findByCourseQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoQuestion));
 
         // when
@@ -180,7 +180,7 @@ class VideoQuestionValidateStrategyTest {
         // mock
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
         ReflectionTestUtils.setField(videoQuestion, "encodingStatus", EncodingStatus.FAILED_INVALID_VIDEO_LENGTH);
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+        when(videoQuestionRepository.findByCourseQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoQuestion));
 
         // when
@@ -200,7 +200,7 @@ class VideoQuestionValidateStrategyTest {
         // mock
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
         ReflectionTestUtils.setField(videoQuestion, "encodingStatus", EncodingStatus.FAILED_NOT_FOUND_VOICE);
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+        when(videoQuestionRepository.findByCourseQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoQuestion));
 
         // when
@@ -220,7 +220,7 @@ class VideoQuestionValidateStrategyTest {
         // mock
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
         ReflectionTestUtils.setField(videoQuestion, "encodingStatus", EncodingStatus.PROCESSING);
-        when(videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(id, false))
+        when(videoQuestionRepository.findByCourseQuestionIdAndIsDeleted(id, false))
                 .thenReturn(Optional.of(videoQuestion));
 
         // when

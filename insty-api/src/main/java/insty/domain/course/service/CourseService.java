@@ -4,7 +4,7 @@ import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
-import insty.domain.community.implement.CommunityQuestionReader;
+import insty.domain.courseqna.implement.CommunityQuestionReader;
 import insty.domain.course.dto.*;
 import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;

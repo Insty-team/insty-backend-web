@@ -1,13 +1,12 @@
 package insty.model.auth;
 
+import static insty.error.AuthErrorCode.INVALID_EMAIL_FORMAT;
+
 import insty.error.AuthErrorCode;
 import insty.exception.CustomException;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
-
-import static insty.error.AuthErrorCode.INVALID_EMAIL_FORMAT;
+import lombok.Getter;
 
 @Getter
 public class PasswordResetVerification {

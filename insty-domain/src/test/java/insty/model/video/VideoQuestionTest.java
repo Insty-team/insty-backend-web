@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityQuestion;
-import insty.model.community.CommunityQuestionFixtureBuilder;
+import insty.model.courseqna.CommunityQuestionFixtureBuilder;
+import insty.model.courseqna.CourseQuestion;
 import insty.model.user.User;
 import insty.model.user.UserFixture;
 import insty.model.user.UserFixtureBuilder;
@@ -159,12 +159,12 @@ class VideoQuestionTest {
     void updateCommunityQuestion_정상() {
         // given
         VideoQuestion videoQuestion = VideoFixtureBuilder.getVideoQuestionWithIdAndUser();
-        CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        CourseQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
 
         // when
         videoQuestion.updateCommunityQuestion(question);
 
         // then
-        assertThat(videoQuestion.getCommunityQuestion()).isEqualTo(question);
+        assertThat(videoQuestion.getCourseQuestion()).isEqualTo(question);
     }
 }

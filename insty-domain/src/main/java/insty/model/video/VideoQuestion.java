@@ -3,7 +3,7 @@ package insty.model.video;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
-import insty.model.community.CommunityQuestion;
+import insty.model.courseqna.CourseQuestion;
 import insty.model.user.User;
 import insty.util.FileUtils;
 import jakarta.persistence.Column;
@@ -44,7 +44,7 @@ public class VideoQuestion extends BaseEntity implements BaseVideo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "community_question_id")
-    private CommunityQuestion communityQuestion;
+    private CourseQuestion courseQuestion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -123,7 +123,7 @@ public class VideoQuestion extends BaseEntity implements BaseVideo {
         return "vod/" + VideoType.QUESTION + "/" + extension + "/" + uuid + "/" + fileName;
     }
 
-    public void updateCommunityQuestion(CommunityQuestion communityQuestion) {
-        this.communityQuestion = communityQuestion;
+    public void updateCommunityQuestion(CourseQuestion courseQuestion) {
+        this.courseQuestion = courseQuestion;
     }
 }

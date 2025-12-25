@@ -6,10 +6,8 @@ import static insty.error.AuthErrorCode.INVALID_TOKEN_CODE;
 
 import insty.exception.CustomException;
 import java.util.regex.Pattern;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @EqualsAndHashCode(of = "email")

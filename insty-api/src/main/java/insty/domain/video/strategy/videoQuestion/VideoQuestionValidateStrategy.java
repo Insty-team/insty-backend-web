@@ -44,7 +44,7 @@ public class VideoQuestionValidateStrategy implements VideoValidateStrategy {
 
     @Override
     public void verifyEncodingCompletedAndDeleted(Long parentId) {
-        VideoQuestion videoQuestion = videoQuestionRepository.findByCommunityQuestionIdAndIsDeleted(parentId, false)
+        VideoQuestion videoQuestion = videoQuestionRepository.findByCourseQuestionIdAndIsDeleted(parentId, false)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
         if (videoQuestion.getEncodingStatus() == EncodingStatus.FAILED) {
             throw new CustomException(VideoErrorCode.VIDEO_ENCODING_FAILED);

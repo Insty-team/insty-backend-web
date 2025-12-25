@@ -1,9 +1,9 @@
 package insty.domain.course.persistence;
 
-import static insty.model.community.QCommunityQuestion.communityQuestion;
 import static insty.model.course.QCourse.course;
 import static insty.model.course.QCourseProgress.courseProgress;
 import static insty.model.course.QCourseTag.courseTag;
+import static insty.model.courseqna.QCourseQuestion.courseQuestion;
 import static insty.model.tag.QTags.tags;
 import static insty.model.user.QUser.user;
 import static insty.model.video.QVideoCourse.videoCourse;
@@ -97,7 +97,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.title,
                         course.price,
                         course.viewCount,
-                        communityQuestion.count(),
+                        courseQuestion.count(),
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
                         course.isShow,
@@ -107,7 +107,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 .from(course)
                 .join(user).on(user.id.eq(course.user.id)
                         .and(user.id.eq(userId)))
-                .leftJoin(communityQuestion).on(communityQuestion.course.id.eq(course.id))
+                .leftJoin(courseQuestion).on(courseQuestion.course.id.eq(course.id))
                 .where(searchIsShow(isShow))
                 .groupBy(course.id)
                 .orderBy(createOrderSpecifier(null))

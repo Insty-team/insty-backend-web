@@ -12,16 +12,16 @@ import insty.domain.mention.implement.MentionNotificationManager;
 import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionReader;
 import insty.domain.mention.implement.MentionWriter;
-import insty.domain.community.implement.CommunityAnswerReader;
+import insty.domain.courseqna.implement.CommunityAnswerReader;
 import insty.domain.user.implement.UserFileReader;
 import insty.domain.user.repository.UserRepository;
 import insty.global.property.AppProperties;
+import insty.model.courseqna.CourseAnswer;
+import insty.model.courseqna.CourseQuestion;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.ai.adapter.AiRequester;
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityQuestion;
 import insty.model.mention.Mention;
 import insty.model.user.User;
 import java.util.List;
@@ -122,12 +122,12 @@ class MentionServiceTest {
     @Test
     void processMentions_정상() {
         // given
-        CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = communityAnswerReader.getCommunityAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님!";
 
         // when
-        mentionService.processMentions(communityAnswer, mentionerUser, content);
+        mentionService.processMentions(courseAnswer, mentionerUser, content);
 
         // then
         List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
@@ -138,7 +138,7 @@ class MentionServiceTest {
         verify(mentionNotificationManager)
                 .sendMentionsNotification(
                         argThat(list -> list.size() == 1),
-                        any(CommunityQuestion.class)
+                        any(CourseQuestion.class)
                 );
     }
 
@@ -157,12 +157,12 @@ class MentionServiceTest {
     @Test
     void processMentions_멘션없음_정상() {
         // given
-        CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = communityAnswerReader.getCommunityAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요! 멘션 없습니다.";
 
         // when
-        mentionService.processMentions(communityAnswer, mentionerUser, content);
+        mentionService.processMentions(courseAnswer, mentionerUser, content);
 
         // then
         List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
@@ -186,12 +186,12 @@ class MentionServiceTest {
     @Test
     void processMentions_다중멘션_정상() {
         // given
-        CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = communityAnswerReader.getCommunityAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님과 @[김철수](3)님!";
 
         // when
-        mentionService.processMentions(communityAnswer, mentionerUser, content);
+        mentionService.processMentions(courseAnswer, mentionerUser, content);
 
         // then
         List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
@@ -203,7 +203,7 @@ class MentionServiceTest {
         verify(mentionNotificationManager)
                 .sendMentionsNotification(
                         argThat(list -> list.size() == 2),
-                        any(CommunityQuestion.class)
+                        any(CourseQuestion.class)
                 );
     }
 }

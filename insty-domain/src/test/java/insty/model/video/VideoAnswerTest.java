@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAnswerFixtureBuilder;
-import insty.model.community.CommunityQuestion;
-import insty.model.community.CommunityQuestionFixtureBuilder;
+import insty.model.courseqna.CommunityAnswerFixtureBuilder;
+import insty.model.courseqna.CommunityQuestionFixtureBuilder;
+import insty.model.courseqna.CourseAnswer;
+import insty.model.courseqna.CourseQuestion;
 import insty.model.user.User;
 import insty.model.user.UserFixture;
 import insty.model.user.UserFixtureBuilder;
@@ -160,13 +160,13 @@ class VideoAnswerTest {
     void updateCommunityAnswer_정상() {
         // given
         VideoAnswer videoAnswer = VideoFixtureBuilder.getVideoAnswerWithIdAndUser();
-        CommunityQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
-        CommunityAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question);
+        CourseQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser();
+        CourseAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question);
 
         // when
         videoAnswer.updateCommunityAnswer(answer);
 
         // then
-        assertThat(videoAnswer.getCommunityAnswer()).isEqualTo(answer);
+        assertThat(videoAnswer.getCourseAnswer()).isEqualTo(answer);
     }
 }
