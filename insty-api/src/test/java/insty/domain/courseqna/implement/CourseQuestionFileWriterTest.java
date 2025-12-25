@@ -34,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 class CourseQuestionFileWriterTest {
 
     @InjectMocks
-    private CommunityQuestionFileWriter fileWriter;
+    private CourseQuestionFileWriter fileWriter;
     @Mock
     private FileWriter fileWriterDep;
     @Mock

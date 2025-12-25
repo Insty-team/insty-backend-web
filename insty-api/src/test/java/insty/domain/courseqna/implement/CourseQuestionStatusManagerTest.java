@@ -19,10 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseQuestionStatusManagerTest {
 
     @InjectMocks
-    private CommunityQuestionStatusManager statusManager;
+    private CourseQuestionStatusManager statusManager;
 
     @Mock
-    private CommunityAnswerReader communityAnswerReader;
+    private CourseAnswerReader communityAnswerReader;
 
     @Mock
     private CourseQuestionRepository courseQuestionRepository;

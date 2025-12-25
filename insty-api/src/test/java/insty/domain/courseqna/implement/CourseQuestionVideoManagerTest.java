@@ -32,7 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseQuestionVideoManagerTest {
 
     @InjectMocks
-    private CommunityQuestionVideoManager videoManager;
+    private CourseQuestionVideoManager videoManager;
     @Mock
     private AiRequester aiRequester;
     @Mock

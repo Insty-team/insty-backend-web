@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.domain.courseqna.dto.CommunityQuestionCreateReq;
-import insty.domain.courseqna.dto.CommunityQuestionUpdateReq;
+import insty.domain.courseqna.dto.CourseQuestionCreateReq;
+import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
@@ -29,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseQuestionWriterTest {
 
     @InjectMocks
-    private CommunityQuestionWriter writer;
+    private CourseQuestionWriter writer;
     @Mock
     private CourseQuestionRepository repository;
 
@@ -38,7 +38,7 @@ class CourseQuestionWriterTest {
         // given
         User user = mock(User.class);
         Course course = mock(Course.class);
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(1L, "제목", "내용", CommunityBoardType.QNA, null);
+        CourseQuestionCreateReq req = new CourseQuestionCreateReq(1L, "제목", "내용", CommunityBoardType.QNA, null);
 
         when(repository.save(any(CourseQuestion.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -57,7 +57,7 @@ class CourseQuestionWriterTest {
     void updateQuestion_정상() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("제목", "내용", null, null);
+        CourseQuestionUpdateReq req = new CourseQuestionUpdateReq("제목", "내용", null, null);
 
         CourseQuestion question = mock(CourseQuestion.class);
         when(repository.findById(id)).thenReturn(Optional.of(question));
@@ -77,7 +77,7 @@ class CourseQuestionWriterTest {
     void updateQuestion_에러_존재하지않음() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("제목", "내용", null, null);
+        CourseQuestionUpdateReq req = new CourseQuestionUpdateReq("제목", "내용", null, null);
 
         when(repository.findById(id)).thenReturn(Optional.empty());
 
@@ -92,7 +92,7 @@ class CourseQuestionWriterTest {
     void updateQuestion_에러_이미삭제됨() {
         // given
         Long id = 1L;
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("제목", "내용", null, null);
+        CourseQuestionUpdateReq req = new CourseQuestionUpdateReq("제목", "내용", null, null);
         CourseQuestion question = mock(CourseQuestion.class);
         when(repository.findById(id)).thenReturn(Optional.of(question));
         when(question.isDeleted()).thenReturn(true);

@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseQuestionReaderTest {
 
     @InjectMocks
-    private CommunityQuestionReader reader;
+    private CourseQuestionReader reader;
     @Mock
     private CourseQuestionRepository repository;
     @Mock

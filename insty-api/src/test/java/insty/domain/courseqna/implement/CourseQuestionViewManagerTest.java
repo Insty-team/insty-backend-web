@@ -30,13 +30,13 @@ import org.mockito.quality.Strictness;
 class CourseQuestionViewManagerTest {
 
     @InjectMocks
-    private CommunityQuestionViewManager communityQuestionViewManager;
+    private CourseQuestionViewManager courseQuestionViewManager;
 
     @Mock
     private CourseQuestionViewRepository courseQuestionViewRepository;
 
     @Mock
-    private CommunityQuestionReader communityQuestionReader;
+    private CourseQuestionReader courseQuestionReader;
 
     @Test
     void recordQuestionView_기존조회기록_업데이트() {
@@ -51,7 +51,7 @@ class CourseQuestionViewManagerTest {
                 .thenReturn(Optional.of(existingView));
 
         // when
-        communityQuestionViewManager.recordQuestionView(question, userId);
+        courseQuestionViewManager.recordQuestionView(question, userId);
 
         // then
         verify(existingView).updateLastViewedAt();
@@ -72,7 +72,7 @@ class CourseQuestionViewManagerTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        communityQuestionViewManager.recordQuestionView(question, userId);
+        courseQuestionViewManager.recordQuestionView(question, userId);
 
         // then
         verify(courseQuestionViewRepository).save(any(CourseQuestionView.class));
@@ -86,9 +86,9 @@ class CourseQuestionViewManagerTest {
         
         CourseQuestion question = createMockQuestionWithUser(questionId, questionAuthorId);
 
-        when(communityQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
                 .thenReturn(question);
-        when(communityQuestionReader.getCreatorIdByQuestionId(questionId))
+        when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(2L);
         when(courseQuestionViewRepository.findByQuestionIdAndUserId(questionId, questionAuthorId))
                 .thenReturn(Optional.empty());
@@ -96,7 +96,7 @@ class CourseQuestionViewManagerTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        communityQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, questionAuthorId);
+        courseQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, questionAuthorId);
 
         // then
         verify(courseQuestionViewRepository).save(any(CourseQuestionView.class));
@@ -110,9 +110,9 @@ class CourseQuestionViewManagerTest {
         
         CourseQuestion question = createMockQuestionWithUser(questionId, 1L);
 
-        when(communityQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
                 .thenReturn(question);
-        when(communityQuestionReader.getCreatorIdByQuestionId(questionId))
+        when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(courseCreatorId);
         when(courseQuestionViewRepository.findByQuestionIdAndUserId(questionId, courseCreatorId))
                 .thenReturn(Optional.empty());
@@ -120,7 +120,7 @@ class CourseQuestionViewManagerTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        communityQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, courseCreatorId);
+        courseQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, courseCreatorId);
 
         // then
         verify(courseQuestionViewRepository).save(any(CourseQuestionView.class));
@@ -134,13 +134,13 @@ class CourseQuestionViewManagerTest {
         
         CourseQuestion question = createMockQuestionWithUser(questionId, 1L);
 
-        when(communityQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
                 .thenReturn(question);
-        when(communityQuestionReader.getCreatorIdByQuestionId(questionId))
+        when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(2L);
 
         // when
-        communityQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, otherUserId);
+        courseQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, otherUserId);
 
         // then
         verify(courseQuestionViewRepository, never()).save(any(CourseQuestionView.class));
@@ -154,9 +154,9 @@ class CourseQuestionViewManagerTest {
 
         CourseQuestion question = createMockQuestionWithUser(questionId, authorCreatorId);
 
-        when(communityQuestionReader.getCommunityQuestionWithFilesById(questionId))
+        when(courseQuestionReader.getCommunityQuestionWithFilesById(questionId))
                 .thenReturn(question);
-        when(communityQuestionReader.getCreatorIdByQuestionId(questionId))
+        when(courseQuestionReader.getCreatorIdByQuestionId(questionId))
                 .thenReturn(authorCreatorId);
         when(courseQuestionViewRepository.findByQuestionIdAndUserId(questionId, authorCreatorId))
                 .thenReturn(Optional.empty());
@@ -164,7 +164,7 @@ class CourseQuestionViewManagerTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        communityQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, authorCreatorId);
+        courseQuestionViewManager.recordQuestionViewIfAuthorOrCreator(questionId, authorCreatorId);
 
         // then
         verify(courseQuestionViewRepository).save(any(CourseQuestionView.class));
@@ -198,7 +198,7 @@ class CourseQuestionViewManagerTest {
                 .thenReturn(true);
 
         // when
-        Map<Long, Boolean> result = communityQuestionViewManager.getHasNewAnswersForQuestions(questionIds, viewerId);
+        Map<Long, Boolean> result = courseQuestionViewManager.getHasNewAnswersForQuestions(questionIds, viewerId);
 
         // then
         assertThat(result).hasSize(3);
@@ -219,7 +219,7 @@ class CourseQuestionViewManagerTest {
                 .thenReturn(false);
 
         // when
-        Map<Long, Boolean> result = communityQuestionViewManager.getHasNewAnswersForQuestions(questionIds, viewerId);
+        Map<Long, Boolean> result = courseQuestionViewManager.getHasNewAnswersForQuestions(questionIds, viewerId);
 
         // then
         assertThat(result).hasSize(1);
@@ -240,7 +240,7 @@ class CourseQuestionViewManagerTest {
                 .thenReturn(true);
 
         // when
-        boolean result = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
+        boolean result = courseQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
 
         // then
         assertThat(result).isTrue();
@@ -260,7 +260,7 @@ class CourseQuestionViewManagerTest {
                 .thenReturn(false);
 
         // when
-        boolean result = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
+        boolean result = courseQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
 
         // then
         assertThat(result).isFalse();
@@ -276,7 +276,7 @@ class CourseQuestionViewManagerTest {
                 .thenReturn(Optional.empty());
 
         // when
-        boolean result = communityQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
+        boolean result = courseQuestionViewManager.hasNewAnswersAfterCreatorLastView(questionId, creatorId);
 
         // then
         assertThat(result).isFalse();

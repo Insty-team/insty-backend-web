@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseAnswerFileReaderTest {
 
     @InjectMocks
-    private CommunityAnswerFileReader reader;
+    private CourseAnswerFileReader reader;
     @Mock
     private AppProperties appProperties;
     @Mock

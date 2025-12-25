@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.common.FileInfo;
-import insty.domain.courseqna.dto.CommunityAnswerRes;
+import insty.domain.courseqna.dto.CourseAnswerRes;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.user.User;
 import insty.model.user.UserType;
@@ -25,9 +25,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseAnswerMapperTest {
 
     @InjectMocks
-    private CommunityAnswerMapper mapper;
+    private CourseAnswerMapper mapper;
     @Mock
-    private CommunityAnswerFileReader communityAnswerFileReader;
+    private CourseAnswerFileReader courseAnswerFileReader;
 
     @Test
     void toCommunityAnswerResList_정상_비디오존재() {
@@ -54,18 +54,18 @@ class CourseAnswerMapperTest {
 
         List<FileInfo> fileInfos1 = List.of(mock(FileInfo.class));
         List<FileInfo> fileInfos2 = List.of(mock(FileInfo.class));
-        when(communityAnswerFileReader.getAnswerFileInfos(answer1)).thenReturn(fileInfos1);
-        when(communityAnswerFileReader.getAnswerFileInfos(answer2)).thenReturn(fileInfos2);
+        when(courseAnswerFileReader.getAnswerFileInfos(answer1)).thenReturn(fileInfos1);
+        when(courseAnswerFileReader.getAnswerFileInfos(answer2)).thenReturn(fileInfos2);
 
         List<CourseAnswer> answers = List.of(answer1, answer2);
 
         // when
-        List<CommunityAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).hasSize(2);
-        verify(communityAnswerFileReader).getAnswerFileInfos(answer1);
-        verify(communityAnswerFileReader).getAnswerFileInfos(answer2);
+        verify(courseAnswerFileReader).getAnswerFileInfos(answer1);
+        verify(courseAnswerFileReader).getAnswerFileInfos(answer2);
     }
 
     @Test
@@ -83,16 +83,16 @@ class CourseAnswerMapperTest {
         Map<Long, VideoAnswer> videoMap = Map.of();
 
         List<FileInfo> fileInfos = List.of(mock(FileInfo.class));
-        when(communityAnswerFileReader.getAnswerFileInfos(answer)).thenReturn(fileInfos);
+        when(courseAnswerFileReader.getAnswerFileInfos(answer)).thenReturn(fileInfos);
 
         List<CourseAnswer> answers = List.of(answer);
 
         // when
-        List<CommunityAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).hasSize(1);
-        verify(communityAnswerFileReader).getAnswerFileInfos(answer);
+        verify(courseAnswerFileReader).getAnswerFileInfos(answer);
     }
 
     @Test
@@ -102,7 +102,7 @@ class CourseAnswerMapperTest {
         Map<Long, VideoAnswer> videoMap = Map.of();
 
         // when
-        List<CommunityAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).isEmpty();
@@ -132,17 +132,17 @@ class CourseAnswerMapperTest {
 
         List<FileInfo> fileInfos1 = List.of(mock(FileInfo.class));
         List<FileInfo> fileInfos2 = List.of(mock(FileInfo.class));
-        when(communityAnswerFileReader.getAnswerFileInfos(answer1)).thenReturn(fileInfos1);
-        when(communityAnswerFileReader.getAnswerFileInfos(answer2)).thenReturn(fileInfos2);
+        when(courseAnswerFileReader.getAnswerFileInfos(answer1)).thenReturn(fileInfos1);
+        when(courseAnswerFileReader.getAnswerFileInfos(answer2)).thenReturn(fileInfos2);
 
         List<CourseAnswer> answers = List.of(answer1, answer2);
 
         // when
-        List<CommunityAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
+        List<CourseAnswerRes> result = mapper.toCommunityAnswerResList(answers, videoMap);
 
         // then
         assertThat(result).hasSize(2);
-        verify(communityAnswerFileReader).getAnswerFileInfos(answer1);
-        verify(communityAnswerFileReader).getAnswerFileInfos(answer2);
+        verify(courseAnswerFileReader).getAnswerFileInfos(answer1);
+        verify(courseAnswerFileReader).getAnswerFileInfos(answer2);
     }
 }

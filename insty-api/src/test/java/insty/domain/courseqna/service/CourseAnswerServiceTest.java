@@ -9,20 +9,20 @@ import static org.mockito.Mockito.when;
 import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.FileInfo;
-import insty.domain.courseqna.dto.AcceptAnswerResultRes;
-import insty.domain.courseqna.dto.CommunityAnswerCreateReq;
-import insty.domain.courseqna.dto.CommunityAnswerRes;
-import insty.domain.courseqna.dto.CommunityAnswerUpdateReq;
-import insty.domain.courseqna.implement.CommunityAnswerAcceptManager;
-import insty.domain.courseqna.implement.CommunityAnswerFileReader;
-import insty.domain.courseqna.implement.CommunityAnswerFileWriter;
-import insty.domain.courseqna.implement.CommunityAnswerMapper;
-import insty.domain.courseqna.implement.CommunityAnswerReader;
-import insty.domain.courseqna.implement.CommunityAnswerVideoManager;
-import insty.domain.courseqna.implement.CommunityAnswerWriter;
-import insty.domain.courseqna.implement.CommunityQuestionReader;
-import insty.domain.courseqna.implement.CommunityQuestionStatusManager;
-import insty.domain.courseqna.implement.CommunityValidator;
+import insty.domain.courseqna.dto.CourseQnaAcceptAnswerResultRes;
+import insty.domain.courseqna.dto.CourseAnswerCreateReq;
+import insty.domain.courseqna.dto.CourseAnswerRes;
+import insty.domain.courseqna.dto.CourseAnswerUpdateReq;
+import insty.domain.courseqna.implement.CourseAnswerAcceptManager;
+import insty.domain.courseqna.implement.CourseAnswerFileReader;
+import insty.domain.courseqna.implement.CourseAnswerFileWriter;
+import insty.domain.courseqna.implement.CourseAnswerMapper;
+import insty.domain.courseqna.implement.CourseAnswerReader;
+import insty.domain.courseqna.implement.CourseAnswerVideoManager;
+import insty.domain.courseqna.implement.CourseAnswerWriter;
+import insty.domain.courseqna.implement.CourseQuestionReader;
+import insty.domain.courseqna.implement.CourseQuestionStatusManager;
+import insty.domain.courseqna.implement.CourseQnaValidator;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
 import insty.domain.user.implement.UserReader;
 import insty.error.CommunityErrorCode;
@@ -60,28 +60,28 @@ import org.springframework.web.multipart.MultipartFile;
 class CourseAnswerServiceTest {
 
     @Autowired
-    private CommunityAnswerService communityAnswerService;
+    private CourseAnswerService courseAnswerService;
 
     @Autowired
-    private CommunityAnswerReader communityAnswerReader;
+    private CourseAnswerReader communityAnswerReader;
     @Autowired
-    private CommunityAnswerWriter communityAnswerWriter;
+    private CourseAnswerWriter courseAnswerWriter;
     @Autowired
-    private CommunityAnswerFileReader communityAnswerFileReader;
+    private CourseAnswerFileReader communityAnswerFileReader;
     @Autowired
-    private CommunityAnswerFileWriter communityAnswerFileWriter;
+    private CourseAnswerFileWriter courseAnswerFileWriter;
     @Autowired
-    private CommunityAnswerVideoManager communityAnswerVideoManager;
+    private CourseAnswerVideoManager courseAnswerVideoManager;
     @Autowired
-    private CommunityAnswerAcceptManager communityAnswerAcceptManager;
+    private CourseAnswerAcceptManager communityAnswerAcceptManager;
     @Autowired
-    private CommunityValidator communityValidator;
+    private CourseQnaValidator courseQnaValidator;
     @Autowired
-    private CommunityAnswerMapper communityAnswerMapper;
+    private CourseAnswerMapper communityAnswerMapper;
     @Autowired
-    private CommunityQuestionReader communityQuestionReader;
+    private CourseQuestionReader courseQuestionReader;
     @Autowired
-    private CommunityQuestionStatusManager communityQuestionStatusManager;
+    private CourseQuestionStatusManager communityQuestionStatusManager;
     @Autowired
     private CourseQuestionRepository courseQuestionRepository;
     @Autowired
@@ -123,19 +123,19 @@ class CourseAnswerServiceTest {
 
         String firstAnswerContent = "첫 번째 답변 내용입니다.";
         UUID firstVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        CommunityAnswerCreateReq firstReq = new CommunityAnswerCreateReq(firstAnswerContent, firstVideoUuid);
+        CourseAnswerCreateReq firstReq = new CourseAnswerCreateReq(firstAnswerContent, firstVideoUuid);
         List<MultipartFile> firstAttachments = List.of(
                 new MockMultipartFile("attachment", "test1.jpg", "image/jpeg", "content1".getBytes()));
 
         String secondAnswerContent = "두 번째 답변 내용입니다.";
-        CommunityAnswerCreateReq secondReq = new CommunityAnswerCreateReq(secondAnswerContent, null);
+        CourseAnswerCreateReq secondReq = new CourseAnswerCreateReq(secondAnswerContent, null);
         List<MultipartFile> secondAttachments = List.of();
 
         when(appProperties.getDomain()).thenReturn("insty.test.com");
         when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn(
                 "00000000-0000-0000-0000-000000000001.jpg");
 
-        CommunityAnswerRes firstRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, firstReq,
+        CourseAnswerRes firstRes = courseAnswerService.saveAnswer(questionAuthorId, questionId, firstReq,
                 firstAttachments);
 
         assertThat(firstRes).isNotNull();
@@ -149,10 +149,10 @@ class CourseAnswerServiceTest {
         assertThat(firstRes.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
         assertThat(firstRes.videoInfo().originFileName()).isEqualTo("answer_video.mp4");
 
-        CourseQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
-        CommunityAnswerRes secondRes = communityAnswerService.saveAnswer(questionAuthorId, questionId, secondReq,
+        CourseAnswerRes secondRes = courseAnswerService.saveAnswer(questionAuthorId, questionId, secondReq,
                 secondAttachments);
 
         assertThat(secondRes).isNotNull();
@@ -164,21 +164,21 @@ class CourseAnswerServiceTest {
         assertThat(secondRes.attachments()).isEmpty();
         assertThat(secondRes.videoInfo()).isNull();
 
-        question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
 
-        List<CommunityAnswerRes> allAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
+        List<CourseAnswerRes> allAnswers = courseAnswerService.getAllAnswersByQuestionId(questionId);
         assertThat(allAnswers).hasSize(2);
 
-        List<String> answerContents = allAnswers.stream().map(CommunityAnswerRes::content).toList();
+        List<String> answerContents = allAnswers.stream().map(CourseAnswerRes::content).toList();
         assertThat(answerContents).containsExactlyInAnyOrder(firstAnswerContent, secondAnswerContent);
 
-        CommunityAnswerRes videoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() != null).findFirst()
+        CourseAnswerRes videoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() != null).findFirst()
                 .orElse(null);
         assertThat(videoAnswer).isNotNull();
         assertThat(videoAnswer.content()).isEqualTo(firstAnswerContent);
         assertThat(videoAnswer.videoInfo().videoUuid()).isEqualTo(firstVideoUuid);
-        CommunityAnswerRes nonVideoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() == null).findFirst()
+        CourseAnswerRes nonVideoAnswer = allAnswers.stream().filter(answer -> answer.videoInfo() == null).findFirst()
                 .orElse(null);
         assertThat(nonVideoAnswer).isNotNull();
         assertThat(nonVideoAnswer.content()).isEqualTo(secondAnswerContent);
@@ -217,7 +217,7 @@ class CourseAnswerServiceTest {
         // 기존 첨부파일 ID들 (삭제할 파일들) - 실제 파일 ID 사용
         List<Long> deleteFileIds = filesBeforeUpdate.stream().map(FileInfo::id).toList();
 
-        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq(updatedContent, newVideoUuid, deleteFileIds);
+        CourseAnswerUpdateReq req = new CourseAnswerUpdateReq(updatedContent, newVideoUuid, deleteFileIds);
 
         // 새로운 첨부파일들
         List<MultipartFile> newAttachments = List.of(
@@ -230,7 +230,7 @@ class CourseAnswerServiceTest {
         when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
 
         // when
-        CommunityAnswerRes res = communityAnswerService.updateAnswer(userId, answerId, req, newAttachments);
+        CourseAnswerRes res = courseAnswerService.updateAnswer(userId, answerId, req, newAttachments);
 
         // then
         assertThat(res).isNotNull();
@@ -284,7 +284,7 @@ class CourseAnswerServiceTest {
         Long questionId = 1L;
 
         // when
-        List<CommunityAnswerRes> res = communityAnswerService.getAllAnswersByQuestionId(questionId);
+        List<CourseAnswerRes> res = courseAnswerService.getAllAnswersByQuestionId(questionId);
 
         // then
         assertThat(res).isNotNull();
@@ -350,7 +350,7 @@ class CourseAnswerServiceTest {
         Long answerId = 1L;
 
         // when
-        CommunityAnswerRes res = communityAnswerService.getAnswerDetails(answerId);
+        CourseAnswerRes res = courseAnswerService.getAnswerDetails(answerId);
 
         // then
         assertThat(res).isNotNull();
@@ -416,26 +416,26 @@ class CourseAnswerServiceTest {
         List<FileInfo> filesBeforeDelete = communityAnswerFileReader.getAnswerFileInfos(answerBeforeDelete);
         assertThat(filesBeforeDelete).hasSize(2);
 
-        VideoAnswer videoBeforeDelete = communityAnswerVideoManager.getVideoAnswer(answerBeforeDelete);
+        VideoAnswer videoBeforeDelete = courseAnswerVideoManager.getVideoAnswer(answerBeforeDelete);
         assertThat(videoBeforeDelete).isNotNull();
         assertThat(videoBeforeDelete.isDeleted()).isFalse();
 
         when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
 
         // when
-        communityAnswerService.deleteAnswer(userId, answerId);
+        courseAnswerService.deleteAnswer(userId, answerId);
 
         // then
         assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(answerId)).isInstanceOf(
                 CustomException.class);
 
         // 질문 상태가 올바르게 변경되었는지 확인 (모든 답변이 삭제되었으므로 WAITING)
-        CourseQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.WAITING);
         assertThat(question.getAcceptedAnswer()).isNull();
 
         // 질문의 답변 목록에서 삭제된 답변이 제외되었는지 확인
-        List<CommunityAnswerRes> remainingAnswers = communityAnswerService.getAllAnswersByQuestionId(questionId);
+        List<CourseAnswerRes> remainingAnswers = courseAnswerService.getAllAnswersByQuestionId(questionId);
         assertThat(remainingAnswers).isEmpty();
     }
 
@@ -468,42 +468,42 @@ class CourseAnswerServiceTest {
         Long answer3Id = 3L; // 사용자1이 작성한 답변
 
         // 시나리오 1: 답변1 채택 -> 성공
-        AcceptAnswerResultRes res1 = communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
+        CourseQnaAcceptAnswerResultRes res1 = courseAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
         assertThat(res1).isNotNull();
         assertThat(res1.accepted()).isTrue();
 
         // 질문 상태가 ACCEPTED로 변경되었는지 확인
-        CourseQuestion question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        CourseQuestion question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(answer1Id);
 
         // 시나리오 2: 이미 채택된 상태에서 다른 답변 채택 시도 -> 실패 (409 에러)
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id))
+        assertThatThrownBy(() -> courseAnswerService.acceptAnswer(questionAuthorId, questionId, answer3Id))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
 
         // 시나리오 3: 채택된 답변을 다시 클릭 -> 채택 취소
-        AcceptAnswerResultRes res3 = communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
+        CourseQnaAcceptAnswerResultRes res3 = courseAnswerService.acceptAnswer(questionAuthorId, questionId, answer1Id);
         assertThat(res3).isNotNull();
         assertThat(res3.accepted()).isFalse();
 
         // 질문 상태가 ANSWERED로 변경되었는지 확인
-        question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
         assertThat(question.getAcceptedAnswer()).isNull();
 
         // 시나리오 4: 질문자가 아닌 사용자의 채택 시도 -> 실패
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, questionId, answer1Id))
+        assertThatThrownBy(() -> courseAnswerService.acceptAnswer(1L, questionId, answer1Id))
                 .isInstanceOf(CustomException.class);
 
         // 시나리오 5: 질문자 본인 답변 채택 시도 -> 성공
-        var res4 = communityAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id);
+        var res4 = courseAnswerService.acceptAnswer(questionAuthorId, questionId, answer2Id);
         assertThat(res4.accepted()).isTrue();
         assertThat(res4.answerId()).isEqualTo(answer2Id);
         
         // 질문 상태 확인
-        question = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        question = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
         assertThat(question.getAcceptedAnswer()).isNotNull();
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(answer2Id);
@@ -525,11 +525,11 @@ class CourseAnswerServiceTest {
         when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("00000000-0000-0000-0000-000000000001.jpg");
 
         // 시나리오 1: 첫 번째 답변 작성 및 채택
-        CommunityAnswerCreateReq firstAnswerReq = new CommunityAnswerCreateReq("첫 번째 크리에이터 답변", null);
-        var firstAnswerRes = communityAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
+        CourseAnswerCreateReq firstAnswerReq = new CourseAnswerCreateReq("첫 번째 크리에이터 답변", null);
+        var firstAnswerRes = courseAnswerService.saveAnswer(2L, 1L, firstAnswerReq, List.of());
         Long firstAnswerId = firstAnswerRes.answerId();
 
-        AcceptAnswerResultRes acceptResult = communityAnswerService.acceptAnswer(1L, 1L, firstAnswerId);
+        CourseQnaAcceptAnswerResultRes acceptResult = courseAnswerService.acceptAnswer(1L, 1L, firstAnswerId);
         assertThat(acceptResult.accepted()).isTrue();
 
         CourseQuestion question = courseQuestionRepository.findById(1L).orElseThrow();
@@ -537,8 +537,8 @@ class CourseAnswerServiceTest {
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId);
 
         // 시나리오 2: 새 답변 작성 후에도 채택 상태 유지 확인
-        CommunityAnswerCreateReq secondAnswerReq = new CommunityAnswerCreateReq("두 번째 크리에이터 답변", null);
-        var secondAnswerRes = communityAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
+        CourseAnswerCreateReq secondAnswerReq = new CourseAnswerCreateReq("두 번째 크리에이터 답변", null);
+        var secondAnswerRes = courseAnswerService.saveAnswer(3L, 1L, secondAnswerReq, List.of());
         Long secondAnswerId = secondAnswerRes.answerId();
 
         question = courseQuestionRepository.findById(1L).orElseThrow();
@@ -546,19 +546,19 @@ class CourseAnswerServiceTest {
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변이 여전히 채택됨
 
         // 시나리오 3: 이미 채택된 상태에서 다른 답변 채택 시도 -> 409 에러
-        assertThatThrownBy(() -> communityAnswerService.acceptAnswer(1L, 1L, secondAnswerId))
+        assertThatThrownBy(() -> courseAnswerService.acceptAnswer(1L, 1L, secondAnswerId))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_ALREADY_ACCEPTED_ANSWER);
 
         // 시나리오 4: 채택되지 않은 답변 삭제 -> 채택 상태 유지
-        communityAnswerService.deleteAnswer(3L, secondAnswerId);
+        courseAnswerService.deleteAnswer(3L, secondAnswerId);
         question = courseQuestionRepository.findById(1L).orElseThrow();
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED); // 여전히 ACCEPTED
         assertThat(question.getAcceptedAnswer().getId()).isEqualTo(firstAnswerId); // 첫 번째 답변 여전히 채택됨
 
         // 시나리오 5: 채택된 답변 삭제 -> 채택 상태 해제
-        communityAnswerService.deleteAnswer(2L, firstAnswerId);
+        courseAnswerService.deleteAnswer(2L, firstAnswerId);
         question = courseQuestionRepository.findById(1L).orElseThrow();
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.WAITING); // 답변 없으므로 WAITING
         assertThat(question.getAcceptedAnswer()).isNull(); // 채택된 답변 없음
@@ -593,13 +593,13 @@ class CourseAnswerServiceTest {
         Long questionId = 1L;
 
         // when
-        List<CommunityAnswerRes> result = communityAnswerService.getAcceptedAnswers(questionId);
+        List<CourseAnswerRes> result = courseAnswerService.getAcceptedAnswers(questionId);
 
         // then
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
 
-        CommunityAnswerRes acceptedAnswer = result.get(0);
+        CourseAnswerRes acceptedAnswer = result.get(0);
         assertThat(acceptedAnswer.answerId()).isEqualTo(1L);
         assertThat(acceptedAnswer.content()).isEqualTo("질문A의 채택된 답변");
         assertThat(acceptedAnswer.isAccepted()).isTrue();

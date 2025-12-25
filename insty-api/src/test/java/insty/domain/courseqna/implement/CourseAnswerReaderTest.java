@@ -32,7 +32,7 @@ import org.springframework.data.domain.Pageable;
 class CourseAnswerReaderTest {
 
     @InjectMocks
-    private CommunityAnswerReader reader;
+    private CourseAnswerReader reader;
     @Mock
     private CourseAnswerRepository answerRepository;
     @Mock

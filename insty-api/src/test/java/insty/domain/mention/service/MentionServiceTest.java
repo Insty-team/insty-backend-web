@@ -12,7 +12,7 @@ import insty.domain.mention.implement.MentionNotificationManager;
 import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionReader;
 import insty.domain.mention.implement.MentionWriter;
-import insty.domain.courseqna.implement.CommunityAnswerReader;
+import insty.domain.courseqna.implement.CourseAnswerReader;
 import insty.domain.user.implement.UserFileReader;
 import insty.domain.user.repository.UserRepository;
 import insty.global.property.AppProperties;
@@ -59,7 +59,7 @@ class MentionServiceTest {
     private UserFileReader userFileReader;
 
     @Autowired
-    private CommunityAnswerReader communityAnswerReader;
+    private CourseAnswerReader courseAnswerReader;
 
     @Autowired
     private UserRepository userRepository;
@@ -122,7 +122,7 @@ class MentionServiceTest {
     @Test
     void processMentions_정상() {
         // given
-        CourseAnswer courseAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCommunityAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님!";
 
@@ -157,7 +157,7 @@ class MentionServiceTest {
     @Test
     void processMentions_멘션없음_정상() {
         // given
-        CourseAnswer courseAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCommunityAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요! 멘션 없습니다.";
 
@@ -186,7 +186,7 @@ class MentionServiceTest {
     @Test
     void processMentions_다중멘션_정상() {
         // given
-        CourseAnswer courseAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCommunityAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님과 @[김철수](3)님!";
 

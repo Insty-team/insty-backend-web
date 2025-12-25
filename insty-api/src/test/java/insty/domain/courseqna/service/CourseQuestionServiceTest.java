@@ -10,25 +10,25 @@ import insty.ai.adapter.AiRequester;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
-import insty.domain.courseqna.dto.CommunityQuestionCreateReq;
-import insty.domain.courseqna.dto.CommunityQuestionDetailsRes;
-import insty.domain.courseqna.dto.CommunityQuestionMyRes;
-import insty.domain.courseqna.dto.CommunityQuestionRes;
-import insty.domain.courseqna.dto.CommunityQuestionSearchReq;
-import insty.domain.courseqna.dto.CommunityQuestionUpdateReq;
-import insty.domain.courseqna.implement.CommunityAnswerFileReader;
-import insty.domain.courseqna.implement.CommunityAnswerFileWriter;
-import insty.domain.courseqna.implement.CommunityAnswerMapper;
-import insty.domain.courseqna.implement.CommunityAnswerReader;
-import insty.domain.courseqna.implement.CommunityAnswerVideoManager;
-import insty.domain.courseqna.implement.CommunityAnswerWriter;
-import insty.domain.courseqna.implement.CommunityQuestionFileReader;
-import insty.domain.courseqna.implement.CommunityQuestionFileWriter;
-import insty.domain.courseqna.implement.CommunityQuestionReader;
-import insty.domain.courseqna.implement.CommunityQuestionStatusManager;
-import insty.domain.courseqna.implement.CommunityQuestionVideoManager;
-import insty.domain.courseqna.implement.CommunityQuestionWriter;
-import insty.domain.courseqna.implement.CommunityValidator;
+import insty.domain.courseqna.dto.CourseQuestionCreateReq;
+import insty.domain.courseqna.dto.CourseQuestionDetailsRes;
+import insty.domain.courseqna.dto.CourseQuestionMyRes;
+import insty.domain.courseqna.dto.CourseQuestionRes;
+import insty.domain.courseqna.dto.CourseQuestionSearchReq;
+import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
+import insty.domain.courseqna.implement.CourseAnswerFileReader;
+import insty.domain.courseqna.implement.CourseAnswerFileWriter;
+import insty.domain.courseqna.implement.CourseAnswerMapper;
+import insty.domain.courseqna.implement.CourseAnswerReader;
+import insty.domain.courseqna.implement.CourseAnswerVideoManager;
+import insty.domain.courseqna.implement.CourseAnswerWriter;
+import insty.domain.courseqna.implement.CourseQuestionFileReader;
+import insty.domain.courseqna.implement.CourseQuestionFileWriter;
+import insty.domain.courseqna.implement.CourseQuestionReader;
+import insty.domain.courseqna.implement.CourseQuestionStatusManager;
+import insty.domain.courseqna.implement.CourseQuestionVideoManager;
+import insty.domain.courseqna.implement.CourseQuestionWriter;
+import insty.domain.courseqna.implement.CourseQnaValidator;
 import insty.domain.courseqna.repository.CourseQuestionViewRepository;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
@@ -64,40 +64,40 @@ import org.springframework.web.multipart.MultipartFile;
 class CourseQuestionServiceTest {
 
     @Autowired
-    private CommunityQuestionService communityQuestionService;
+    private CourseQuestionService courseQuestionService;
 
     @Autowired
-    private CommunityQuestionReader communityQuestionReader;
+    private CourseQuestionReader courseQuestionReader;
     @Autowired
-    private CommunityQuestionWriter communityQuestionWriter;
+    private CourseQuestionWriter courseQuestionWriter;
     @Autowired
-    private CommunityQuestionFileReader communityQuestionFileReader;
+    private CourseQuestionFileReader courseQuestionFileReader;
     @Autowired
-    private CommunityQuestionFileWriter communityQuestionFileWriter;
+    private CourseQuestionFileWriter courseQuestionFileWriter;
     @Autowired
-    private CommunityQuestionVideoManager communityQuestionVideoManager;
+    private CourseQuestionVideoManager courseQuestionVideoManager;
     @Autowired
-    private CommunityValidator communityValidator;
+    private CourseQnaValidator courseQnaValidator;
     @Autowired
-    private CommunityQuestionStatusManager communityQuestionStatusManager;
+    private CourseQuestionStatusManager communityQuestionStatusManager;
     @Autowired
-    private CommunityAnswerService communityAnswerService;
+    private CourseAnswerService courseAnswerService;
     @Autowired
-    private CommunityAnswerWriter communityAnswerWriter;
+    private CourseAnswerWriter courseAnswerWriter;
     @Autowired
-    private CommunityAnswerFileReader communityAnswerFileReader;
+    private CourseAnswerFileReader communityAnswerFileReader;
     @Autowired
-    private CommunityAnswerFileWriter communityAnswerFileWriter;
+    private CourseAnswerFileWriter courseAnswerFileWriter;
     @Autowired
-    private CommunityAnswerVideoManager communityAnswerVideoManager;
+    private CourseAnswerVideoManager courseAnswerVideoManager;
     @Autowired
-    private CommunityAnswerMapper communityAnswerMapper;
+    private CourseAnswerMapper communityAnswerMapper;
     @Autowired
     private UserReader userReader;
     @Autowired
     private CourseReader courseReader;
     @Autowired
-    private CommunityAnswerReader communityAnswerReader;
+    private CourseAnswerReader communityAnswerReader;
     @Autowired
     private CourseQuestionViewRepository courseQuestionViewRepository;
 
@@ -131,7 +131,7 @@ class CourseQuestionServiceTest {
         Long userId = 1L;
         Long courseId = 1L;
         UUID videoUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        CommunityQuestionCreateReq req = new CommunityQuestionCreateReq(courseId, "테스트 질문 제목", "테스트 질문 내용", CommunityBoardType.QNA, videoUuid);
+        CourseQuestionCreateReq req = new CourseQuestionCreateReq(courseId, "테스트 질문 제목", "테스트 질문 내용", CommunityBoardType.QNA, videoUuid);
 
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("attachment", "question_img1.jpg", "image/jpeg", "q-content-1".getBytes()));
@@ -139,7 +139,7 @@ class CourseQuestionServiceTest {
         when(appProperties.getDomain()).thenReturn("insty.test.com");
         when(s3FileManager.upload(any(), anyString(), anyString())).thenReturn("question_img1.jpg");
 
-        CommunityQuestionDetailsRes res = communityQuestionService.saveQuestion(userId, req, attachments);
+        CourseQuestionDetailsRes res = courseQuestionService.saveQuestion(userId, req.courseId(), req, attachments);
 
         assertThat(res).isNotNull();
         assertThat(res.user()).isNotNull();
@@ -204,12 +204,12 @@ class CourseQuestionServiceTest {
         Long userId = 1L;
         Long questionId = 1L;
 
-        var before = communityQuestionReader.getCommunityQuestionWithFilesById(questionId);
-        List<FileInfo> existingFiles = communityQuestionFileReader.getQuestionFileInfos(before);
+        var before = courseQuestionReader.getCommunityQuestionWithFilesById(questionId);
+        List<FileInfo> existingFiles = courseQuestionFileReader.getQuestionFileInfos(before);
         assertThat(existingFiles).hasSize(2);
         List<Long> deleteFileIds = existingFiles.stream().map(FileInfo::id).toList();
 
-        CommunityQuestionUpdateReq req = new CommunityQuestionUpdateReq("수정된 질문 제목", "수정된 질문 내용",
+        CourseQuestionUpdateReq req = new CourseQuestionUpdateReq("수정된 질문 제목", "수정된 질문 내용",
                 UUID.fromString("00000000-0000-0000-0000-000000000011"), deleteFileIds);
 
         List<MultipartFile> newAttachments = List.of(
@@ -222,7 +222,7 @@ class CourseQuestionServiceTest {
 
         when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
 
-        CommunityQuestionDetailsRes res = communityQuestionService.updateQuestion(userId, questionId, req,
+        CourseQuestionDetailsRes res = courseQuestionService.updateQuestion(userId, questionId, req,
                 newAttachments);
 
         assertThat(res).isNotNull();
@@ -276,9 +276,9 @@ class CourseQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (11, 1, 2, '[키워드] 다른코스 WAIT', '내용', 'WAITING', DATEADD('MINUTE', -1, NOW()), NOW(), false);"})
     void searchQuestions_정상() {
-        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED), null);
+        CourseQuestionSearchReq req = new CourseQuestionSearchReq(1, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED), null);
 
-        SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestions(req);
+        SearchRes<CourseQuestionRes> res = courseQuestionService.searchQuestions(req);
 
         assertThat(res).isNotNull();
         assertThat(res.items()).hasSize(5);
@@ -290,16 +290,16 @@ class CourseQuestionServiceTest {
         assertThat(res.pagination().perPage()).isEqualTo(5);
         assertThat(res.pagination().totalItems()).isEqualTo(7);
 
-        CommunityQuestionSearchReq page2Req = new CommunityQuestionSearchReq(2, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED), null);
+        CourseQuestionSearchReq page2Req = new CourseQuestionSearchReq(2, 5, null, null, "키워드", java.util.List.of(QuestionStatus.ANSWERED, QuestionStatus.ACCEPTED), null);
 
-        SearchRes<CommunityQuestionRes> resPage2 = communityQuestionService.searchQuestions(page2Req);
+        SearchRes<CourseQuestionRes> resPage2 = courseQuestionService.searchQuestions(page2Req);
         assertThat(resPage2.items()).hasSize(2);
         assertThat(resPage2.items().get(0).createdAt()).isAfter(resPage2.items().get(1).createdAt());
 
-        CommunityQuestionSearchReq waitingReq = new CommunityQuestionSearchReq(1, 10, null, null, "키워드", java.util.List.of(QuestionStatus.WAITING), null);
+        CourseQuestionSearchReq waitingReq = new CourseQuestionSearchReq(1, 10, null, null, "키워드", java.util.List.of(QuestionStatus.WAITING), null);
 
-        SearchRes<CommunityQuestionRes> waitingRes = communityQuestionService.searchQuestions(waitingReq);
-        assertThat(waitingRes.items()).extracting(CommunityQuestionRes::status).containsOnly(QuestionStatus.WAITING);
+        SearchRes<CourseQuestionRes> waitingRes = courseQuestionService.searchQuestions(waitingReq);
+        assertThat(waitingRes.items()).extracting(CourseQuestionRes::status).containsOnly(QuestionStatus.WAITING);
     }
 
     /**
@@ -376,19 +376,19 @@ class CourseQuestionServiceTest {
             "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (10, 1, 7, '질문7 자기답변', false, DATEADD('MINUTE', -38, NOW()), NOW(), false);"})
     void searchQuestionsByUserId_정상() {
-        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null, null);
+        CourseQuestionSearchReq req = new CourseQuestionSearchReq(1, 10, null, null, null, null, null);
 
-        SearchRes<CommunityQuestionMyRes> res = communityQuestionService.searchQuestionsByUserId(req, 1L);
+        SearchRes<CourseQuestionMyRes> res = courseQuestionService.searchQuestionsByUserId(req, 1L);
 
         assertThat(res).isNotNull();
         assertThat(res.items()).hasSize(4);
         assertThat(res.items().stream().allMatch(q -> q.user().id().equals(1L))).isTrue();
         
         // 최신순 정렬
-        CommunityQuestionMyRes question1 = res.items().get(0); // 질문2
-        CommunityQuestionMyRes question2 = res.items().get(1); // 질문1
-        CommunityQuestionMyRes question3 = res.items().get(2); // 질문6
-        CommunityQuestionMyRes question4 = res.items().get(3); // 질문7
+        CourseQuestionMyRes question1 = res.items().get(0); // 질문2
+        CourseQuestionMyRes question2 = res.items().get(1); // 질문1
+        CourseQuestionMyRes question3 = res.items().get(2); // 질문6
+        CourseQuestionMyRes question4 = res.items().get(3); // 질문7
         
         // 답변 수 검증
         assertThat(question1.answerCount()).isEqualTo(1);
@@ -437,9 +437,9 @@ class CourseQuestionServiceTest {
             "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (5, 2, 2, 'C2-Q2', '내용5', 'WAITING', DATEADD('MINUTE', -15, NOW()), NOW(), false);"})
     void searchQuestionsByCourseId_정상() {
-        CommunityQuestionSearchReq req = new CommunityQuestionSearchReq(1, 10, null, null, null, null, null);
+        CourseQuestionSearchReq req = new CourseQuestionSearchReq(1, 10, null, null, null, null, null);
 
-        SearchRes<CommunityQuestionRes> res = communityQuestionService.searchQuestionsByCourseId(req, 1L);
+        SearchRes<CourseQuestionRes> res = courseQuestionService.searchQuestionsByCourseId(req, 1L);
 
         assertThat(res).isNotNull();
         assertThat(res.items()).hasSize(2);
@@ -486,7 +486,7 @@ class CourseQuestionServiceTest {
     void getQuestionDetails_정상() {
         when(appProperties.getDomain()).thenReturn("insty.test.com");
 
-        CommunityQuestionDetailsRes res = communityQuestionService.getQuestionDetails(1L, 1L);
+        CourseQuestionDetailsRes res = courseQuestionService.getQuestionDetails(1L, 1L);
 
         assertThat(res).isNotNull();
         assertThat(res.user().id()).isEqualTo(1L);
@@ -545,15 +545,15 @@ class CourseQuestionServiceTest {
         Long userId = 1L;
         Long questionId = 1L;
 
-        var before = communityQuestionReader.getCommunityQuestionWithAnswerById(questionId);
+        var before = courseQuestionReader.getCommunityQuestionWithAnswerById(questionId);
         assertThat(before.getAnswers()).hasSize(2);
-        assertThat(communityQuestionVideoManager.getVideoQuestion(before)).isNotNull();
+        assertThat(courseQuestionVideoManager.getVideoQuestion(before)).isNotNull();
 
         when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
 
-        communityQuestionService.deleteQuestion(userId, questionId);
+        courseQuestionService.deleteQuestion(userId, questionId);
 
-        assertThatThrownBy(() -> communityQuestionReader.getCommunityQuestionWithAnswerById(questionId)).isInstanceOf(
+        assertThatThrownBy(() -> courseQuestionReader.getCommunityQuestionWithAnswerById(questionId)).isInstanceOf(
                 insty.exception.CustomException.class);
         assertThatThrownBy(() -> communityAnswerReader.getCommunityAnswerById(1L)).isInstanceOf(
                 insty.exception.CustomException.class);
@@ -579,7 +579,7 @@ class CourseQuestionServiceTest {
         Long otherUserId = 999L;
 
         // when - 질문 작성자가 조회
-        communityQuestionService.getQuestionDetails(questionId, questionAuthorId);
+        courseQuestionService.getQuestionDetails(questionId, questionAuthorId);
 
         // then - 질문 작성자의 조회 기록이 생성되었는지 확인
         CourseQuestionView authorView = courseQuestionViewRepository.findByQuestionIdAndUserId(questionId, questionAuthorId).orElse(null);
@@ -590,7 +590,7 @@ class CourseQuestionServiceTest {
 
         // when - 강의 개시자가 조회
         Thread.sleep(100); // 시간 차이를 위해 잠시 대기
-        communityQuestionService.getQuestionDetails(questionId, courseCreatorId);
+        courseQuestionService.getQuestionDetails(questionId, courseCreatorId);
 
         // then - 강의 개시자의 조회 기록이 생성되었는지 확인
         CourseQuestionView creatorView = courseQuestionViewRepository.findByQuestionIdAndUserId(questionId, courseCreatorId).orElse(null);
@@ -601,7 +601,7 @@ class CourseQuestionServiceTest {
 
         // when - 다른 사용자가 조회
         Thread.sleep(100); // 시간 차이를 위해 잠시 대기
-        communityQuestionService.getQuestionDetails(questionId, otherUserId);
+        courseQuestionService.getQuestionDetails(questionId, otherUserId);
 
         // then - 다른 사용자의 조회 기록은 생성되지 않았는지 확인
         CourseQuestionView otherView = courseQuestionViewRepository.findByQuestionIdAndUserId(questionId, otherUserId).orElse(null);
@@ -637,29 +637,28 @@ class CourseQuestionServiceTest {
     })
     void searchQuestions_게시판타입별_필터링_정상() {
         // QNA 전용 조회
-        CommunityQuestionSearchReq qnaReq =
-                new CommunityQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.QNA);
+        CourseQuestionSearchReq qnaReq =
+                new CourseQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.QNA);
 
-        SearchRes<CommunityQuestionRes> qnaRes = communityQuestionService.searchQuestions(qnaReq);
+        SearchRes<CourseQuestionRes> qnaRes = courseQuestionService.searchQuestions(qnaReq);
 
         assertThat(qnaRes).isNotNull();
         assertThat(qnaRes.items()).hasSize(2);
         assertThat(qnaRes.items())
-                .extracting(CommunityQuestionRes::title)
+                .extracting(CourseQuestionRes::title)
                 .containsExactlyInAnyOrder("QNA 질문 1", "QNA 질문 2");
 
         // COMMUNITY 전용 조회
-        CommunityQuestionSearchReq communityReq =
-                new CommunityQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.COMMUNITY);
+        CourseQuestionSearchReq communityReq =
+                new CourseQuestionSearchReq(1, 10, null, null, null, null, CommunityBoardType.COMMUNITY);
 
-        SearchRes<CommunityQuestionRes> communityRes = communityQuestionService.searchQuestions(communityReq);
+        SearchRes<CourseQuestionRes> communityRes = courseQuestionService.searchQuestions(communityReq);
 
         assertThat(communityRes).isNotNull();
         assertThat(communityRes.items()).hasSize(2);
         assertThat(communityRes.items())
-                .extracting(CommunityQuestionRes::title)
+                .extracting(CourseQuestionRes::title)
                 .containsExactlyInAnyOrder("커뮤니티 글 1", "커뮤니티 글 2");
     }
 }
-
 

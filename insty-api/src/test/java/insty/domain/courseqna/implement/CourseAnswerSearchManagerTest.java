@@ -10,9 +10,9 @@ import insty.model.courseqna.CourseAnswer;
 import org.mockito.ArgumentCaptor;
 
 import insty.domain.common.SearchRes;
-import insty.domain.courseqna.dto.CommunityAnswerRes;
-import insty.domain.courseqna.dto.CommunityAnswerSearchReq;
-import insty.domain.courseqna.service.CommunityAnswerService;
+import insty.domain.courseqna.dto.CourseAnswerRes;
+import insty.domain.courseqna.dto.CourseAnswerSearchReq;
+import insty.domain.courseqna.service.CourseAnswerService;
 import insty.model.video.VideoAnswer;
 import java.util.List;
 import java.util.Map;
@@ -32,22 +32,22 @@ import org.springframework.data.domain.Pageable;
 class CourseAnswerSearchManagerTest {
 
     @InjectMocks
-    private CommunityAnswerService communityAnswerService;
+    private CourseAnswerService courseAnswerService;
 
     @Mock
-    private CommunityValidator communityValidator;
+    private CourseQnaValidator courseQnaValidator;
     @Mock
-    private CommunityAnswerReader communityAnswerReader;
+    private CourseAnswerReader courseAnswerReader;
     @Mock
-    private CommunityAnswerVideoManager communityAnswerVideoManager;
+    private CourseAnswerVideoManager courseAnswerVideoManager;
     @Mock
-    private CommunityAnswerMapper communityAnswerMapper;
+    private CourseAnswerMapper courseAnswerMapper;
 
     @Test
     void getAnswersByQuestionId_정상() {
         // given
         Long questionId = 1L;
-        CommunityAnswerSearchReq req = new CommunityAnswerSearchReq(1, 10);
+        CourseAnswerSearchReq req = new CourseAnswerSearchReq(1, 10);
         
         CourseAnswer answer1 = mock(CourseAnswer.class);
         CourseAnswer answer2 = mock(CourseAnswer.class);
@@ -55,21 +55,21 @@ class CourseAnswerSearchManagerTest {
         Page<CourseAnswer> answerPage = new PageImpl<>(answers, PageRequest.of(0, 10), 2);
         
         Map<Long, VideoAnswer> videoMap = Map.of();
-        CommunityAnswerRes answerRes1 = mock(CommunityAnswerRes.class);
-        CommunityAnswerRes answerRes2 = mock(CommunityAnswerRes.class);
-        List<CommunityAnswerRes> answerResList = List.of(answerRes1, answerRes2);
+        CourseAnswerRes answerRes1 = mock(CourseAnswerRes.class);
+        CourseAnswerRes answerRes2 = mock(CourseAnswerRes.class);
+        List<CourseAnswerRes> answerResList = List.of(answerRes1, answerRes2);
 
         var captor = ArgumentCaptor.forClass(Pageable.class);
-        when(communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
+        when(courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
-        when(communityAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
-        when(communityAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
+        when(courseAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
+        when(courseAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
 
         // when
-        SearchRes<CommunityAnswerRes> result = communityAnswerService.getAnswersByQuestionId(questionId, req);
+        SearchRes<CourseAnswerRes> result = courseAnswerService.getAnswersByQuestionId(questionId, req);
 
         // then
-        verify(communityValidator).validateQuestionExists(questionId);
+        verify(courseQnaValidator).validateQuestionExists(questionId);
         assertThat(result.items()).containsExactly(answerRes1, answerRes2);
         assertThat(result.pagination().totalItems()).isEqualTo(2);
         assertThat(result.pagination().currentPage()).isEqualTo(1);
@@ -83,27 +83,27 @@ class CourseAnswerSearchManagerTest {
     void getAnswersByQuestionId_페이지2_정상() {
         // given
         Long questionId = 1L;
-        CommunityAnswerSearchReq req = new CommunityAnswerSearchReq(2, 5);
+        CourseAnswerSearchReq req = new CourseAnswerSearchReq(2, 5);
         
         CourseAnswer answer = mock(CourseAnswer.class);
         List<CourseAnswer> answers = List.of(answer);
         Page<CourseAnswer> answerPage = new PageImpl<>(answers, PageRequest.of(1, 5), 10); // total 10 items
         
         Map<Long, VideoAnswer> videoMap = Map.of();
-        CommunityAnswerRes answerRes = mock(CommunityAnswerRes.class);
-        List<CommunityAnswerRes> answerResList = List.of(answerRes);
+        CourseAnswerRes answerRes = mock(CourseAnswerRes.class);
+        List<CourseAnswerRes> answerResList = List.of(answerRes);
 
         var captor = ArgumentCaptor.forClass(Pageable.class);
-        when(communityAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
+        when(courseAnswerReader.getCommunityAnswersByQuestionIdWithPagination(eq(questionId), captor.capture()))
                 .thenReturn(answerPage);
-        when(communityAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
-        when(communityAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
+        when(courseAnswerVideoManager.getVideoMapByAnswers(answers)).thenReturn(videoMap);
+        when(courseAnswerMapper.toCommunityAnswerResList(answers, videoMap)).thenReturn(answerResList);
 
         // when
-        SearchRes<CommunityAnswerRes> result = communityAnswerService.getAnswersByQuestionId(questionId, req);
+        SearchRes<CourseAnswerRes> result = courseAnswerService.getAnswersByQuestionId(questionId, req);
 
         // then
-        verify(communityValidator).validateQuestionExists(questionId);
+        verify(courseQnaValidator).validateQuestionExists(questionId);
         assertThat(result.items()).containsExactly(answerRes);
         assertThat(result.pagination().totalItems()).isEqualTo(10);
         assertThat(result.pagination().currentPage()).isEqualTo(2);

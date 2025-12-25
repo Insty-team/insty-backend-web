@@ -4,7 +4,7 @@ import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
-import insty.domain.courseqna.implement.CommunityQuestionReader;
+import insty.domain.courseqna.implement.CourseQuestionReader;
 import insty.domain.course.dto.*;
 import insty.domain.course.implement.CourseComplexReader;
 import insty.domain.course.implement.CourseCounter;
@@ -46,7 +46,7 @@ public class CourseService {
     private final UserReader userReader;
     private final CourseProgressWriter courseProgressWriter;
     private final CourseProgressValidator courseProgressValidator;
-    private final CommunityQuestionReader communityQuestionReader;
+    private final CourseQuestionReader courseQuestionReader;
 
     public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -145,7 +145,7 @@ public class CourseService {
         List<Long> courseIds = searchInfo.stream()
                 .map(CourseProgressSearchInfo::courseId)
                 .toList();
-        Map<Long, Long> countByCourseIds = communityQuestionReader.getCountByCourseIds(courseIds);
+        Map<Long, Long> countByCourseIds = courseQuestionReader.getCountByCourseIds(courseIds);
 
         List<CourseProgressSearchInfo> finalResult = searchInfo.stream()
                 .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, countByCourseIds.getOrDefault(dto.courseId(), 0L)))

@@ -29,7 +29,7 @@ import org.mockito.quality.Strictness;
 class CourseAnswerAcceptManagerTest {
 
     @InjectMocks
-    private CommunityAnswerAcceptManager service;
+    private CourseAnswerAcceptManager service;
     @Mock
     private CourseQuestionRepository repository;
 

@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.domain.courseqna.dto.CommunityAnswerCreateReq;
-import insty.domain.courseqna.dto.CommunityAnswerUpdateReq;
+import insty.domain.courseqna.dto.CourseAnswerCreateReq;
+import insty.domain.courseqna.dto.CourseAnswerUpdateReq;
 import insty.domain.courseqna.repository.CourseAnswerFileRepository;
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.error.CommunityErrorCode;
@@ -29,13 +29,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CourseAnswerWriterTest {
 
     @InjectMocks
-    private CommunityAnswerWriter writer;
+    private CourseAnswerWriter writer;
     @Mock
     private CourseAnswerRepository answerRepository;
     @Mock
-    private CommunityAnswerVideoManager communityAnswerVideoManager;
+    private CourseAnswerVideoManager courseAnswerVideoManager;
     @Mock
-    private CommunityAnswerFileWriter communityAnswerFileWriter;
+    private CourseAnswerFileWriter courseAnswerFileWriter;
     @Mock
     private CourseAnswerFileRepository fileRepository;
 
@@ -44,7 +44,7 @@ class CourseAnswerWriterTest {
         // given
         User user = mock(User.class);
         CourseQuestion question = mock(CourseQuestion.class);
-        CommunityAnswerCreateReq req = new CommunityAnswerCreateReq("내용", null);
+        CourseAnswerCreateReq req = new CourseAnswerCreateReq("내용", null);
         when(answerRepository.save(any(CourseAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -60,7 +60,7 @@ class CourseAnswerWriterTest {
     void updateAnswer_정상() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq("내용", null, null);
+        CourseAnswerUpdateReq req = new CourseAnswerUpdateReq("내용", null, null);
         CourseAnswer answer = mock(CourseAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         when(answerRepository.save(any(CourseAnswer.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -78,7 +78,7 @@ class CourseAnswerWriterTest {
     void updateAnswer_에러_이미삭제됨() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq("내용", null, null);
+        CourseAnswerUpdateReq req = new CourseAnswerUpdateReq("내용", null, null);
         CourseAnswer answer = mock(CourseAnswer.class);
         when(answerRepository.findById(id)).thenReturn(Optional.of(answer));
         when(answer.isDeleted()).thenReturn(true);
@@ -94,7 +94,7 @@ class CourseAnswerWriterTest {
     void updateAnswer_에러_존재하지않음() {
         // given
         Long id = 1L;
-        CommunityAnswerUpdateReq req = new CommunityAnswerUpdateReq("내용", null, null);
+        CourseAnswerUpdateReq req = new CourseAnswerUpdateReq("내용", null, null);
         when(answerRepository.findById(id)).thenReturn(Optional.empty());
 
         // when & then
