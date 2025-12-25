@@ -44,20 +44,6 @@ public class CourseQuestionReader {
         return courseQuestionQueryRepository.getAnswerCountsByQuestionIds(questionIds);
     }
 
-    /**
-     * 모든 커뮤니티 질문 조회 (가급적 쓰지 말것)
-     */
-    public List<CourseQuestion> getAllCommunityQuestions() {
-        return courseQuestionRepository.findAll();
-    }
-
-    /**
-     * 특정 강좌의 모든 커뮤니티 질문 조회
-     */
-    public List<CourseQuestion> getAllCommunityQuestionsByCourseId(Long courseId) {
-        return courseQuestionRepository.findAllByCourseId(courseId);
-    }
-
     public Map<Long, Long> getCountByCourseIds(List<Long> courseIds) {
         return courseQuestionQueryRepository.countByCourseIds(courseIds);
     }
@@ -86,14 +72,6 @@ public class CourseQuestionReader {
             throw new CustomException(CourseQnaErrorCode.COURSE_QUESTION_ALREADY_DELETED);
         }
         return question;
-    }
-
-    /**
-     * 삭제된 질문을 포함한 커뮤니티 질문 상세조회
-     */
-    public CourseQuestion getCommunityQuestionDetailsByIdIncludingDeleted(Long questionId) {
-        return courseQuestionRepository.findById(questionId)
-                .orElseThrow(() -> new CustomException(CommunityErrorCode.COURSE_QUESTION_NOT_FOUND));
     }
 
     /**
