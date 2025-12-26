@@ -43,7 +43,7 @@ public class VideoAnswer extends BaseEntity implements BaseVideo {
     private UUID videoUuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "community_answer_id")
+    @JoinColumn(name = "course_answer_id")
     private CourseAnswer courseAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)

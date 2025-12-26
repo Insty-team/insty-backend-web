@@ -111,9 +111,9 @@ class CourseAnswerServiceTest {
                     + "VALUES (2, 'course_creator@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 10, 'PROCESSING', NOW(), NOW(), NOW(), false)"})
     @Test
     void saveAnswer_정상() {
@@ -189,17 +189,17 @@ class CourseAnswerServiceTest {
                     + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '기존 답변 내용', false, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'image/jpeg', 'old_attachment1.jpg', 'old_attachment1.jpg', 1024, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'old_attachment1.jpg'), NOW(), NOW());",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/old_answer_video.mp4', 'mp4', 'old_answer_video.mp4', 15, 'COMPLETED', NOW(), NOW(), NOW(), false);",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (2, '00000000-0000-0000-0000-000000000002', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000002/new_answer_video.mp4', 'mp4', 'new_answer_video.mp4', 20, 'COMPLETED', NOW(), NOW(), NOW(), false)"})
     @Test
     void updateAnswer_정상() {
@@ -260,23 +260,23 @@ class CourseAnswerServiceTest {
                     + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '질문A의 첫 번째 답변 (채택됨)', true, DATEADD('MINUTE', -30, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 2, 1, '질문A의 두 번째 답변 (비디오 포함)', false, DATEADD('MINUTE', -20, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (3, 1, 1, '질문A의 세 번째 답변 (첨부파일 포함)', false, DATEADD('MINUTE', -10, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (4, 2, 2, '질문B의 답변 (다른 질문)', false, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (3, 'ANSWER_IMAGE', 'image/jpeg', 'attachment1.jpg', 'attachment1.jpg', 1024, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (3, (SELECT id FROM web_service.files WHERE name = 'attachment1.jpg'), NOW(), NOW());",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 2, 2, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 15, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void getAllAnswersByQuestionId_정상() {
@@ -330,19 +330,19 @@ class CourseAnswerServiceTest {
                     + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '상세 조회할 답변 내용입니다.', true, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'image/jpeg', 'detail_attachment1.jpg', 'detail_attachment1.jpg', 1024, NOW(), NOW());",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'application/pdf', 'detail_attachment2.pdf', 'detail_attachment2.pdf', 2048, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'detail_attachment1.jpg'), NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'detail_attachment2.pdf'), NOW(), NOW());",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/detail_answer_video.mp4', 'mp4', 'detail_answer_video.mp4', 25, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void getAnswerDetails_정상() {
@@ -387,19 +387,19 @@ class CourseAnswerServiceTest {
                     + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '삭제할 답변 내용입니다.', true, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'image/jpeg', 'delete_attachment1.jpg', 'delete_attachment1.jpg', 1024, NOW(), NOW());",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'application/pdf', 'delete_attachment2.pdf', 'delete_attachment2.pdf', 2048, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'delete_attachment1.jpg'), NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'delete_attachment2.pdf'), NOW(), NOW());",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/delete_answer_video.mp4', 'mp4', 'delete_answer_video.mp4', 30, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void deleteAnswer_정상() {
@@ -450,13 +450,13 @@ class CourseAnswerServiceTest {
                     + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '답변1 - 사용자1이 작성', false, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 2, 1, '답변2 - 사용자2(질문자)가 작성', false, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (3, 1, 1, '답변3 - 사용자1이 작성', false, NOW(), NOW(), false);"})
     @Test
     void acceptAnswer_종합테스트() {
@@ -516,7 +516,7 @@ class CourseAnswerServiceTest {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (2, 'creator1@test.com', 'creator1', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) VALUES (3, 'creator2@test.com', 'creator2', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW())",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) VALUES (1, 2, '테스트 강의', '강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false)",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) VALUES (1, 1, 1, '질문 제목', '질문 내용', 'WAITING', NOW(), NOW(), false)"
     })
     @Test
     void acceptAnswer_동적시나리오_종합테스트() {
@@ -571,21 +571,21 @@ class CourseAnswerServiceTest {
                     + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, 1, '질문A의 채택된 답변', true, DATEADD('MINUTE', -30, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, 1, '질문A의 일반 답변', false, DATEADD('MINUTE', -20, NOW()), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (3, 2, 2, '질문B의 답변', false, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
                     + "VALUES (1, 'ANSWER_IMAGE', 'image/jpeg', 'accepted_attachment.jpg', 'accepted_attachment.jpg', 1024, NOW(), NOW());",
-            "INSERT INTO web_service.community_answers_files (answer_id, file_id, created_at, updated_at) "
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) "
                     + "VALUES (1, (SELECT id FROM web_service.files WHERE name = 'accepted_attachment.jpg'), NOW(), NOW());",
-            "INSERT INTO web_service.video_answers (id, video_uuid, community_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', 1, 2, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/accepted_answer_video.mp4', 'mp4', 'accepted_answer_video.mp4', 20, 'COMPLETED', NOW(), NOW(), NOW(), false);"})
     @Test
     void getAcceptedAnswers_정상() {

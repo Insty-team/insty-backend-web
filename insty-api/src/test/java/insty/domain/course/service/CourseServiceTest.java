@@ -523,9 +523,9 @@ class CourseServiceTest {
                     + "VALUES (2, 2, '자바 설치 강의', '다른 사람이 올린 영상', 20000, 0, 0, '자바 개발 환경 설치가 처음인 초보자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_progress (id, user_id, course_id , status , created_at, updated_at) "
                     + "VALUES (1, 1, 1, 'COMPLETE', NOW(), NOW())",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문1', '테스트 내용1', 'WAITING', NOW(), NOW(), false)",
-            "INSERT INTO web_service.community_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (2, 1, 1, '테스트 질문2', '테스트 내용2', 'WAITING', NOW(), NOW(), false)"
     })
     @Test

@@ -34,7 +34,7 @@ public class Mention extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "community_answer_id", nullable = false)
+    @JoinColumn(name = "course_answer_id", nullable = false)
     private CourseAnswer courseAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
