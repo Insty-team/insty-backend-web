@@ -17,10 +17,15 @@ public enum CommunityErrorCode implements ErrorCode {
     COMMUNITY_USER_ID_REQUIRED("COMMUNITY_008", "사용자 ID가 필요합니다.", 400),
     COMMUNITY_POST_ID_REQUIRED("COMMUNITY_009", "게시글 ID가 필요합니다.", 400),
     COMMUNITY_FILE_IS_EMPTY("COMMUNITY_010", "파일이 비어있습니다.", 400),
+    COMMUNITY_MAX_FILE_COUNT_EXCEEDED("COMMUNITY_011", "첨부파일 개수가 초과되었습니다.", 400),
 
     // Conflict Errors (409)
-    COMMUNITY_POST_ALREADY_DELETED("COMMUNITY_011", "이미 삭제된 게시글입니다.", 409),
-    COMMUNITY_COMMENT_ALREADY_DELETED("COMMUNITY_012", "이미 삭제된 댓글입니다.", 409);
+    COMMUNITY_POST_ALREADY_DELETED("COMMUNITY_012", "이미 삭제된 게시글입니다.", 409),
+    COMMUNITY_COMMENT_ALREADY_DELETED("COMMUNITY_013", "이미 삭제된 댓글입니다.", 409),
+
+    // Forbidden Errors (403)
+    COMMUNITY_NOT_POST_AUTHOR("COMMUNITY_014", "게시글 작성자가 아닙니다.", 403),
+    COMMUNITY_NOT_COMMENT_AUTHOR("COMMUNITY_015", "댓글 작성자가 아닙니다.", 403);
 
     private final String code;
     private final String message;

@@ -1,0 +1,104 @@
+package insty.domain.community.service;
+
+import insty.domain.common.FileInfo;
+import insty.domain.common.SearchRes;
+import insty.domain.common.dto.PaginationRes;
+import insty.domain.community.dto.CommunityCommentCreateReq;
+import insty.domain.community.dto.CommunityCommentRes;
+import insty.domain.community.dto.CommunityCommentSearchReq;
+import insty.domain.community.dto.CommunityCommentUpdateReq;
+import insty.domain.community.implement.CommunityCommentFileReader;
+import insty.domain.community.implement.CommunityCommentFileWriter;
+import insty.domain.community.implement.CommunityCommentReader;
+import insty.domain.community.implement.CommunityCommentVideoManager;
+import insty.domain.community.implement.CommunityCommentWriter;
+import insty.domain.community.implement.CommunityPostReader;
+import insty.domain.community.implement.CommunityValidator;
+import insty.domain.user.implement.UserReader;
+import insty.model.community.CommunityComment;
+import insty.model.community.CommunityPost;
+import insty.model.user.User;
+import insty.model.video.VideoCommunityComment;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class CommunityCommentService {
+
+    private final CommunityPostReader communityPostReader;
+    private final CommunityCommentReader communityCommentReader;
+    private final CommunityCommentWriter communityCommentWriter;
+    private final CommunityCommentFileWriter communityCommentFileWriter;
+    private final CommunityCommentFileReader communityCommentFileReader;
+    private final CommunityCommentVideoManager communityCommentVideoManager;
+    private final CommunityValidator communityValidator;
+    private final UserReader userReader;
+
+    public SearchRes<CommunityCommentRes> getComments(Long postId, CommunityCommentSearchReq req) {
+        CommunityPost post = communityPostReader.getPost(postId);
+        List<CommunityComment> comments = communityCommentReader.getCommentsByPostId(post.getId());
+        PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), comments.size());
+        List<CommunityComment> paged = comments.subList(Math.min(start, comments.size()), end);
+
+        List<CommunityCommentRes> items = paged.stream()
+                .map(comment -> CommunityCommentRes.from(
+                        comment,
+                        communityCommentFileReader.getCommentFileInfos(comment),
+                        communityCommentVideoManager.getVideo(comment)
+                ))
+                .toList();
+
+        Page<CommunityCommentRes> page = new PageImpl<>(items, pageRequest, comments.size());
+        PaginationRes pagination = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
+        return SearchRes.from(pagination, page.getContent());
+    }
+
+    public CommunityCommentRes createComment(Long userId, Long postId, CommunityCommentCreateReq req, List<MultipartFile> attachments) {
+        communityValidator.validateContent(req.content());
+        communityValidator.validateFiles(attachments);
+        communityValidator.validateCommentFileCountForCreate(attachments);
+
+        CommunityPost post = communityValidator.validatePostExists(postId);
+        User user = userReader.getUser(userId);
+
+        CommunityComment comment = communityCommentWriter.saveComment(post, user, req.content());
+        List<FileInfo> files = communityCommentFileWriter.saveCommentFiles(comment, attachments);
+        VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
+
+        return CommunityCommentRes.from(comment, files, video);
+    }
+
+    public CommunityCommentRes updateComment(Long userId, Long commentId, CommunityCommentUpdateReq req, List<MultipartFile> attachments) {
+        communityValidator.validateContent(req.content());
+        communityValidator.validateFiles(attachments);
+
+        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        communityValidator.validateCommentAuthor(userId, comment);
+        communityValidator.validateCommentFileCountForUpdate(commentId, attachments, req.deleteFileIds());
+
+        CommunityComment updated = communityCommentWriter.updateComment(comment, req.content());
+        List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(updated, attachments, req.deleteFileIds());
+        VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
+
+        return CommunityCommentRes.from(updated, files, video);
+    }
+
+    public void deleteComment(Long userId, Long commentId) {
+        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        communityValidator.validateCommentAuthor(userId, comment);
+        communityCommentFileWriter.deleteCommentFiles(comment);
+        communityCommentVideoManager.deleteVideo(comment);
+        communityCommentWriter.deleteComment(comment);
+    }
+}
