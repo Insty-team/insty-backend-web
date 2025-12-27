@@ -136,7 +136,10 @@ class CommunityPostServiceTest {
         List<FileInfo> fileInfos = List.of(new FileInfo(2L, "f1.png", "image/png", 10, "url"));
 
         when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
-        when(communityPostWriter.updatePost(post, req.title(), req.content())).thenReturn(post);
+        when(communityPostWriter.updatePost(post, req.title(), req.content())).thenAnswer(invocation -> {
+            post.update(req.title(), req.content());
+            return post;
+        });
         when(communityPostFileWriter.updatePostFiles(post, addFiles, req.deleteFileIds())).thenReturn(fileInfos);
         when(communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid())).thenReturn(null);
 

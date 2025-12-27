@@ -79,9 +79,11 @@ class CommunityPostVideoManagerTest {
     @Test
     void updateAndGetLinkedVideo_null이면_삭제() {
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
-        VideoCommunityPost current = VideoCommunityPost.create("v.mp4", UUID.randomUUID(),
+        UUID videoUuid = UUID.randomUUID();
+        VideoCommunityPost current = VideoCommunityPost.create("v.mp4", videoUuid,
                 UserFixtureBuilder.getUserWithId());
-        VideoEncoding encoding = VideoEncoding.builder().videoUuid(current.getVideoUuid()).encodingS3Key("vod/x/hls/a/b").build();
+        VideoEncoding encoding = insty.model.video.VideoFixtureBuilder.getVideoEncodingWithId();
+        org.springframework.test.util.ReflectionTestUtils.setField(encoding, "videoUuid", videoUuid);
 
         when(videoCommunityPostRepository.findByCommunityPostIdAndIsDeleted(post.getId(), false))
                 .thenReturn(Optional.of(current));

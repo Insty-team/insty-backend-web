@@ -121,7 +121,10 @@ class CommunityCommentServiceTest {
         List<FileInfo> fileInfos = List.of(new FileInfo(2L, "f1.png", "image/png", 10, "url"));
 
         when(communityValidator.validateCommentExists(comment.getId())).thenReturn(comment);
-        when(communityCommentWriter.updateComment(comment, req.content())).thenReturn(comment);
+        when(communityCommentWriter.updateComment(comment, req.content())).thenAnswer(invocation -> {
+            comment.update(req.content());
+            return comment;
+        });
         when(communityCommentFileWriter.updateCommentFiles(comment, addFiles, req.deleteFileIds())).thenReturn(fileInfos);
         when(communityCommentVideoManager.updateAndGetLinkedVideo(comment, req.videoUuid())).thenReturn(null);
 

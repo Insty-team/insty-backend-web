@@ -34,6 +34,7 @@ public class VideoStrategyFactory {
             case COURSE -> videoCourseReadStrategy;
             case QUESTION -> videoQuestionReadStrategy;
             case ANSWER -> videoAnswerReadStrategy;
+            default -> throw new IllegalArgumentException("Unsupported video type: " + videoType);
         };
     }
 
@@ -42,6 +43,7 @@ public class VideoStrategyFactory {
             case COURSE -> videoCourseValidateStrategy;
             case QUESTION -> videoQuestionValidateStrategy;
             case ANSWER -> videoAnswerValidateStrategy;
+            default -> throw new IllegalArgumentException("Unsupported video type: " + videoType);
         };
     }
 
@@ -50,6 +52,7 @@ public class VideoStrategyFactory {
             case COURSE -> videoCourseWriteStrategy;
             case QUESTION -> videoQuestionWriteStrategy;
             case ANSWER -> videoAnswerWriteStrategy;
+            default -> throw new IllegalArgumentException("Unsupported video type: " + videoType);
         };
     }
 }

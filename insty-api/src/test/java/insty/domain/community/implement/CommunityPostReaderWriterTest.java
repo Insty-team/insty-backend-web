@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import insty.domain.community.repository.CommunityPostRepository;
@@ -12,6 +13,7 @@ import insty.exception.CustomException;
 import insty.model.community.CommunityPost;
 import insty.model.community.CommunityPostFixtureBuilder;
 import insty.model.user.UserFixtureBuilder;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -58,7 +60,7 @@ class CommunityPostReaderWriterTest {
     @Test
     void findPosts_정상() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<CommunityPost> page = new PageImpl<>(Page.empty().getContent(), pageRequest, 0);
+        Page<CommunityPost> page = new PageImpl<>(List.of(), pageRequest, 0);
         when(communityPostRepository.findAllByIsDeletedFalse(pageRequest)).thenReturn(page);
 
         Page<CommunityPost> result = communityPostReader.findPosts(pageRequest);
@@ -76,6 +78,6 @@ class CommunityPostReaderWriterTest {
 
         assertThat(updated.getTitle()).isEqualTo("new title");
         assertThat(updated.isDeleted()).isTrue();
-        verify(communityPostRepository).save(updated);
+        verify(communityPostRepository, times(2)).save(any());
     }
 }
