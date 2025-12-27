@@ -63,25 +63,25 @@ class CourseAnswerServiceTest {
     private CourseAnswerService courseAnswerService;
 
     @Autowired
-    private CourseAnswerReader communityAnswerReader;
+    private CourseAnswerReader courseAnswerReader;
     @Autowired
     private CourseAnswerWriter courseAnswerWriter;
     @Autowired
-    private CourseAnswerFileReader communityAnswerFileReader;
+    private CourseAnswerFileReader courseAnswerFileReader;
     @Autowired
     private CourseAnswerFileWriter courseAnswerFileWriter;
     @Autowired
     private CourseAnswerVideoManager courseAnswerVideoManager;
     @Autowired
-    private CourseAnswerAcceptManager communityAnswerAcceptManager;
+    private CourseAnswerAcceptManager courseAnswerAcceptManager;
     @Autowired
     private CourseQnaValidator courseQnaValidator;
     @Autowired
-    private CourseAnswerMapper communityAnswerMapper;
+    private CourseAnswerMapper courseAnswerMapper;
     @Autowired
     private CourseQuestionReader courseQuestionReader;
     @Autowired
-    private CourseQuestionStatusManager communityQuestionStatusManager;
+    private CourseQuestionStatusManager courseQuestionStatusManager;
     @Autowired
     private CourseQuestionRepository courseQuestionRepository;
     @Autowired
@@ -210,8 +210,8 @@ class CourseAnswerServiceTest {
         UUID newVideoUuid = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
         // 수정 전 기존 파일들 확인
-        CourseAnswer answerBeforeUpdate = communityAnswerReader.getCourseAnswerById(answerId);
-        List<FileInfo> filesBeforeUpdate = communityAnswerFileReader.getAnswerFileInfos(answerBeforeUpdate);
+        CourseAnswer answerBeforeUpdate = courseAnswerReader.getCourseAnswerById(answerId);
+        List<FileInfo> filesBeforeUpdate = courseAnswerFileReader.getAnswerFileInfos(answerBeforeUpdate);
         assertThat(filesBeforeUpdate).hasSize(1);
 
         // 기존 첨부파일 ID들 (삭제할 파일들) - 실제 파일 ID 사용
@@ -409,11 +409,11 @@ class CourseAnswerServiceTest {
         Long questionId = 1L;
 
         // 삭제 전 상태 확인
-        CourseAnswer answerBeforeDelete = communityAnswerReader.getCourseAnswerById(answerId);
+        CourseAnswer answerBeforeDelete = courseAnswerReader.getCourseAnswerById(answerId);
         assertThat(answerBeforeDelete.isDeleted()).isFalse();
         assertThat(answerBeforeDelete.isAccepted()).isTrue();
 
-        List<FileInfo> filesBeforeDelete = communityAnswerFileReader.getAnswerFileInfos(answerBeforeDelete);
+        List<FileInfo> filesBeforeDelete = courseAnswerFileReader.getAnswerFileInfos(answerBeforeDelete);
         assertThat(filesBeforeDelete).hasSize(2);
 
         VideoAnswer videoBeforeDelete = courseAnswerVideoManager.getVideoAnswer(answerBeforeDelete);
@@ -426,7 +426,7 @@ class CourseAnswerServiceTest {
         courseAnswerService.deleteAnswer(userId, answerId);
 
         // then
-        assertThatThrownBy(() -> communityAnswerReader.getCourseAnswerById(answerId)).isInstanceOf(
+        assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(answerId)).isInstanceOf(
                 CustomException.class);
 
         // 질문 상태가 올바르게 변경되었는지 확인 (모든 답변이 삭제되었으므로 WAITING)

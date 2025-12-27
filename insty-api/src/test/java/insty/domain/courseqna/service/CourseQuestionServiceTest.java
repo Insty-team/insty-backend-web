@@ -78,25 +78,25 @@ class CourseQuestionServiceTest {
     @Autowired
     private CourseQnaValidator courseQnaValidator;
     @Autowired
-    private CourseQuestionStatusManager communityQuestionStatusManager;
+    private CourseQuestionStatusManager courseQuestionStatusManager;
     @Autowired
     private CourseAnswerService courseAnswerService;
     @Autowired
     private CourseAnswerWriter courseAnswerWriter;
     @Autowired
-    private CourseAnswerFileReader communityAnswerFileReader;
+    private CourseAnswerFileReader courseAnswerFileReader;
     @Autowired
     private CourseAnswerFileWriter courseAnswerFileWriter;
     @Autowired
     private CourseAnswerVideoManager courseAnswerVideoManager;
     @Autowired
-    private CourseAnswerMapper communityAnswerMapper;
+    private CourseAnswerMapper courseAnswerMapper;
     @Autowired
     private UserReader userReader;
     @Autowired
     private CourseReader courseReader;
     @Autowired
-    private CourseAnswerReader communityAnswerReader;
+    private CourseAnswerReader courseAnswerReader;
     @Autowired
     private CourseQuestionViewRepository courseQuestionViewRepository;
 
@@ -554,9 +554,9 @@ class CourseQuestionServiceTest {
 
         assertThatThrownBy(() -> courseQuestionReader.getCourseQuestionWithAnswerById(questionId)).isInstanceOf(
                 insty.exception.CustomException.class);
-        assertThatThrownBy(() -> communityAnswerReader.getCourseAnswerById(1L)).isInstanceOf(
+        assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(1L)).isInstanceOf(
                 insty.exception.CustomException.class);
-        assertThatThrownBy(() -> communityAnswerReader.getCourseAnswerById(2L)).isInstanceOf(
+        assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(2L)).isInstanceOf(
                 insty.exception.CustomException.class);
     }
 

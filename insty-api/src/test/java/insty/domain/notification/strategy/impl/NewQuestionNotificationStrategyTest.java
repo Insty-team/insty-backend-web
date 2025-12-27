@@ -55,7 +55,7 @@ class NewQuestionNotificationStrategyTest {
     @Test
     void 인앱_알림_데이터_빌드_성공() {
         // Given
-        String expectedUrl = "https://example.com/community/questions/100";
+        String expectedUrl = "https://example.com/course/questions/100";
         when(notificationUtils.truncateContent("자바 스프링 질문입니다", NotificationConstants.TITLE_MAX_LENGTH))
                 .thenReturn("자바 스프링 질문입니다");
         when(notificationUtils.buildQuestionUrl(100L))
@@ -88,7 +88,7 @@ class NewQuestionNotificationStrategyTest {
                 "스프링 부트 완전정복"
         );
 
-        String expectedUrl = "https://example.com/community/questions/100";
+        String expectedUrl = "https://example.com/course/questions/100";
         when(notificationUtils.truncateContent(longTitle, NotificationConstants.TITLE_MAX_LENGTH))
                 .thenReturn(truncatedTitle);
         when(notificationUtils.buildQuestionUrl(100L))
@@ -106,7 +106,7 @@ class NewQuestionNotificationStrategyTest {
     void 이메일_컨텐츠_빌드_성공() {
         // Given
         String recipientEmail = "test@example.com";
-        String expectedQuestionUrl = "https://example.com/community/questions/100";
+        String expectedQuestionUrl = "https://example.com/course/questions/100";
 
         when(notificationUtils.buildQuestionUrl(100L))
                 .thenReturn(expectedQuestionUrl);

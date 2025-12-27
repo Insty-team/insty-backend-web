@@ -126,7 +126,7 @@ public enum SwaggerResponseDescription {
             COURSE_NOT_FOUND ,
             COURSE_CANT_CHANGE
     ))),
-    //community
+    //Course Qna
     COURSE_QUESTION_SEARCH(new LinkedHashSet<>(Set.of(
     ))),
     COURSE_QUESTION_MY_SEARCH(new LinkedHashSet<>(Set.of(

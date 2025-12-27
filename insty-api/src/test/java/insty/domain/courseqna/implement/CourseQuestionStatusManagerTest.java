@@ -22,7 +22,7 @@ class CourseQuestionStatusManagerTest {
     private CourseQuestionStatusManager statusManager;
 
     @Mock
-    private CourseAnswerReader communityAnswerReader;
+    private CourseAnswerReader courseAnswerReader;
 
     @Mock
     private CourseQuestionRepository courseQuestionRepository;
@@ -50,7 +50,7 @@ class CourseQuestionStatusManagerTest {
         when(deletedAnswer.getCourseQuestion()).thenReturn(question);
         when(deletedAnswer.isAccepted()).thenReturn(false); // 일반 답변
         when(question.getId()).thenReturn(questionId);
-        when(communityAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(3);
+        when(courseAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(3);
 
         // when
         statusManager.updateStatusAfterAnswerDeleted(deletedAnswer);
@@ -70,7 +70,7 @@ class CourseQuestionStatusManagerTest {
         when(deletedAnswer.getCourseQuestion()).thenReturn(question);
         when(deletedAnswer.isAccepted()).thenReturn(false); // 일반 답변
         when(question.getId()).thenReturn(questionId);
-        when(communityAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(1);
+        when(courseAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(1);
 
         // when
         statusManager.updateStatusAfterAnswerDeleted(deletedAnswer);
@@ -90,7 +90,7 @@ class CourseQuestionStatusManagerTest {
         when(deletedAnswer.getCourseQuestion()).thenReturn(question);
         when(deletedAnswer.isAccepted()).thenReturn(false); // 일반 답변
         when(question.getId()).thenReturn(questionId);
-        when(communityAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(5);
+        when(courseAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(5);
 
         // when
         statusManager.updateStatusAfterAnswerDeleted(deletedAnswer);
@@ -110,7 +110,7 @@ class CourseQuestionStatusManagerTest {
         when(deletedAnswer.getCourseQuestion()).thenReturn(question);
         when(deletedAnswer.isAccepted()).thenReturn(true); // 채택된 답변
         when(question.getId()).thenReturn(questionId);
-        when(communityAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(3);
+        when(courseAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(3);
 
         // when
         statusManager.updateStatusAfterAnswerDeleted(deletedAnswer);
@@ -130,7 +130,7 @@ class CourseQuestionStatusManagerTest {
         when(deletedAnswer.getCourseQuestion()).thenReturn(question);
         when(deletedAnswer.isAccepted()).thenReturn(true); // 채택된 답변
         when(question.getId()).thenReturn(questionId);
-        when(communityAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(1);
+        when(courseAnswerReader.countActiveAnswersByQuestionId(questionId)).thenReturn(1);
 
         // when
         statusManager.updateStatusAfterAnswerDeleted(deletedAnswer);

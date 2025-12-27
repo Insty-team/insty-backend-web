@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CourseQuestionStatusManager {
 
-    private final CourseAnswerReader communityAnswerReader;
+    private final CourseAnswerReader courseAnswerReader;
     private final CourseQuestionRepository courseQuestionRepository;
 
     /**
@@ -29,7 +29,7 @@ public class CourseQuestionStatusManager {
      */
     public void updateStatusAfterAnswerDeleted(CourseAnswer deletedAnswer) {
         CourseQuestion question = deletedAnswer.getCourseQuestion();
-        int remainingAnswers = communityAnswerReader.countActiveAnswersByQuestionId(question.getId()) - 1;
+        int remainingAnswers = courseAnswerReader.countActiveAnswersByQuestionId(question.getId()) - 1;
         
         // 채택된 답변이 삭제되는 경우
         if (deletedAnswer.isAccepted()) {
