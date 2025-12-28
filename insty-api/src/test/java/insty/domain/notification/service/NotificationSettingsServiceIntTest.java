@@ -79,7 +79,7 @@ class NotificationSettingsServiceIntTest {
 
         UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         ).orElseThrow();
 
@@ -88,7 +88,7 @@ class NotificationSettingsServiceIntTest {
         // When
         boolean result = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         );
 
@@ -103,7 +103,7 @@ class NotificationSettingsServiceIntTest {
 
         UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         ).orElseThrow();
 
@@ -112,7 +112,7 @@ class NotificationSettingsServiceIntTest {
         // When
         boolean result = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         );
 
@@ -125,7 +125,7 @@ class NotificationSettingsServiceIntTest {
         // When
         boolean result = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         );
 
@@ -147,7 +147,7 @@ class NotificationSettingsServiceIntTest {
         // When
         boolean result = notificationSettingsService.isEmailEnabled(
                 user,
-                NotificationType.NEW_COMMUNITY_QUESTION
+                NotificationType.NEW_COURSE_QUESTION
         );
 
         // Then
@@ -163,7 +163,7 @@ class NotificationSettingsServiceIntTest {
         // When
         boolean result = notificationSettingsService.isEmailEnabled(
                 testUser,
-                NotificationType.NEW_COMMUNITY_QUESTION
+                NotificationType.NEW_COURSE_QUESTION
         );
 
         // Then
@@ -211,7 +211,7 @@ class NotificationSettingsServiceIntTest {
         // When
         notificationSettingsService.updateSetting(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP,
                 false
         );
@@ -219,7 +219,7 @@ class NotificationSettingsServiceIntTest {
         // Then
         UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         ).orElseThrow();
 
@@ -231,7 +231,7 @@ class NotificationSettingsServiceIntTest {
         // When
         notificationSettingsService.updateSetting(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP,
                 false
         );
@@ -239,7 +239,7 @@ class NotificationSettingsServiceIntTest {
         // Then
         UserNotificationSetting setting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         ).orElseThrow();
 
@@ -254,7 +254,7 @@ class NotificationSettingsServiceIntTest {
         // When
         notificationSettingsService.updateSettingsForType(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 true,
                 false
         );
@@ -262,13 +262,13 @@ class NotificationSettingsServiceIntTest {
         // Then
         UserNotificationSetting inAppSetting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         ).orElseThrow();
 
         UserNotificationSetting emailSetting = settingRepository.findByUserIdAndNotificationTypeAndChannel(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.EMAIL
         ).orElseThrow();
 
@@ -333,7 +333,7 @@ class NotificationSettingsServiceIntTest {
         // When
         notificationSettingsService.updateSetting(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.EMAIL,
                 false
         );
@@ -341,19 +341,19 @@ class NotificationSettingsServiceIntTest {
         // Then
         boolean emailDisabled = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.EMAIL
         );
 
         boolean inAppEnabled = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP
         );
 
         boolean otherTypeEnabled = notificationSettingsService.isNotificationEnabled(
                 testUser.getId(),
-                NotificationType.NEW_COMMUNITY_ANSWER,
+                NotificationType.NEW_COURSE_ANSWER,
                 NotificationChannel.EMAIL
         );
 

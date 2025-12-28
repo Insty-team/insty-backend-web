@@ -48,13 +48,13 @@ class AnswerAcceptNotificationStrategyTest {
         NotificationType type = strategy.getType();
 
         // Then
-        assertEquals(NotificationType.COMMUNITY_ANSWER_ACCEPT, type);
+        assertEquals(NotificationType.COURSE_ANSWER_ACCEPT, type);
     }
 
     @Test
     void 인앱_알림_데이터_빌드_성공() {
         // Given
-        String expectedUrl = "https://example.com/community/questions/100#answer-200";
+        String expectedUrl = "https://example.com/course/questions/100#answer-200";
         when(notificationUtils.truncateContent("자바 스프링 질문입니다", NotificationConstants.TITLE_MAX_LENGTH))
                 .thenReturn("자바 스프링 질문입니다");
         when(notificationUtils.buildAnswerUrl(100L, 200L))
@@ -85,7 +85,7 @@ class AnswerAcceptNotificationStrategyTest {
                 "답변 내용"
         );
 
-        String expectedUrl = "https://example.com/community/questions/100#answer-200";
+        String expectedUrl = "https://example.com/course/questions/100#answer-200";
         when(notificationUtils.truncateContent(longTitle, NotificationConstants.TITLE_MAX_LENGTH))
                 .thenReturn(truncatedTitle);
         when(notificationUtils.buildAnswerUrl(100L, 200L))
@@ -103,8 +103,8 @@ class AnswerAcceptNotificationStrategyTest {
     void 이메일_컨텐츠_빌드_성공() {
         // Given
         String recipientEmail = "test@example.com";
-        String expectedQuestionUrl = "https://example.com/community/questions/100";
-        String expectedAnswerUrl = "https://example.com/community/questions/100#answer-200";
+        String expectedQuestionUrl = "https://example.com/course/questions/100";
+        String expectedAnswerUrl = "https://example.com/course/questions/100#answer-200";
 
         when(notificationUtils.buildQuestionUrl(100L))
                 .thenReturn(expectedQuestionUrl);
@@ -117,7 +117,7 @@ class AnswerAcceptNotificationStrategyTest {
         // Then
         assertNotNull(mailContent);
         assertEquals(recipientEmail, mailContent.to());
-        assertEquals(MailType.COMMUNITY_ANSWER_ACCEPT, mailContent.mailType());
+        assertEquals(MailType.COURSE_ANSWER_ACCEPT, mailContent.mailType());
 
         Map<String, Object> variables = mailContent.variables();
         assertEquals(100L, variables.get("questionId"));

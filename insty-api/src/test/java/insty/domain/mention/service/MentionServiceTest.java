@@ -12,16 +12,16 @@ import insty.domain.mention.implement.MentionNotificationManager;
 import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionReader;
 import insty.domain.mention.implement.MentionWriter;
-import insty.domain.community.implement.CommunityAnswerReader;
+import insty.domain.courseqna.implement.CourseAnswerReader;
 import insty.domain.user.implement.UserFileReader;
 import insty.domain.user.repository.UserRepository;
 import insty.global.property.AppProperties;
+import insty.model.courseqna.CourseAnswer;
+import insty.model.courseqna.CourseQuestion;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.ai.adapter.AiRequester;
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityQuestion;
 import insty.model.mention.Mention;
 import insty.model.user.User;
 import java.util.List;
@@ -59,7 +59,7 @@ class MentionServiceTest {
     private UserFileReader userFileReader;
 
     @Autowired
-    private CommunityAnswerReader communityAnswerReader;
+    private CourseAnswerReader courseAnswerReader;
 
     @Autowired
     private UserRepository userRepository;
@@ -84,9 +84,9 @@ class MentionServiceTest {
                     + "VALUES (3, 'user3@example.com', '김철수', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '질문 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 2, '테스트 답변 @[홍길동](2)님과 @[김철수](3)님!', false, NOW(), NOW(), false);"
     })
     @Test
@@ -114,20 +114,20 @@ class MentionServiceTest {
                     + "VALUES (2, 'user2@example.com', '홍길동', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '질문 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 2, '테스트 답변', false, NOW(), NOW(), false);"
     })
     @Test
     void processMentions_정상() {
         // given
-        CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님!";
 
         // when
-        mentionService.processMentions(communityAnswer, mentionerUser, content);
+        mentionService.processMentions(courseAnswer, mentionerUser, content);
 
         // then
         List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
@@ -138,7 +138,7 @@ class MentionServiceTest {
         verify(mentionNotificationManager)
                 .sendMentionsNotification(
                         argThat(list -> list.size() == 1),
-                        any(CommunityQuestion.class)
+                        any(CourseQuestion.class)
                 );
     }
 
@@ -149,20 +149,20 @@ class MentionServiceTest {
                     + "VALUES (2, 'user2@example.com', '홍길동', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '질문 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 2, '테스트 답변', false, NOW(), NOW(), false);"
     })
     @Test
     void processMentions_멘션없음_정상() {
         // given
-        CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요! 멘션 없습니다.";
 
         // when
-        mentionService.processMentions(communityAnswer, mentionerUser, content);
+        mentionService.processMentions(courseAnswer, mentionerUser, content);
 
         // then
         List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
@@ -178,20 +178,20 @@ class MentionServiceTest {
                     + "VALUES (3, 'user3@example.com', '김철수', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '질문 내용', 'WAITING', NOW(), NOW(), false);",
-            "INSERT INTO web_service.community_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
+            "INSERT INTO web_service.course_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 2, '테스트 답변', false, NOW(), NOW(), false);"
     })
     @Test
     void processMentions_다중멘션_정상() {
         // given
-        CommunityAnswer communityAnswer = communityAnswerReader.getCommunityAnswerById(1L);
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
         User mentionerUser = userRepository.findById(1L).orElseThrow();
         String content = "안녕하세요 @[홍길동](2)님과 @[김철수](3)님!";
 
         // when
-        mentionService.processMentions(communityAnswer, mentionerUser, content);
+        mentionService.processMentions(courseAnswer, mentionerUser, content);
 
         // then
         List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
@@ -203,7 +203,7 @@ class MentionServiceTest {
         verify(mentionNotificationManager)
                 .sendMentionsNotification(
                         argThat(list -> list.size() == 2),
-                        any(CommunityQuestion.class)
+                        any(CourseQuestion.class)
                 );
     }
 }

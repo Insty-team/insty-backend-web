@@ -1,11 +1,7 @@
 package insty.model.mention;
 
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAnswerFixtureBuilder;
-import insty.model.community.CommunityQuestion;
-import insty.model.community.CommunityQuestionFixture;
+import insty.model.courseqna.CourseAnswer;
 import insty.model.user.User;
-import insty.model.user.UserFixtureBuilder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class MentionFixtureBuilder {
@@ -28,8 +24,8 @@ public class MentionFixtureBuilder {
         return mention;
     }
 
-    public static Mention getMentionWithId(Long mentionId, CommunityAnswer communityAnswer, User mentionedUser, User mentionerUser) {
-        Mention mention = MentionFixture.getMention(communityAnswer, mentionedUser, mentionerUser);
+    public static Mention getMentionWithId(Long mentionId, CourseAnswer courseAnswer, User mentionedUser, User mentionerUser) {
+        Mention mention = MentionFixture.getMention(courseAnswer, mentionedUser, mentionerUser);
         ReflectionTestUtils.setField(mention, "id", mentionId);
         return mention;
     }

@@ -15,7 +15,7 @@ public final class CommunityQuestionMailContent extends MailContent {
 
     private CommunityQuestionMailContent(String to, String questionTitle, String questionContent,
                                          String questionAuthorName, String courseName, String questionUrl) {
-        super(to, MailType.COMMUNITY_QUESTION);
+        super(to, MailType.COURSE_QUESTION);
         this.questionTitle = Objects.requireNonNull(questionTitle);
         this.questionContent = Objects.requireNonNull(questionContent);
         this.questionAuthorName = Objects.requireNonNull(questionAuthorName);

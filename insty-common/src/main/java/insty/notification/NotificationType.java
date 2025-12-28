@@ -4,9 +4,9 @@ package insty.notification;
 public enum NotificationType {
     INFO("알림", "notification", null, false),
     NEW_COURSE("새 강의", "new-course", null, true),
-    NEW_COMMUNITY_QUESTION("새 질문", "community-question", "[INSTY] 새로운 질문이 등록되었습니다", true),
-    NEW_COMMUNITY_ANSWER("새 답변", "community-answer", "[INSTY] 새로운 답변이 달렸습니다", true),
-    COMMUNITY_ANSWER_ACCEPT("답변 채택", "answer-accept", "[INSTY] 답변이 채택되었습니다", true),
+    NEW_COURSE_QUESTION("새 질문", "community-question", "[INSTY] 새로운 질문이 등록되었습니다", true),
+    NEW_COURSE_ANSWER("새 답변", "community-answer", "[INSTY] 새로운 답변이 달렸습니다", true),
+    COURSE_ANSWER_ACCEPT("답변 채택", "answer-accept", "[INSTY] 답변이 채택되었습니다", true),
     USER_MENTIONED("멘션", "user-mention", "[INSTY] 누군가 당신을 언급했습니다", true);
 
     private final String displayName;

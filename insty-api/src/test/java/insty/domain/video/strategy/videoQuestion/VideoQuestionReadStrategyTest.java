@@ -33,7 +33,7 @@ class VideoQuestionReadStrategyTest {
 
         // mock
         UUID fixedUuid = UUID.fromString("00000000-0000-0000-0000-000000000001");
-        when(videoQuestionRepository.findVideoUuidByCommunityQuestionId(parentId))
+        when(videoQuestionRepository.findVideoUuidByCourseQuestionId(parentId))
                 .thenReturn(Optional.of(fixedUuid));
 
         // when
@@ -49,7 +49,7 @@ class VideoQuestionReadStrategyTest {
         Long parentId = 1L;
 
         // mock
-        when(videoQuestionRepository.findVideoUuidByCommunityQuestionId(parentId))
+        when(videoQuestionRepository.findVideoUuidByCourseQuestionId(parentId))
                 .thenReturn(Optional.empty());
 
         // when

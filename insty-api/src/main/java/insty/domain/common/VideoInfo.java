@@ -1,6 +1,8 @@
 package insty.domain.common;
 
 import insty.model.video.VideoAnswer;
+import insty.model.video.VideoCommunityComment;
+import insty.model.video.VideoCommunityPost;
 import insty.model.video.VideoCourse;
 import insty.model.video.VideoQuestion;
 import insty.model.video.VideoType;
@@ -31,5 +33,21 @@ public record VideoInfo(
             return null;
         }
         return new VideoInfo(VideoType.ANSWER, videoAnswer.getVideoUuid(), videoAnswer.getOriginalFileName());
+    }
+
+    public static VideoInfo of(VideoCommunityPost videoCommunityPost) {
+        if (videoCommunityPost == null) {
+            return null;
+        }
+        return new VideoInfo(VideoType.COMMUNITY_POST, videoCommunityPost.getVideoUuid(),
+                videoCommunityPost.getOriginalFileName());
+    }
+
+    public static VideoInfo of(VideoCommunityComment videoCommunityComment) {
+        if (videoCommunityComment == null) {
+            return null;
+        }
+        return new VideoInfo(VideoType.COMMUNITY_COMMENT, videoCommunityComment.getVideoUuid(),
+                videoCommunityComment.getOriginalFileName());
     }
 }

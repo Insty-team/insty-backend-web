@@ -11,8 +11,8 @@ import insty.domain.mention.repository.MentionRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.MentionErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityAnswer;
-import insty.model.community.CommunityAnswerFixtureBuilder;
+import insty.model.courseqna.CourseAnswer;
+import insty.model.courseqna.CommunityAnswerFixtureBuilder;
 import insty.model.mention.Mention;
 import insty.model.mention.MentionFixtureBuilder;
 import insty.model.user.User;
@@ -44,7 +44,7 @@ class MentionWriterTest {
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
         User mentionedUser1 = UserFixtureBuilder.getUserWithId(2L);
         User mentionedUser2 = UserFixtureBuilder.getUserWithId(3L);
-        CommunityAnswer communityAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
+        CourseAnswer courseAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
         
         MentionedUserInfo userInfo1 = new MentionedUserInfo(2L, "홍길동");
         MentionedUserInfo userInfo2 = new MentionedUserInfo(3L, "김철수");
@@ -59,7 +59,7 @@ class MentionWriterTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        List<Mention> result = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, communityAnswer);
+        List<Mention> result = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer);
 
         // then
         assertThat(result).hasSize(2);
@@ -69,7 +69,7 @@ class MentionWriterTest {
     void saveMentions_멘션된_사용자_없음() {
         // given
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
-        CommunityAnswer communityAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
+        CourseAnswer courseAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
         
         MentionedUserInfo userInfo = new MentionedUserInfo(999L, "존재하지않는사용자");
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
@@ -78,7 +78,7 @@ class MentionWriterTest {
         when(userRepository.findAllById(java.util.Set.of(999L))).thenReturn(List.of());
 
         // when & then
-        assertThatThrownBy(() -> mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, communityAnswer))
+        assertThatThrownBy(() -> mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_USER_NOT_FOUND);

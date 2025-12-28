@@ -5,7 +5,7 @@ import insty.domain.mention.repository.MentionRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.MentionErrorCode;
 import insty.exception.CustomException;
-import insty.model.community.CommunityAnswer;
+import insty.model.courseqna.CourseAnswer;
 import insty.model.mention.Mention;
 import insty.model.user.User;
 import java.time.Instant;
@@ -33,7 +33,7 @@ public class MentionWriter {
      * 멘션된 사용자 정보 리스트를 받아서 Mention 객체를 생성하고 저장
      */
     public List<Mention> saveMentions(List<MentionedUserInfo> mentionedUserInfos, User mentionerUser,
-                                      CommunityAnswer communityAnswer) {
+                                      CourseAnswer courseAnswer) {
         List<Mention> savedMentions = new ArrayList<>();
         if (mentionedUserInfos == null || mentionedUserInfos.isEmpty()) {
             return savedMentions;
@@ -51,7 +51,7 @@ public class MentionWriter {
 
         for (MentionedUserInfo userInfo : mentionedUserInfos) {
             User mentionedUser = usersById.get(userInfo.userId());
-            Mention mention = Mention.create(communityAnswer, mentionedUser, mentionerUser);
+            Mention mention = Mention.create(courseAnswer, mentionedUser, mentionerUser);
             savedMentions.add(mentionRepository.save(mention));
         }
         return savedMentions;

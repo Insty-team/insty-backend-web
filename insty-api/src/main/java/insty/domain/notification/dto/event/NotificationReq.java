@@ -13,9 +13,9 @@ public record NotificationReq(
     // ==================== Factory Methods ====================
 
     /**
-     * 새로운 커뮤니티 질문 알림 생성
+     * 새로운 강좌 질문 알림 생성
      */
-    public static NotificationReq newCommunityQuestion(
+    public static NotificationReq newCourseQuestion(
             Long receiverId,
             Long questionId,
             String questionTitle,
@@ -31,7 +31,7 @@ public record NotificationReq(
         context.put("courseName", courseName);
 
         return new NotificationReq(
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 receiverId,
                 context
         );
@@ -56,7 +56,7 @@ public record NotificationReq(
         context.put("answerAuthorNickname", answerAuthorNickname);
 
         return new NotificationReq(
-                NotificationType.NEW_COMMUNITY_ANSWER,
+                NotificationType.NEW_COURSE_ANSWER,
                 receiverId,
                 context
         );
@@ -79,7 +79,7 @@ public record NotificationReq(
         context.put("answerContent", answerContent);
 
         return new NotificationReq(
-                NotificationType.COMMUNITY_ANSWER_ACCEPT,
+                NotificationType.COURSE_ANSWER_ACCEPT,
                 receiverId,
                 context
         );

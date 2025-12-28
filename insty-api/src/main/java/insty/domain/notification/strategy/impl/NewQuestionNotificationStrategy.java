@@ -11,7 +11,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 /**
- * 새로운 커뮤니티 질문 알림
+ * 새로운 강좌 질문 알림
  */
 @Component
 public class NewQuestionNotificationStrategy extends AbstractNotificationStrategy {
@@ -22,7 +22,7 @@ public class NewQuestionNotificationStrategy extends AbstractNotificationStrateg
 
     @Override
     public NotificationType getType() {
-        return NotificationType.NEW_COMMUNITY_QUESTION;
+        return NotificationType.NEW_COURSE_QUESTION;
     }
 
     // ==================== 인앱 알림 ====================

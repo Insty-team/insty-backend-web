@@ -199,16 +199,16 @@ public class NotificationSettingsService {
         if (userType == UserType.LEARNER) {
             return new NotificationType[]{
                     NotificationType.NEW_COURSE,
-                    NotificationType.NEW_COMMUNITY_ANSWER,
-                    NotificationType.COMMUNITY_ANSWER_ACCEPT,
+                    NotificationType.NEW_COURSE_ANSWER,
+                    NotificationType.COURSE_ANSWER_ACCEPT,
                     NotificationType.USER_MENTIONED
             };
         }
 
         if (userType == UserType.CREATOR) {
             return new NotificationType[]{
-                    NotificationType.NEW_COMMUNITY_QUESTION,
-                    NotificationType.NEW_COMMUNITY_ANSWER,
+                    NotificationType.NEW_COURSE_QUESTION,
+                    NotificationType.NEW_COURSE_ANSWER,
                     NotificationType.USER_MENTIONED
             };
         }

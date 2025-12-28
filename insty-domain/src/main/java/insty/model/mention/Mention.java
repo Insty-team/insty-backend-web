@@ -3,7 +3,7 @@ package insty.model.mention;
 import insty.error.MentionErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
-import insty.model.community.CommunityAnswer;
+import insty.model.courseqna.CourseAnswer;
 import insty.model.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,8 +34,8 @@ public class Mention extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "community_answer_id", nullable = false)
-    private CommunityAnswer communityAnswer;
+    @JoinColumn(name = "course_answer_id", nullable = false)
+    private CourseAnswer courseAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mentioned_user_id", nullable = false)
@@ -48,18 +48,18 @@ public class Mention extends BaseEntity {
     /**
      * 멘션 생성
      */
-    public static Mention create(CommunityAnswer communityAnswer, User mentionedUser, User mentionerUser) {
-        validateCreate(communityAnswer, mentionedUser, mentionerUser);
+    public static Mention create(CourseAnswer courseAnswer, User mentionedUser, User mentionerUser) {
+        validateCreate(courseAnswer, mentionedUser, mentionerUser);
         return Mention.builder()
-                .communityAnswer(communityAnswer)
+                .courseAnswer(courseAnswer)
                 .mentionedUser(mentionedUser)
                 .mentionerUser(mentionerUser)
                 .build();
     }
 
-    private static void validateCreate(CommunityAnswer communityAnswer, User mentionedUser, User mentionerUser) {
-        if (communityAnswer == null) {
-            log.error("멘션 생성 오류 - communityAnswer : null");
+    private static void validateCreate(CourseAnswer courseAnswer, User mentionedUser, User mentionerUser) {
+        if (courseAnswer == null) {
+            log.error("멘션 생성 오류 - courseAnswer : null");
             throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
         }
         if (mentionedUser == null) {

@@ -4,13 +4,12 @@ import insty.domain.common.dto.UserInfo;
 import insty.model.user.User;
 import insty.model.user.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 
-public record  CommunityUserRes(
+public record CommunityUserRes(
         @Schema(description = "사용자 ID", example = "1")
         Long id,
 
-        @Schema(description = "사용자 닉네임", example = "김철수")
+        @Schema(description = "사용자 닉네임", example = "홍길동")
         String nickname,
 
         @Schema(description = "사용자 타입", example = "LEARNER")

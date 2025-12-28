@@ -1,6 +1,6 @@
 package insty.domain.mention.implement;
 
-import insty.model.community.CommunityQuestion;
+import insty.model.courseqna.CourseQuestion;
 import insty.model.mention.Mention;
 import insty.domain.notification.dto.event.NotificationReq;
 import java.util.List;
@@ -16,13 +16,13 @@ public class MentionNotificationManager {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    public void sendMentionsNotification(List<Mention> mentions, CommunityQuestion communityQuestion) {
+    public void sendMentionsNotification(List<Mention> mentions, CourseQuestion courseQuestion) {
         if (mentions == null || mentions.isEmpty()) {
             return;
         }
 
         for (Mention mention : mentions) {
-            if (mention.getCommunityAnswer() == null) {
+            if (mention.getCourseAnswer() == null) {
                 continue;
             }
 
@@ -30,9 +30,9 @@ public class MentionNotificationManager {
                     mention.getMentionedUser().getId(),
                     mention.getId(),
                     mention.getMentionerUser().getNickname(),
-                    mention.getCommunityAnswer().getContent(),
+                    mention.getCourseAnswer().getContent(),
                     "ANSWER",
-                    mention.getCommunityAnswer().getId()
+                    mention.getCourseAnswer().getId()
             );
 
             eventPublisher.publishEvent(request);

@@ -33,7 +33,7 @@ class NewQuestionNotificationStrategyTest {
 
     @BeforeEach
     void setUp() {
-        request = NotificationReq.newCommunityQuestion(
+        request = NotificationReq.newCourseQuestion(
                 1L,
                 100L,
                 "자바 스프링 질문입니다",
@@ -49,13 +49,13 @@ class NewQuestionNotificationStrategyTest {
         NotificationType type = strategy.getType();
 
         // Then
-        assertEquals(NotificationType.NEW_COMMUNITY_QUESTION, type);
+        assertEquals(NotificationType.NEW_COURSE_QUESTION, type);
     }
 
     @Test
     void 인앱_알림_데이터_빌드_성공() {
         // Given
-        String expectedUrl = "https://example.com/community/questions/100";
+        String expectedUrl = "https://example.com/course/questions/100";
         when(notificationUtils.truncateContent("자바 스프링 질문입니다", NotificationConstants.TITLE_MAX_LENGTH))
                 .thenReturn("자바 스프링 질문입니다");
         when(notificationUtils.buildQuestionUrl(100L))
@@ -79,7 +79,7 @@ class NewQuestionNotificationStrategyTest {
         String longTitle = "a".repeat(200);
         String truncatedTitle = "a".repeat(100) + "...";
 
-        NotificationReq longTitleRequest = NotificationReq.newCommunityQuestion(
+        NotificationReq longTitleRequest = NotificationReq.newCourseQuestion(
                 1L,
                 100L,
                 longTitle,
@@ -88,7 +88,7 @@ class NewQuestionNotificationStrategyTest {
                 "스프링 부트 완전정복"
         );
 
-        String expectedUrl = "https://example.com/community/questions/100";
+        String expectedUrl = "https://example.com/course/questions/100";
         when(notificationUtils.truncateContent(longTitle, NotificationConstants.TITLE_MAX_LENGTH))
                 .thenReturn(truncatedTitle);
         when(notificationUtils.buildQuestionUrl(100L))
@@ -106,7 +106,7 @@ class NewQuestionNotificationStrategyTest {
     void 이메일_컨텐츠_빌드_성공() {
         // Given
         String recipientEmail = "test@example.com";
-        String expectedQuestionUrl = "https://example.com/community/questions/100";
+        String expectedQuestionUrl = "https://example.com/course/questions/100";
 
         when(notificationUtils.buildQuestionUrl(100L))
                 .thenReturn(expectedQuestionUrl);
@@ -117,7 +117,7 @@ class NewQuestionNotificationStrategyTest {
         // Then
         assertNotNull(mailContent);
         assertEquals(recipientEmail, mailContent.to());
-        assertEquals(MailType.COMMUNITY_QUESTION, mailContent.mailType());
+        assertEquals(MailType.COURSE_QUESTION, mailContent.mailType());
 
         Map<String, Object> variables = mailContent.variables();
         assertEquals(100L, variables.get("questionId"));

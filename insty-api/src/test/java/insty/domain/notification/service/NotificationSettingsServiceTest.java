@@ -43,7 +43,7 @@ class NotificationSettingsServiceTest {
     void 알림_수신_허용_확인_설정_있음() {
         // Given
         Long userId = 1L;
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
         NotificationChannel channel = NotificationChannel.IN_APP;
 
         User user = User.builder().id(userId).build();
@@ -64,7 +64,7 @@ class NotificationSettingsServiceTest {
     void 알림_수신_허용_확인_설정_없음_기본값_true() {
         // Given
         Long userId = 1L;
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
         NotificationChannel channel = NotificationChannel.IN_APP;
 
         when(settingRepository.findByUserIdAndNotificationTypeAndChannel(userId, type, channel))
@@ -86,7 +86,7 @@ class NotificationSettingsServiceTest {
                 .isEmailAgreed(false)
                 .build();
 
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
 
         // When
         boolean result = notificationSettingsService.isEmailEnabled(user, type);
@@ -104,7 +104,7 @@ class NotificationSettingsServiceTest {
                 .isEmailAgreed(true)
                 .build();
 
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
         NotificationChannel channel = NotificationChannel.EMAIL;
 
         UserNotificationSetting setting = UserNotificationSetting.createDefault(user, type, channel);
@@ -127,15 +127,15 @@ class NotificationSettingsServiceTest {
         User user = User.builder().id(userId).build();
 
         UserNotificationSetting setting1 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_QUESTION, NotificationChannel.IN_APP);
+                user, NotificationType.NEW_COURSE_QUESTION, NotificationChannel.IN_APP);
         setting1.updateEnabled(true);
 
         UserNotificationSetting setting2 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_QUESTION, NotificationChannel.EMAIL);
+                user, NotificationType.NEW_COURSE_QUESTION, NotificationChannel.EMAIL);
         setting2.updateEnabled(false);
 
         UserNotificationSetting setting3 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_ANSWER, NotificationChannel.IN_APP);
+                user, NotificationType.NEW_COURSE_ANSWER, NotificationChannel.IN_APP);
         setting3.updateEnabled(true);
 
         List<UserNotificationSetting> settings = List.of(setting1, setting2, setting3);
@@ -148,11 +148,11 @@ class NotificationSettingsServiceTest {
                 notificationSettingsService.getUserSettings(userId);
 
         // Then
-        assertTrue(result.containsKey(NotificationType.NEW_COMMUNITY_QUESTION));
-        assertTrue(result.containsKey(NotificationType.NEW_COMMUNITY_ANSWER));
+        assertTrue(result.containsKey(NotificationType.NEW_COURSE_QUESTION));
+        assertTrue(result.containsKey(NotificationType.NEW_COURSE_ANSWER));
 
         Map<NotificationChannel, Boolean> questionSettings =
-                result.get(NotificationType.NEW_COMMUNITY_QUESTION);
+                result.get(NotificationType.NEW_COURSE_QUESTION);
         assertTrue(questionSettings.get(NotificationChannel.IN_APP));
         assertFalse(questionSettings.get(NotificationChannel.EMAIL));
     }
@@ -176,7 +176,7 @@ class NotificationSettingsServiceTest {
         // Given
         Long userId = 1L;
         User user = User.builder().id(userId).build();
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
         NotificationChannel channel = NotificationChannel.IN_APP;
 
         UserNotificationSetting setting = UserNotificationSetting.createDefault(user, type, channel);
@@ -196,7 +196,7 @@ class NotificationSettingsServiceTest {
         // Given
         Long userId = 1L;
         User user = User.builder().id(userId).build();
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
         NotificationChannel channel = NotificationChannel.IN_APP;
 
         UserNotificationSetting newSetting = UserNotificationSetting.createDefault(user, type, channel);
@@ -221,7 +221,7 @@ class NotificationSettingsServiceTest {
         // Given
         Long userId = 1L;
         User user = User.builder().id(userId).build();
-        NotificationType type = NotificationType.NEW_COMMUNITY_QUESTION;
+        NotificationType type = NotificationType.NEW_COURSE_QUESTION;
 
         UserNotificationSetting inAppSetting = UserNotificationSetting.createDefault(
                 user, type, NotificationChannel.IN_APP);
@@ -250,11 +250,11 @@ class NotificationSettingsServiceTest {
         User user = User.builder().id(userId).build();
 
         UserNotificationSetting setting1 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_QUESTION, NotificationChannel.IN_APP);
+                user, NotificationType.NEW_COURSE_QUESTION, NotificationChannel.IN_APP);
         setting1.updateEnabled(true);
 
         UserNotificationSetting setting2 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_ANSWER, NotificationChannel.EMAIL);
+                user, NotificationType.NEW_COURSE_ANSWER, NotificationChannel.EMAIL);
         setting2.updateEnabled(true);
 
         List<UserNotificationSetting> settings = List.of(setting1, setting2);
@@ -276,11 +276,11 @@ class NotificationSettingsServiceTest {
         User user = User.builder().id(userId).build();
 
         UserNotificationSetting setting1 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_QUESTION, NotificationChannel.IN_APP);
+                user, NotificationType.NEW_COURSE_QUESTION, NotificationChannel.IN_APP);
         setting1.updateEnabled(false);
 
         UserNotificationSetting setting2 = UserNotificationSetting.createDefault(
-                user, NotificationType.NEW_COMMUNITY_ANSWER, NotificationChannel.EMAIL);
+                user, NotificationType.NEW_COURSE_ANSWER, NotificationChannel.EMAIL);
         setting2.updateEnabled(false);
 
         List<UserNotificationSetting> settings = List.of(setting1, setting2);

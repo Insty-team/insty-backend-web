@@ -15,12 +15,12 @@ public interface VideoQuestionRepository extends JpaRepository<VideoQuestion, Lo
 
     Optional<VideoQuestion> findByVideoUuid(UUID videoUuid);
 
-    @Query("SELECT va.videoUuid FROM VideoQuestion va WHERE va.communityQuestion.id = :communityQuestionId AND va.isDeleted = false")
-    Optional<UUID> findVideoUuidByCommunityQuestionId(@Param("communityQuestionId") Long communityQuestionId);
+    @Query("SELECT va.videoUuid FROM VideoQuestion va WHERE va.courseQuestion.id = :courseQuestionId AND va.isDeleted = false")
+    Optional<UUID> findVideoUuidByCourseQuestionId(@Param("courseQuestionId") Long courseQuestionId);
 
-    Optional<VideoQuestion> findByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
+    Optional<VideoQuestion> findByCourseQuestionIdAndIsDeleted(Long courseQuestionId, boolean isDeleted);
 
-    List<VideoQuestion> findAllByCommunityQuestionIdAndIsDeleted(Long communityQuestionId, boolean isDeleted);
+    List<VideoQuestion> findAllByCourseQuestionIdAndIsDeleted(Long courseQuestionId, boolean isDeleted);
 
     @Modifying
     @Query("UPDATE VideoQuestion vq SET vq.isDeleted = true WHERE vq.id = :id")

@@ -156,7 +156,7 @@ class UserNotificationSettingMigrationServiceIntTest {
         // 일부 설정 변경
         preferenceService.updateSetting(
                 user1.getId(),
-                NotificationType.NEW_COMMUNITY_QUESTION,
+                NotificationType.NEW_COURSE_QUESTION,
                 NotificationChannel.IN_APP,
                 false
         );

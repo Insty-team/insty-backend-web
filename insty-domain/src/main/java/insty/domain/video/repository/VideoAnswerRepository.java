@@ -15,13 +15,13 @@ public interface VideoAnswerRepository extends JpaRepository<VideoAnswer, Long> 
 
     Optional<VideoAnswer> findByVideoUuid(UUID videoUuid);
 
-    @Query("SELECT va.videoUuid FROM VideoAnswer va WHERE va.communityAnswer.id = :communityAnswerId AND va.isDeleted = false")
-    Optional<UUID> findVideoUuidByCommunityAnswerId(@Param("communityAnswerId") Long communityAnswerId);
+    @Query("SELECT va.videoUuid FROM VideoAnswer va WHERE va.courseAnswer.id = :courseAnswerId AND va.isDeleted = false")
+    Optional<UUID> findVideoUuidByCourseAnswerId(@Param("courseAnswerId") Long courseAnswerId);
 
-    Optional<VideoAnswer> findByCommunityAnswerIdAndIsDeleted(Long communityAnswerId, boolean isDeleted);
+    Optional<VideoAnswer> findByCourseAnswerIdAndIsDeleted(Long courseAnswerId, boolean isDeleted);
 
-    @Query("SELECT va FROM VideoAnswer va WHERE va.communityAnswer.id IN :answerIds AND va.isDeleted = false")
-    List<VideoAnswer> findAllByCommunityAnswerIds(@Param("answerIds") List<Long> answerIds);
+    @Query("SELECT va FROM VideoAnswer va WHERE va.courseAnswer.id IN :answerIds AND va.isDeleted = false")
+    List<VideoAnswer> findAllByCourseAnswerIds(@Param("answerIds") List<Long> answerIds);
 
     @Modifying
     @Query("UPDATE VideoAnswer va SET va.isDeleted = true WHERE va.id = :id")

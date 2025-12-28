@@ -55,7 +55,7 @@ class UserMentionNotificationStrategyTest {
     @Test
     void 인앱_알림_데이터_빌드_성공() {
         // Given
-        String expectedUrl = "https://example.com/community/questions/100";
+        String expectedUrl = "https://example.com/course/questions/100";
         when(notificationUtils.truncateContent(
                 "@김철수님 안녕하세요. 질문이 있습니다.",
                 NotificationConstants.CONTENT_MAX_LENGTH))
@@ -89,7 +89,7 @@ class UserMentionNotificationStrategyTest {
                 100L
         );
 
-        String expectedUrl = "https://example.com/community/questions/100";
+        String expectedUrl = "https://example.com/course/questions/100";
         when(notificationUtils.truncateContent(longContent, NotificationConstants.CONTENT_MAX_LENGTH))
                 .thenReturn(truncatedContent);
         when(notificationUtils.buildMentionUrl("QUESTION", 100L))
@@ -107,7 +107,7 @@ class UserMentionNotificationStrategyTest {
     void 이메일_컨텐츠_빌드_질문_타입() {
         // Given
         String recipientEmail = "test@example.com";
-        String expectedMentionUrl = "https://example.com/community/questions/100";
+        String expectedMentionUrl = "https://example.com/course/questions/100";
 
         when(notificationUtils.buildMentionUrl("QUESTION", 100L))
                 .thenReturn(expectedMentionUrl);
@@ -142,7 +142,7 @@ class UserMentionNotificationStrategyTest {
         );
 
         String recipientEmail = "test@example.com";
-        String expectedMentionUrl = "https://example.com/community/questions/100";
+        String expectedMentionUrl = "https://example.com/course/questions/100";
 
         when(notificationUtils.buildMentionUrl("ANSWER", 100L))
                 .thenReturn(expectedMentionUrl);
@@ -173,7 +173,7 @@ class UserMentionNotificationStrategyTest {
         );
 
         String recipientEmail = "test@example.com";
-        String expectedMentionUrl = "https://example.com/community/questions/100";
+        String expectedMentionUrl = "https://example.com/course/questions/100";
 
         when(notificationUtils.buildMentionUrl("COMMENT", 100L))
                 .thenReturn(expectedMentionUrl);

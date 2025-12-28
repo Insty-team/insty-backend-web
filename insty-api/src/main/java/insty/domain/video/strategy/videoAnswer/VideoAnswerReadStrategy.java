@@ -18,7 +18,7 @@ public class VideoAnswerReadStrategy implements VideoReadStrategy {
 
     @Override
     public UUID getVideoUuid(Long parentId) {
-        return videoAnswerRepository.findVideoUuidByCommunityAnswerId(parentId)
+        return videoAnswerRepository.findVideoUuidByCourseAnswerId(parentId)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
     }
 }
