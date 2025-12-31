@@ -7,6 +7,8 @@ import insty.domain.community.dto.CommunityCommentCreateReq;
 import insty.domain.community.dto.CommunityCommentRes;
 import insty.domain.community.dto.CommunityCommentSearchReq;
 import insty.domain.community.dto.CommunityCommentUpdateReq;
+import insty.domain.community.dto.CommunityMyCommentRes;
+import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.implement.CommunityCommentFileReader;
 import insty.domain.community.implement.CommunityCommentFileWriter;
 import insty.domain.community.implement.CommunityCommentReader;
@@ -42,8 +44,9 @@ public class CommunityCommentService {
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityCommentRes> getComments(Long postId, CommunityCommentSearchReq req) {
+    public SearchRes<CommunityCommentRes> getComments(Long courseId, Long postId, CommunityCommentSearchReq req) {
         CommunityPost post = communityPostReader.getPost(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
         List<CommunityComment> comments = communityCommentReader.getCommentsByPostId(post.getId());
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
 
@@ -64,12 +67,13 @@ public class CommunityCommentService {
         return SearchRes.from(pagination, page.getContent());
     }
 
-    public CommunityCommentRes createComment(Long userId, Long postId, CommunityCommentCreateReq req, List<MultipartFile> attachments) {
+    public CommunityCommentRes createComment(Long userId, Long courseId, Long postId, CommunityCommentCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validateCommentFileCountForCreate(attachments);
 
         CommunityPost post = communityValidator.validatePostExists(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
         User user = userReader.getUser(userId);
 
         CommunityComment comment = communityCommentWriter.saveComment(post, user, req.content());
@@ -100,5 +104,15 @@ public class CommunityCommentService {
         communityCommentFileWriter.deleteCommentFiles(comment);
         communityCommentVideoManager.deleteVideo(comment);
         communityCommentWriter.deleteComment(comment);
+    }
+
+    public SearchRes<CommunityMyCommentRes> searchMyComments(Long userId, CommunityMySearchReq req) {
+        PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
+        Page<CommunityComment> page = communityCommentReader.getCommentsByUser(userId, pageRequest);
+        List<CommunityMyCommentRes> items = page.getContent().stream()
+                .map(CommunityMyCommentRes::from)
+                .toList();
+        PaginationRes pagination = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
+        return SearchRes.from(pagination, items);
     }
 }

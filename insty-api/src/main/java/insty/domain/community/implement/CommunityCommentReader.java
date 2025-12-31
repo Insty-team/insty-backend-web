@@ -5,6 +5,8 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityComment;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,5 +25,9 @@ public class CommunityCommentReader {
 
     public List<CommunityComment> getCommentsByPostId(Long postId) {
         return communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalse(postId);
+    }
+
+    public Page<CommunityComment> getCommentsByUser(Long userId, Pageable pageable) {
+        return communityCommentRepository.findAllByUser_IdAndIsDeletedFalse(userId, pageable);
     }
 }

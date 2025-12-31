@@ -66,11 +66,12 @@ class CommunityPostServiceTest {
     void searchPosts_페이지네이션_정상() {
         // given
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        Long courseId = post.getCourse().getId();
         Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
-        when(communityPostReader.findPosts(any(PageRequest.class))).thenReturn(page);
+        when(communityPostReader.findPosts(eq(courseId), any(PageRequest.class))).thenReturn(page);
 
         // when
-        SearchRes<?> result = communityPostService.searchPosts(new CommunityPostSearchReq(1, 10));
+        SearchRes<?> result = communityPostService.searchPosts(courseId, new CommunityPostSearchReq(1, 10));
 
         // then
         assertThat(result.pagination()).isEqualTo(PaginationRes.of(1, 1, 10));
@@ -90,7 +91,7 @@ class CommunityPostServiceTest {
         when(communityPostVideoManager.getVideo(post)).thenReturn(video);
 
         // when
-        CommunityPostDetailsRes res = communityPostService.getPostDetails(post.getId());
+        CommunityPostDetailsRes res = communityPostService.getPostDetails(post.getCourse().getId(), post.getId());
 
         // then
         assertThat(res.postId()).isEqualTo(post.getId());
@@ -104,6 +105,7 @@ class CommunityPostServiceTest {
         Long userId = 1L;
         User user = UserFixtureBuilder.getUserWithId(userId);
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        var course = post.getCourse();
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1})
         );
@@ -111,13 +113,14 @@ class CommunityPostServiceTest {
         List<FileInfo> fileInfos = List.of(new FileInfo(1L, "f1.png", "image/png", 10, "url"));
         VideoCommunityPost video = VideoCommunityPost.create("video.mp4", req.videoUuid(), user);
 
+        when(communityValidator.validateCourse(course.getId())).thenReturn(course);
         when(userReader.getUser(userId)).thenReturn(user);
-        when(communityPostWriter.savePost(user, req.title(), req.content())).thenReturn(post);
+        when(communityPostWriter.savePost(user, course, req.title(), req.content())).thenReturn(post);
         when(communityPostFileWriter.savePostFiles(post, attachments)).thenReturn(fileInfos);
         when(communityPostVideoManager.attachVideo(post, req.videoUuid())).thenReturn(video);
 
         // when
-        CommunityPostDetailsRes res = communityPostService.createPost(userId, req, attachments);
+        CommunityPostDetailsRes res = communityPostService.createPost(userId, course.getId(), req, attachments);
 
         // then
         assertThat(res.postId()).isEqualTo(post.getId());
@@ -131,6 +134,7 @@ class CommunityPostServiceTest {
         // given
         Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        Long courseId = post.getCourse().getId();
         CommunityPostUpdateReq req = new CommunityPostUpdateReq("new title", "new content", List.of(1L), null);
         List<MultipartFile> addFiles = List.of(new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1}));
         List<FileInfo> fileInfos = List.of(new FileInfo(2L, "f1.png", "image/png", 10, "url"));
@@ -144,7 +148,7 @@ class CommunityPostServiceTest {
         when(communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid())).thenReturn(null);
 
         // when
-        CommunityPostDetailsRes res = communityPostService.updatePost(userId, post.getId(), req, addFiles);
+        CommunityPostDetailsRes res = communityPostService.updatePost(userId, courseId, post.getId(), req, addFiles);
 
         // then
         assertThat(res.title()).isEqualTo(req.title());
@@ -160,7 +164,7 @@ class CommunityPostServiceTest {
         when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
 
         // when
-        communityPostService.deletePost(userId, post.getId());
+        communityPostService.deletePost(userId, post.getCourse().getId(), post.getId());
 
         // then
         verify(communityPostFileWriter).deletePostFiles(post);

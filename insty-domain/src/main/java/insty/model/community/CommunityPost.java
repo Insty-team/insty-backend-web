@@ -3,6 +3,7 @@ package insty.model.community;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
+import insty.model.course.Course;
 import insty.model.user.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,6 +39,10 @@ public class CommunityPost extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -58,9 +63,10 @@ public class CommunityPost extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 
-    public static CommunityPost create(User user, String title, String content) {
-        validateCreate(user, title, content);
+    public static CommunityPost create(User user, Course course, String title, String content) {
+        validateCreate(user, course, title, content);
         return CommunityPost.builder()
+                .course(course)
                 .user(user)
                 .title(title)
                 .content(content)
@@ -68,9 +74,13 @@ public class CommunityPost extends BaseEntity {
                 .build();
     }
 
-    private static void validateCreate(User user, String title, String content) {
+    private static void validateCreate(User user, Course course, String title, String content) {
         if (user == null || user.getId() == null) {
             log.error("생성 오류 - user : null");
+            throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+        }
+        if (course == null || course.getId() == null) {
+            log.error("생성 오류 - course : null");
             throw new CustomException(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
         }
         if (title == null || title.isBlank()) {

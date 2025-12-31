@@ -8,6 +8,8 @@ import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
 import insty.domain.community.dto.CommunityPostUpdateReq;
+import insty.domain.community.dto.CommunityMyPostRes;
+import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.implement.CommunityPostFileReader;
 import insty.domain.community.implement.CommunityPostFileWriter;
 import insty.domain.community.implement.CommunityPostReader;
@@ -39,9 +41,9 @@ public class CommunityPostService {
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityPostRes> searchPosts(CommunityPostSearchReq req) {
+    public SearchRes<CommunityPostRes> searchPosts(Long courseId, CommunityPostSearchReq req) {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
-        Page<CommunityPost> page = communityPostReader.findPosts(pageRequest);
+        Page<CommunityPost> page = communityPostReader.findPosts(courseId, pageRequest);
         List<CommunityPostRes> items = page.getContent().stream()
                 .map(CommunityPostRes::from)
                 .toList();
@@ -49,33 +51,36 @@ public class CommunityPostService {
         return SearchRes.from(paginationRes, items);
     }
 
-    public CommunityPostDetailsRes getPostDetails(Long postId) {
+    public CommunityPostDetailsRes getPostDetails(Long courseId, Long postId) {
         CommunityPost post = communityPostReader.getPostWithAttachments(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
         List<FileInfo> attachments = communityPostFileReader.getPostFileInfos(post);
         VideoCommunityPost video = communityPostVideoManager.getVideo(post);
         return CommunityPostDetailsRes.from(post, attachments, video);
     }
 
-    public CommunityPostDetailsRes createPost(Long userId, CommunityPostCreateReq req, List<MultipartFile> attachments) {
+    public CommunityPostDetailsRes createPost(Long userId, Long courseId, CommunityPostCreateReq req, List<MultipartFile> attachments) {
         communityValidator.validateTitle(req.title());
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validatePostFileCountForCreate(attachments);
 
+        var course = communityValidator.validateCourse(courseId);
         User user = userReader.getUser(userId);
-        CommunityPost post = communityPostWriter.savePost(user, req.title(), req.content());
+        CommunityPost post = communityPostWriter.savePost(user, course, req.title(), req.content());
         List<FileInfo> fileInfos = communityPostFileWriter.savePostFiles(post, attachments);
         VideoCommunityPost video = communityPostVideoManager.attachVideo(post, req.videoUuid());
 
         return CommunityPostDetailsRes.from(post, fileInfos, video);
     }
 
-    public CommunityPostDetailsRes updatePost(Long userId, Long postId, CommunityPostUpdateReq req, List<MultipartFile> attachments) {
+    public CommunityPostDetailsRes updatePost(Long userId, Long courseId, Long postId, CommunityPostUpdateReq req, List<MultipartFile> attachments) {
         communityValidator.validateTitle(req.title());
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
         CommunityPost post = communityValidator.validatePostExists(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
         communityValidator.validatePostAuthor(userId, post);
         communityValidator.validatePostFileCountForUpdate(postId, attachments, req.deleteFileIds());
 
@@ -86,11 +91,22 @@ public class CommunityPostService {
         return CommunityPostDetailsRes.from(updated, fileInfos, video);
     }
 
-    public void deletePost(Long userId, Long postId) {
+    public void deletePost(Long userId, Long courseId, Long postId) {
         CommunityPost post = communityValidator.validatePostExists(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
         communityValidator.validatePostAuthor(userId, post);
         communityPostFileWriter.deletePostFiles(post);
         communityPostVideoManager.deleteVideo(post);
         communityPostWriter.deletePost(post);
+    }
+
+    public SearchRes<CommunityMyPostRes> searchMyPosts(Long userId, CommunityMySearchReq req) {
+        PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
+        Page<CommunityPost> page = communityPostReader.findPostsByUser(userId, pageRequest);
+        List<CommunityMyPostRes> items = page.getContent().stream()
+                .map(CommunityMyPostRes::from)
+                .toList();
+        PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
+        return SearchRes.from(paginationRes, items);
     }
 }

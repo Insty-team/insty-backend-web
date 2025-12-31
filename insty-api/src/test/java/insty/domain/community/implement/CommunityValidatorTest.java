@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import insty.domain.community.repository.CommunityCommentRepository;
 import insty.domain.community.repository.CommunityPostRepository;
+import insty.domain.course.implement.CourseReader;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityComment;
@@ -34,6 +35,8 @@ class CommunityValidatorTest {
     private CommunityPostFileReader communityPostFileReader;
     @Mock
     private CommunityCommentFileReader communityCommentFileReader;
+    @Mock
+    private CourseReader courseReader;
 
     @InjectMocks
     private CommunityValidator communityValidator;

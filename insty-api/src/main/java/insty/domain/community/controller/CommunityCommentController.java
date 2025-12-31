@@ -38,23 +38,25 @@ public class CommunityCommentController {
     private final CommunityCommentService communityCommentService;
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/posts/{postId}/comments")
+    @GetMapping("/courses/{courseId}/posts/{postId}/comments")
     public SuccessRes<SearchRes<CommunityCommentRes>> getComments(
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @ModelAttribute @Valid CommunityCommentSearchReq req
     ) {
-        return SuccessRes.of(communityCommentService.getComments(postId, req));
+        return SuccessRes.of(communityCommentService.getComments(courseId, postId, req));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PostMapping(value = "/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/courses/{courseId}/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> createComment(
             @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @RequestPart("comment") @Valid CommunityCommentCreateReq req,
             @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityCommentService.createComment(userId, postId, req, attachments));
+        return SuccessRes.of(communityCommentService.createComment(userId, courseId, postId, req, attachments));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
@@ -77,4 +79,5 @@ public class CommunityCommentController {
         communityCommentService.deleteComment(userId, commentId);
         return SuccessRes.of(null);
     }
+
 }

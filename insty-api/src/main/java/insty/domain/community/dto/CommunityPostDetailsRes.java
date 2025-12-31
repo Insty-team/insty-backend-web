@@ -16,6 +16,9 @@ public record CommunityPostDetailsRes(
         @Schema(description = "작성자 정보")
         CommunityUserRes user,
 
+        @Schema(description = "강좌 ID", example = "1")
+        Long courseId,
+
         @Schema(description = "게시글 제목")
         String title,
 
@@ -38,6 +41,7 @@ public record CommunityPostDetailsRes(
         return new CommunityPostDetailsRes(
                 post.getId(),
                 CommunityUserRes.from(post.getUser()),
+                post.getCourse().getId(),
                 post.getTitle(),
                 post.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),

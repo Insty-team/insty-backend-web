@@ -2,10 +2,12 @@ package insty.domain.community.implement;
 
 import insty.domain.community.repository.CommunityCommentRepository;
 import insty.domain.community.repository.CommunityPostRepository;
+import insty.domain.course.implement.CourseReader;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityComment;
 import insty.model.community.CommunityPost;
+import insty.model.course.Course;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,11 @@ public class CommunityValidator {
     private final CommunityCommentRepository communityCommentRepository;
     private final CommunityPostFileReader communityPostFileReader;
     private final CommunityCommentFileReader communityCommentFileReader;
+    private final CourseReader courseReader;
+
+    public Course validateCourse(Long courseId) {
+        return courseReader.getCourseById(courseId);
+    }
 
     public CommunityPost validatePostExists(Long postId) {
         CommunityPost post = communityPostRepository.findById(postId)
@@ -44,6 +51,12 @@ public class CommunityValidator {
     public void validatePostAuthor(Long userId, CommunityPost post) {
         if (!post.getUser().getId().equals(userId)) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_NOT_POST_AUTHOR);
+        }
+    }
+
+    public void validatePostBelongsToCourse(CommunityPost post, Long courseId) {
+        if (!post.getCourse().getId().equals(courseId)) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
         }
     }
 

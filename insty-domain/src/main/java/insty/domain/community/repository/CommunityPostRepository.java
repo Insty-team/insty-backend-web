@@ -10,7 +10,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {
 
-    Page<CommunityPost> findAllByIsDeletedFalse(Pageable pageable);
+    Page<CommunityPost> findAllByCourse_IdAndIsDeletedFalse(Long courseId, Pageable pageable);
+
+    Page<CommunityPost> findAllByUser_IdAndIsDeletedFalse(Long userId, Pageable pageable);
 
     Optional<CommunityPost> findByIdAndIsDeletedFalse(Long id);
 
@@ -19,7 +21,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
         JOIN FETCH p.user u
         LEFT JOIN FETCH p.attachments att
         LEFT JOIN FETCH att.file f
-        WHERE p.id = :postId
+        WHERE p.id = :postId AND p.isDeleted = false
     """)
     Optional<CommunityPost> findDetailsWithUserAndAttachments(@Param("postId") Long postId);
 }
