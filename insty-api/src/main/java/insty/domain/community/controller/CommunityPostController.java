@@ -1,6 +1,8 @@
 package insty.domain.community.controller;
 
 import insty.domain.common.SearchRes;
+import insty.domain.community.dto.CommunityMyPostRes;
+import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
 import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostRes;
@@ -88,5 +90,14 @@ public class CommunityPostController {
     ) {
         communityPostService.deletePost(userId, courseId, postId);
         return SuccessRes.of(null);
+    }
+
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/me/posts")
+    public SuccessRes<SearchRes<CommunityMyPostRes>> getMyPosts(
+            @CurrentUser Long userId,
+            @ModelAttribute @Valid CommunityMySearchReq req
+    ) {
+        return SuccessRes.of(communityPostService.searchMyPosts(userId, req));
     }
 }

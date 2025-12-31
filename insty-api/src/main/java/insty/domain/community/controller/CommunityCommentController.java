@@ -5,6 +5,8 @@ import insty.domain.community.dto.CommunityCommentCreateReq;
 import insty.domain.community.dto.CommunityCommentRes;
 import insty.domain.community.dto.CommunityCommentSearchReq;
 import insty.domain.community.dto.CommunityCommentUpdateReq;
+import insty.domain.community.dto.CommunityMyCommentRes;
+import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.service.CommunityCommentService;
 import insty.global.annotation.CurrentUser;
 import insty.global.response.SuccessRes;
@@ -78,6 +80,15 @@ public class CommunityCommentController {
     ) {
         communityCommentService.deleteComment(userId, commentId);
         return SuccessRes.of(null);
+    }
+
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/me/comments")
+    public SuccessRes<SearchRes<CommunityMyCommentRes>> getMyComments(
+            @CurrentUser Long userId,
+            @ModelAttribute @Valid CommunityMySearchReq req
+    ) {
+        return SuccessRes.of(communityCommentService.searchMyComments(userId, req));
     }
 
 }
