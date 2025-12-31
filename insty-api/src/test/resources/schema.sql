@@ -268,6 +268,12 @@ CREATE TABLE IF NOT EXISTS web_service.community_posts
     FOREIGN KEY (user_id) REFERENCES web_service.users(id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_community_posts_course_id_is_deleted
+    ON web_service.community_posts (course_id, is_deleted);
+
+CREATE INDEX IF NOT EXISTS idx_community_posts_user_id_is_deleted
+    ON web_service.community_posts (user_id, is_deleted);
+
 CREATE TABLE IF NOT EXISTS web_service.community_post_files
 (
     post_id     BIGINT NOT NULL,
