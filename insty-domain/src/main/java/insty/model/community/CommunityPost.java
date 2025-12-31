@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -27,7 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Entity
-@Table(name = "community_posts", schema = "web_service")
+@Table(
+        name = "community_posts",
+        schema = "web_service",
+        indexes = {
+                @Index(name = "idx_community_posts_course_id_is_deleted", columnList = "course_id, is_deleted"),
+                @Index(name = "idx_community_posts_user_id_is_deleted", columnList = "user_id, is_deleted")
+        }
+)
 @Getter
 @Builder(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
