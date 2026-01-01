@@ -34,14 +34,14 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "커뮤니티 게시글 API", description = "커뮤니티 게시글 작성 및 조회 API")
 @Validated
 @RestController
-@RequestMapping("/api/v1/community")
+@RequestMapping("/api/v1/courses/{courseId}/community")
 @RequiredArgsConstructor
 public class CommunityPostController {
 
     private final CommunityPostService communityPostService;
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/courses/{courseId}/posts")
+    @GetMapping("/posts")
     public SuccessRes<SearchRes<CommunityPostRes>> searchPosts(
             @PathVariable @NotNull Long courseId,
             @ModelAttribute @Valid CommunityPostSearchReq req
@@ -50,7 +50,7 @@ public class CommunityPostController {
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/courses/{courseId}/posts/{postId}")
+    @GetMapping("/posts/{postId}")
     public SuccessRes<CommunityPostDetailsRes> getPost(
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId
@@ -59,7 +59,7 @@ public class CommunityPostController {
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PostMapping(value = "/courses/{courseId}/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityPostDetailsRes> createPost(
             @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
@@ -70,7 +70,7 @@ public class CommunityPostController {
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PatchMapping(value = "/courses/{courseId}/posts/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/posts/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityPostDetailsRes> updatePost(
             @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
@@ -82,7 +82,7 @@ public class CommunityPostController {
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @DeleteMapping("/courses/{courseId}/posts/{postId}")
+    @DeleteMapping("/posts/{postId}")
     public SuccessRes<?> deletePost(
             @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,

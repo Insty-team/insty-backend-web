@@ -33,14 +33,14 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "커뮤니티 댓글 API", description = "커뮤니티 댓글 작성 및 조회 API")
 @Validated
 @RestController
-@RequestMapping("/api/v1/community")
+@RequestMapping("/api/v1/courses/{courseId}/community")
 @RequiredArgsConstructor
 public class CommunityCommentController {
 
     private final CommunityCommentService communityCommentService;
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/courses/{courseId}/posts/{postId}/comments")
+    @GetMapping("/posts/{postId}/comments")
     public SuccessRes<SearchRes<CommunityCommentRes>> getComments(
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
@@ -50,7 +50,7 @@ public class CommunityCommentController {
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PostMapping(value = "/courses/{courseId}/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> createComment(
             @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
@@ -65,6 +65,7 @@ public class CommunityCommentController {
     @PatchMapping(value = "/comments/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> updateComment(
             @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long commentId,
             @RequestPart("comment") @Valid CommunityCommentUpdateReq req,
             @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
@@ -76,6 +77,7 @@ public class CommunityCommentController {
     @DeleteMapping("/comments/{commentId}")
     public SuccessRes<?> deleteComment(
             @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long commentId
     ) {
         communityCommentService.deleteComment(userId, commentId);
