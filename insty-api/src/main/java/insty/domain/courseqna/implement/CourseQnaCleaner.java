@@ -44,7 +44,7 @@ public class CourseQnaCleaner {
     }
 
     private void deleteAnswers(CourseQuestion question) {
-        List<CourseAnswer> answers = courseAnswerRepository.findAllByCourseQuestionId(question.getId());
+        List<CourseAnswer> answers = courseAnswerRepository.findAllByCourseQuestionIdIncludingDeleted(question.getId());
         answers.forEach(this::deleteAnswer);
     }
 

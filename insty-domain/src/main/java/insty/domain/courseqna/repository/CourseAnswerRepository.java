@@ -13,7 +13,11 @@ public interface CourseAnswerRepository extends JpaRepository<CourseAnswer, Long
     @Query("SELECT ca FROM CourseAnswer ca WHERE ca.courseQuestion.id = :questionId AND ca.isDeleted = false")
     List<CourseAnswer> findAllByCourseQuestionId(@Param("questionId") Long questionId);
 
-    List<CourseAnswer> findAllByCourseQuestionIdIn(List<Long> questionIds);
+    @Query("SELECT ca FROM CourseAnswer ca WHERE ca.courseQuestion.id = :questionId")
+    List<CourseAnswer> findAllByCourseQuestionIdIncludingDeleted(@Param("questionId") Long questionId);
+
+    @Query("SELECT ca FROM CourseAnswer ca WHERE ca.courseQuestion.id IN :questionIds")
+    List<CourseAnswer> findAllByCourseQuestionIdIn(@Param("questionIds") List<Long> questionIds);
 
     @Query("""
         SELECT a FROM CourseAnswer a

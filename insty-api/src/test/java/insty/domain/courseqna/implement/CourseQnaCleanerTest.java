@@ -74,7 +74,9 @@ class CourseQnaCleanerTest {
         User user = UserFixtureBuilder.getUserWithId(6L);
         CourseQuestion question = CourseQuestion.create(course, user, "title2", "content2");
         CourseAnswer answer = CourseAnswer.create(question, user, "answer2");
-        when(courseAnswerRepository.findAllByCourseQuestionId(question.getId())).thenReturn(List.of(answer));
+        ReflectionTestUtils.setField(question, "id", 200L);
+        when(courseAnswerRepository.findAllByCourseQuestionIdIncludingDeleted(question.getId()))
+                .thenReturn(List.of(answer));
 
         courseQnaCleaner.deleteQuestion(question);
 
