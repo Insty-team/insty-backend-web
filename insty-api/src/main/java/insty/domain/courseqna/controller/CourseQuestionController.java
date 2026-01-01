@@ -54,7 +54,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
             @CurrentUser Long userId,
             @ModelAttribute @Validated CourseQuestionSearchReq req
     ) {
-        return SuccessRes.of(courseQuestionService.searchQuestionsByUserId(req, userId));
+        return SuccessRes.of(courseQuestionService.searchQuestionsByUserId(req, userId, courseId));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")

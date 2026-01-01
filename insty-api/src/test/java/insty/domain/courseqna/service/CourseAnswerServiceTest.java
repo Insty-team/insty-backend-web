@@ -106,13 +106,13 @@ class CourseAnswerServiceTest {
      */
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1, 'question_author@example.com', '질문작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'question_author@example.com', '질문작성자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (2, 'course_creator@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'WAITING', NOW(), NOW(), false);",
+                    + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'WAITING', NOW(), NOW(), false);",
             "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
                     + "VALUES (1, '00000000-0000-0000-0000-000000000001', null, 1, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000001/answer_video.mp4', 'mp4', 'answer_video.mp4', 10, 'PROCESSING', NOW(), NOW(), NOW(), false)"})
     @Test
@@ -142,7 +142,7 @@ class CourseAnswerServiceTest {
         assertThat(firstRes.content()).isEqualTo(firstAnswerContent);
         assertThat(firstRes.user().id()).isEqualTo(questionAuthorId);
         assertThat(firstRes.user().nickname()).isEqualTo("질문작성자");
-        assertThat(firstRes.user().userType()).isEqualTo(UserType.CREATOR);
+        assertThat(firstRes.user().userType()).isEqualTo(UserType.LEARNER);
         assertThat(firstRes.isAccepted()).isFalse();
         assertThat(firstRes.attachments()).isNotNull();
         assertThat(firstRes.videoInfo()).isNotNull();
@@ -159,7 +159,7 @@ class CourseAnswerServiceTest {
         assertThat(secondRes.content()).isEqualTo(secondAnswerContent);
         assertThat(secondRes.user().id()).isEqualTo(questionAuthorId);
         assertThat(secondRes.user().nickname()).isEqualTo("질문작성자");
-        assertThat(secondRes.user().userType()).isEqualTo(UserType.CREATOR);
+        assertThat(secondRes.user().userType()).isEqualTo(UserType.LEARNER);
         assertThat(secondRes.isAccepted()).isFalse();
         assertThat(secondRes.attachments()).isEmpty();
         assertThat(secondRes.videoInfo()).isNull();
@@ -186,9 +186,11 @@ class CourseAnswerServiceTest {
 
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
-                    + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+                    + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'course_creator@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
@@ -239,7 +241,7 @@ class CourseAnswerServiceTest {
         assertThat(res.content()).isEqualTo(updatedContent);
         assertThat(res.user().id()).isEqualTo(userId);
         assertThat(res.user().nickname()).isEqualTo("답변작성자");
-        assertThat(res.user().userType()).isEqualTo(UserType.CREATOR);
+        assertThat(res.user().userType()).isEqualTo(UserType.LEARNER);
         assertThat(res.isAccepted()).isFalse();
 
         // 비디오 수정 검증 (기존 비디오에서 새로운 비디오로 변경)
@@ -261,9 +263,9 @@ class CourseAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
+                    + "VALUES (1, 2, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 1, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
+                    + "VALUES (2, 2, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '질문A의 첫 번째 답변 (채택됨)', true, DATEADD('MINUTE', -30, NOW()), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
@@ -328,10 +330,12 @@ class CourseAnswerServiceTest {
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'question_author@example.com', '질문작성자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
+                    + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '상세 조회할 답변 내용입니다.', true, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
@@ -385,10 +389,12 @@ class CourseAnswerServiceTest {
     @Sql(statements = {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (1, 'answer_author@example.com', '답변작성자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'question_author@example.com', '질문작성자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
+                    + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, 1, '삭제할 답변 내용입니다.', true, NOW(), NOW(), false);",
             "INSERT INTO web_service.files (container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
@@ -449,7 +455,7 @@ class CourseAnswerServiceTest {
             "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
                     + "VALUES (2, 'user2@example.com', '사용자2', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+                    + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, 1, '테스트 질문', '테스트 질문 내용', 'ANSWERED', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
@@ -572,9 +578,9 @@ class CourseAnswerServiceTest {
             "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 1, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (1, 1, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
+                    + "VALUES (1, 2, 1, '질문A', '질문A 내용', 'ACCEPTED', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
-                    + "VALUES (2, 1, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
+                    + "VALUES (2, 2, 1, '질문B', '질문B 내용', 'WAITING', NOW(), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
                     + "VALUES (1, 2, 1, '질문A의 채택된 답변', true, DATEADD('MINUTE', -30, NOW()), NOW(), false);",
             "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "

@@ -117,8 +117,15 @@ public class CourseQuestionService {
      * User(러너)가 작성한 강좌 질문을 검색
      */
     public SearchRes<CourseQuestionMyRes> searchQuestionsByUserId(CourseQuestionSearchReq req, Long userId) {
+        return searchQuestionsByUserId(req, userId, null);
+    }
+
+    /**
+     * User(러너)가 특정 강의 또는 전체에서 작성한 강좌 질문을 검색
+     */
+    public SearchRes<CourseQuestionMyRes> searchQuestionsByUserId(CourseQuestionSearchReq req, Long userId, Long courseId) {
         PaginationReq paginationReq = req.toPaginationReq();
-        CourseQuestionSearchFilter filter = req.toFilter(userId, null);
+        CourseQuestionSearchFilter filter = req.toFilter(userId, courseId);
         String sort = req.orderByClause();
 
         List<CourseQuestionSearchInfo> questions = courseQuestionReader.searchQuestions(paginationReq, filter, sort);
