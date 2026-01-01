@@ -13,9 +13,6 @@ import insty.domain.courseqna.dto.CourseQuestionSearchFilter;
 import insty.domain.courseqna.dto.CourseQuestionSearchInfo;
 import insty.domain.courseqna.dto.CourseQuestionSearchReq;
 import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
-import insty.domain.courseqna.implement.CourseAnswerFileWriter;
-import insty.domain.courseqna.implement.CourseAnswerVideoManager;
-import insty.domain.courseqna.implement.CourseAnswerWriter;
 import insty.domain.courseqna.implement.CourseNotificationManager;
 import insty.domain.courseqna.implement.CourseQuestionFileReader;
 import insty.domain.courseqna.implement.CourseQuestionFileWriter;
@@ -24,6 +21,7 @@ import insty.domain.courseqna.implement.CourseQuestionVideoManager;
 import insty.domain.courseqna.implement.CourseQuestionViewManager;
 import insty.domain.courseqna.implement.CourseQuestionWriter;
 import insty.domain.courseqna.implement.CourseQnaValidator;
+import insty.domain.courseqna.implement.CourseQnaCleaner;
 import insty.domain.course.implement.CourseReader;
 import insty.domain.user.implement.UserReader;
 import insty.model.courseqna.CourseAnswer;
@@ -50,11 +48,9 @@ public class CourseQuestionService {
     private final CourseQnaValidator courseQnaValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
-    private final CourseAnswerWriter courseAnswerWriter;
-    private final CourseAnswerFileWriter courseAnswerFileWriter;
-    private final CourseAnswerVideoManager courseAnswerVideoManager;
     private final CourseNotificationManager courseNotificationManager;
     private final CourseQuestionViewManager courseQuestionViewManager;
+    private final CourseQnaCleaner courseQnaCleaner;
 
     /**
      * 새로운 강좌 질문을 생성하고 첨부 파일을 저장
@@ -185,15 +181,6 @@ public class CourseQuestionService {
         CourseQuestion question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         courseQnaValidator.validateQuestionAuthor(userId, questionId);
         
-        // 연관된 모든 답변 삭제
-        for (CourseAnswer answer : question.getAnswers()) {
-            courseAnswerFileWriter.deleteAnswerFiles(answer);
-            courseAnswerVideoManager.deleteAnswerVideo(answer);
-            courseAnswerWriter.deleteAnswer(answer);
-        }
-
-        courseQuestionFileWriter.deleteQuestionFiles(question);
-        courseQuestionVideoManager.deleteQuestionVideo(question);
-        courseQuestionWriter.deleteQuestion(question);
+        courseQnaCleaner.deleteQuestion(question);
     }
 }

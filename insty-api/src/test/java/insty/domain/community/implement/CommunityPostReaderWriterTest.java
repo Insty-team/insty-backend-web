@@ -60,10 +60,11 @@ class CommunityPostReaderWriterTest {
     @Test
     void findPosts_정상() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<CommunityPost> page = new PageImpl<>(List.of(), pageRequest, 0);
-        when(communityPostRepository.findAllByIsDeletedFalse(pageRequest)).thenReturn(page);
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        Page<CommunityPost> page = new PageImpl<>(List.of(post), pageRequest, 1);
+        when(communityPostRepository.findAllByCourse_IdAndIsDeletedFalse(post.getCourse().getId(), pageRequest)).thenReturn(page);
 
-        Page<CommunityPost> result = communityPostReader.findPosts(pageRequest);
+        Page<CommunityPost> result = communityPostReader.findPosts(post.getCourse().getId(), pageRequest);
         assertThat(result).isEqualTo(page);
     }
 
@@ -72,7 +73,8 @@ class CommunityPostReaderWriterTest {
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         when(communityPostRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        CommunityPost saved = communityPostWriter.savePost(UserFixtureBuilder.getUserWithId(), post.getTitle(), post.getContent());
+        CommunityPost saved = communityPostWriter.savePost(UserFixtureBuilder.getUserWithId(),
+                post.getCourse(), post.getTitle(), post.getContent());
         CommunityPost updated = communityPostWriter.updatePost(saved, "new title", "new content");
         communityPostWriter.deletePost(updated);
 

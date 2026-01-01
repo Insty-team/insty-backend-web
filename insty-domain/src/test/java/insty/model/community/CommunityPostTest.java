@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
+import insty.model.course.Course;
+import insty.model.course.CourseFixtureBuilder;
 import insty.model.file.File;
 import insty.model.file.FileContainerType;
 import insty.model.file.FileFixtureBuilder;
@@ -20,12 +22,13 @@ class CommunityPostTest {
     @Test
     void create_정상() {
         // given
-        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(2L);
         String title = "게시글 제목";
         String content = "게시글 내용";
 
         // when
-        CommunityPost post = CommunityPost.create(user, title, content);
+        CommunityPost post = CommunityPost.create(user, course, title, content);
 
         // then
         assertThat(post).isNotNull();
@@ -39,12 +42,13 @@ class CommunityPostTest {
     @Test
     void create_에러_user가_null이다() {
         // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = null;
         String title = "게시글 제목";
         String content = "게시글 내용";
 
         // when, then
-        assertThatThrownBy(() -> CommunityPost.create(user, title, content))
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -53,12 +57,28 @@ class CommunityPostTest {
     @Test
     void create_에러_user_id가_null이다() {
         // given
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         User user = UserFixture.getUser();
         String title = "게시글 제목";
         String content = "게시글 내용";
 
         // when, then
-        assertThatThrownBy(() -> CommunityPost.create(user, title, content))
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
+    }
+
+    @Test
+    void create_에러_course가_null이다() {
+        // given
+        User user = UserFixtureBuilder.getUserWithId();
+        Course course = null;
+        String title = "게시글 제목";
+        String content = "게시글 내용";
+
+        // when, then
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -67,12 +87,13 @@ class CommunityPostTest {
     @Test
     void create_에러_title이_null이다() {
         // given
-        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(2L);
         String title = null;
         String content = "게시글 내용";
 
         // when, then
-        assertThatThrownBy(() -> CommunityPost.create(user, title, content))
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -81,12 +102,13 @@ class CommunityPostTest {
     @Test
     void create_에러_title이_공백이다() {
         // given
-        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(2L);
         String title = "   \n\t\r";
         String content = "게시글 내용";
 
         // when, then
-        assertThatThrownBy(() -> CommunityPost.create(user, title, content))
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -95,12 +117,13 @@ class CommunityPostTest {
     @Test
     void create_에러_content가_null이다() {
         // given
-        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(2L);
         String title = "게시글 제목";
         String content = null;
 
         // when, then
-        assertThatThrownBy(() -> CommunityPost.create(user, title, content))
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);
@@ -109,12 +132,13 @@ class CommunityPostTest {
     @Test
     void create_에러_content가_공백이다() {
         // given
-        User user = UserFixtureBuilder.getUserWithId();
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(2L);
         String title = "게시글 제목";
         String content = "   \n\t\r";
 
         // when, then
-        assertThatThrownBy(() -> CommunityPost.create(user, title, content))
+        assertThatThrownBy(() -> CommunityPost.create(user, course, title, content))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(CommunityErrorCode.COMMUNITY_CREATE_ERROR);

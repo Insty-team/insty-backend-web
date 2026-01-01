@@ -73,7 +73,7 @@ class CommunityCommentServiceTest {
         when(communityCommentVideoManager.getVideo(comment)).thenReturn(null);
 
         // when
-        SearchRes<CommunityCommentRes> res = communityCommentService.getComments(post.getId(),
+        SearchRes<CommunityCommentRes> res = communityCommentService.getComments(post.getCourse().getId(), post.getId(),
                 new CommunityCommentSearchReq(1, 10));
 
         // then
@@ -102,7 +102,7 @@ class CommunityCommentServiceTest {
         when(communityCommentVideoManager.attachVideo(comment, req.videoUuid())).thenReturn(video);
 
         // when
-        CommunityCommentRes res = communityCommentService.createComment(userId, post.getId(), req, attachments);
+        CommunityCommentRes res = communityCommentService.createComment(userId, post.getCourse().getId(), post.getId(), req, attachments);
 
         // then
         assertThat(res.commentId()).isEqualTo(comment.getId());

@@ -1,6 +1,8 @@
 package insty.domain.community.controller;
 
 import insty.domain.common.SearchRes;
+import insty.domain.community.dto.CommunityMyPostRes;
+import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
 import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostRes;
@@ -32,56 +34,70 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "커뮤니티 게시글 API", description = "커뮤니티 게시글 작성 및 조회 API")
 @Validated
 @RestController
-@RequestMapping("/api/v1/community/posts")
+@RequestMapping("/api/v1/community")
 @RequiredArgsConstructor
 public class CommunityPostController {
 
     private final CommunityPostService communityPostService;
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping
+    @GetMapping("/courses/{courseId}/posts")
     public SuccessRes<SearchRes<CommunityPostRes>> searchPosts(
+            @PathVariable @NotNull Long courseId,
             @ModelAttribute @Valid CommunityPostSearchReq req
     ) {
-        return SuccessRes.of(communityPostService.searchPosts(req));
+        return SuccessRes.of(communityPostService.searchPosts(courseId, req));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @GetMapping("/{postId}")
+    @GetMapping("/courses/{courseId}/posts/{postId}")
     public SuccessRes<CommunityPostDetailsRes> getPost(
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId
     ) {
-        return SuccessRes.of(communityPostService.getPostDetails(postId));
+        return SuccessRes.of(communityPostService.getPostDetails(courseId, postId));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/courses/{courseId}/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityPostDetailsRes> createPost(
             @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
             @RequestPart("post") @Valid CommunityPostCreateReq req,
             @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityPostService.createPost(userId, req, attachments));
+        return SuccessRes.of(communityPostService.createPost(userId, courseId, req, attachments));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/courses/{courseId}/posts/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityPostDetailsRes> updatePost(
             @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @RequestPart("post") @Valid CommunityPostUpdateReq req,
             @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
     ) {
-        return SuccessRes.of(communityPostService.updatePost(userId, postId, req, attachments));
+        return SuccessRes.of(communityPostService.updatePost(userId, courseId, postId, req, attachments));
     }
 
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/courses/{courseId}/posts/{postId}")
     public SuccessRes<?> deletePost(
             @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId
     ) {
-        communityPostService.deletePost(userId, postId);
+        communityPostService.deletePost(userId, courseId, postId);
         return SuccessRes.of(null);
+    }
+
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @GetMapping("/me/posts")
+    public SuccessRes<SearchRes<CommunityMyPostRes>> getMyPosts(
+            @CurrentUser Long userId,
+            @ModelAttribute @Valid CommunityMySearchReq req
+    ) {
+        return SuccessRes.of(communityPostService.searchMyPosts(userId, req));
     }
 }

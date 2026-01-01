@@ -29,7 +29,11 @@ public class CommunityPostReader {
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
     }
 
-    public Page<CommunityPost> findPosts(Pageable pageable) {
-        return communityPostRepository.findAllByIsDeletedFalse(pageable);
+    public Page<CommunityPost> findPosts(Long courseId, Pageable pageable) {
+        return communityPostRepository.findAllByCourse_IdAndIsDeletedFalse(courseId, pageable);
+    }
+
+    public Page<CommunityPost> findPostsByUser(Long userId, Pageable pageable) {
+        return communityPostRepository.findAllByUser_IdAndIsDeletedFalse(userId, pageable);
     }
 }

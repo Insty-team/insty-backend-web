@@ -2,6 +2,7 @@ package insty.domain.community.implement;
 
 import insty.domain.community.repository.CommunityPostRepository;
 import insty.model.community.CommunityPost;
+import insty.model.course.Course;
 import insty.model.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,8 @@ public class CommunityPostWriter {
 
     private final CommunityPostRepository communityPostRepository;
 
-    public CommunityPost savePost(User user, String title, String content) {
-        CommunityPost post = CommunityPost.create(user, title, content);
+    public CommunityPost savePost(User user, Course course, String title, String content) {
+        CommunityPost post = CommunityPost.create(user, course, title, content);
         return communityPostRepository.save(post);
     }
 
