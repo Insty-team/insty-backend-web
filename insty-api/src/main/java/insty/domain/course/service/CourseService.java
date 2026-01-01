@@ -17,6 +17,7 @@ import insty.domain.course.implement.CourseTagWriter;
 import insty.domain.course.implement.CourseValidator;
 import insty.domain.course.implement.CourseVideoManager;
 import insty.domain.course.implement.CourseWriter;
+import insty.domain.community.implement.CommunityCourseCleaner;
 import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
 import insty.model.course.CourseProgress;
@@ -47,6 +48,7 @@ public class CourseService {
     private final CourseProgressWriter courseProgressWriter;
     private final CourseProgressValidator courseProgressValidator;
     private final CourseQuestionReader courseQuestionReader;
+    private final CommunityCourseCleaner communityCourseCleaner;
 
     public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -93,6 +95,7 @@ public class CourseService {
     public void deleteCourse(Long userId, Long courseId) {
         courseValidator.validateCourseOwner(courseId, userId);
         Course course = courseReader.getCourseById(courseId);
+        communityCourseCleaner.deleteAllByCourseId(courseId);
         courseTagWriter.deleteAllCourseTags(course.getId());
         courseFileWriter.deleteAllFiles(course);
         courseVideoManager.deleteCourseVideo(course.getId());
