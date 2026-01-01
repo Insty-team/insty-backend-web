@@ -13,6 +13,7 @@ import insty.model.course.CourseFixtureBuilder;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.util.List;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,12 +48,18 @@ class CourseQnaCleanerTest {
         User user = UserFixtureBuilder.getUserWithId(5L);
         CourseQuestion question = CourseQuestion.create(course, user, "title", "content");
         CourseAnswer answer = CourseAnswer.create(question, user, "answer");
+        CourseAnswer answer2 = CourseAnswer.create(question, user, "answer2");
+        ReflectionTestUtils.setField(question, "id", 100L);
 
         when(courseQuestionRepository.findAllByCourseId(courseId)).thenReturn(List.of(question));
-        when(courseAnswerRepository.findAllByCourseQuestionId(question.getId())).thenReturn(List.of(answer));
+        when(courseAnswerRepository.findAllByCourseQuestionIdIn(List.of(question.getId())))
+                .thenReturn(List.of(answer, answer2));
 
         courseQnaCleaner.deleteAllByCourseId(courseId);
 
+        verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer2);
+        verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer2);
+        verify(courseAnswerRepository, times(1)).delete(answer2);
         verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer);
         verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer);
         verify(courseAnswerRepository, times(1)).delete(answer);

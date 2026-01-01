@@ -26,9 +26,13 @@ public class CourseQnaCleaner {
      */
     public void deleteAllByCourseId(Long courseId) {
         List<CourseQuestion> questions = courseQuestionRepository.findAllByCourseId(courseId);
-        for (CourseQuestion question : questions) {
-            deleteQuestion(question);
+        if (questions.isEmpty()) {
+            return;
         }
+        List<Long> questionIds = questions.stream().map(CourseQuestion::getId).toList();
+        List<CourseAnswer> answers = courseAnswerRepository.findAllByCourseQuestionIdIn(questionIds);
+        answers.forEach(this::deleteAnswer);
+        questions.forEach(this::deleteQuestionOnly);
     }
 
     /**
@@ -36,17 +40,23 @@ public class CourseQnaCleaner {
      */
     public void deleteQuestion(CourseQuestion question) {
         deleteAnswers(question);
-        courseQuestionFileWriter.deleteQuestionFiles(question);
-        courseQuestionVideoManager.deleteQuestionVideo(question);
-        courseQuestionRepository.delete(question);
+        deleteQuestionOnly(question);
     }
 
     private void deleteAnswers(CourseQuestion question) {
         List<CourseAnswer> answers = courseAnswerRepository.findAllByCourseQuestionId(question.getId());
-        for (CourseAnswer answer : answers) {
-            courseAnswerFileWriter.deleteAnswerFiles(answer);
-            courseAnswerVideoManager.deleteAnswerVideo(answer);
-            courseAnswerRepository.delete(answer);
-        }
+        answers.forEach(this::deleteAnswer);
+    }
+
+    private void deleteAnswer(CourseAnswer answer) {
+        courseAnswerFileWriter.deleteAnswerFiles(answer);
+        courseAnswerVideoManager.deleteAnswerVideo(answer);
+        courseAnswerRepository.delete(answer);
+    }
+
+    private void deleteQuestionOnly(CourseQuestion question) {
+        courseQuestionFileWriter.deleteQuestionFiles(question);
+        courseQuestionVideoManager.deleteQuestionVideo(question);
+        courseQuestionRepository.delete(question);
     }
 }
