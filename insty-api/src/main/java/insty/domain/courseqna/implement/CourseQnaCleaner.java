@@ -27,11 +27,18 @@ public class CourseQnaCleaner {
     public void deleteAllByCourseId(Long courseId) {
         List<CourseQuestion> questions = courseQuestionRepository.findAllByCourseId(courseId);
         for (CourseQuestion question : questions) {
-            deleteAnswers(question);
-            courseQuestionFileWriter.deleteQuestionFiles(question);
-            courseQuestionVideoManager.deleteQuestionVideo(question);
-            courseQuestionRepository.delete(question);
+            deleteQuestion(question);
         }
+    }
+
+    /**
+     * 단일 질문 삭제 시 관련 답변/첨부/영상을 모두 정리한다.
+     */
+    public void deleteQuestion(CourseQuestion question) {
+        deleteAnswers(question);
+        courseQuestionFileWriter.deleteQuestionFiles(question);
+        courseQuestionVideoManager.deleteQuestionVideo(question);
+        courseQuestionRepository.delete(question);
     }
 
     private void deleteAnswers(CourseQuestion question) {

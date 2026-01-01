@@ -13,9 +13,6 @@ import insty.domain.courseqna.dto.CourseQuestionSearchFilter;
 import insty.domain.courseqna.dto.CourseQuestionSearchInfo;
 import insty.domain.courseqna.dto.CourseQuestionSearchReq;
 import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
-import insty.domain.courseqna.implement.CourseAnswerFileWriter;
-import insty.domain.courseqna.implement.CourseAnswerVideoManager;
-import insty.domain.courseqna.implement.CourseAnswerWriter;
 import insty.domain.courseqna.implement.CourseNotificationManager;
 import insty.domain.courseqna.implement.CourseQuestionFileReader;
 import insty.domain.courseqna.implement.CourseQuestionFileWriter;
@@ -51,9 +48,6 @@ public class CourseQuestionService {
     private final CourseQnaValidator courseQnaValidator;
     private final CourseReader courseReader;
     private final UserReader userReader;
-    private final CourseAnswerWriter courseAnswerWriter;
-    private final CourseAnswerFileWriter courseAnswerFileWriter;
-    private final CourseAnswerVideoManager courseAnswerVideoManager;
     private final CourseNotificationManager courseNotificationManager;
     private final CourseQuestionViewManager courseQuestionViewManager;
     private final CourseQnaCleaner courseQnaCleaner;
@@ -187,6 +181,6 @@ public class CourseQuestionService {
         CourseQuestion question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
         courseQnaValidator.validateQuestionAuthor(userId, questionId);
         
-        courseQnaCleaner.deleteAllByCourseId(question.getCourse().getId());
+        courseQnaCleaner.deleteQuestion(question);
     }
 }

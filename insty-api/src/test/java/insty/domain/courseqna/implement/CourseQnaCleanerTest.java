@@ -60,4 +60,22 @@ class CourseQnaCleanerTest {
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
         verify(courseQuestionRepository, times(1)).delete(question);
     }
+
+    @Test
+    void deleteQuestion_단건정리() {
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(6L);
+        CourseQuestion question = CourseQuestion.create(course, user, "title2", "content2");
+        CourseAnswer answer = CourseAnswer.create(question, user, "answer2");
+        when(courseAnswerRepository.findAllByCourseQuestionId(question.getId())).thenReturn(List.of(answer));
+
+        courseQnaCleaner.deleteQuestion(question);
+
+        verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer);
+        verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer);
+        verify(courseAnswerRepository, times(1)).delete(answer);
+        verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
+        verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
+        verify(courseQuestionRepository, times(1)).delete(question);
+    }
 }
