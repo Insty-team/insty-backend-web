@@ -17,6 +17,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 )
 public interface CourseQuestionUserControllerDocs {
 
+    /**
+     * Retrieve a paginated list of course Q&A questions authored by the current user.
+     *
+     * @param userId the authenticated user's ID
+     * @param req    search and pagination criteria for filtering the user's questions
+     * @return       a SuccessRes containing a SearchRes of CourseQuestionMyRes with the paginated results
+     */
     @Operation(
             summary = "내 모든 질문 목록 검색",
             description = "로그인 사용자가 작성한 모든 강의 Q&A 질문을 페이지네이션하여 조회합니다."

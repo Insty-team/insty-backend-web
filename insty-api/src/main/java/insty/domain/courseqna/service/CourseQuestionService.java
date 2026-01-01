@@ -114,14 +114,24 @@ public class CourseQuestionService {
     }
 
     /**
-     * User(러너)가 작성한 강좌 질문을 검색
+     * Searches course questions authored by the specified user across all courses.
+     *
+     * @param req    search criteria including pagination, filters, and sorting
+     * @param userId identifier of the user whose questions will be returned
+     * @return       a SearchRes of CourseQuestionMyRes containing pagination metadata and the user's matching questions
      */
     public SearchRes<CourseQuestionMyRes> searchQuestionsByUserId(CourseQuestionSearchReq req, Long userId) {
         return searchQuestionsByUserId(req, userId, null);
     }
 
     /**
-     * User(러너)가 특정 강의 또는 전체에서 작성한 강좌 질문을 검색
+     * Searches course questions authored by a user, optionally limited to a specific course.
+     *
+     * @param req      search criteria including pagination, filters, and sort order
+     * @param userId   the ID of the user whose questions are being searched
+     * @param courseId optional course ID to restrict results to a single course; pass `null` to search across all courses
+     * @return         a SearchRes containing pagination metadata and a list of CourseQuestionMyRes items,
+     *                 each including the question data, its answer count, and a flag indicating whether there are new answers for the requesting user
      */
     public SearchRes<CourseQuestionMyRes> searchQuestionsByUserId(CourseQuestionSearchReq req, Long userId, Long courseId) {
         PaginationReq paginationReq = req.toPaginationReq();

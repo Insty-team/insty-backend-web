@@ -47,6 +47,14 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.searchQuestionsByCourseId(req, courseId));
     }
 
+    /**
+     * Searches questions created by the current user within the specified course using the given criteria.
+     *
+     * @param courseId the course identifier to scope the search
+     * @param userId   the identifier of the current user
+     * @param req      search criteria including filters and pagination
+     * @return a SuccessRes containing a SearchRes of CourseQuestionMyRes with the user's matching questions and pagination metadata
+     */
     @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/me")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchQuestionsByUser(
@@ -57,6 +65,14 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.searchQuestionsByUserId(req, userId, courseId));
     }
 
+    /**
+     * Retrieve detailed information for a specific question in a course.
+     *
+     * @param courseId  the identifier of the course containing the question
+     * @param questionId  the identifier of the question to retrieve
+     * @param userId  the current user's identifier
+     * @return a SuccessRes wrapping a CourseQuestionDetailsRes with the question's details, including content and related metadata
+     */
     @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{questionId}")
     public SuccessRes<CourseQuestionDetailsRes> getQuestionDetails(

@@ -23,6 +23,13 @@ public class CourseQuestionUserController implements CourseQuestionUserControlle
 
     private final CourseQuestionService courseQuestionService;
 
+    /**
+     * Retrieve the authenticated learner's course questions matching the given search criteria.
+     *
+     * @param userId the ID of the currently authenticated user
+     * @param req    search and pagination criteria used to filter the user's questions
+     * @return       a SuccessRes wrapping a SearchRes of CourseQuestionMyRes containing the matching questions
+     */
     @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/me")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchMyQuestions(
