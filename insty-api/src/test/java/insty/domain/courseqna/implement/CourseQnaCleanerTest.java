@@ -45,6 +45,7 @@ class CourseQnaCleanerTest {
     void deleteAllByCourseId_질문답변_첨부영상정리() {
         Long courseId = 20L;
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        ReflectionTestUtils.setField(course, "id", courseId);
         User user = UserFixtureBuilder.getUserWithId(5L);
         CourseQuestion question = CourseQuestion.create(course, user, "title", "content");
         CourseAnswer answer = CourseAnswer.create(question, user, "answer");
