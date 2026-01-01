@@ -35,7 +35,7 @@ public class CommunityCourseCleaner {
     }
 
     private void deleteComments(CommunityPost post) {
-        List<CommunityComment> comments = communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalse(post.getId());
+        List<CommunityComment> comments = communityCommentRepository.findAllByCommunityPost_Id(post.getId());
         for (CommunityComment comment : comments) {
             communityCommentFileWriter.deleteCommentFiles(comment);
             communityCommentVideoManager.deleteVideo(comment);

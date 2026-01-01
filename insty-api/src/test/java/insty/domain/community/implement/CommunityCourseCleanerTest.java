@@ -44,16 +44,21 @@ class CommunityCourseCleanerTest {
         Long courseId = 10L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         CommunityComment comment = CommunityComment.create(post, UserFixtureBuilder.getUserWithId(3L), "comment");
+        comment.markAsDeleted();
+        CommunityComment active = CommunityComment.create(post, UserFixtureBuilder.getUserWithId(4L), "active");
 
         when(communityPostRepository.findAllByCourse_Id(courseId)).thenReturn(List.of(post));
-        when(communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalse(post.getId()))
-                .thenReturn(List.of(comment));
+        when(communityCommentRepository.findAllByCommunityPost_Id(post.getId()))
+                .thenReturn(List.of(comment, active));
 
         communityCourseCleaner.deleteAllByCourseId(courseId);
 
         verify(communityCommentFileWriter, times(1)).deleteCommentFiles(comment);
         verify(communityCommentVideoManager, times(1)).deleteVideo(comment);
         verify(communityCommentRepository, times(1)).delete(comment);
+        verify(communityCommentFileWriter, times(1)).deleteCommentFiles(active);
+        verify(communityCommentVideoManager, times(1)).deleteVideo(active);
+        verify(communityCommentRepository, times(1)).delete(active);
         verify(communityPostFileWriter, times(1)).deletePostFiles(post);
         verify(communityPostVideoManager, times(1)).deleteVideo(post);
         verify(communityPostRepository, times(1)).delete(post);
