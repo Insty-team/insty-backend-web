@@ -61,6 +61,9 @@ public class UserWriter {
      * 사용자 정보 수정 (유저타입)
      */
     public User changeUserType(User user, UserType userType) {
+        if(userType == null){
+            userType = UserType.NONE;
+        }
         user.update(userType);
         return userRepository.save(user);
     }
