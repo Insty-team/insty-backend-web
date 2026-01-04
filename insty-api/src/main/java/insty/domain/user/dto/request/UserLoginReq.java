@@ -27,7 +27,7 @@ public record UserLoginReq (
         )
         String password,
 
-        @NotNull(message = "회원 유형은 필수입니다.")
+        //@NotNull(message = "회원 유형은 필수입니다.") 잠시 비활성화
         @Schema(description = "회원 타입", example = "LEARNER")
         UserType userType
 ) {
