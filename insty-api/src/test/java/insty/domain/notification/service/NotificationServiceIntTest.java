@@ -280,4 +280,72 @@ class NotificationServiceIntTest {
                         NotificationType.COURSE_ANSWER_ACCEPT
                 );
     }
+
+    @Test
+    void 모든_알림_읽음_처리() {
+        // Given
+        Notification unreadNotification = Notification.create(
+                testUser.getId(),
+                NotificationType.NEW_COURSE_QUESTION,
+                "새로운 질문",
+                "질문이 등록되었습니다",
+                "/questions/1"
+        );
+
+        Notification readNotification = Notification.create(
+                testUser.getId(),
+                NotificationType.NEW_COURSE_ANSWER,
+                "새로운 답변",
+                "답변이 등록되었습니다",
+                "/questions/1#answer-1"
+        );
+        readNotification.markAsRead();
+
+        notificationRepository.save(unreadNotification);
+        notificationRepository.save(readNotification);
+
+        // When
+        notificationService.markAllAsRead(testUser.getId());
+
+        // Then
+        List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications)
+                .hasSize(2)
+                .allMatch(notification -> notification.getState().equals(NotificationState.READ));
+    }
+
+    @Test
+    void 모든_알림_취소() {
+        // Given
+        Notification notification1 = Notification.create(
+                testUser.getId(),
+                NotificationType.NEW_COURSE_QUESTION,
+                "새로운 질문",
+                "질문이 등록되었습니다",
+                "/questions/1"
+        );
+
+        Notification notification2 = Notification.create(
+                testUser.getId(),
+                NotificationType.NEW_COURSE_ANSWER,
+                "새로운 답변",
+                "답변이 등록되었습니다",
+                "/questions/1#answer-1"
+        );
+
+        notificationRepository.save(notification1);
+        notificationRepository.save(notification2);
+
+        // When
+        notificationService.cancelAll(testUser.getId());
+
+        // Then
+        List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications)
+                .hasSize(2)
+                .allMatch(notification -> notification.getState().equals(NotificationState.DELETED));
+
+        List<NotificationRes> activeNotifications = notificationService.getUserNotifications(testUser.getId());
+        assertThat(activeNotifications).isEmpty();
+    }
 }

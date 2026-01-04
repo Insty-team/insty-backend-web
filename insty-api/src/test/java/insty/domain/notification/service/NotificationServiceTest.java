@@ -222,4 +222,60 @@ class NotificationServiceTest {
         verify(notificationRepository, never()).save(any(Notification.class));
         assertEquals(NotificationState.READ, notification.getState());
     }
+
+    @Test
+    void 모든_알림_읽음_처리_성공() {
+        // Given
+        Long userId = 1L;
+        User user = User.builder().id(userId).build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // When
+        notificationService.markAllAsRead(userId);
+
+        // Then
+        verify(notificationRepository).markAllAsRead(userId);
+    }
+
+    @Test
+    void 모든_알림_읽음_처리_실패_사용자_없음() {
+        // Given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> notificationService.markAllAsRead(userId));
+
+        assertEquals(UserErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+        verify(notificationRepository, never()).markAllAsRead(any(Long.class));
+    }
+
+    @Test
+    void 모든_알림_취소_성공() {
+        // Given
+        Long userId = 1L;
+        User user = User.builder().id(userId).build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // When
+        notificationService.cancelAll(userId);
+
+        // Then
+        verify(notificationRepository).deleteAllByUserId(userId);
+    }
+
+    @Test
+    void 모든_알림_취소_실패_사용자_없음() {
+        // Given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class,
+                () -> notificationService.cancelAll(userId));
+
+        assertEquals(UserErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+        verify(notificationRepository, never()).deleteAllByUserId(any(Long.class));
+    }
 }
