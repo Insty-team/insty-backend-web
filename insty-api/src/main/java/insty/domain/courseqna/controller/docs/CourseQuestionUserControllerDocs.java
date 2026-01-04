@@ -7,9 +7,11 @@ import insty.global.annotation.CurrentUser;
 import insty.global.annotation.CustomExceptionDescription;
 import insty.global.response.SuccessRes;
 import insty.global.swagger.SwaggerResponseDescription;
+import jakarta.validation.constraints.NotNull;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.validation.annotation.Validated;
 
 @Tag(
         name = "내 질문 API",
@@ -23,7 +25,7 @@ public interface CourseQuestionUserControllerDocs {
     )
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_QUESTION_MY_SEARCH)
     SuccessRes<SearchRes<CourseQuestionMyRes>> searchMyQuestions(
-            @CurrentUser Long userId,
-            @ModelAttribute CourseQuestionSearchReq req
+            @CurrentUser @NotNull Long userId,
+            @ModelAttribute @Validated CourseQuestionSearchReq req
     );
 }
