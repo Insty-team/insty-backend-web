@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,5 +48,27 @@ public class NotificationController {
     ) {
         String redirectUrl = notificationService.markAsReadAndRedirect(notificationId, userId);
         return SuccessRes.of(redirectUrl);
+    }
+
+    @Operation(summary = "모든 알림 읽음 처리", description = "사용자의 모든 알림을 읽음 처리한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_READ_ALL)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PostMapping("/read-all")
+    public SuccessRes<String> markAllNotificationsAsRead(
+            @CurrentUser Long userId
+    ) {
+        notificationService.markAllAsRead(userId);
+        return SuccessRes.of("모든 알림을 읽음 처리했습니다.");
+    }
+
+    @Operation(summary = "모든 알림 취소", description = "사용자의 모든 알림을 취소한다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_CANCEL_ALL)
+    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @DeleteMapping
+    public SuccessRes<String> cancelAllNotifications(
+            @CurrentUser Long userId
+    ) {
+        notificationService.cancelAll(userId);
+        return SuccessRes.of("모든 알림을 취소했습니다.");
     }
 }

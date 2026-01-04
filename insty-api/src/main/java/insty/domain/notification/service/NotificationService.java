@@ -76,4 +76,24 @@ public class NotificationService {
 
         return notification.getRedirectUrl();
     }
+
+    /**
+     * 사용자 알림 전체 읽음 처리
+     */
+    public void markAllAsRead(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        notificationRepository.markAllAsRead(user.getId());
+    }
+
+    /**
+     * 사용자 알림 전체 취소(삭제)
+     */
+    public void cancelAll(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+
+        notificationRepository.deleteAllByUserId(user.getId());
+    }
 }
