@@ -14,7 +14,18 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
     Page<CommunityPost> findAllByCourse_IdAndIsDeletedFalse(Long courseId, Pageable pageable);
 
     Page<CommunityPost> findAllByUser_IdAndIsDeletedFalse(Long userId, Pageable pageable);
-    
+
+    @Query("""
+        SELECT p FROM CommunityPost p
+        WHERE p.user.id = :userId
+          AND p.isDeleted = false
+          AND (
+              LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+              OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+          )
+    """)
+    Page<CommunityPost> searchAllByUserIdAndKeyword(@Param("userId") Long userId, @Param("keyword") String keyword, Pageable pageable);
+
     List<CommunityPost> findAllByCourse_Id(Long courseId);
 
     Optional<CommunityPost> findByIdAndIsDeletedFalse(Long id);

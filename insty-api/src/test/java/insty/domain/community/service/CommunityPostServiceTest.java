@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.community.dto.CommunityMyPostRes;
+import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
 import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
@@ -97,6 +99,26 @@ class CommunityPostServiceTest {
         assertThat(res.postId()).isEqualTo(post.getId());
         assertThat(res.attachments()).isEqualTo(files);
         assertThat(res.videoInfo()).isNotNull();
+    }
+
+    @Test
+    void searchMyPosts_키워드검색_및_내용포함() {
+        // given
+        Long userId = 1L;
+        String keyword = "검색어";
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 5), 1);
+        CommunityMySearchReq req = new CommunityMySearchReq(1, 5, keyword);
+        when(communityPostReader.findPostsByUser(eq(userId), eq(keyword), any(PageRequest.class))).thenReturn(page);
+
+        // when
+        SearchRes<CommunityMyPostRes> res = communityPostService.searchMyPosts(userId, req);
+
+        // then
+        assertThat(res.items()).hasSize(1);
+        CommunityMyPostRes myPost = res.items().get(0);
+        assertThat(myPost.content()).isEqualTo(post.getContent());
+        verify(communityPostReader).findPostsByUser(eq(userId), eq(keyword), any(PageRequest.class));
     }
 
     @Test

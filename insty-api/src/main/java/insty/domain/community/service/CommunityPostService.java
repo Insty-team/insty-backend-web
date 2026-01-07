@@ -102,7 +102,7 @@ public class CommunityPostService {
 
     public SearchRes<CommunityMyPostRes> searchMyPosts(Long userId, CommunityMySearchReq req) {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
-        Page<CommunityPost> page = communityPostReader.findPostsByUser(userId, pageRequest);
+        Page<CommunityPost> page = communityPostReader.findPostsByUser(userId, req.keyword(), pageRequest);
         List<CommunityMyPostRes> items = page.getContent().stream()
                 .map(CommunityMyPostRes::from)
                 .toList();
