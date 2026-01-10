@@ -37,7 +37,7 @@ public class UserNotificationSettingController {
             description = "로그인한 사용자의 모든 알림 타입별 설정을 조회합니다."
     )
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SETTING_SEARCH)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public SuccessRes<UserNotificationSettingRes> getMySettings(
             @CurrentUser Long userId
@@ -55,7 +55,7 @@ public class UserNotificationSettingController {
             description = "특정 알림 타입에 대한 인앱/이메일 설정을 변경합니다."
     )
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SETTING_UPDATE)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping
     public SuccessRes<String> updateSetting(
             @CurrentUser Long userId,
@@ -76,7 +76,7 @@ public class UserNotificationSettingController {
             description = "모든 알림 타입의 설정을 한 번에 켜거나 끕니다."
     )
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SETTING_BULK_UPDATE)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/bulk")
     public SuccessRes<String> toggleAllNotifications(
             @CurrentUser Long userId,

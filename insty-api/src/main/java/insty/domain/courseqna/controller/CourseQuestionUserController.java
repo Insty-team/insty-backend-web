@@ -23,7 +23,7 @@ public class CourseQuestionUserController implements CourseQuestionUserControlle
 
     private final CourseQuestionService courseQuestionService;
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchMyQuestions(
             @CurrentUser @NotNull Long userId,

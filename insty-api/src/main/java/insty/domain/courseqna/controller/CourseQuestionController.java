@@ -38,7 +38,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
 
     private final CourseQuestionService courseQuestionService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public SuccessRes<SearchRes<CourseQuestionRes>> searchQuestions(
             @PathVariable @NotNull Long courseId,
@@ -47,7 +47,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.searchQuestionsByCourseId(req, courseId));
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchQuestionsByUser(
             @PathVariable @NotNull Long courseId,
@@ -57,7 +57,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.searchQuestionsByUserId(req, userId, courseId));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{questionId}")
     public SuccessRes<CourseQuestionDetailsRes> getQuestionDetails(
             @PathVariable @NotNull Long courseId,
@@ -68,7 +68,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(response);
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public SuccessRes<CourseQuestionDetailsRes> createQuestion(
@@ -80,7 +80,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.saveQuestion(userId, courseId, courseQuestionCreateReq, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseQuestionDetailsRes> updateQuestion(
             @PathVariable @NotNull Long courseId,
@@ -93,7 +93,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
                 courseQuestionService.updateQuestion(userId, questionId, courseQuestionUpdateReq, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{questionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteQuestion(

@@ -31,13 +31,13 @@ public class UserController implements UserControllerDocs {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
     public SuccessRes<UserDetailRes> getProfile(@CurrentUser Long userId) {
         return SuccessRes.of(userService.getDetailUser(userId));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
             @CurrentUser Long userId,
@@ -47,7 +47,7 @@ public class UserController implements UserControllerDocs {
         return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/profile/userType")
     public SuccessRes<UserDetailRes> updateUserType(
         @CurrentUser Long userId,
@@ -56,7 +56,7 @@ public class UserController implements UserControllerDocs {
         return SuccessRes.of(userService.updateUserType(userId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/profile/email-agree")
     public SuccessRes<UserDetailRes> updateEmailAgreed(
             @CurrentUser Long userId,

@@ -55,7 +55,7 @@ public class AccountController implements AccountControllerDocs {
         return SuccessRes.of(accountService.existCheckByNickname(req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/profile/password")
     public SuccessRes<UserDetailRes> updatePassword(
         @CurrentUser Long userId,
@@ -65,7 +65,7 @@ public class AccountController implements AccountControllerDocs {
     }
 
     @DeleteMapping("/withdraw")
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     public SuccessRes<Void> delete(@CurrentUser Long userId) {
         accountService.withdraw(userId);
         return SuccessRes.of();

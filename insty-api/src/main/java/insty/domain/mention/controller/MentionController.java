@@ -25,7 +25,7 @@ public class MentionController {
     private final MentionService mentionService;
 
     @Operation(summary = "멘션 가능한 사용자 검색", description = "멘션할 수 있는 사용자 목록을 검색한다. (본인 제외)")
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/users/search")
     public SuccessRes<List<MentionUserSearchRes>> searchMentionableUsers(
             @Valid @ModelAttribute MentionUserSearchReq searchReq,

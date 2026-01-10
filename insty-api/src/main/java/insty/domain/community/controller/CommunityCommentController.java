@@ -39,7 +39,7 @@ public class CommunityCommentController {
 
     private final CommunityCommentService communityCommentService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/courses/{courseId}/posts/{postId}/comments")
     public SuccessRes<SearchRes<CommunityCommentRes>> getComments(
             @PathVariable @NotNull Long courseId,
@@ -49,7 +49,7 @@ public class CommunityCommentController {
         return SuccessRes.of(communityCommentService.getComments(courseId, postId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/courses/{courseId}/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> createComment(
             @CurrentUser Long userId,
@@ -61,7 +61,7 @@ public class CommunityCommentController {
         return SuccessRes.of(communityCommentService.createComment(userId, courseId, postId, req, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/comments/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> updateComment(
             @CurrentUser Long userId,
@@ -72,7 +72,7 @@ public class CommunityCommentController {
         return SuccessRes.of(communityCommentService.updateComment(userId, commentId, req, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/comments/{commentId}")
     public SuccessRes<?> deleteComment(
             @CurrentUser Long userId,
@@ -82,7 +82,7 @@ public class CommunityCommentController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me/comments")
     public SuccessRes<SearchRes<CommunityMyCommentRes>> getMyComments(
             @CurrentUser Long userId,

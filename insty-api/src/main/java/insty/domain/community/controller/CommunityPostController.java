@@ -40,7 +40,7 @@ public class CommunityPostController {
 
     private final CommunityPostService communityPostService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/courses/{courseId}/posts")
     public SuccessRes<SearchRes<CommunityPostRes>> searchPosts(
             @PathVariable @NotNull Long courseId,
@@ -49,7 +49,7 @@ public class CommunityPostController {
         return SuccessRes.of(communityPostService.searchPosts(courseId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/courses/{courseId}/posts/{postId}")
     public SuccessRes<CommunityPostDetailsRes> getPost(
             @PathVariable @NotNull Long courseId,
@@ -58,7 +58,7 @@ public class CommunityPostController {
         return SuccessRes.of(communityPostService.getPostDetails(courseId, postId));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/courses/{courseId}/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityPostDetailsRes> createPost(
             @CurrentUser Long userId,
@@ -69,7 +69,7 @@ public class CommunityPostController {
         return SuccessRes.of(communityPostService.createPost(userId, courseId, req, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/courses/{courseId}/posts/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityPostDetailsRes> updatePost(
             @CurrentUser Long userId,
@@ -81,7 +81,7 @@ public class CommunityPostController {
         return SuccessRes.of(communityPostService.updatePost(userId, courseId, postId, req, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/courses/{courseId}/posts/{postId}")
     public SuccessRes<?> deletePost(
             @CurrentUser Long userId,
@@ -92,7 +92,7 @@ public class CommunityPostController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me/posts")
     public SuccessRes<SearchRes<CommunityMyPostRes>> getMyPosts(
             @CurrentUser Long userId,

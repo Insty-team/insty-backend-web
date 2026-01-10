@@ -37,7 +37,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
 
     private final CourseAnswerService courseAnswerService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{questionId}/answers")
     public SuccessRes<SearchRes<CourseAnswerRes>> retrieveAnswers(
             @PathVariable @NotNull Long courseId,
@@ -47,7 +47,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.getAnswersByQuestionId(questionId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{questionId}/answers/accepted")
     public SuccessRes<List<CourseAnswerRes>> getAcceptedAnswers(
             @PathVariable @NotNull Long courseId,
@@ -56,7 +56,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.getAcceptedAnswers(questionId));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/{questionId}/answers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public SuccessRes<CourseAnswerRes> createAnswer(
@@ -69,7 +69,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.saveAnswer(userId, questionId, courseAnswerCreateReq, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/{questionId}/answers/{answerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseAnswerRes> updateAnswer(
             @PathVariable @NotNull Long courseId,
@@ -82,7 +82,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.updateAnswer(userId, answerId, courseAnswerUpdateReq, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{questionId}/answers/{answerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAnswer(
@@ -94,7 +94,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         courseAnswerService.deleteAnswer(userId, answerId);
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{questionId}/answers/{answerId}/accept")
     public SuccessRes<CourseQnaAcceptAnswerResultRes> acceptAnswer(
             @PathVariable @NotNull Long courseId,

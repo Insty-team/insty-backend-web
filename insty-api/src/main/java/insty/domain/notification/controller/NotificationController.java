@@ -30,7 +30,7 @@ public class NotificationController {
 
     @Operation(summary = "사용자 알림 조회", description = "로그인한 사용자의 알림 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SEARCH)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public SuccessRes<List<NotificationRes>> getUserNotifications(
             @CurrentUser Long userId
@@ -40,7 +40,7 @@ public class NotificationController {
 
     @Operation(summary = "알림 읽음 처리 및 이동", description = "알림을 읽음 처리하고, 해당 알림의 리다이렉트 URL을 반환한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_READ)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{notificationId}/read")
     public SuccessRes<String> markNotificationAsRead(
             @CurrentUser Long userId,
@@ -52,7 +52,7 @@ public class NotificationController {
 
     @Operation(summary = "모든 알림 읽음 처리", description = "사용자의 모든 알림을 읽음 처리한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_READ_ALL)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/read-all")
     public SuccessRes<String> markAllNotificationsAsRead(
             @CurrentUser Long userId
@@ -63,7 +63,7 @@ public class NotificationController {
 
     @Operation(summary = "모든 알림 취소", description = "사용자의 모든 알림을 취소한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_CANCEL_ALL)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping
     public SuccessRes<String> cancelAllNotifications(
             @CurrentUser Long userId

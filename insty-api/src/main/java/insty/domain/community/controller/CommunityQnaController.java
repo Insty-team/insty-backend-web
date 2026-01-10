@@ -46,7 +46,7 @@ public class CommunityQnaController {
 
     /// ============================== 질문 API  ======================================
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/questions")
     public SuccessRes<SearchRes<CourseQuestionRes>> searchQuestions(
             @ModelAttribute @Validated CourseQuestionSearchReq req
@@ -55,7 +55,7 @@ public class CommunityQnaController {
         return SuccessRes.of(SearchRes.from(pagination, List.of()));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/questions/course/{courseId}")
     public SuccessRes<SearchRes<CourseQuestionRes>> searchQuestionsByCourse(
             @PathVariable @NotNull Long courseId,
@@ -65,7 +65,7 @@ public class CommunityQnaController {
         return SuccessRes.of(SearchRes.from(pagination, List.of()));
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/questions/my")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchQuestionsByUser(
             @CurrentUser Long userId,
@@ -75,7 +75,7 @@ public class CommunityQnaController {
         return SuccessRes.of(SearchRes.from(pagination, List.of()));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/questions/{questionId}")
     public SuccessRes<CourseQuestionDetailsRes> getQuestionDetails(
             @PathVariable @NotNull Long questionId,
@@ -84,7 +84,7 @@ public class CommunityQnaController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
@@ -94,7 +94,7 @@ public class CommunityQnaController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseQuestionDetailsRes> updateQuestion(
             @CurrentUser Long userId,
@@ -105,7 +105,7 @@ public class CommunityQnaController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/questions/{questionId}")
     public SuccessRes<?> deleteQuestion(
             @CurrentUser Long userId,
@@ -116,7 +116,7 @@ public class CommunityQnaController {
 
     /// ============================== 답변 API  ======================================
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/questions/{questionId}/answer")
     public SuccessRes<SearchRes<CourseAnswerRes>> retrieveAnswers(
             @PathVariable @NotNull Long questionId,
@@ -126,7 +126,7 @@ public class CommunityQnaController {
         return SuccessRes.of(SearchRes.from(pagination, List.of()));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/questions/{questionId}/answer/accepted")
     public SuccessRes<List<CourseAnswerRes>> getAcceptedAnswers(
             @PathVariable @NotNull Long questionId
@@ -134,7 +134,7 @@ public class CommunityQnaController {
         return SuccessRes.of(List.of());
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/questions/{questionId}/answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseAnswerRes> createAnswer(
             @CurrentUser Long userId,
@@ -145,7 +145,7 @@ public class CommunityQnaController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/answer/{answerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseAnswerRes> updateAnswer(
             @CurrentUser Long userId,
@@ -156,7 +156,7 @@ public class CommunityQnaController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/answer/{answerId}")
     public SuccessRes<?> deleteAnswer(
             @CurrentUser Long userId,
@@ -168,7 +168,7 @@ public class CommunityQnaController {
 
     /// ============================== 답변 채택 API  ======================================
 
-    @PreAuthorize("hasRole('LEARNER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/questions/{questionId}/answer/{answerId}/accept")
     public SuccessRes<CourseQnaAcceptAnswerResultRes> acceptAnswer(
             @CurrentUser Long userId,
