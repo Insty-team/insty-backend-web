@@ -4,7 +4,6 @@ import insty.model.user.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record UserLoginReq (
@@ -27,10 +26,13 @@ public record UserLoginReq (
         )
         String password,
 
-        //@NotNull(message = "회원 유형은 필수입니다.") 잠시 비활성화
-        @Schema(description = "회원 타입", example = "LEARNER")
+        @Schema(
+                description = "회원 타입 (선택 사항, 곧 삭제 예정)",
+                example = "LEARNER",
+                nullable = true,
+                deprecated = true
+        )
         UserType userType
 ) {
 
 }
-

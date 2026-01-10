@@ -16,7 +16,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +36,6 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
 
     private final CourseAnswerService courseAnswerService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{questionId}/answers")
     public SuccessRes<SearchRes<CourseAnswerRes>> retrieveAnswers(
             @PathVariable @NotNull Long courseId,
@@ -47,7 +45,6 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.getAnswersByQuestionId(questionId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{questionId}/answers/accepted")
     public SuccessRes<List<CourseAnswerRes>> getAcceptedAnswers(
             @PathVariable @NotNull Long courseId,
@@ -56,7 +53,6 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.getAcceptedAnswers(questionId));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping(value = "/{questionId}/answers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public SuccessRes<CourseAnswerRes> createAnswer(
@@ -69,7 +65,6 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.saveAnswer(userId, questionId, courseAnswerCreateReq, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping(value = "/{questionId}/answers/{answerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseAnswerRes> updateAnswer(
             @PathVariable @NotNull Long courseId,
@@ -82,7 +77,6 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         return SuccessRes.of(courseAnswerService.updateAnswer(userId, answerId, courseAnswerUpdateReq, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @DeleteMapping("/{questionId}/answers/{answerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAnswer(
@@ -94,7 +88,6 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
         courseAnswerService.deleteAnswer(userId, answerId);
     }
 
-    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/{questionId}/answers/{answerId}/accept")
     public SuccessRes<CourseQnaAcceptAnswerResultRes> acceptAnswer(
             @PathVariable @NotNull Long courseId,

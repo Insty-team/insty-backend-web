@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +44,6 @@ public class VideoController {
 
     @Operation(summary = "강의 영상 업로드", description = "강의 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
-    @PreAuthorize("hasRole('CREATOR')")
     @PostMapping("/upload/course")
     public SuccessRes<VideoUploadRes> uploadCourse(
             @CurrentUser Long userId,
@@ -56,7 +54,6 @@ public class VideoController {
 
     @Operation(summary = "질문 영상 업로드", description = "질문 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
-    @PreAuthorize("hasRole('LEARNER')")
     @PostMapping("/upload/question")
     public SuccessRes<VideoUploadRes> uploadQuestion(
             @CurrentUser Long userId,
@@ -67,7 +64,6 @@ public class VideoController {
 
     @Operation(summary = "답변 영상 업로드", description = "답변 영상을 업로드하기 위한 URL을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/upload/answer")
     public SuccessRes<VideoUploadRes> uploadAnswer(
             @CurrentUser Long userId,
@@ -78,7 +74,6 @@ public class VideoController {
 
     @Operation(summary = "영상 썸네일 조회", description = "영상에 대한 썸네일을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_THUMBNAIL_GET)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/{videoUuid}/thumbnail")
     public SuccessRes<VideoThumbnailRes> getThumbnail(
             @PathVariable("videoUuid") UUID videoUuid
@@ -88,7 +83,6 @@ public class VideoController {
 
     @Operation(summary = "영상 조회", description = "HLS 영상 url을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_GET)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/playlist")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getEncodedVideo(
             @CurrentUser Long userId,
@@ -99,7 +93,6 @@ public class VideoController {
 
     @Operation(summary = "영상 미리보기", description = "1분 미리보기 영상 url을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_PREVIEW)
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping("/preview")
     public ResponseEntity<SuccessRes<VideoHlsPlaylistRes>> getPreviewVideo(
             @RequestBody @Validated VideoHlsPlaylistReq req

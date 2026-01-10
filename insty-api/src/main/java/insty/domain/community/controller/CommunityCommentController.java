@@ -17,7 +17,6 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +38,6 @@ public class CommunityCommentController {
 
     private final CommunityCommentService communityCommentService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/courses/{courseId}/posts/{postId}/comments")
     public SuccessRes<SearchRes<CommunityCommentRes>> getComments(
             @PathVariable @NotNull Long courseId,
@@ -49,7 +47,6 @@ public class CommunityCommentController {
         return SuccessRes.of(communityCommentService.getComments(courseId, postId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PostMapping(value = "/courses/{courseId}/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> createComment(
             @CurrentUser Long userId,
@@ -61,7 +58,6 @@ public class CommunityCommentController {
         return SuccessRes.of(communityCommentService.createComment(userId, courseId, postId, req, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping(value = "/comments/{commentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CommunityCommentRes> updateComment(
             @CurrentUser Long userId,
@@ -72,7 +68,6 @@ public class CommunityCommentController {
         return SuccessRes.of(communityCommentService.updateComment(userId, commentId, req, attachments));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @DeleteMapping("/comments/{commentId}")
     public SuccessRes<?> deleteComment(
             @CurrentUser Long userId,
@@ -82,7 +77,6 @@ public class CommunityCommentController {
         return SuccessRes.of(null);
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/me/comments")
     public SuccessRes<SearchRes<CommunityMyCommentRes>> getMyComments(
             @CurrentUser Long userId,

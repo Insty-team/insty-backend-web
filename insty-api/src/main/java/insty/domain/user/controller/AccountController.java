@@ -16,7 +16,6 @@ import insty.trackevent.model.MixpanelEventType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,18 +54,16 @@ public class AccountController implements AccountControllerDocs {
         return SuccessRes.of(accountService.existCheckByNickname(req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping(value = "/profile/password")
     public SuccessRes<UserDetailRes> updatePassword(
-        @CurrentUser Long userId,
-        @RequestBody @Validated UserPasswordUpdateReq req
+    @CurrentUser Long userId,
+    @RequestBody @Validated UserPasswordUpdateReq req
     ) {
         return SuccessRes.of(accountService.updatePassword(userId, req));
     }
 
     @DeleteMapping("/withdraw")
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
-    public SuccessRes<Void> delete(@CurrentUser Long userId) {
+        public SuccessRes<Void> delete(@CurrentUser Long userId) {
         accountService.withdraw(userId);
         return SuccessRes.of();
     }

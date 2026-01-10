@@ -38,10 +38,11 @@ public class JwtUtils {
      * AccessToken 생성
      */
     public String generateAccessToken(String subject, String userType){
+        String safeUserType = (userType == null || userType.isBlank()) ? "NONE" : userType;
         Instant now = Instant.now();
         return JWT.create()
                 .withSubject(subject)
-                .withClaim("userType", userType)
+                .withClaim("userType", safeUserType)
                 .withClaim("tokenType", TokenType.ACCESS.name())
                 .withIssuedAt(Date.from(now))           // 토큰 발급 시간
                 .withExpiresAt(Date.from(now.plusMillis(ACCESS_TOKEN_VALIDITY)))        // 토큰 만료시간

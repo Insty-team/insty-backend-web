@@ -1,6 +1,5 @@
 package insty.domain.user.controller;
 
-
 import insty.domain.user.controller.docs.UserControllerDocs;
 import insty.domain.user.dto.request.UserAgreementUpdateReq;
 import insty.domain.user.dto.request.UserTypeUpdateReq;
@@ -13,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,13 +29,11 @@ public class UserController implements UserControllerDocs {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @GetMapping("/profile")
     public SuccessRes<UserDetailRes> getProfile(@CurrentUser Long userId) {
         return SuccessRes.of(userService.getDetailUser(userId));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PutMapping(value = "/profile/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<UserDetailRes> updateProfile(
             @CurrentUser Long userId,
@@ -47,16 +43,14 @@ public class UserController implements UserControllerDocs {
         return SuccessRes.of(userService.updateUser(userId, req, profileImage));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping("/profile/userType")
     public SuccessRes<UserDetailRes> updateUserType(
-        @CurrentUser Long userId,
-        @Valid @RequestBody UserTypeUpdateReq req
+            @CurrentUser Long userId,
+            @Valid @RequestBody UserTypeUpdateReq req
     ) {
         return SuccessRes.of(userService.updateUserType(userId, req));
     }
 
-    @PreAuthorize("hasRole('LEARNER') or hasRole('CREATOR')")
     @PatchMapping("/profile/email-agree")
     public SuccessRes<UserDetailRes> updateEmailAgreed(
             @CurrentUser Long userId,

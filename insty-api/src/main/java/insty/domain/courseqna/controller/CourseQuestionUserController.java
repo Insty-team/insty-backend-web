@@ -9,7 +9,6 @@ import insty.global.annotation.CurrentUser;
 import insty.global.response.SuccessRes;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,7 +22,6 @@ public class CourseQuestionUserController implements CourseQuestionUserControlle
 
     private final CourseQuestionService courseQuestionService;
 
-    @PreAuthorize("hasRole('LEARNER')")
     @GetMapping("/me")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchMyQuestions(
             @CurrentUser @NotNull Long userId,
