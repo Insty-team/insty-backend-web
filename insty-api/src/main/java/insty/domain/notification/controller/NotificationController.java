@@ -1,6 +1,5 @@
 package insty.domain.notification.controller;
 
-
 import insty.domain.notification.dto.response.NotificationRes;
 import insty.domain.notification.service.NotificationService;
 import insty.global.annotation.CurrentUser;
@@ -11,14 +10,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @Tag(name = "알림 API")
 @RestController
@@ -30,7 +27,6 @@ public class NotificationController {
 
     @Operation(summary = "사용자 알림 조회", description = "로그인한 사용자의 알림 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_SEARCH)
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public SuccessRes<List<NotificationRes>> getUserNotifications(
             @CurrentUser Long userId
@@ -40,7 +36,6 @@ public class NotificationController {
 
     @Operation(summary = "알림 읽음 처리 및 이동", description = "알림을 읽음 처리하고, 해당 알림의 리다이렉트 URL을 반환한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_READ)
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{notificationId}/read")
     public SuccessRes<String> markNotificationAsRead(
             @CurrentUser Long userId,
@@ -52,7 +47,6 @@ public class NotificationController {
 
     @Operation(summary = "모든 알림 읽음 처리", description = "사용자의 모든 알림을 읽음 처리한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_READ_ALL)
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/read-all")
     public SuccessRes<String> markAllNotificationsAsRead(
             @CurrentUser Long userId
@@ -63,7 +57,6 @@ public class NotificationController {
 
     @Operation(summary = "모든 알림 취소", description = "사용자의 모든 알림을 취소한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.NOTIFICATION_CANCEL_ALL)
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping
     public SuccessRes<String> cancelAllNotifications(
             @CurrentUser Long userId

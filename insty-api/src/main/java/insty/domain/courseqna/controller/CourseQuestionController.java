@@ -17,7 +17,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +37,6 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
 
     private final CourseQuestionService courseQuestionService;
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public SuccessRes<SearchRes<CourseQuestionRes>> searchQuestions(
             @PathVariable @NotNull Long courseId,
@@ -47,7 +45,6 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.searchQuestionsByCourseId(req, courseId));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public SuccessRes<SearchRes<CourseQuestionMyRes>> searchQuestionsByUser(
             @PathVariable @NotNull Long courseId,
@@ -57,7 +54,6 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.searchQuestionsByUserId(req, userId, courseId));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{questionId}")
     public SuccessRes<CourseQuestionDetailsRes> getQuestionDetails(
             @PathVariable @NotNull Long courseId,
@@ -68,7 +64,6 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(response);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public SuccessRes<CourseQuestionDetailsRes> createQuestion(
@@ -80,7 +75,6 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
         return SuccessRes.of(courseQuestionService.saveQuestion(userId, courseId, courseQuestionCreateReq, attachments));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PatchMapping(value = "/{questionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseQuestionDetailsRes> updateQuestion(
             @PathVariable @NotNull Long courseId,
@@ -93,7 +87,6 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
                 courseQuestionService.updateQuestion(userId, questionId, courseQuestionUpdateReq, attachments));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{questionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteQuestion(

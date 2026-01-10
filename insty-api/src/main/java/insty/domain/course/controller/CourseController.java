@@ -15,7 +15,6 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +29,6 @@ public class CourseController {
 
     @Operation(summary = "강의 게시", description = "새로운 강의를 게시한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_CREATE)
-    @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseCreate(
             @CurrentUser Long userId,
@@ -45,7 +43,6 @@ public class CourseController {
 
     @Operation(summary = "강의 수정", description = "강의를 수정한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_UPDATE)
-    @PreAuthorize("isAuthenticated()")
     @PutMapping(path = "/{courseId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessRes<CourseDetailRes> courseUpdate(
             @CurrentUser Long userId,
@@ -61,7 +58,6 @@ public class CourseController {
 
     @Operation(summary = "강의 삭제", description = "강의를 삭제한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DELETE)
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{courseId}")
     public SuccessRes<?> courseDelete(
             @CurrentUser Long userId,
@@ -79,7 +75,6 @@ public class CourseController {
             deprecated = true
     )
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/creator/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetailFromCreator(
             @CurrentUser Long userId,
@@ -91,7 +86,6 @@ public class CourseController {
 
     @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{courseId}")
     public SuccessRes<CourseDetailRes> courseDetail(
             @CurrentUser Long userId,
@@ -103,7 +97,6 @@ public class CourseController {
 
     @Operation(summary = "강의 목록조회", description = "강의 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_SEARCH)
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public SuccessRes<SearchRes<CourseSearchInfo>> courseSearch(
             @ModelAttribute @Validated CourseSearchReq req
@@ -113,7 +106,6 @@ public class CourseController {
 
     @Operation(summary = "내가 업로드한 강의 목록조회", description = "해당 크리에이터가 업로드한 강의 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_MY_SEARCH)
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/my")
     public SuccessRes<SearchRes<CourseMySearchInfo>> courseMySearch(
             @CurrentUser Long userId,
@@ -124,7 +116,6 @@ public class CourseController {
 
     @Operation(summary = "내가 수강중인 강의 목록조회", description = "해당 러너가 수강중인 강의 목록을 조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_PROGRESS_SEARCH)
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/courseProgress")
     public SuccessRes<SearchRes<CourseProgressSearchInfo>> courseProgressSearch(
             @CurrentUser Long userId,
@@ -135,7 +126,6 @@ public class CourseController {
 
     @Operation(summary = "강좌 수강하기", description = "러너가 수강신청을 통해 강의를 수강한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_PROGRESS_CREATE)
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/courseProgress/{courseId}")
     public SuccessRes<CourseProgressRes> courseProgressCreate(
             @CurrentUser Long userId,
@@ -144,9 +134,7 @@ public class CourseController {
         return SuccessRes.of(courseService.createCourseProgressAsCompleted(userId,courseId));
     }
 
-
     @Operation(summary = "강좌 수강 여부 조회", description = "userId와 courseId를 기준으로 강좌 수강 여부를 단일 조회한다.")
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/courseProgress/{courseId}/exists")
     public SuccessRes<Boolean> searchCourseProgressExists(
             @CurrentUser Long userId,
@@ -156,7 +144,6 @@ public class CourseController {
     }
 
     @Operation(summary = "강좌의 visible 상태 변경", description = "강좌의 visible상태를 변경함으로써 러너에게 보여질지 말지를 결정할 수 있다.")
-    @PreAuthorize("isAuthenticated()")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_VISIBLE)
     @PutMapping("/{courseId}/visibility")
     public SuccessRes<CoursePatchVisibleRes> updateCourseVisibility(
