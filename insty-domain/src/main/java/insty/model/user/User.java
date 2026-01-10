@@ -92,7 +92,7 @@ public class User extends BaseEntity {
                 .nickname(nickname)
                 .introduce("")
                 .isEmailAgreed(false)
-                .userType(userType)
+                .userType(userType == null ? UserType.NONE : userType)
                 .isDeleted(false)
                 .build();
     }

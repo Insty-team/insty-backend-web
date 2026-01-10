@@ -129,11 +129,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private JwtAuthenticationToken createAuthenticationToken(TokenType tokenType, String token, Long userId) {
         if (tokenType == TokenType.ACCESS) {
-            UserType userType = UserType.valueOf(jwtUtils.extractUserType(token));
-            GrantedAuthority authority = toGrantedAuthority(userType);
-            return new JwtAuthenticationToken(userId, null, List.of(authority));
+            UserType userType = resolveUserTypeClaim(token);
+            List<GrantedAuthority> authorities = userType == null ? List.of() : List.of(toGrantedAuthority(userType));
+            return new JwtAuthenticationToken(userId, null, authorities);
         }
 
-        return new JwtAuthenticationToken(userId, null, null); // refreshToken은 권한 없음
+        return new JwtAuthenticationToken(userId, null, List.of()); // refreshToken은 권한 없음
+    }
+
+    private UserType resolveUserTypeClaim(String token) {
+        try {
+            String userTypeClaim = jwtUtils.extractUserType(token);
+            if (userTypeClaim == null || userTypeClaim.isBlank()) {
+                return UserType.NONE;
+            }
+            return UserType.valueOf(userTypeClaim);
+        } catch (IllegalArgumentException ex) {
+            log.warn("Invalid userType claim in token, defaulting to NONE");
+            return UserType.NONE;
+        }
     }
 }
