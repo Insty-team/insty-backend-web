@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
-import insty.model.user.UserType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -38,12 +37,12 @@ public class JwtUtils {
     /**
      * AccessToken 생성
      */
-    public String generateAccessToken(String subject, UserType userType){
-        UserType safeUserType = userType == null ? UserType.NONE : userType;
+    public String generateAccessToken(String subject, String userType){
+        String safeUserType = (userType == null || userType.isBlank()) ? "NONE" : userType;
         Instant now = Instant.now();
         return JWT.create()
                 .withSubject(subject)
-                .withClaim("userType", safeUserType.name())
+                .withClaim("userType", safeUserType)
                 .withClaim("tokenType", TokenType.ACCESS.name())
                 .withIssuedAt(Date.from(now))           // 토큰 발급 시간
                 .withExpiresAt(Date.from(now.plusMillis(ACCESS_TOKEN_VALIDITY)))        // 토큰 만료시간

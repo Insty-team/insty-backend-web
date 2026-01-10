@@ -18,7 +18,7 @@ public class AuthTokenIssuer {
      */
     public UserAuthTokenDto generateUserTokens(Long userId, UserType userType){
         // 토큰 생성
-        String accessToken = jwtUtils.generateAccessToken(String.valueOf(userId), userType);
+        String accessToken = jwtUtils.generateAccessToken(String.valueOf(userId), userType == null ? null : userType.name());
         String refreshToken = jwtUtils.generateRefreshToken(String.valueOf(userId));
 
         // 만료 시간 추출
