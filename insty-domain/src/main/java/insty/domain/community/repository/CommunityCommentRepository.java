@@ -11,6 +11,8 @@ public interface CommunityCommentRepository extends JpaRepository<CommunityComme
 
     List<CommunityComment> findAllByCommunityPost_IdAndIsDeletedFalse(Long postId);
 
+    List<CommunityComment> findAllByCommunityPost_IdAndIsDeletedFalseOrderByCreatedAtDesc(Long postId);
+
     List<CommunityComment> findAllByCommunityPost_Id(Long postId);
 
     Page<CommunityComment> findAllByUser_IdAndIsDeletedFalse(Long userId, Pageable pageable);
