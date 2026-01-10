@@ -14,7 +14,10 @@ public record CommunityMySearchReq(
 
         @Min(1) @Max(100)
         @Schema(description = "페이지 크기", example = "10", defaultValue = "10")
-        int pageSize
+        int pageSize,
+
+        @Schema(description = "검색 키워드(제목/내용)", example = "검색어", defaultValue = "")
+        String keyword
 ) {
     public PaginationReq toPaginationReq() {
         return new PaginationReq(page, pageSize);

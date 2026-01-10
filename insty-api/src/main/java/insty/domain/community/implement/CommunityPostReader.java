@@ -7,6 +7,7 @@ import insty.model.community.CommunityPost;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.Optional;
+import org.springframework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,10 @@ public class CommunityPostReader {
         return communityPostRepository.findAllByCourse_IdAndIsDeletedFalse(courseId, pageable);
     }
 
-    public Page<CommunityPost> findPostsByUser(Long userId, Pageable pageable) {
-        return communityPostRepository.findAllByUser_IdAndIsDeletedFalse(userId, pageable);
+    public Page<CommunityPost> findPostsByUser(Long userId, String keyword, Pageable pageable) {
+        if (!StringUtils.hasText(keyword)) {
+            return communityPostRepository.findAllByUser_IdAndIsDeletedFalse(userId, pageable);
+        }
+        return communityPostRepository.searchAllByUserIdAndKeyword(userId, keyword, pageable);
     }
 }
