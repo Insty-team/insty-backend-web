@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,7 +108,8 @@ public class CommunityCommentService {
     }
 
     public SearchRes<CommunityMyCommentRes> searchMyComments(Long userId, CommunityMySearchReq req) {
-        PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize());
+        PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommunityComment> page = communityCommentReader.getCommentsByUser(userId, pageRequest);
         List<CommunityMyCommentRes> items = page.getContent().stream()
                 .map(CommunityMyCommentRes::from)

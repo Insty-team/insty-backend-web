@@ -24,7 +24,7 @@ public class CommunityCommentReader {
     }
 
     public List<CommunityComment> getCommentsByPostId(Long postId) {
-        return communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalse(postId);
+        return communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalseOrderByCreatedAtDesc(postId);
     }
 
     public Page<CommunityComment> getCommentsByUser(Long userId, Pageable pageable) {
