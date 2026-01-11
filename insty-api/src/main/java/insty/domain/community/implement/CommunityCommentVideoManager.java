@@ -30,6 +30,7 @@ public class CommunityCommentVideoManager {
         }
         VideoCommunityComment video = videoCommunityCommentRepository.findByVideoUuid(videoUuid)
                 .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FOUND));
+        validateAttachable(video, comment);
         video.updateCommunityComment(comment);
         return videoCommunityCommentRepository.save(video);
     }
@@ -72,5 +73,14 @@ public class CommunityCommentVideoManager {
         videoEncodingRepository.delete(encoding);
         aiRequester.deleteAiVideoInfo(video.getVideoUuid());
         s3FileManager.deleteAllByDirectory(directory);
+    }
+
+    private void validateAttachable(VideoCommunityComment video, CommunityComment targetComment) {
+        if (video.isDeleted()) {
+            throw new CustomException(VideoErrorCode.VIDEO_NOT_FOUND);
+        }
+        if (video.getCommunityComment() != null && !video.getCommunityComment().getId().equals(targetComment.getId())) {
+            throw new CustomException(VideoErrorCode.VIDEO_ALREADY_ATTACHED);
+        }
     }
 }
