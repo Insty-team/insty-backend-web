@@ -40,7 +40,7 @@ class CommunityCommentReaderWriterTest {
         Long postId = 1L;
         CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(
                 CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser());
-        when(communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalse(postId))
+        when(communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalseOrderByCreatedAtDesc(postId))
                 .thenReturn(List.of(comment));
 
         List<CommunityComment> res = communityCommentReader.getCommentsByPostId(postId);
