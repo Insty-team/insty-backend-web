@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CommunityValidator {
 
     private static final int MAX_POST_FILE_COUNT = 2;
-    private static final int MAX_COMMENT_FILE_COUNT = 1;
+    private static final int MAX_COMMENT_FILE_COUNT = 2;
 
     private final CommunityPostRepository communityPostRepository;
     private final CommunityCommentRepository communityCommentRepository;
