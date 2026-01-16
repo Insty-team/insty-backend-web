@@ -92,7 +92,8 @@ class CommunityValidatorTest {
         // given
         List<MultipartFile> files = List.of(
                 new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1}),
-                new MockMultipartFile("f2", "f2.png", "image/png", new byte[]{1})
+                new MockMultipartFile("f2", "f2.png", "image/png", new byte[]{1}),
+                new MockMultipartFile("f3", "f3.png", "image/png", new byte[]{1})
         );
 
         // when / then
