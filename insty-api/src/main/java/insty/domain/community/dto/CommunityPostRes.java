@@ -24,9 +24,15 @@ public record CommunityPostRes(
         Instant createdAt,
 
         @Schema(description = "수정 시각", example = "2024-01-15T10:30:00Z")
-        Instant updatedAt
+        Instant updatedAt,
+
+        @Schema(description = "좋아요 수", example = "10")
+        int likeCount,
+
+        @Schema(description = "내가 좋아요를 눌렀는지 여부", example = "false")
+        boolean likedByMe
 ) {
-    public static CommunityPostRes from(CommunityPost post) {
+    public static CommunityPostRes from(CommunityPost post, boolean likedByMe) {
         return new CommunityPostRes(
                 post.getId(),
                 CommunityUserRes.from(post.getUser()),
@@ -34,7 +40,9 @@ public record CommunityPostRes(
                 post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
-                post.getUpdatedAt()
+                post.getUpdatedAt(),
+                post.getLikeCount(),
+                likedByMe
         );
     }
 }

@@ -10,9 +10,12 @@ import insty.domain.community.dto.CommunityPostSearchReq;
 import insty.domain.community.dto.CommunityPostUpdateReq;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
+import insty.domain.community.dto.CommunityLikeRes;
+import insty.domain.community.dto.CommunityPostCountRes;
 import insty.domain.community.implement.CommunityPostFileReader;
 import insty.domain.community.implement.CommunityPostFileWriter;
 import insty.domain.community.implement.CommunityPostReader;
+import insty.domain.community.implement.CommunityPostLikeManager;
 import insty.domain.community.implement.CommunityPostVideoManager;
 import insty.domain.community.implement.CommunityPostWriter;
 import insty.domain.community.implement.CommunityValidator;
@@ -39,26 +42,32 @@ public class CommunityPostService {
     private final CommunityPostFileWriter communityPostFileWriter;
     private final CommunityPostFileReader communityPostFileReader;
     private final CommunityPostVideoManager communityPostVideoManager;
+    private final CommunityPostLikeManager communityPostLikeManager;
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityPostRes> searchPosts(Long courseId, CommunityPostSearchReq req) {
+    public SearchRes<CommunityPostRes> searchPosts(Long userId, Long courseId, CommunityPostSearchReq req) {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommunityPost> page = communityPostReader.findPosts(courseId, pageRequest);
+        List<Long> postIds = page.getContent().stream()
+                .map(CommunityPost::getId)
+                .toList();
+        var likedPostIds = communityPostLikeManager.getLikedPostIds(userId, postIds);
         List<CommunityPostRes> items = page.getContent().stream()
-                .map(CommunityPostRes::from)
+                .map(post -> CommunityPostRes.from(post, likedPostIds.contains(post.getId())))
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(paginationRes, items);
     }
 
-    public CommunityPostDetailsRes getPostDetails(Long courseId, Long postId) {
+    public CommunityPostDetailsRes getPostDetails(Long userId, Long courseId, Long postId) {
         CommunityPost post = communityPostReader.getPostWithAttachments(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         List<FileInfo> attachments = communityPostFileReader.getPostFileInfos(post);
         VideoCommunityPost video = communityPostVideoManager.getVideo(post);
-        return CommunityPostDetailsRes.from(post, attachments, video);
+        boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
+        return CommunityPostDetailsRes.from(post, attachments, video, likedByMe);
     }
 
     public CommunityPostDetailsRes createPost(Long userId, Long courseId, CommunityPostCreateReq req, List<MultipartFile> attachments) {
@@ -73,7 +82,7 @@ public class CommunityPostService {
         List<FileInfo> fileInfos = communityPostFileWriter.savePostFiles(post, attachments);
         VideoCommunityPost video = communityPostVideoManager.attachVideo(post, req.videoUuid());
 
-        return CommunityPostDetailsRes.from(post, fileInfos, video);
+        return CommunityPostDetailsRes.from(post, fileInfos, video, false);
     }
 
     public CommunityPostDetailsRes updatePost(Long userId, Long courseId, Long postId, CommunityPostUpdateReq req, List<MultipartFile> attachments) {
@@ -90,7 +99,8 @@ public class CommunityPostService {
         List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(updated, attachments, req.deleteFileIds());
         VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
-        return CommunityPostDetailsRes.from(updated, fileInfos, video);
+        boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
+        return CommunityPostDetailsRes.from(updated, fileInfos, video, likedByMe);
     }
 
     public void deletePost(Long userId, Long courseId, Long postId) {
@@ -111,5 +121,23 @@ public class CommunityPostService {
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(paginationRes, items);
+    }
+
+    public CommunityLikeRes likePost(Long userId, Long courseId, Long postId) {
+        CommunityPost post = communityValidator.validatePostExists(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
+        User user = userReader.getUser(userId);
+        return communityPostLikeManager.likePost(post, user);
+    }
+
+    public CommunityLikeRes unlikePost(Long userId, Long courseId, Long postId) {
+        CommunityPost post = communityValidator.validatePostExists(postId);
+        communityValidator.validatePostBelongsToCourse(post, courseId);
+        User user = userReader.getUser(userId);
+        return communityPostLikeManager.unlikePost(post, user);
+    }
+
+    public CommunityPostCountRes getPostCount(Long courseId) {
+        return CommunityPostCountRes.of(communityPostReader.countPostsByCourse(courseId));
     }
 }

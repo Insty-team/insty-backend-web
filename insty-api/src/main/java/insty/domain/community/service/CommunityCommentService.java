@@ -9,9 +9,11 @@ import insty.domain.community.dto.CommunityCommentSearchReq;
 import insty.domain.community.dto.CommunityCommentUpdateReq;
 import insty.domain.community.dto.CommunityMyCommentRes;
 import insty.domain.community.dto.CommunityMySearchReq;
+import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.implement.CommunityCommentFileReader;
 import insty.domain.community.implement.CommunityCommentFileWriter;
 import insty.domain.community.implement.CommunityCommentReader;
+import insty.domain.community.implement.CommunityCommentLikeManager;
 import insty.domain.community.implement.CommunityCommentVideoManager;
 import insty.domain.community.implement.CommunityCommentWriter;
 import insty.domain.community.implement.CommunityPostReader;
@@ -42,10 +44,11 @@ public class CommunityCommentService {
     private final CommunityCommentFileWriter communityCommentFileWriter;
     private final CommunityCommentFileReader communityCommentFileReader;
     private final CommunityCommentVideoManager communityCommentVideoManager;
+    private final CommunityCommentLikeManager communityCommentLikeManager;
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityCommentRes> getComments(Long courseId, Long postId, CommunityCommentSearchReq req) {
+    public SearchRes<CommunityCommentRes> getComments(Long userId, Long courseId, Long postId, CommunityCommentSearchReq req) {
         CommunityPost post = communityPostReader.getPost(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         List<CommunityComment> comments = communityCommentReader.getCommentsByPostId(post.getId());
@@ -54,12 +57,17 @@ public class CommunityCommentService {
         int start = (int) pageRequest.getOffset();
         int end = Math.min((start + pageRequest.getPageSize()), comments.size());
         List<CommunityComment> paged = comments.subList(Math.min(start, comments.size()), end);
+        List<Long> commentIds = paged.stream()
+                .map(CommunityComment::getId)
+                .toList();
+        var likedCommentIds = communityCommentLikeManager.getLikedCommentIds(userId, commentIds);
 
         List<CommunityCommentRes> items = paged.stream()
                 .map(comment -> CommunityCommentRes.from(
                         comment,
                         communityCommentFileReader.getCommentFileInfos(comment),
-                        communityCommentVideoManager.getVideo(comment)
+                        communityCommentVideoManager.getVideo(comment),
+                        likedCommentIds.contains(comment.getId())
                 ))
                 .toList();
 
@@ -81,7 +89,7 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.saveCommentFiles(comment, attachments);
         VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
 
-        return CommunityCommentRes.from(comment, files, video);
+        return CommunityCommentRes.from(comment, files, video, false);
     }
 
     public CommunityCommentRes updateComment(Long userId, Long commentId, CommunityCommentUpdateReq req, List<MultipartFile> attachments) {
@@ -96,7 +104,8 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(updated, attachments, req.deleteFileIds());
         VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
-        return CommunityCommentRes.from(updated, files, video);
+        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, commentId);
+        return CommunityCommentRes.from(updated, files, video, likedByMe);
     }
 
     public void deleteComment(Long userId, Long commentId) {
@@ -116,5 +125,17 @@ public class CommunityCommentService {
                 .toList();
         PaginationRes pagination = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(pagination, items);
+    }
+
+    public CommunityLikeRes likeComment(Long userId, Long commentId) {
+        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        User user = userReader.getUser(userId);
+        return communityCommentLikeManager.likeComment(comment, user);
+    }
+
+    public CommunityLikeRes unlikeComment(Long userId, Long commentId) {
+        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        User user = userReader.getUser(userId);
+        return communityCommentLikeManager.unlikeComment(comment, user);
     }
 }

@@ -2,6 +2,7 @@ package insty.domain.community.controller;
 
 import insty.domain.common.SearchRes;
 import insty.domain.community.dto.CommunityCommentCreateReq;
+import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.dto.CommunityCommentRes;
 import insty.domain.community.dto.CommunityCommentSearchReq;
 import insty.domain.community.dto.CommunityCommentUpdateReq;
@@ -40,11 +41,12 @@ public class CommunityCommentController {
 
     @GetMapping("/courses/{courseId}/posts/{postId}/comments")
     public SuccessRes<SearchRes<CommunityCommentRes>> getComments(
+            @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @ModelAttribute @Valid CommunityCommentSearchReq req
     ) {
-        return SuccessRes.of(communityCommentService.getComments(courseId, postId, req));
+        return SuccessRes.of(communityCommentService.getComments(userId, courseId, postId, req));
     }
 
     @PostMapping(value = "/courses/{courseId}/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -75,6 +77,22 @@ public class CommunityCommentController {
     ) {
         communityCommentService.deleteComment(userId, commentId);
         return SuccessRes.of(null);
+    }
+
+    @PostMapping("/comments/{commentId}/likes")
+    public SuccessRes<CommunityLikeRes> likeComment(
+            @CurrentUser Long userId,
+            @PathVariable @NotNull Long commentId
+    ) {
+        return SuccessRes.of(communityCommentService.likeComment(userId, commentId));
+    }
+
+    @DeleteMapping("/comments/{commentId}/likes")
+    public SuccessRes<CommunityLikeRes> unlikeComment(
+            @CurrentUser Long userId,
+            @PathVariable @NotNull Long commentId
+    ) {
+        return SuccessRes.of(communityCommentService.unlikeComment(userId, commentId));
     }
 
     @GetMapping("/me/comments")

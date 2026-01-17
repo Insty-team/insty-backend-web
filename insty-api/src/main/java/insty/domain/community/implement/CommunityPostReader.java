@@ -40,4 +40,8 @@ public class CommunityPostReader {
         }
         return communityPostRepository.searchAllByUserIdAndKeyword(userId, keyword, pageable);
     }
+
+    public long countPostsByCourse(Long courseId) {
+        return communityPostRepository.countByCourse_IdAndIsDeletedFalse(courseId);
+    }
 }

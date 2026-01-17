@@ -35,9 +35,15 @@ public record CommunityPostDetailsRes(
         Instant createdAt,
 
         @Schema(description = "수정 시각", example = "2024-01-15T10:30:00Z")
-        Instant updatedAt
+        Instant updatedAt,
+
+        @Schema(description = "좋아요 수", example = "10")
+        int likeCount,
+
+        @Schema(description = "내가 좋아요를 눌렀는지 여부", example = "false")
+        boolean likedByMe
 ) {
-    public static CommunityPostDetailsRes from(CommunityPost post, List<FileInfo> attachments, VideoCommunityPost video) {
+    public static CommunityPostDetailsRes from(CommunityPost post, List<FileInfo> attachments, VideoCommunityPost video, boolean likedByMe) {
         return new CommunityPostDetailsRes(
                 post.getId(),
                 CommunityUserRes.from(post.getUser()),
@@ -47,7 +53,9 @@ public record CommunityPostDetailsRes(
                 Optional.ofNullable(attachments).orElse(List.of()),
                 VideoInfo.of(video),
                 post.getCreatedAt(),
-                post.getUpdatedAt()
+                post.getUpdatedAt(),
+                post.getLikeCount(),
+                likedByMe
         );
     }
 }
