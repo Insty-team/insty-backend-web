@@ -1,9 +1,13 @@
 package insty.domain.community.implement;
 
+import insty.domain.community.repository.CommunityPostCountProjection;
 import insty.domain.community.repository.CommunityPostRepository;
 import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityPost;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.Optional;
@@ -39,6 +43,14 @@ public class CommunityPostReader {
             return communityPostRepository.findAllByUser_IdAndIsDeletedFalse(userId, pageable);
         }
         return communityPostRepository.searchAllByUserIdAndKeyword(userId, keyword, pageable);
+    }
+
+    public Map<Long, Long> getCountByCourseIds(List<Long> courseIds) {
+        if (courseIds == null || courseIds.isEmpty()) {
+            return Map.of();
+        }
+        return communityPostRepository.countByCourseIds(courseIds).stream()
+                .collect(Collectors.toMap(CommunityPostCountProjection::getCourseId, CommunityPostCountProjection::getCount));
     }
 
 }

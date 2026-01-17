@@ -49,7 +49,8 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.description,
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
-                        videoCourse.duration
+                        videoCourse.duration,
+                        Expressions.nullExpression(Long.class)
                 )
         )
                 .from(course)

@@ -19,6 +19,7 @@ import insty.domain.course.implement.CourseWriter;
 import insty.domain.courseqna.implement.CourseQnaCleaner;
 import insty.domain.courseqna.implement.CourseQuestionReader;
 import insty.domain.community.implement.CommunityCourseCleaner;
+import insty.domain.community.implement.CommunityPostReader;
 import insty.domain.user.implement.UserReader;
 import insty.model.course.Course;
 import insty.model.course.CourseProgress;
@@ -51,6 +52,7 @@ public class CourseService {
     private final CourseQnaCleaner courseQnaCleaner;
     private final CommunityCourseCleaner communityCourseCleaner;
     private final CourseQuestionReader courseQuestionReader;
+    private final CommunityPostReader communityPostReader;
 
     public CourseDetailRes createCourse(Long userId, CourseCreateReq req, MultipartFile thumbnail,
                                         List<MultipartFile> practiceFile) {
@@ -126,9 +128,17 @@ public class CourseService {
 
         List<CourseSearchInfo> searchInfo = courseComplexReader.searchCourse(paginationReq, filter);
         searchInfo = courseComplexReader.setBasicThumbnailUrlForSearch(searchInfo);
+        List<Long> courseIds = searchInfo.stream()
+                .map(CourseSearchInfo::courseId)
+                .toList();
+        Map<Long, Long> countByCourseIds = communityPostReader.getCountByCourseIds(courseIds);
+        List<CourseSearchInfo> finalResult = searchInfo.stream()
+                .map(dto -> CourseSearchInfo.withCommunityPostCount(dto,
+                        countByCourseIds.getOrDefault(dto.courseId(), 0L)))
+                .toList();
         PaginationRes paginationRes = courseComplexReader.countSearchCourse(paginationReq, filter);
 
-        return SearchRes.from(paginationRes, searchInfo);
+        return SearchRes.from(paginationRes, finalResult);
     }
 
     public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {

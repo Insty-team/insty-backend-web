@@ -31,6 +31,14 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     Optional<CommunityPost> findByIdAndIsDeletedFalse(Long id);
 
+    @Query("""
+        SELECT p.course.id AS courseId, COUNT(p) AS count
+        FROM CommunityPost p
+        WHERE p.course.id IN :courseIds AND p.isDeleted = false
+        GROUP BY p.course.id
+    """)
+    List<CommunityPostCountProjection> countByCourseIds(@Param("courseIds") List<Long> courseIds);
+
     @Modifying
     @Query("""
         UPDATE CommunityPost p
