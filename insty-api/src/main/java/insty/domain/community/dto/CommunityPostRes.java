@@ -24,7 +24,10 @@ public record CommunityPostRes(
         Instant createdAt,
 
         @Schema(description = "수정 시각", example = "2024-01-15T10:30:00Z")
-        Instant updatedAt
+        Instant updatedAt,
+
+        @Schema(description = "좋아요 수", example = "10")
+        int likeCount
 ) {
     public static CommunityPostRes from(CommunityPost post) {
         return new CommunityPostRes(
@@ -34,7 +37,8 @@ public record CommunityPostRes(
                 post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
-                post.getUpdatedAt()
+                post.getUpdatedAt(),
+                post.getLikeCount()
         );
     }
 }

@@ -40,4 +40,5 @@ public class CommunityPostReader {
         }
         return communityPostRepository.searchAllByUserIdAndKeyword(userId, keyword, pageable);
     }
+
 }

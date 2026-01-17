@@ -9,9 +9,11 @@ import insty.domain.community.dto.CommunityCommentSearchReq;
 import insty.domain.community.dto.CommunityCommentUpdateReq;
 import insty.domain.community.dto.CommunityMyCommentRes;
 import insty.domain.community.dto.CommunityMySearchReq;
+import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.implement.CommunityCommentFileReader;
 import insty.domain.community.implement.CommunityCommentFileWriter;
 import insty.domain.community.implement.CommunityCommentReader;
+import insty.domain.community.implement.CommunityCommentLikeManager;
 import insty.domain.community.implement.CommunityCommentVideoManager;
 import insty.domain.community.implement.CommunityCommentWriter;
 import insty.domain.community.implement.CommunityPostReader;
@@ -42,6 +44,7 @@ public class CommunityCommentService {
     private final CommunityCommentFileWriter communityCommentFileWriter;
     private final CommunityCommentFileReader communityCommentFileReader;
     private final CommunityCommentVideoManager communityCommentVideoManager;
+    private final CommunityCommentLikeManager communityCommentLikeManager;
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
@@ -116,5 +119,17 @@ public class CommunityCommentService {
                 .toList();
         PaginationRes pagination = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(pagination, items);
+    }
+
+    public CommunityLikeRes likeComment(Long userId, Long commentId) {
+        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        User user = userReader.getUser(userId);
+        return communityCommentLikeManager.likeComment(comment, user);
+    }
+
+    public CommunityLikeRes unlikeComment(Long userId, Long commentId) {
+        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        User user = userReader.getUser(userId);
+        return communityCommentLikeManager.unlikeComment(comment, user);
     }
 }

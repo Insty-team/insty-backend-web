@@ -68,6 +68,10 @@ public class CommunityPost extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private int likeCount = 0;
+
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 

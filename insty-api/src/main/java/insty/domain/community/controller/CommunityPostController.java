@@ -4,6 +4,7 @@ import insty.domain.common.SearchRes;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
+import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
@@ -49,10 +50,11 @@ public class CommunityPostController {
 
     @GetMapping("/courses/{courseId}/posts/{postId}")
     public SuccessRes<CommunityPostDetailsRes> getPost(
+            @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId
     ) {
-        return SuccessRes.of(communityPostService.getPostDetails(courseId, postId));
+        return SuccessRes.of(communityPostService.getPostDetails(userId, courseId, postId));
     }
 
     @PostMapping(value = "/courses/{courseId}/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -84,6 +86,24 @@ public class CommunityPostController {
     ) {
         communityPostService.deletePost(userId, courseId, postId);
         return SuccessRes.of(null);
+    }
+
+    @PostMapping("/courses/{courseId}/posts/{postId}/likes")
+    public SuccessRes<CommunityLikeRes> likePost(
+            @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
+            @PathVariable @NotNull Long postId
+    ) {
+        return SuccessRes.of(communityPostService.likePost(userId, courseId, postId));
+    }
+
+    @DeleteMapping("/courses/{courseId}/posts/{postId}/likes")
+    public SuccessRes<CommunityLikeRes> unlikePost(
+            @CurrentUser Long userId,
+            @PathVariable @NotNull Long courseId,
+            @PathVariable @NotNull Long postId
+    ) {
+        return SuccessRes.of(communityPostService.unlikePost(userId, courseId, postId));
     }
 
     @GetMapping("/me/posts")

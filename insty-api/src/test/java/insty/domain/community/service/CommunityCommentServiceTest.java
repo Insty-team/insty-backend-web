@@ -12,9 +12,11 @@ import insty.domain.community.dto.CommunityCommentCreateReq;
 import insty.domain.community.dto.CommunityCommentRes;
 import insty.domain.community.dto.CommunityCommentSearchReq;
 import insty.domain.community.dto.CommunityCommentUpdateReq;
+import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.implement.CommunityCommentFileReader;
 import insty.domain.community.implement.CommunityCommentFileWriter;
 import insty.domain.community.implement.CommunityCommentReader;
+import insty.domain.community.implement.CommunityCommentLikeManager;
 import insty.domain.community.implement.CommunityCommentVideoManager;
 import insty.domain.community.implement.CommunityCommentWriter;
 import insty.domain.community.implement.CommunityPostReader;
@@ -54,6 +56,8 @@ class CommunityCommentServiceTest {
     private CommunityCommentFileReader communityCommentFileReader;
     @Mock
     private CommunityCommentVideoManager communityCommentVideoManager;
+    @Mock
+    private CommunityCommentLikeManager communityCommentLikeManager;
     @Mock
     private CommunityValidator communityValidator;
     @Mock
@@ -152,5 +156,39 @@ class CommunityCommentServiceTest {
         verify(communityCommentFileWriter).deleteCommentFiles(comment);
         verify(communityCommentVideoManager).deleteVideo(comment);
         verify(communityCommentWriter).deleteComment(comment);
+    }
+
+    @Test
+    void likeComment_정상() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(post);
+        User user = UserFixtureBuilder.getUserWithId(userId);
+        CommunityLikeRes expected = new CommunityLikeRes(1, true);
+
+        when(communityValidator.validateCommentExists(comment.getId())).thenReturn(comment);
+        when(userReader.getUser(userId)).thenReturn(user);
+        when(communityCommentLikeManager.likeComment(comment, user)).thenReturn(expected);
+
+        CommunityLikeRes res = communityCommentService.likeComment(userId, comment.getId());
+
+        assertThat(res).isEqualTo(expected);
+    }
+
+    @Test
+    void unlikeComment_정상() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(post);
+        User user = UserFixtureBuilder.getUserWithId(userId);
+        CommunityLikeRes expected = new CommunityLikeRes(0, false);
+
+        when(communityValidator.validateCommentExists(comment.getId())).thenReturn(comment);
+        when(userReader.getUser(userId)).thenReturn(user);
+        when(communityCommentLikeManager.unlikeComment(comment, user)).thenReturn(expected);
+
+        CommunityLikeRes res = communityCommentService.unlikeComment(userId, comment.getId());
+
+        assertThat(res).isEqualTo(expected);
     }
 }
