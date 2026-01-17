@@ -2,7 +2,6 @@ package insty.domain.community.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,7 +30,6 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.video.VideoCommunityComment;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -71,42 +69,20 @@ class CommunityCommentServiceTest {
     @Test
     void getComments_정상() {
         // given
-        Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(post);
         when(communityPostReader.getPost(post.getId())).thenReturn(post);
         when(communityCommentReader.getCommentsByPostId(post.getId())).thenReturn(List.of(comment));
         when(communityCommentFileReader.getCommentFileInfos(comment)).thenReturn(List.of());
         when(communityCommentVideoManager.getVideo(comment)).thenReturn(null);
-        when(communityCommentLikeManager.getLikedCommentIds(eq(userId), eq(List.of(comment.getId())))).thenReturn(Set.of());
 
         // when
-        SearchRes<CommunityCommentRes> res = communityCommentService.getComments(userId, post.getCourse().getId(), post.getId(),
+        SearchRes<CommunityCommentRes> res = communityCommentService.getComments(post.getCourse().getId(), post.getId(),
                 new CommunityCommentSearchReq(1, 10));
 
         // then
         assertThat(res.items()).hasSize(1);
         assertThat(res.items().get(0).commentId()).isEqualTo(comment.getId());
-    }
-
-    @Test
-    void getComments_likedByMe_포함() {
-        Long userId = 1L;
-        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
-        CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(post);
-        when(communityPostReader.getPost(post.getId())).thenReturn(post);
-        when(communityCommentReader.getCommentsByPostId(post.getId())).thenReturn(List.of(comment));
-        when(communityCommentFileReader.getCommentFileInfos(comment)).thenReturn(List.of());
-        when(communityCommentVideoManager.getVideo(comment)).thenReturn(null);
-        when(communityCommentLikeManager.getLikedCommentIds(eq(userId), eq(List.of(comment.getId()))))
-                .thenReturn(Set.of(comment.getId()));
-
-        SearchRes<CommunityCommentRes> res = communityCommentService.getComments(userId, post.getCourse().getId(), post.getId(),
-                new CommunityCommentSearchReq(1, 10));
-
-        assertThat(res.items()).hasSize(1);
-        assertThat(res.items().get(0).likedByMe()).isTrue();
-        assertThat(res.items().get(0).likeCount()).isEqualTo(comment.getLikeCount());
     }
 
     @Test
@@ -155,7 +131,6 @@ class CommunityCommentServiceTest {
         });
         when(communityCommentFileWriter.updateCommentFiles(comment, addFiles, req.deleteFileIds())).thenReturn(fileInfos);
         when(communityCommentVideoManager.updateAndGetLinkedVideo(comment, req.videoUuid())).thenReturn(null);
-        when(communityCommentLikeManager.isLikedByUser(userId, comment.getId())).thenReturn(false);
 
         // when
         CommunityCommentRes res = communityCommentService.updateComment(userId, comment.getId(), req, addFiles);

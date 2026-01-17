@@ -46,16 +46,12 @@ public class CommunityPostService {
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityPostRes> searchPosts(Long userId, Long courseId, CommunityPostSearchReq req) {
+    public SearchRes<CommunityPostRes> searchPosts(Long courseId, CommunityPostSearchReq req) {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommunityPost> page = communityPostReader.findPosts(courseId, pageRequest);
-        List<Long> postIds = page.getContent().stream()
-                .map(CommunityPost::getId)
-                .toList();
-        var likedPostIds = communityPostLikeManager.getLikedPostIds(userId, postIds);
         List<CommunityPostRes> items = page.getContent().stream()
-                .map(post -> CommunityPostRes.from(post, likedPostIds.contains(post.getId())))
+                .map(CommunityPostRes::from)
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(paginationRes, items);

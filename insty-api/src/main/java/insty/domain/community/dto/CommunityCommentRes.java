@@ -35,13 +35,9 @@ public record CommunityCommentRes(
         Instant updatedAt,
 
         @Schema(description = "좋아요 수", example = "10")
-        int likeCount,
-
-        @Schema(description = "내가 좋아요를 눌렀는지 여부", example = "false")
-        boolean likedByMe
+        int likeCount
 ) {
-    public static CommunityCommentRes from(CommunityComment comment, List<FileInfo> attachments, VideoCommunityComment video,
-                                           boolean likedByMe) {
+    public static CommunityCommentRes from(CommunityComment comment, List<FileInfo> attachments, VideoCommunityComment video) {
         return new CommunityCommentRes(
                 comment.getId(),
                 comment.getCommunityPost().getId(),
@@ -51,8 +47,7 @@ public record CommunityCommentRes(
                 VideoInfo.of(video),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),
-                comment.getLikeCount(),
-                likedByMe
+                comment.getLikeCount()
         );
     }
 }

@@ -41,12 +41,11 @@ public class CommunityCommentController {
 
     @GetMapping("/courses/{courseId}/posts/{postId}/comments")
     public SuccessRes<SearchRes<CommunityCommentRes>> getComments(
-            @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @ModelAttribute @Valid CommunityCommentSearchReq req
     ) {
-        return SuccessRes.of(communityCommentService.getComments(userId, courseId, postId, req));
+        return SuccessRes.of(communityCommentService.getComments(courseId, postId, req));
     }
 
     @PostMapping(value = "/courses/{courseId}/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
