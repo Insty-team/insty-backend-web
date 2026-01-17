@@ -11,7 +11,6 @@ import insty.domain.community.dto.CommunityPostUpdateReq;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityLikeRes;
-import insty.domain.community.dto.CommunityPostCountRes;
 import insty.domain.community.implement.CommunityPostFileReader;
 import insty.domain.community.implement.CommunityPostFileWriter;
 import insty.domain.community.implement.CommunityPostReader;
@@ -133,7 +132,4 @@ public class CommunityPostService {
         return communityPostLikeManager.unlikePost(post, user);
     }
 
-    public CommunityPostCountRes getPostCount(Long courseId) {
-        return CommunityPostCountRes.of(communityPostReader.countPostsByCourse(courseId));
-    }
 }

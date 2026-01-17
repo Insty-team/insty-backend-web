@@ -5,7 +5,6 @@ import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
 import insty.domain.community.dto.CommunityLikeRes;
-import insty.domain.community.dto.CommunityPostCountRes;
 import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
@@ -105,13 +104,6 @@ public class CommunityPostController {
             @PathVariable @NotNull Long postId
     ) {
         return SuccessRes.of(communityPostService.unlikePost(userId, courseId, postId));
-    }
-
-    @GetMapping("/courses/{courseId}/posts/count")
-    public SuccessRes<CommunityPostCountRes> getPostCount(
-            @PathVariable @NotNull Long courseId
-    ) {
-        return SuccessRes.of(communityPostService.getPostCount(courseId));
     }
 
     @GetMapping("/me/posts")

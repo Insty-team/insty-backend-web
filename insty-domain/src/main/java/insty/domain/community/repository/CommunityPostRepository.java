@@ -31,8 +31,6 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     Optional<CommunityPost> findByIdAndIsDeletedFalse(Long id);
 
-    long countByCourse_IdAndIsDeletedFalse(Long courseId);
-
     @Modifying
     @Query("""
         UPDATE CommunityPost p

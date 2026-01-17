@@ -14,7 +14,6 @@ import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
-import insty.domain.community.dto.CommunityPostCountRes;
 import insty.domain.community.dto.CommunityPostDetailsRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
 import insty.domain.community.dto.CommunityPostUpdateReq;
@@ -216,15 +215,6 @@ class CommunityPostServiceTest {
         verify(communityPostWriter).deletePost(post);
     }
 
-    @Test
-    void getPostCount_정상() {
-        Long courseId = 1L;
-        when(communityPostReader.countPostsByCourse(courseId)).thenReturn(5L);
-
-        CommunityPostCountRes res = communityPostService.getPostCount(courseId);
-
-        assertThat(res.count()).isEqualTo(5L);
-    }
 
     @Test
     void likePost_정상() {
