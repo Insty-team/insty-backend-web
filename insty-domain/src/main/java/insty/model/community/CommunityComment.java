@@ -52,6 +52,10 @@ public class CommunityComment extends BaseEntity {
     @Builder.Default
     private List<CommunityCommentFile> attachments = new ArrayList<>();
 
+    @Builder.Default
+    @Column(nullable = false)
+    private int likeCount = 0;
+
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted;
 

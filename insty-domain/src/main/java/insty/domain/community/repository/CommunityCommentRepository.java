@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface CommunityCommentRepository extends JpaRepository<CommunityComment, Long> {
 
@@ -18,4 +21,27 @@ public interface CommunityCommentRepository extends JpaRepository<CommunityComme
     Page<CommunityComment> findAllByUser_IdAndIsDeletedFalse(Long userId, Pageable pageable);
 
     Optional<CommunityComment> findByIdAndIsDeletedFalse(Long commentId);
+
+    @Modifying
+    @Query("""
+        UPDATE CommunityComment c
+        SET c.likeCount = c.likeCount + 1
+        WHERE c.id = :commentId
+    """)
+    int incrementLikeCount(@Param("commentId") Long commentId);
+
+    @Modifying
+    @Query("""
+        UPDATE CommunityComment c
+        SET c.likeCount = c.likeCount - 1
+        WHERE c.id = :commentId AND c.likeCount > 0
+    """)
+    int decrementLikeCount(@Param("commentId") Long commentId);
+
+    @Query("""
+        SELECT c.likeCount
+        FROM CommunityComment c
+        WHERE c.id = :commentId
+    """)
+    int findLikeCountById(@Param("commentId") Long commentId);
 }
