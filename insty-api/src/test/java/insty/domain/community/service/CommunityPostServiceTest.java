@@ -10,15 +10,19 @@ import static org.mockito.Mockito.when;
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.community.dto.CommunityLikeRes;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
+import insty.domain.community.dto.CommunityPostCountRes;
 import insty.domain.community.dto.CommunityPostDetailsRes;
+import insty.domain.community.dto.CommunityPostRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
 import insty.domain.community.dto.CommunityPostUpdateReq;
 import insty.domain.community.implement.CommunityPostFileReader;
 import insty.domain.community.implement.CommunityPostFileWriter;
 import insty.domain.community.implement.CommunityPostReader;
+import insty.domain.community.implement.CommunityPostLikeManager;
 import insty.domain.community.implement.CommunityPostVideoManager;
 import insty.domain.community.implement.CommunityPostWriter;
 import insty.domain.community.implement.CommunityValidator;
@@ -29,6 +33,7 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.video.VideoCommunityPost;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -57,6 +62,8 @@ class CommunityPostServiceTest {
     @Mock
     private CommunityPostVideoManager communityPostVideoManager;
     @Mock
+    private CommunityPostLikeManager communityPostLikeManager;
+    @Mock
     private CommunityValidator communityValidator;
     @Mock
     private UserReader userReader;
@@ -67,13 +74,15 @@ class CommunityPostServiceTest {
     @Test
     void searchPosts_페이지네이션_정상() {
         // given
+        Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         Long courseId = post.getCourse().getId();
         Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
         when(communityPostReader.findPosts(eq(courseId), any(PageRequest.class))).thenReturn(page);
+        when(communityPostLikeManager.getLikedPostIds(eq(userId), eq(List.of(post.getId())))).thenReturn(Set.of());
 
         // when
-        SearchRes<?> result = communityPostService.searchPosts(courseId, new CommunityPostSearchReq(1, 10));
+        SearchRes<?> result = communityPostService.searchPosts(userId, courseId, new CommunityPostSearchReq(1, 10));
 
         // then
         assertThat(result.pagination()).isEqualTo(PaginationRes.of(1, 1, 10));
@@ -81,8 +90,25 @@ class CommunityPostServiceTest {
     }
 
     @Test
+    void searchPosts_likedByMe_포함() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        Long courseId = post.getCourse().getId();
+        Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
+        when(communityPostReader.findPosts(eq(courseId), any(PageRequest.class))).thenReturn(page);
+        when(communityPostLikeManager.getLikedPostIds(eq(userId), eq(List.of(post.getId())))).thenReturn(Set.of(post.getId()));
+
+        SearchRes<CommunityPostRes> result = communityPostService.searchPosts(userId, courseId, new CommunityPostSearchReq(1, 10));
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).likedByMe()).isTrue();
+        assertThat(result.items().get(0).likeCount()).isEqualTo(post.getLikeCount());
+    }
+
+    @Test
     void getPostDetails_첨부파일과영상_포함() {
         // given
+        Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         List<FileInfo> files = List.of(new FileInfo(1L, "file.png", "image/png", 100, "url"));
         VideoCommunityPost video = VideoCommunityPost.create("video.mp4", UUID.randomUUID(),
@@ -91,14 +117,31 @@ class CommunityPostServiceTest {
         when(communityPostReader.getPostWithAttachments(post.getId())).thenReturn(post);
         when(communityPostFileReader.getPostFileInfos(post)).thenReturn(files);
         when(communityPostVideoManager.getVideo(post)).thenReturn(video);
+        when(communityPostLikeManager.isLikedByUser(userId, post.getId())).thenReturn(false);
 
         // when
-        CommunityPostDetailsRes res = communityPostService.getPostDetails(post.getCourse().getId(), post.getId());
+        CommunityPostDetailsRes res = communityPostService.getPostDetails(userId, post.getCourse().getId(), post.getId());
 
         // then
         assertThat(res.postId()).isEqualTo(post.getId());
         assertThat(res.attachments()).isEqualTo(files);
         assertThat(res.videoInfo()).isNotNull();
+    }
+
+    @Test
+    void getPostDetails_likedByMe_포함() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+
+        when(communityPostReader.getPostWithAttachments(post.getId())).thenReturn(post);
+        when(communityPostFileReader.getPostFileInfos(post)).thenReturn(List.of());
+        when(communityPostVideoManager.getVideo(post)).thenReturn(null);
+        when(communityPostLikeManager.isLikedByUser(userId, post.getId())).thenReturn(true);
+
+        CommunityPostDetailsRes res = communityPostService.getPostDetails(userId, post.getCourse().getId(), post.getId());
+
+        assertThat(res.likedByMe()).isTrue();
+        assertThat(res.likeCount()).isEqualTo(post.getLikeCount());
     }
 
     @Test
@@ -168,6 +211,7 @@ class CommunityPostServiceTest {
         });
         when(communityPostFileWriter.updatePostFiles(post, addFiles, req.deleteFileIds())).thenReturn(fileInfos);
         when(communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid())).thenReturn(null);
+        when(communityPostLikeManager.isLikedByUser(userId, post.getId())).thenReturn(false);
 
         // when
         CommunityPostDetailsRes res = communityPostService.updatePost(userId, courseId, post.getId(), req, addFiles);
@@ -192,5 +236,49 @@ class CommunityPostServiceTest {
         verify(communityPostFileWriter).deletePostFiles(post);
         verify(communityPostVideoManager).deleteVideo(post);
         verify(communityPostWriter).deletePost(post);
+    }
+
+    @Test
+    void getPostCount_정상() {
+        Long courseId = 1L;
+        when(communityPostReader.countPostsByCourse(courseId)).thenReturn(5L);
+
+        CommunityPostCountRes res = communityPostService.getPostCount(courseId);
+
+        assertThat(res.count()).isEqualTo(5L);
+    }
+
+    @Test
+    void likePost_정상() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(userId);
+        CommunityLikeRes expected = new CommunityLikeRes(1, true);
+
+        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(userReader.getUser(userId)).thenReturn(user);
+        when(communityPostLikeManager.likePost(post, user)).thenReturn(expected);
+
+        CommunityLikeRes res = communityPostService.likePost(userId, post.getCourse().getId(), post.getId());
+
+        assertThat(res).isEqualTo(expected);
+        verify(communityValidator).validatePostBelongsToCourse(post, post.getCourse().getId());
+    }
+
+    @Test
+    void unlikePost_정상() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(userId);
+        CommunityLikeRes expected = new CommunityLikeRes(0, false);
+
+        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(userReader.getUser(userId)).thenReturn(user);
+        when(communityPostLikeManager.unlikePost(post, user)).thenReturn(expected);
+
+        CommunityLikeRes res = communityPostService.unlikePost(userId, post.getCourse().getId(), post.getId());
+
+        assertThat(res).isEqualTo(expected);
+        verify(communityValidator).validatePostBelongsToCourse(post, post.getCourse().getId());
     }
 }
