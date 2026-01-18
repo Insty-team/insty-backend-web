@@ -89,8 +89,8 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.saveCommentFiles(comment, attachments);
         VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
 
-        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, comment.getId());
-        return toCommunityCommentRes(comment, files, video, likedByMe);
+        return toCommunityCommentRes(comment, files, video,
+                communityCommentLikeManager.isLikedByUser(userId, comment.getId()));
     }
 
     public CommunityCommentRes updateComment(Long userId, Long commentId, CommunityCommentUpdateReq req, List<MultipartFile> attachments) {
@@ -105,8 +105,8 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(updated, attachments, req.deleteFileIds());
         VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
-        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, updated.getId());
-        return toCommunityCommentRes(updated, files, video, likedByMe);
+        return toCommunityCommentRes(updated, files, video,
+                communityCommentLikeManager.isLikedByUser(userId, updated.getId()));
 
     }
 
