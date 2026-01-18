@@ -71,7 +71,8 @@ public class CommunityPostVideoManager {
                 .filter(video -> video.getCommunityPost() != null)
                 .collect(Collectors.toMap(
                         video -> video.getCommunityPost().getId(),
-                        Function.identity()
+                        Function.identity(),
+                        (existing, duplicate) -> existing
                 ));
     }
 
