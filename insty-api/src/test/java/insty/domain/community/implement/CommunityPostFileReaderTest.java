@@ -37,7 +37,8 @@ class CommunityPostFileReaderTest {
         var file = FileFixtureBuilder.getFileWithId(1L, FileContainerType.COMMUNITY_POST_IMAGE, post.getId(),
                 "stored.png", "origin.png", "image/png", 100);
         CommunityPostFile attachment = CommunityPostFile.create(post, file);
-        post.getAttachments().add(attachment);
+        when(communityPostFileRepository.findAllWithFileByPostIds(List.of(post.getId())))
+                .thenReturn(List.of(attachment));
         when(appProperties.getDomain()).thenReturn("insty.test.com");
 
         // when
