@@ -12,6 +12,7 @@ import insty.domain.community.dto.CommunityPostUpdateReq;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityLikeRes;
+import insty.domain.community.implement.CommunityCommentReader;
 import insty.domain.community.implement.CommunityPostFileReader;
 import insty.domain.community.implement.CommunityPostFileWriter;
 import insty.domain.community.implement.CommunityPostReader;
@@ -45,6 +46,7 @@ public class CommunityPostService {
     private final CommunityPostFileReader communityPostFileReader;
     private final CommunityPostVideoManager communityPostVideoManager;
     private final CommunityPostLikeManager communityPostLikeManager;
+    private final CommunityCommentReader communityCommentReader;
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
@@ -63,12 +65,14 @@ public class CommunityPostService {
                         Map.Entry::getKey,
                         entry -> VideoInfo.of(entry.getValue())
                 ));
+        Map<Long, Long> commentCountByPostId = communityCommentReader.countByPostIds(postIds);
         var likedPostIds = communityPostLikeManager.getLikedPostIds(userId, postIds);
         List<CommunityPostRes> items = posts.stream()
                 .map(post -> CommunityPostRes.from(
                         post,
                         attachments.getOrDefault(post.getId(), List.of()),
                         videoInfoByPostId.get(post.getId()),
+                        commentCountByPostId.getOrDefault(post.getId(), 0L),
                         likedPostIds.contains(post.getId())
                 ))
                 .toList();
@@ -81,8 +85,9 @@ public class CommunityPostService {
         communityValidator.validatePostBelongsToCourse(post, courseId);
         List<FileInfo> attachments = communityPostFileReader.getPostFileInfos(post);
         VideoCommunityPost video = communityPostVideoManager.getVideo(post);
+        long commentCount = communityCommentReader.countByPostId(postId);
         boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
-        return CommunityPostDetailsRes.from(post, attachments, video, likedByMe);
+        return CommunityPostDetailsRes.from(post, attachments, video, commentCount, likedByMe);
     }
 
     public CommunityPostDetailsRes createPost(Long userId, Long courseId, CommunityPostCreateReq req, List<MultipartFile> attachments) {
@@ -97,7 +102,7 @@ public class CommunityPostService {
         List<FileInfo> fileInfos = communityPostFileWriter.savePostFiles(post, attachments);
         VideoCommunityPost video = communityPostVideoManager.attachVideo(post, req.videoUuid());
 
-        return CommunityPostDetailsRes.from(post, fileInfos, video, false);
+        return CommunityPostDetailsRes.from(post, fileInfos, video, 0L, false);
     }
 
     public CommunityPostDetailsRes updatePost(Long userId, Long courseId, Long postId, CommunityPostUpdateReq req, List<MultipartFile> attachments) {
@@ -115,7 +120,8 @@ public class CommunityPostService {
         VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
         boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
-        return CommunityPostDetailsRes.from(updated, fileInfos, video, likedByMe);
+        long commentCount = communityCommentReader.countByPostId(postId);
+        return CommunityPostDetailsRes.from(updated, fileInfos, video, commentCount, likedByMe);
     }
 
     public void deletePost(Long userId, Long courseId, Long postId) {

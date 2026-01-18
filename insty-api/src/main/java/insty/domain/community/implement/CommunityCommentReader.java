@@ -5,6 +5,8 @@ import insty.error.CommunityErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityComment;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,21 @@ public class CommunityCommentReader {
 
     public List<CommunityComment> getCommentsByPostId(Long postId) {
         return communityCommentRepository.findAllByCommunityPost_IdAndIsDeletedFalseOrderByCreatedAtDesc(postId);
+    }
+
+    public Map<Long, Long> countByPostIds(List<Long> postIds) {
+        if (postIds == null || postIds.isEmpty()) {
+            return Map.of();
+        }
+        return communityCommentRepository.countByPostIds(postIds).stream()
+                .collect(Collectors.toMap(
+                        projection -> projection.getPostId(),
+                        projection -> projection.getCount()
+                ));
+    }
+
+    public long countByPostId(Long postId) {
+        return communityCommentRepository.countByPostId(postId);
     }
 
     public Page<CommunityComment> getCommentsByUser(Long userId, Pageable pageable) {

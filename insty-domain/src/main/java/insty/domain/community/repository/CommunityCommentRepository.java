@@ -22,6 +22,21 @@ public interface CommunityCommentRepository extends JpaRepository<CommunityComme
 
     Optional<CommunityComment> findByIdAndIsDeletedFalse(Long commentId);
 
+    @Query("""
+        SELECT c.communityPost.id AS postId, COUNT(c) AS count
+        FROM CommunityComment c
+        WHERE c.communityPost.id IN :postIds AND c.isDeleted = false
+        GROUP BY c.communityPost.id
+    """)
+    List<CommunityCommentCountProjection> countByPostIds(@Param("postIds") List<Long> postIds);
+
+    @Query("""
+        SELECT COUNT(c)
+        FROM CommunityComment c
+        WHERE c.communityPost.id = :postId AND c.isDeleted = false
+    """)
+    long countByPostId(@Param("postId") Long postId);
+
     @Modifying
     @Query("""
         UPDATE CommunityComment c

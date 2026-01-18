@@ -40,10 +40,14 @@ public record CommunityPostDetailsRes(
         @Schema(description = "좋아요 수", example = "10")
         int likeCount,
 
+        @Schema(description = "댓글 수", example = "3")
+        long commentCount,
+
         @Schema(description = "내가 좋아요를 눌렀는지 여부", example = "false")
         boolean likedByMe
 ) {
-    public static CommunityPostDetailsRes from(CommunityPost post, List<FileInfo> attachments, VideoCommunityPost video, boolean likedByMe) {
+    public static CommunityPostDetailsRes from(CommunityPost post, List<FileInfo> attachments, VideoCommunityPost video,
+                                               long commentCount, boolean likedByMe) {
         return new CommunityPostDetailsRes(
                 post.getId(),
                 CommunityUserRes.from(post.getUser()),
@@ -55,6 +59,7 @@ public record CommunityPostDetailsRes(
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 post.getLikeCount(),
+                commentCount,
                 likedByMe
         );
     }
