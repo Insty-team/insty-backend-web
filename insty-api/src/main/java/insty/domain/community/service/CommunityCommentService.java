@@ -63,7 +63,7 @@ public class CommunityCommentService {
         var likedCommentIds = communityCommentLikeManager.getLikedCommentIds(userId, commentIds);
 
         List<CommunityCommentRes> items = paged.stream()
-                .map(comment -> CommunityCommentRes.from(
+                .map(comment -> toCommunityCommentRes(
                         comment,
                         communityCommentFileReader.getCommentFileInfos(comment),
                         communityCommentVideoManager.getVideo(comment),
@@ -89,7 +89,7 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.saveCommentFiles(comment, attachments);
         VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
 
-        return CommunityCommentRes.from(comment, files, video,
+        return toCommunityCommentRes(comment, files, video,
                 communityCommentLikeManager.isLikedByUser(userId, comment.getId()));
     }
 
@@ -105,8 +105,16 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(updated, attachments, req.deleteFileIds());
         VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
-        return CommunityCommentRes.from(updated, files, video,
+        return toCommunityCommentRes(updated, files, video,
                 communityCommentLikeManager.isLikedByUser(userId, updated.getId()));
+
+    }
+
+    private CommunityCommentRes toCommunityCommentRes(CommunityComment comment,
+                                                      List<FileInfo> attachments,
+                                                      VideoCommunityComment video,
+                                                      boolean likedByMe) {
+        return CommunityCommentRes.from(comment, attachments, video, likedByMe);
     }
 
     public void deleteComment(Long userId, Long commentId) {
