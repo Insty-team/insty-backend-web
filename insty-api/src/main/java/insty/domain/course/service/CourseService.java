@@ -161,10 +161,15 @@ public class CourseService {
         List<Long> courseIds = searchInfo.stream()
                 .map(CourseProgressSearchInfo::courseId)
                 .toList();
-        Map<Long, Long> countByCourseIds = courseQuestionReader.getCountByCourseIds(courseIds);
-
-        List<CourseProgressSearchInfo> finalResult = searchInfo.stream()
-                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto, countByCourseIds.getOrDefault(dto.courseId(), 0L)))
+        Map<Long, Long> courseQuestionCountByCourseIds = courseQuestionReader.getCountByCourseIds(courseIds);
+        List<CourseProgressSearchInfo> withCommentCounts = searchInfo.stream()
+                .map(dto -> CourseProgressSearchInfo.withCommentCount(dto,
+                        courseQuestionCountByCourseIds.getOrDefault(dto.courseId(), 0L)))
+                .toList();
+        Map<Long, Long> communityPostCountByCourseIds = communityPostReader.getCountByCourseIds(courseIds);
+        List<CourseProgressSearchInfo> finalResult = withCommentCounts.stream()
+                .map(dto -> CourseProgressSearchInfo.withCommunityPostCount(dto,
+                        communityPostCountByCourseIds.getOrDefault(dto.courseId(), 0L)))
                 .toList();
         PaginationRes paginationRes = courseComplexReader.countCourseProgresses(paginationReq,userId);
 

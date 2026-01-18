@@ -276,7 +276,8 @@ class CourseComplexReaderTest {
         Long userId = 1L;
 
         //mock
-        CourseProgressSearchInfo searchInfo = new CourseProgressSearchInfo(1L, "집에 빨리 가는법", 5L, null, Instant.now());
+        CourseProgressSearchInfo searchInfo = new CourseProgressSearchInfo(1L, "집에 빨리 가는법", 5L, 0L, null,
+                Instant.now());
         when(courseQueryRepository.searchCourseProgresses(paginationReq, userId))
                 .thenReturn(List.of(searchInfo));
 

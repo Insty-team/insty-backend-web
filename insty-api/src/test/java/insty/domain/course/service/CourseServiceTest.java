@@ -556,6 +556,7 @@ class CourseServiceTest {
                 "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
         assertThat(items.get(0).title()).isEqualTo("파이썬 설치 강의");
         assertThat(items.get(0).commentCount()).isEqualTo(2);
+        assertThat(items.get(0).communityPostCount()).isEqualTo(0);
         assertThat(items.get(0).courseId()).isEqualTo(1);
 
     }
