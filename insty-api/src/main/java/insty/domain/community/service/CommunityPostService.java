@@ -48,7 +48,7 @@ public class CommunityPostService {
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityPostRes> searchPosts(Long courseId, CommunityPostSearchReq req) {
+    public SearchRes<CommunityPostRes> searchPosts(Long userId, Long courseId, CommunityPostSearchReq req) {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommunityPost> page = communityPostReader.findPosts(courseId, pageRequest);
@@ -63,11 +63,13 @@ public class CommunityPostService {
                         Map.Entry::getKey,
                         entry -> VideoInfo.of(entry.getValue())
                 ));
+        var likedPostIds = communityPostLikeManager.getLikedPostIds(userId, postIds);
         List<CommunityPostRes> items = posts.stream()
                 .map(post -> CommunityPostRes.from(
                         post,
                         attachments.getOrDefault(post.getId(), List.of()),
-                        videoInfoByPostId.get(post.getId())
+                        videoInfoByPostId.get(post.getId()),
+                        likedPostIds.contains(post.getId())
                 ))
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());

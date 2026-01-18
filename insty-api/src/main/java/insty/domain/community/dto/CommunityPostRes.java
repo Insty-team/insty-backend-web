@@ -37,11 +37,14 @@ public record CommunityPostRes(
         Instant updatedAt,
 
         @Schema(description = "좋아요 수", example = "10")
-        int likeCount
+        int likeCount,
+
+        @Schema(description = "내가 좋아요를 눌렀는지 여부", example = "false")
+        boolean likedByMe
 ) {
 
     public static CommunityPostRes from(CommunityPost post, List<FileInfo> attachments,
-                                        VideoInfo videoInfo) {
+                                        VideoInfo videoInfo, boolean likedByMe) {
         return new CommunityPostRes(
                 post.getId(),
                 CommunityUserRes.from(post.getUser()),
@@ -52,7 +55,8 @@ public record CommunityPostRes(
                 videoInfo,
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                post.getLikeCount()
+                post.getLikeCount(),
+                likedByMe
         );
     }
 }
