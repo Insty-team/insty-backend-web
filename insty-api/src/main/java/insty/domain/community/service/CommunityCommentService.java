@@ -63,7 +63,7 @@ public class CommunityCommentService {
         var likedCommentIds = communityCommentLikeManager.getLikedCommentIds(userId, commentIds);
 
         List<CommunityCommentRes> items = paged.stream()
-                .map(comment -> toCommunityCommentRes(
+                .map(comment -> CommunityCommentRes.from(
                         comment,
                         communityCommentFileReader.getCommentFileInfos(comment),
                         communityCommentVideoManager.getVideo(comment),
@@ -90,7 +90,7 @@ public class CommunityCommentService {
         VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
 
         boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, comment.getId());
-        return toCommunityCommentRes(comment, files, video, likedByMe);
+        return CommunityCommentRes.from(comment, files, video, likedByMe);
     }
 
     public CommunityCommentRes updateComment(Long userId, Long commentId, CommunityCommentUpdateReq req, List<MultipartFile> attachments) {
@@ -106,15 +106,7 @@ public class CommunityCommentService {
         VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
         boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, updated.getId());
-        return toCommunityCommentRes(updated, files, video, likedByMe);
-
-    }
-
-    private CommunityCommentRes toCommunityCommentRes(CommunityComment comment,
-                                                      List<FileInfo> attachments,
-                                                      VideoCommunityComment video,
-                                                      boolean likedByMe) {
-        return CommunityCommentRes.from(comment, attachments, video, likedByMe);
+        return CommunityCommentRes.from(updated, files, video, likedByMe);
     }
 
     public void deleteComment(Long userId, Long commentId) {
