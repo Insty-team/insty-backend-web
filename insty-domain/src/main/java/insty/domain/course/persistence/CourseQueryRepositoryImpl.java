@@ -99,6 +99,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.price,
                         course.viewCount,
                         courseQuestion.count(),
+                        Expressions.constant(0L),
                         Expressions.nullExpression(List.class),
                         Expressions.nullExpression(String.class),
                         course.isShow,
