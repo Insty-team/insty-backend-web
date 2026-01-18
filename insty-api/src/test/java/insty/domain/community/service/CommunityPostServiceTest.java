@@ -21,6 +21,7 @@ import insty.domain.community.dto.CommunityPostUpdateReq;
 import insty.domain.community.implement.CommunityPostFileReader;
 import insty.domain.community.implement.CommunityPostFileWriter;
 import insty.domain.community.implement.CommunityPostReader;
+import insty.domain.community.implement.CommunityCommentReader;
 import insty.domain.community.implement.CommunityPostLikeManager;
 import insty.domain.community.implement.CommunityPostVideoManager;
 import insty.domain.community.implement.CommunityPostWriter;
@@ -64,6 +65,8 @@ class CommunityPostServiceTest {
     @Mock
     private CommunityPostLikeManager communityPostLikeManager;
     @Mock
+    private CommunityCommentReader communityCommentReader;
+    @Mock
     private CommunityValidator communityValidator;
     @Mock
     private UserReader userReader;
@@ -86,6 +89,8 @@ class CommunityPostServiceTest {
                 .thenReturn(Map.of(post.getId(), attachments));
         when(communityPostVideoManager.getVideosByPostIds(List.of(post.getId())))
                 .thenReturn(Map.of(post.getId(), video));
+        when(communityCommentReader.countByPostIds(List.of(post.getId())))
+                .thenReturn(Map.of(post.getId(), 2L));
         when(communityPostLikeManager.getLikedPostIds(eq(userId), eq(List.of(post.getId())))).thenReturn(Set.of());
 
         // when
@@ -107,6 +112,8 @@ class CommunityPostServiceTest {
         Long courseId = post.getCourse().getId();
         Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
         when(communityPostReader.findPosts(eq(courseId), any(PageRequest.class))).thenReturn(page);
+        when(communityCommentReader.countByPostIds(List.of(post.getId())))
+                .thenReturn(Map.of(post.getId(), 0L));
         when(communityPostLikeManager.getLikedPostIds(eq(userId), eq(List.of(post.getId())))).thenReturn(Set.of(post.getId()));
 
         SearchRes<CommunityPostRes> result = communityPostService.searchPosts(userId, courseId, new CommunityPostSearchReq(1, 10));
@@ -128,6 +135,7 @@ class CommunityPostServiceTest {
         when(communityPostReader.getPostWithAttachments(post.getId())).thenReturn(post);
         when(communityPostFileReader.getPostFileInfos(post)).thenReturn(files);
         when(communityPostVideoManager.getVideo(post)).thenReturn(video);
+        when(communityCommentReader.countByPostId(post.getId())).thenReturn(3L);
         // when
         CommunityPostDetailsRes res = communityPostService.getPostDetails(userId, post.getCourse().getId(), post.getId());
 
@@ -145,6 +153,7 @@ class CommunityPostServiceTest {
         when(communityPostReader.getPostWithAttachments(post.getId())).thenReturn(post);
         when(communityPostFileReader.getPostFileInfos(post)).thenReturn(List.of());
         when(communityPostVideoManager.getVideo(post)).thenReturn(null);
+        when(communityCommentReader.countByPostId(post.getId())).thenReturn(0L);
         when(communityPostLikeManager.isLikedByUser(userId, post.getId())).thenReturn(true);
 
         CommunityPostDetailsRes res = communityPostService.getPostDetails(userId, post.getCourse().getId(), post.getId());
@@ -220,6 +229,7 @@ class CommunityPostServiceTest {
         });
         when(communityPostFileWriter.updatePostFiles(post, addFiles, req.deleteFileIds())).thenReturn(fileInfos);
         when(communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid())).thenReturn(null);
+        when(communityCommentReader.countByPostId(post.getId())).thenReturn(1L);
         when(communityPostLikeManager.isLikedByUser(userId, post.getId())).thenReturn(false);
 
         // when
