@@ -21,4 +21,12 @@ public interface CommunityPostFileRepository extends JpaRepository<CommunityPost
     @Modifying
     @Query("DELETE FROM CommunityPostFile cpf WHERE cpf.communityPost.id = :postId")
     void deleteAllByPostId(@Param("postId") Long postId);
+
+    @Query("""
+        SELECT cpf FROM CommunityPostFile cpf
+        JOIN FETCH cpf.file f
+        WHERE cpf.communityPost.id IN :postIds
+          AND cpf.communityPost.isDeleted = false
+    """)
+    List<CommunityPostFile> findAllWithFileByPostIds(@Param("postIds") List<Long> postIds);
 }

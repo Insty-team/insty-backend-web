@@ -2,6 +2,7 @@ package insty.domain.community.service;
 
 import insty.domain.common.FileInfo;
 import insty.domain.common.SearchRes;
+import insty.domain.common.VideoInfo;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.community.dto.CommunityPostCreateReq;
 import insty.domain.community.dto.CommunityPostDetailsRes;
@@ -23,6 +24,8 @@ import insty.model.community.CommunityPost;
 import insty.model.user.User;
 import insty.model.video.VideoCommunityPost;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,8 +52,23 @@ public class CommunityPostService {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommunityPost> page = communityPostReader.findPosts(courseId, pageRequest);
-        List<CommunityPostRes> items = page.getContent().stream()
-                .map(CommunityPostRes::from)
+        List<CommunityPost> posts = page.getContent();
+        List<Long> postIds = posts.stream()
+                .map(CommunityPost::getId)
+                .toList();
+        Map<Long, List<FileInfo>> attachments = communityPostFileReader.getPostFileInfos(postIds);
+        Map<Long, VideoInfo> videoInfoByPostId = communityPostVideoManager.getVideosByPostIds(postIds)
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> VideoInfo.of(entry.getValue())
+                ));
+        List<CommunityPostRes> items = posts.stream()
+                .map(post -> CommunityPostRes.from(
+                        post,
+                        attachments.getOrDefault(post.getId(), List.of()),
+                        videoInfoByPostId.get(post.getId())
+                ))
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(paginationRes, items);
