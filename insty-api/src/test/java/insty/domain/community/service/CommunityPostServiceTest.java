@@ -15,6 +15,7 @@ import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
 import insty.domain.community.dto.CommunityPostCreateReq;
 import insty.domain.community.dto.CommunityPostDetailsRes;
+import insty.domain.community.dto.CommunityPostRes;
 import insty.domain.community.dto.CommunityPostSearchReq;
 import insty.domain.community.dto.CommunityPostUpdateReq;
 import insty.domain.community.implement.CommunityPostFileReader;
@@ -31,6 +32,8 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.video.VideoCommunityPost;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -71,17 +74,46 @@ class CommunityPostServiceTest {
     @Test
     void searchPosts_페이지네이션_정상() {
         // given
+        Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         Long courseId = post.getCourse().getId();
         Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
         when(communityPostReader.findPosts(eq(courseId), any(PageRequest.class))).thenReturn(page);
+        List<FileInfo> attachments = List.of(new FileInfo(1L, "image.png", "image/png", 100, "url"));
+        VideoCommunityPost video = VideoCommunityPost.create("video.mp4", UUID.randomUUID(),
+                UserFixtureBuilder.getUserWithId());
+        when(communityPostFileReader.getPostFileInfos(List.of(post.getId())))
+                .thenReturn(Map.of(post.getId(), attachments));
+        when(communityPostVideoManager.getVideosByPostIds(List.of(post.getId())))
+                .thenReturn(Map.of(post.getId(), video));
+        when(communityPostLikeManager.getLikedPostIds(eq(userId), eq(List.of(post.getId())))).thenReturn(Set.of());
 
         // when
-        SearchRes<?> result = communityPostService.searchPosts(courseId, new CommunityPostSearchReq(1, 10));
+        SearchRes<?> result = communityPostService.searchPosts(userId, courseId, new CommunityPostSearchReq(1, 10));
 
         // then
         assertThat(result.pagination()).isEqualTo(PaginationRes.of(1, 1, 10));
         assertThat(result.items()).hasSize(1);
+        CommunityPostRes resItem = (CommunityPostRes) result.items().get(0);
+        assertThat(resItem.attachments()).isEqualTo(attachments);
+        assertThat(resItem.videoInfo()).isNotNull();
+        assertThat(resItem.likedByMe()).isFalse();
+    }
+
+    @Test
+    void searchPosts_likedByMe_포함() {
+        Long userId = 1L;
+        CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
+        Long courseId = post.getCourse().getId();
+        Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 10), 1);
+        when(communityPostReader.findPosts(eq(courseId), any(PageRequest.class))).thenReturn(page);
+        when(communityPostLikeManager.getLikedPostIds(eq(userId), eq(List.of(post.getId())))).thenReturn(Set.of(post.getId()));
+
+        SearchRes<CommunityPostRes> result = communityPostService.searchPosts(userId, courseId, new CommunityPostSearchReq(1, 10));
+
+        assertThat(result.items()).hasSize(1);
+        assertThat(result.items().get(0).likedByMe()).isTrue();
+        assertThat(result.items().get(0).likeCount()).isEqualTo(post.getLikeCount());
     }
 
     @Test

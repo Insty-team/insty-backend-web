@@ -8,11 +8,15 @@ import insty.exception.CustomException;
 import insty.model.community.CommunityPost;
 import insty.model.video.VideoCommunityPost;
 import insty.model.video.VideoEncoding;
+import insty.s3.adapter.S3FileManager;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import insty.s3.adapter.S3FileManager;
 
 @Component
 @RequiredArgsConstructor
@@ -57,6 +61,19 @@ public class CommunityPostVideoManager {
     public VideoCommunityPost getVideo(CommunityPost post) {
         return videoCommunityPostRepository.findByCommunityPostIdAndIsDeleted(post.getId(), false)
                 .orElse(null);
+    }
+
+    public Map<Long, VideoCommunityPost> getVideosByPostIds(List<Long> postIds) {
+        if (postIds == null || postIds.isEmpty()) {
+            return Map.of();
+        }
+        return videoCommunityPostRepository.findAllByCommunityPostIdInAndIsDeletedFalse(postIds).stream()
+                .filter(video -> video.getCommunityPost() != null)
+                .collect(Collectors.toMap(
+                        video -> video.getCommunityPost().getId(),
+                        Function.identity(),
+                        (existing, duplicate) -> existing
+                ));
     }
 
     public void deleteVideo(CommunityPost post) {

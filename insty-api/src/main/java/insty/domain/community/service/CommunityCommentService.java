@@ -48,7 +48,7 @@ public class CommunityCommentService {
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
 
-    public SearchRes<CommunityCommentRes> getComments(Long courseId, Long postId, CommunityCommentSearchReq req) {
+    public SearchRes<CommunityCommentRes> getComments(Long userId, Long courseId, Long postId, CommunityCommentSearchReq req) {
         CommunityPost post = communityPostReader.getPost(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         List<CommunityComment> comments = communityCommentReader.getCommentsByPostId(post.getId());
@@ -57,12 +57,17 @@ public class CommunityCommentService {
         int start = (int) pageRequest.getOffset();
         int end = Math.min((start + pageRequest.getPageSize()), comments.size());
         List<CommunityComment> paged = comments.subList(Math.min(start, comments.size()), end);
+        List<Long> commentIds = paged.stream()
+                .map(CommunityComment::getId)
+                .toList();
+        var likedCommentIds = communityCommentLikeManager.getLikedCommentIds(userId, commentIds);
 
         List<CommunityCommentRes> items = paged.stream()
                 .map(comment -> CommunityCommentRes.from(
                         comment,
                         communityCommentFileReader.getCommentFileInfos(comment),
-                        communityCommentVideoManager.getVideo(comment)
+                        communityCommentVideoManager.getVideo(comment),
+                        likedCommentIds.contains(comment.getId())
                 ))
                 .toList();
 
@@ -84,7 +89,8 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.saveCommentFiles(comment, attachments);
         VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
 
-        return CommunityCommentRes.from(comment, files, video);
+        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, comment.getId());
+        return CommunityCommentRes.from(comment, files, video, likedByMe);
     }
 
     public CommunityCommentRes updateComment(Long userId, Long commentId, CommunityCommentUpdateReq req, List<MultipartFile> attachments) {
@@ -99,7 +105,8 @@ public class CommunityCommentService {
         List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(updated, attachments, req.deleteFileIds());
         VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
-        return CommunityCommentRes.from(updated, files, video);
+        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, updated.getId());
+        return CommunityCommentRes.from(updated, files, video, likedByMe);
     }
 
     public void deleteComment(Long userId, Long commentId) {

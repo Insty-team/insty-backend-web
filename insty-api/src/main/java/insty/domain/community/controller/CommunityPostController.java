@@ -42,10 +42,11 @@ public class CommunityPostController {
 
     @GetMapping("/courses/{courseId}/posts")
     public SuccessRes<SearchRes<CommunityPostRes>> searchPosts(
+            @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
             @ModelAttribute @Valid CommunityPostSearchReq req
     ) {
-        return SuccessRes.of(communityPostService.searchPosts(courseId, req));
+        return SuccessRes.of(communityPostService.searchPosts(userId, courseId, req));
     }
 
     @GetMapping("/courses/{courseId}/posts/{postId}")

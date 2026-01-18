@@ -152,6 +152,7 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                         course.id,
                         course.title,
                         Expressions.nullExpression(Long.class),
+                        Expressions.constant(0L),
                         Expressions.nullExpression(String.class),
                         courseProgress.createdAt
                 ))
