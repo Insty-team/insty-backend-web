@@ -6,6 +6,8 @@ import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
+import insty.domain.community.repository.CommunityPostCountProjection;
+import insty.domain.community.repository.CommunityPostRepository;
 import insty.domain.course.repository.CourseQueryRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.global.property.AppProperties;
@@ -28,6 +30,7 @@ public class CourseComplexReader {
 
     private final CourseRepository courseRepository;
     private final CourseQueryRepository courseQueryRepository;
+    private final CommunityPostRepository communityPostRepository;
 
     private final AppProperties appProperties;
 
@@ -60,12 +63,23 @@ public class CourseComplexReader {
                 .toList();
         Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
         Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
+        Map<Long, Long> communityPostCounts = courseIds.isEmpty()
+                ? Map.of()
+                : communityPostRepository.countByCourseIds(courseIds).stream()
+                        .collect(Collectors.toMap(
+                                CommunityPostCountProjection::getCourseId,
+                                CommunityPostCountProjection::getCount
+                        ));
 
         return courses.stream()
                 .map(dto -> CourseMySearchInfo.assembly(
                         dto,
                         courseTags.get(dto.courseId()),
                         thumbnailUrls.get(dto.courseId())
+                ))
+                .map(dto -> CourseMySearchInfo.withCommunityPostCount(
+                        dto,
+                        communityPostCounts.getOrDefault(dto.courseId(), 0L)
                 ))
                 .toList();
     }

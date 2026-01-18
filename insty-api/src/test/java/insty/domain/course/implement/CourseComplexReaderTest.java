@@ -11,6 +11,8 @@ import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
 import insty.domain.course.dto.CourseSearchInfo;
+import insty.domain.community.repository.CommunityPostCountProjection;
+import insty.domain.community.repository.CommunityPostRepository;
 import insty.domain.course.repository.CourseQueryRepository;
 import insty.domain.course.repository.CourseRepository;
 import insty.global.property.AppProperties;
@@ -41,6 +43,8 @@ class CourseComplexReaderTest {
     private CourseRepository courseRepository;
     @Mock
     private CourseQueryRepository courseQueryRepository;
+    @Mock
+    private CommunityPostRepository communityPostRepository;
     @Mock
     private AppProperties appProperties;
 
@@ -111,21 +115,36 @@ class CourseComplexReaderTest {
                     Boolean isShow = invocation.getArgument(2);
 
                     if (Boolean.TRUE.equals(isShow)) {
-                        return List.of(new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L,
+                        return List.of(new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, 0L,
                                 null, null, true, Instant.now()));
                     } else if (Boolean.FALSE.equals(isShow)) {
-                        return List.of(new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L,
+                        return List.of(new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L, 0L,
                                 null, null, false, Instant.now()));
                     } else { // isShow == null
                         return List.of(
-                                new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, null, null, true, Instant.now()),
-                                new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L, null, null, false, Instant.now())
+                                new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, 0L, null, null, true,
+                                        Instant.now()),
+                                new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L, 0L, null, null, false,
+                                        Instant.now())
                         );
                     }
                 });
         Map<Long, List<String>> courseTag = Map.of(1L, List.of("태그1", "태그2"));
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
+        CommunityPostCountProjection postCountProjection = new CommunityPostCountProjection() {
+            @Override
+            public Long getCourseId() {
+                return 1L;
+            }
+
+            @Override
+            public Long getCount() {
+                return 2L;
+            }
+        };
+        when(communityPostRepository.countByCourseIds(any()))
+                .thenReturn(List.of(postCountProjection));
         // getCourseThumbnailUrlMap 테스트 세팅
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
@@ -226,12 +245,12 @@ class CourseComplexReaderTest {
     @Test
     void setBasicThumbnailUrlForMy_정상() {
         // given
-        CourseMySearchInfo searchInfo1 = new CourseMySearchInfo(1L, "사용자가 썸네일을 업로드한 강의", 1000, 1, 5L, null,
+        CourseMySearchInfo searchInfo1 = new CourseMySearchInfo(1L, "사용자가 썸네일을 업로드한 강의", 1000, 1, 5L, 0L, null,
                 "업로드된 썸네일 url", true, Instant.now());
         CourseMySearchInfo searchInfo2 = new CourseMySearchInfo(2L, "사용자가 썸네일을 업로드하지 않아 기본썸네일이 제공되는 강의", 1000, 1, 5L,
-                null, null, true, Instant.now());
-        CourseMySearchInfo searchInfo3 = new CourseMySearchInfo(3L, "연결된 영상이 없는 강의", 1000, 1, 5L, null, null, true,
-                Instant.now());
+                0L, null, null, true, Instant.now());
+        CourseMySearchInfo searchInfo3 = new CourseMySearchInfo(3L, "연결된 영상이 없는 강의", 1000, 1, 5L, 0L, null, null,
+                true, Instant.now());
         List<CourseMySearchInfo> searchInfo = List.of(searchInfo1, searchInfo2, searchInfo3);
 
         // mock
