@@ -67,6 +67,23 @@ public class CourseController {
         return SuccessRes.of(null);
     }
 
+    @Deprecated(since = "2026-01-01", forRemoval = true)
+    @Operation(
+            summary = "강의 상세조회(크리에이터용) - 제거 예정",
+            description = "/api/v1/courses/{courseId}와 동일하며 곧 제거될 예정입니다. "
+                    + "대체 엔드포인트 사용을 권장합니다.",
+            deprecated = true
+    )
+    @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
+    @GetMapping("/creator/{courseId}")
+    public SuccessRes<CourseDetailRes> courseDetailFromCreator(
+            @CurrentUser Long userId,
+            @PathVariable("courseId") Long courseId
+    ) {
+        CourseViewContext viewContext = CourseViewContext.of(userId);
+        return SuccessRes.of(courseService.detailCourse(courseId, viewContext));
+    }
+
     @Operation(summary = "강의 상세조회", description = "강의를 상세조회한다.")
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_DETAIL)
     @GetMapping("/{courseId}")
