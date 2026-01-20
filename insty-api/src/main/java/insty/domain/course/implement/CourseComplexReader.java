@@ -2,6 +2,7 @@ package insty.domain.course.implement;
 
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.course.dto.CourseMySearchFilter;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
@@ -55,12 +56,17 @@ public class CourseComplexReader {
         return courseQueryRepository.countSearchCourses(paginationReq, filter);
     }
 
-    public List<CourseMySearchInfo> searchMyCourse(PaginationReq paginationReq, Long userId, Boolean isShow) {
-        List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId, isShow);
+    public List<CourseMySearchInfo> searchMyCourse(
+            PaginationReq paginationReq,
+            Long userId,
+            CourseMySearchFilter filter
+    ) {
+        List<CourseMySearchInfo> courses = courseQueryRepository.searchMyCourses(paginationReq, userId, filter);
 
         List<Long> courseIds = courses.stream()
                 .map(CourseMySearchInfo::courseId)
                 .toList();
+
         Map<Long, List<String>> courseTags = courseQueryRepository.getCourseTags(courseIds);
         Map<Long, String> thumbnailUrls = getCourseThumbnailUrlMap(courseIds);
         Map<Long, Long> communityPostCounts = courseIds.isEmpty()
@@ -84,8 +90,12 @@ public class CourseComplexReader {
                 .toList();
     }
 
-    public PaginationRes countSearchMyCourse(PaginationReq paginationReq, Long userId, Boolean isShow) {
-        return courseQueryRepository.countSearchMyCourses(paginationReq, userId, isShow);
+    public PaginationRes countSearchMyCourse(
+            PaginationReq paginationReq,
+            Long userId,
+            CourseMySearchFilter filter
+    ) {
+        return courseQueryRepository.countSearchMyCourses(paginationReq, userId, filter);
     }
 
     /**

@@ -2,6 +2,7 @@ package insty.domain.course.repository;
 
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.course.dto.CourseMySearchFilter;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
@@ -18,9 +19,17 @@ public interface CourseQueryRepository {
 
     Map<Long, List<String>> getCourseTags(List<Long> courseIds);
 
-    List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow);
+    List<CourseMySearchInfo> searchMyCourses(
+            PaginationReq paginationReq,
+            Long userId,
+            CourseMySearchFilter filter
+    );
 
-    PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow);
+    PaginationRes countSearchMyCourses(
+            PaginationReq paginationReq,
+            Long userId,
+            CourseMySearchFilter filter
+    );
 
     Map<Long, UUID> getCourseVideoUuids(List<Long> courseIds);
 

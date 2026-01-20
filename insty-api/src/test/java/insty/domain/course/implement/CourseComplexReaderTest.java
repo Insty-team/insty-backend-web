@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import insty.domain.common.dto.CreatorInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
+import insty.domain.course.dto.CourseMyCourseSortType;
+import insty.domain.course.dto.CourseMySearchFilter;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
@@ -112,7 +114,9 @@ class CourseComplexReaderTest {
                 .thenAnswer(invocation -> {
                     PaginationReq req = invocation.getArgument(0);
                     Long uid = invocation.getArgument(1);
-                    Boolean isShow = invocation.getArgument(2);
+                    CourseMySearchFilter filter = invocation.getArgument(2);
+
+                    Boolean isShow = filter == null ? null : filter.isShow();
 
                     if (Boolean.TRUE.equals(isShow)) {
                         return List.of(new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, 0L,
@@ -122,16 +126,16 @@ class CourseComplexReaderTest {
                                 null, null, false, Instant.now()));
                     } else { // isShow == null
                         return List.of(
-                                new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, 0L, null, null, true,
-                                        Instant.now()),
-                                new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L, 0L, null, null, false,
-                                        Instant.now())
+                                new CourseMySearchInfo(1L, "파이썬 강의", 1000, 1, 5L, 0L, null, null, true, Instant.now()),
+                                new CourseMySearchInfo(2L, "자바 강의", 2000, 2, 3L, 0L, null, null, false, Instant.now())
                         );
                     }
                 });
+
         Map<Long, List<String>> courseTag = Map.of(1L, List.of("태그1", "태그2"));
         when(courseQueryRepository.getCourseTags(any()))
                 .thenReturn(courseTag);
+
         CommunityPostCountProjection postCountProjection = new CommunityPostCountProjection() {
             @Override
             public Long getCourseId() {
@@ -145,6 +149,7 @@ class CourseComplexReaderTest {
         };
         when(communityPostRepository.countByCourseIds(any()))
                 .thenReturn(List.of(postCountProjection));
+
         // getCourseThumbnailUrlMap 테스트 세팅
         Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
         File thumbnail = FileFixtureBuilder.getCourseThumbnailWithId();
@@ -155,27 +160,29 @@ class CourseComplexReaderTest {
                 .thenReturn("insty.test.com");
 
         // when & then: isShow = true
-        List<CourseMySearchInfo> resTrue = courseComplexReader.searchMyCourse(paginationReq, userId, true);
+        CourseMySearchFilter filterTrue = new CourseMySearchFilter(null, true, CourseMyCourseSortType.LATEST);
+        List<CourseMySearchInfo> resTrue = courseComplexReader.searchMyCourse(paginationReq, userId, filterTrue);
         assertThat(resTrue).hasSize(1);
         assertThat(resTrue.get(0).title()).isEqualTo("파이썬 강의");
         assertThat(resTrue.get(0).tags()).containsExactlyInAnyOrder("태그1", "태그2");
         assertThat(resTrue.get(0).isShow()).isTrue();
         assertThat(resTrue.get(0).thumbnailUrl()).isEqualTo(
-                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg");
+                "https://insty.test.com/file/COURSE_THUMBNAIL/1/00000000-0000-0000-0000-000000000001.jpg"
+        );
 
         // when & then: isShow = false
-        List<CourseMySearchInfo> resFalse = courseComplexReader.searchMyCourse(paginationReq, userId, false);
+        CourseMySearchFilter filterFalse = new CourseMySearchFilter(null, false, CourseMyCourseSortType.LATEST);
+        List<CourseMySearchInfo> resFalse = courseComplexReader.searchMyCourse(paginationReq, userId, filterFalse);
         assertThat(resFalse).hasSize(1);
         assertThat(resFalse.get(0).title()).isEqualTo("자바 강의");
         assertThat(resFalse.get(0).isShow()).isFalse();
 
-
         // when & then: isShow = null
-        List<CourseMySearchInfo> resNull = courseComplexReader.searchMyCourse(paginationReq, userId, null);
+        CourseMySearchFilter filterNull = new CourseMySearchFilter(null, null, CourseMyCourseSortType.LATEST);
+        List<CourseMySearchInfo> resNull = courseComplexReader.searchMyCourse(paginationReq, userId, filterNull);
         assertThat(resNull).hasSize(2);
         assertThat(resNull).extracting(CourseMySearchInfo::title)
                 .containsExactlyInAnyOrder("파이썬 강의", "자바 강의");
-
     }
 
     @Test
@@ -189,27 +196,30 @@ class CourseComplexReaderTest {
                 .thenAnswer(invocation -> {
                     PaginationReq req = invocation.getArgument(0);
                     Long uid = invocation.getArgument(1);
-                    Boolean isShow = invocation.getArgument(2);
+                    CourseMySearchFilter filter = invocation.getArgument(2);
+
+                    Boolean isShow = filter == null ? null : filter.isShow();
 
                     if (Boolean.TRUE.equals(isShow)) {
                         return new PaginationRes(1, 1, 1, 10);
                     } else if (Boolean.FALSE.equals(isShow)) {
                         return new PaginationRes(1, 1, 1, 10);
-                    } else { // isShow == null
+                    } else {
                         return new PaginationRes(2, 1, 1, 10);
                     }
                 });
 
         // when && then : isShow = true
-        PaginationRes resTrue = courseComplexReader.countSearchMyCourse(paginationReq, userId, true);
+        CourseMySearchFilter filterTrue = new CourseMySearchFilter(null, true, CourseMyCourseSortType.LATEST);
+        PaginationRes resTrue = courseComplexReader.countSearchMyCourse(paginationReq, userId, filterTrue);
         assertThat(resTrue).isNotNull();
         assertThat(resTrue.totalItems()).isEqualTo(1);
 
         // when && then : isShow = null
-        PaginationRes resNull = courseComplexReader.countSearchMyCourse(paginationReq, userId, null);
+        CourseMySearchFilter filterNull = new CourseMySearchFilter(null, null, CourseMyCourseSortType.LATEST);
+        PaginationRes resNull = courseComplexReader.countSearchMyCourse(paginationReq, userId, filterNull);
         assertThat(resNull).isNotNull();
         assertThat(resNull.totalItems()).isEqualTo(2);
-
     }
 
     @Test
