@@ -469,9 +469,9 @@ class CourseServiceTest {
         Long userId = 1L;
         int page = 1;
         int pageSize = 10;
-        CourseMySearchReq reqTrue = new CourseMySearchReq(page, pageSize, true);
-        CourseMySearchReq reqFalse = new CourseMySearchReq(page, pageSize, false);
-        CourseMySearchReq reqNull = new CourseMySearchReq(page, pageSize, null);
+        CourseMySearchReq reqTrue = new CourseMySearchReq(page, pageSize, Boolean.TRUE, null, null);
+        CourseMySearchReq reqFalse = new CourseMySearchReq(page, pageSize, Boolean.FALSE, null, null);
+        CourseMySearchReq reqNull = new CourseMySearchReq(page, pageSize, null, null, null);
         // mock
         when(appProperties.getDomain())
                 .thenReturn("insty.test.com");

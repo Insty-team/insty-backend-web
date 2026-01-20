@@ -143,10 +143,12 @@ public class CourseService {
 
     public SearchRes<CourseMySearchInfo> searchMyCourse(Long userId, CourseMySearchReq req) {
         PaginationReq paginationReq = req.toPaginationReq();
+        CourseMySearchFilter filter = req.toCourseMySearchFilter();
 
-        List<CourseMySearchInfo> searchInfo = courseComplexReader.searchMyCourse(paginationReq, userId, req.isShow());
+        List<CourseMySearchInfo> searchInfo = courseComplexReader.searchMyCourse(paginationReq, userId, filter);
         searchInfo = courseComplexReader.setBasicThumbnailUrlForMy(searchInfo);
-        PaginationRes paginationRes = courseComplexReader.countSearchMyCourse(paginationReq, userId , req.isShow());
+
+        PaginationRes paginationRes = courseComplexReader.countSearchMyCourse(paginationReq, userId, filter);
 
         return SearchRes.from(paginationRes, searchInfo);
     }

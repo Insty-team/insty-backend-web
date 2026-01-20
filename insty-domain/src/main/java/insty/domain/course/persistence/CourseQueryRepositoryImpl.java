@@ -16,6 +16,8 @@ import insty.domain.common.dto.CreatorInfo;
 import insty.domain.common.dto.PaginationReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.domain.common.repository.QuerydslRepositorySupport;
+import insty.domain.course.dto.CourseMyCourseSortType;
+import insty.domain.course.dto.CourseMySearchFilter;
 import insty.domain.course.dto.CourseMySearchInfo;
 import insty.domain.course.dto.CourseProgressSearchInfo;
 import insty.domain.course.dto.CourseSearchFilter;
@@ -90,7 +92,11 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
     }
 
     @Override
-    public List<CourseMySearchInfo> searchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow) {
+    public List<CourseMySearchInfo> searchMyCourses(
+            PaginationReq paginationReq,
+            Long userId,
+            CourseMySearchFilter filter
+    ) {
         return select(
                 Projections.constructor(
                         CourseMySearchInfo.class,
@@ -107,30 +113,36 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
                 )
         )
                 .from(course)
-                .join(user).on(user.id.eq(course.user.id)
-                        .and(user.id.eq(userId)))
+                .join(user).on(user.id.eq(course.user.id).and(user.id.eq(userId)))
                 .leftJoin(courseQuestion).on(courseQuestion.course.id.eq(course.id))
-                .where(searchIsShow(isShow))
+                .where(
+                        searchIsShow(filter.isShow()),
+                        searchMyCourseTitle(filter.getTitleOrNullIfBlank())
+                )
                 .groupBy(course.id)
-                .orderBy(createOrderSpecifier(null))
+                .orderBy(resolveMyCourseOrderSpecifier(filter.getSortType()))
                 .offset(paginationReq.getOffset())
                 .limit(paginationReq.pageSize())
                 .fetch();
     }
 
     @Override
-    public PaginationRes countSearchMyCourses(PaginationReq paginationReq, Long userId, Boolean isShow) {
+    public PaginationRes countSearchMyCourses(
+            PaginationReq paginationReq,
+            Long userId,
+            CourseMySearchFilter filter
+    ) {
         Long totalItems = select(course.count())
                 .from(course)
-                .join(user).on(user.id.eq(course.user.id)
-                        .and(user.id.eq(userId)))
-                .where(searchIsShow(isShow))
+                .join(user).on(user.id.eq(course.user.id).and(user.id.eq(userId)))
+                .where(
+                        searchIsShow(filter.isShow()),
+                        searchMyCourseTitle(filter.getTitleOrNullIfBlank())
+                )
                 .fetchOne();
 
-        if (totalItems == null) {
-            totalItems = 0L;
-        }
-        return PaginationRes.of(totalItems.intValue(), paginationReq.page(), paginationReq.pageSize());
+        int total = totalItems == null ? 0 : totalItems.intValue();
+        return PaginationRes.of(total, paginationReq.page(), paginationReq.pageSize());
     }
 
     @Override
@@ -197,5 +209,19 @@ public class CourseQueryRepositoryImpl extends QuerydslRepositorySupport impleme
             return null;
         }
         return course.title.contains(search);
+    }
+
+    private BooleanExpression searchMyCourseTitle(String title) {
+        if (title == null) {
+            return null;
+        }
+        return course.title.containsIgnoreCase(title);
+    }
+
+    private com.querydsl.core.types.OrderSpecifier<?> resolveMyCourseOrderSpecifier(CourseMyCourseSortType sortType) {
+        return switch (sortType) {
+            case LATEST -> course.createdAt.desc();
+            case VIEW_COUNT -> course.viewCount.desc();
+        };
     }
 }
