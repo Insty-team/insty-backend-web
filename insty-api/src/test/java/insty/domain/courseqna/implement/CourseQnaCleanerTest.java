@@ -32,6 +32,8 @@ class CourseQnaCleanerTest {
     @Mock
     private CourseAnswerRepository courseAnswerRepository;
     @Mock
+    private insty.domain.courseqna.repository.CourseQuestionViewRepository courseQuestionViewRepository;
+    @Mock
     private CourseQuestionFileWriter courseQuestionFileWriter;
     @Mock
     private CourseAnswerFileWriter courseAnswerFileWriter;
@@ -62,10 +64,10 @@ class CourseQnaCleanerTest {
 
         verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer2);
         verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer2);
-        verify(courseAnswerRepository, times(1)).delete(answer2);
+        verify(courseAnswerRepository, times(1)).save(answer2);
         verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer);
         verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer);
-        verify(courseAnswerRepository, times(1)).delete(answer);
+        verify(courseAnswerRepository, times(1)).save(answer);
         verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
         verify(courseQuestionRepository, times(1)).save(question);
@@ -86,7 +88,7 @@ class CourseQnaCleanerTest {
 
         verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer);
         verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer);
-        verify(courseAnswerRepository, times(1)).delete(answer);
+        verify(courseAnswerRepository, times(1)).save(answer);
         verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
         verify(courseQuestionRepository, times(1)).save(question);
@@ -122,13 +124,13 @@ class CourseQnaCleanerTest {
 
         verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer1);
         verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer1);
-        verify(courseAnswerRepository, times(1)).delete(answer1);
+        verify(courseAnswerRepository, times(1)).save(answer1);
         verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer2);
         verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer2);
-        verify(courseAnswerRepository, times(1)).delete(answer2);
+        verify(courseAnswerRepository, times(1)).save(answer2);
         verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
-        verify(courseQuestionRepository, times(1)).delete(question);
+        verify(courseQuestionRepository, times(1)).save(question);
     }
 
     @Test
@@ -168,7 +170,7 @@ class CourseQnaCleanerTest {
         assertThat(answer2.isAccepted()).isFalse();
         assertThat(answer3.isAccepted()).isFalse();
 
-        verify(courseAnswerRepository, times(3)).delete(org.mockito.ArgumentMatchers.any(CourseAnswer.class));
-        verify(courseQuestionRepository, times(2)).delete(org.mockito.ArgumentMatchers.any(CourseQuestion.class));
+        verify(courseAnswerRepository, times(3)).save(org.mockito.ArgumentMatchers.any(CourseAnswer.class));
+        verify(courseQuestionRepository, times(2)).save(org.mockito.ArgumentMatchers.any(CourseQuestion.class));
     }
 }

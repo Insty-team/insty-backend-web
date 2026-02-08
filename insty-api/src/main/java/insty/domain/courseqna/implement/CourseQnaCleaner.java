@@ -61,7 +61,8 @@ public class CourseQnaCleaner {
     private void deleteAnswer(CourseAnswer answer) {
         courseAnswerFileWriter.deleteAnswerFiles(answer);
         courseAnswerVideoManager.deleteAnswerVideo(answer);
-        courseAnswerRepository.delete(answer);
+        answer.markAsDeleted();
+        courseAnswerRepository.save(answer);
     }
 
     private void deleteQuestionOnly(CourseQuestion question) {

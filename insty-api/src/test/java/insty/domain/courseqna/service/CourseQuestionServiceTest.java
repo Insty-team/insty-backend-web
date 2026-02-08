@@ -68,6 +68,8 @@ class CourseQuestionServiceTest {
     @Autowired
     private CourseQuestionReader courseQuestionReader;
     @Autowired
+    private insty.domain.courseqna.repository.CourseQuestionRepository courseQuestionRepository;
+    @Autowired
     private CourseQuestionWriter courseQuestionWriter;
     @Autowired
     private CourseQuestionFileReader courseQuestionFileReader;
@@ -578,8 +580,8 @@ class CourseQuestionServiceTest {
 
         courseQuestionService.deleteQuestion(userId, questionId);
 
-        assertThatThrownBy(() -> courseQuestionReader.getCourseQuestionWithAnswerById(questionId)).isInstanceOf(
-                insty.exception.CustomException.class);
+        var deletedQuestion = courseQuestionRepository.findById(questionId).orElseThrow();
+        assertThat(deletedQuestion.isDeleted()).isTrue();
         assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(1L)).isInstanceOf(
                 insty.exception.CustomException.class);
         assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(2L)).isInstanceOf(
