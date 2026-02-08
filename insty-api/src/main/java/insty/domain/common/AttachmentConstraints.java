@@ -13,6 +13,11 @@ public final class AttachmentConstraints {
     public static final int MAX_COMMENT_FILE_COUNT = MAX_IMAGE_ATTACHMENTS;
     public static final int MAX_QNA_FILE_COUNT = MAX_IMAGE_ATTACHMENTS;
 
+    // Swagger 문구와 동기화를 위한 설명 상수
+    public static final String POST_ATTACHMENT_DESCRIPTION = "첨부파일 (최대 " + MAX_POST_FILE_COUNT + "개)";
+    public static final String COMMENT_ATTACHMENT_DESCRIPTION = "첨부파일 (최대 " + MAX_COMMENT_FILE_COUNT + "개)";
+    public static final String QNA_ATTACHMENT_DESCRIPTION = "첨부파일 (최대 " + MAX_QNA_FILE_COUNT + "개)";
+
     private AttachmentConstraints() {
     }
 }

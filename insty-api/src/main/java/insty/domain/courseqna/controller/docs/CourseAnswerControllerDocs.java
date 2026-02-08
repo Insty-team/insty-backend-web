@@ -53,7 +53,7 @@ public interface CourseAnswerControllerDocs {
 
     @Operation(
             summary = "답변 작성",
-            description = "질문에 대한 답변을 작성합니다. 본문과 선택적 첨부파일(최대 1개), 비디오 UUID를 전송합니다."
+            description = "질문에 대한 답변을 작성합니다. 본문과 선택적 첨부파일(최대 2개), 비디오 UUID를 전송합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "답변 생성 성공"),
@@ -66,13 +66,13 @@ public interface CourseAnswerControllerDocs {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseAnswerCreateReq courseAnswerCreateReq,
-            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
+            @Parameter(description = "답변 첨부파일 (이미지, 최대 2개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(
             summary = "답변 수정",
-            description = "기존 답변의 본문/첨부파일/비디오를 수정합니다. 삭제 파일 ID와 신규 첨부를 함께 전송할 수 있습니다."
+            description = "기존 답변의 본문/첨부파일/비디오를 수정합니다. 삭제 파일 ID와 신규 첨부를 함께 전송할 수 있습니다. 첨부파일은 최대 2개까지 허용됩니다."
     )
     @CustomExceptionDescription(SwaggerResponseDescription.COURSE_ANSWER_UPDATE)
     SuccessRes<CourseAnswerRes> updateAnswer(
@@ -81,7 +81,7 @@ public interface CourseAnswerControllerDocs {
             @PathVariable @NotNull Long questionId,
             @PathVariable @NotNull Long answerId,
             @RequestPart CourseAnswerUpdateReq courseAnswerUpdateReq,
-            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
+            @Parameter(description = "답변 첨부파일 (이미지, 최대 2개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
