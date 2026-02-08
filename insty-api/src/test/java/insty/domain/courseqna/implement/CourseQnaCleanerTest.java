@@ -1,5 +1,6 @@
 package insty.domain.courseqna.implement;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,6 +9,7 @@ import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
+import insty.model.courseqna.QuestionStatus;
 import insty.model.course.Course;
 import insty.model.course.CourseFixtureBuilder;
 import insty.model.user.User;
@@ -87,5 +89,84 @@ class CourseQnaCleanerTest {
         verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
         verify(courseQuestionRepository, times(1)).delete(question);
+    }
+
+    @Test
+    void deleteQuestion_채택된답변있는경우_참조해제후삭제() {
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        User user = UserFixtureBuilder.getUserWithId(7L);
+        CourseQuestion question = CourseQuestion.create(course, user, "title3", "content3");
+        CourseAnswer answer1 = CourseAnswer.create(question, user, "answer1");
+        CourseAnswer answer2 = CourseAnswer.create(question, user, "answer2");
+
+        ReflectionTestUtils.setField(question, "id", 300L);
+        ReflectionTestUtils.setField(answer1, "id", 301L);
+        ReflectionTestUtils.setField(answer2, "id", 302L);
+
+        question.acceptAnswer(answer2);
+
+        assertThat(question.getAcceptedAnswer()).isEqualTo(answer2);
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(answer2.isAccepted()).isTrue();
+
+        when(courseAnswerRepository.findAllByCourseQuestionIdIncludingDeleted(question.getId()))
+                .thenReturn(List.of(answer1, answer2));
+
+        courseQnaCleaner.deleteQuestion(question);
+
+        assertThat(question.getAcceptedAnswer()).isNull();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ANSWERED);
+        assertThat(answer2.isAccepted()).isFalse();
+
+        verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer1);
+        verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer1);
+        verify(courseAnswerRepository, times(1)).delete(answer1);
+        verify(courseAnswerFileWriter, times(1)).deleteAnswerFiles(answer2);
+        verify(courseAnswerVideoManager, times(1)).deleteAnswerVideo(answer2);
+        verify(courseAnswerRepository, times(1)).delete(answer2);
+        verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
+        verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
+        verify(courseQuestionRepository, times(1)).delete(question);
+    }
+
+    @Test
+    void deleteAllByCourseId_채택된답변있는경우_참조해제후삭제() {
+        Long courseId = 30L;
+        Course course = CourseFixtureBuilder.getCourseWithIdAndUser();
+        ReflectionTestUtils.setField(course, "id", courseId);
+        User user = UserFixtureBuilder.getUserWithId(8L);
+
+        CourseQuestion question1 = CourseQuestion.create(course, user, "q1", "content1");
+        CourseQuestion question2 = CourseQuestion.create(course, user, "q2", "content2");
+
+        CourseAnswer answer1 = CourseAnswer.create(question1, user, "answer1");
+        CourseAnswer answer2 = CourseAnswer.create(question1, user, "answer2");
+        CourseAnswer answer3 = CourseAnswer.create(question2, user, "answer3");
+
+        ReflectionTestUtils.setField(question1, "id", 400L);
+        ReflectionTestUtils.setField(question2, "id", 401L);
+        ReflectionTestUtils.setField(answer1, "id", 402L);
+        ReflectionTestUtils.setField(answer2, "id", 403L);
+        ReflectionTestUtils.setField(answer3, "id", 404L);
+
+        question1.acceptAnswer(answer2);
+        question2.acceptAnswer(answer3);
+
+        assertThat(question1.getAcceptedAnswer()).isEqualTo(answer2);
+        assertThat(question2.getAcceptedAnswer()).isEqualTo(answer3);
+
+        when(courseQuestionRepository.findAllByCourseId(courseId)).thenReturn(List.of(question1, question2));
+        when(courseAnswerRepository.findAllByCourseQuestionIdIn(List.of(400L, 401L)))
+                .thenReturn(List.of(answer1, answer2, answer3));
+
+        courseQnaCleaner.deleteAllByCourseId(courseId);
+
+        assertThat(question1.getAcceptedAnswer()).isNull();
+        assertThat(question2.getAcceptedAnswer()).isNull();
+        assertThat(answer2.isAccepted()).isFalse();
+        assertThat(answer3.isAccepted()).isFalse();
+
+        verify(courseAnswerRepository, times(3)).delete(org.mockito.ArgumentMatchers.any(CourseAnswer.class));
+        verify(courseQuestionRepository, times(2)).delete(org.mockito.ArgumentMatchers.any(CourseQuestion.class));
     }
 }

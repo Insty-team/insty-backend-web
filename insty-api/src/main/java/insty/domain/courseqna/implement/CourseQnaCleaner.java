@@ -31,6 +31,11 @@ public class CourseQnaCleaner {
         }
         List<Long> questionIds = questions.stream().map(CourseQuestion::getId).toList();
         List<CourseAnswer> answers = courseAnswerRepository.findAllByCourseQuestionIdIn(questionIds);
+        questions.forEach(question -> {
+            if (question.getAcceptedAnswer() != null) {
+                question.unacceptAnswer();
+            }
+        });
         answers.forEach(this::deleteAnswer);
         questions.forEach(this::deleteQuestionOnly);
     }
