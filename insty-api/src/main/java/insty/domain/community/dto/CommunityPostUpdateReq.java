@@ -7,10 +7,6 @@ import java.util.UUID;
 
 public record CommunityPostUpdateReq(
         @NotBlank
-        @Schema(description = "게시글 제목", example = "수정된 제목")
-        String title,
-
-        @NotBlank
         @Schema(description = "게시글 내용", example = "수정된 내용")
         String content,
 

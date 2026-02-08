@@ -10,7 +10,6 @@ import java.util.Optional;
 public record CommunityMyPostRes(
         Long postId,
         Long courseId,
-        String title,
         String content,
         List<FileInfo> attachments,
         VideoInfo videoInfo,
@@ -21,7 +20,6 @@ public record CommunityMyPostRes(
         return new CommunityMyPostRes(
                 post.getId(),
                 post.getCourse().getId(),
-                post.getTitle(),
                 post.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 videoInfo,
