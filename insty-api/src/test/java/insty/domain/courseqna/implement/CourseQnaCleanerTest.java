@@ -68,7 +68,8 @@ class CourseQnaCleanerTest {
         verify(courseAnswerRepository, times(1)).delete(answer);
         verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
-        verify(courseQuestionRepository, times(1)).delete(question);
+        verify(courseQuestionRepository, times(1)).save(question);
+        assertThat(question.isDeleted()).isTrue();
     }
 
     @Test
@@ -88,7 +89,8 @@ class CourseQnaCleanerTest {
         verify(courseAnswerRepository, times(1)).delete(answer);
         verify(courseQuestionFileWriter, times(1)).deleteQuestionFiles(question);
         verify(courseQuestionVideoManager, times(1)).deleteQuestionVideo(question);
-        verify(courseQuestionRepository, times(1)).delete(question);
+        verify(courseQuestionRepository, times(1)).save(question);
+        assertThat(question.isDeleted()).isTrue();
     }
 
     @Test

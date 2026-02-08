@@ -2,6 +2,7 @@ package insty.domain.courseqna.implement;
 
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
+import insty.domain.courseqna.repository.CourseQuestionViewRepository;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
 import java.util.List;
@@ -16,6 +17,7 @@ public class CourseQnaCleaner {
 
     private final CourseQuestionRepository courseQuestionRepository;
     private final CourseAnswerRepository courseAnswerRepository;
+    private final CourseQuestionViewRepository courseQuestionViewRepository;
     private final CourseQuestionFileWriter courseQuestionFileWriter;
     private final CourseAnswerFileWriter courseAnswerFileWriter;
     private final CourseQuestionVideoManager courseQuestionVideoManager;
@@ -65,6 +67,8 @@ public class CourseQnaCleaner {
     private void deleteQuestionOnly(CourseQuestion question) {
         courseQuestionFileWriter.deleteQuestionFiles(question);
         courseQuestionVideoManager.deleteQuestionVideo(question);
-        courseQuestionRepository.delete(question);
+        courseQuestionViewRepository.deleteAllByCourseQuestionId(question.getId());
+        question.markAsDeleted();
+        courseQuestionRepository.save(question);
     }
 }
