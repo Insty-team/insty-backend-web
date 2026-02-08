@@ -125,7 +125,7 @@ public class CommunityPostService {
     }
 
     public void deletePost(Long userId, Long courseId, Long postId) {
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         communityValidator.validatePostAuthor(userId, post);
         communityPostFileWriter.deletePostFiles(post);
@@ -145,14 +145,14 @@ public class CommunityPostService {
     }
 
     public CommunityLikeRes likePost(Long userId, Long courseId, Long postId) {
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         User user = userReader.getUser(userId);
         return communityPostLikeManager.likePost(post, user);
     }
 
     public CommunityLikeRes unlikePost(Long userId, Long courseId, Long postId) {
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         User user = userReader.getUser(userId);
         return communityPostLikeManager.unlikePost(post, user);

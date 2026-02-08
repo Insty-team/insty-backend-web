@@ -104,7 +104,7 @@ class CommunityCommentServiceTest {
         List<FileInfo> fileInfos = List.of(new FileInfo(1L, "f1.png", "image/png", 10, "url"));
         VideoCommunityComment video = VideoCommunityComment.create("video.mp4", req.videoUuid(), user);
 
-        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(communityValidator.validatePostExistsWithUserAndCourse(post.getId())).thenReturn(post);
         when(userReader.getUser(userId)).thenReturn(user);
         when(communityCommentWriter.saveComment(post, user, req.content())).thenReturn(comment);
         when(communityCommentFileWriter.saveCommentFiles(comment, attachments)).thenReturn(fileInfos);
@@ -152,7 +152,7 @@ class CommunityCommentServiceTest {
         Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(post);
-        when(communityValidator.validateCommentExists(comment.getId())).thenReturn(comment);
+        when(communityValidator.validateCommentExistsWithUserAndPost(comment.getId())).thenReturn(comment);
 
         // when
         communityCommentService.deleteComment(userId, comment.getId());

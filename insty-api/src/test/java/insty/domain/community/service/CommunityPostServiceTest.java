@@ -246,7 +246,7 @@ class CommunityPostServiceTest {
         // given
         Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
-        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(communityValidator.validatePostExistsWithUserAndCourse(post.getId())).thenReturn(post);
 
         // when
         communityPostService.deletePost(userId, post.getCourse().getId(), post.getId());
@@ -265,7 +265,7 @@ class CommunityPostServiceTest {
         User user = UserFixtureBuilder.getUserWithId(userId);
         CommunityLikeRes expected = new CommunityLikeRes(1, true);
 
-        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(communityValidator.validatePostExistsWithUserAndCourse(post.getId())).thenReturn(post);
         when(userReader.getUser(userId)).thenReturn(user);
         when(communityPostLikeManager.likePost(post, user)).thenReturn(expected);
 
@@ -282,7 +282,7 @@ class CommunityPostServiceTest {
         User user = UserFixtureBuilder.getUserWithId(userId);
         CommunityLikeRes expected = new CommunityLikeRes(0, false);
 
-        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(communityValidator.validatePostExistsWithUserAndCourse(post.getId())).thenReturn(post);
         when(userReader.getUser(userId)).thenReturn(user);
         when(communityPostLikeManager.unlikePost(post, user)).thenReturn(expected);
 

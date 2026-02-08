@@ -81,7 +81,7 @@ public class CommunityCommentService {
         communityValidator.validateFiles(attachments);
         communityValidator.validateCommentFileCountForCreate(attachments);
 
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         User user = userReader.getUser(userId);
 
@@ -110,7 +110,7 @@ public class CommunityCommentService {
     }
 
     public void deleteComment(Long userId, Long commentId) {
-        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        CommunityComment comment = communityValidator.validateCommentExistsWithUserAndPost(commentId);
         communityValidator.validateCommentAuthor(userId, comment);
         communityCommentFileWriter.deleteCommentFiles(comment);
         communityCommentVideoManager.deleteVideo(comment);
