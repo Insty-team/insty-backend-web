@@ -2,6 +2,8 @@ package insty.domain.community.controller;
 
 import static insty.domain.common.AttachmentConstraints.MAX_POST_FILE_COUNT;
 import static insty.domain.common.AttachmentConstraints.MAX_COMMENT_FILE_COUNT;
+import static insty.domain.common.AttachmentConstraints.POST_ATTACHMENT_DESCRIPTION;
+import static insty.domain.common.AttachmentConstraints.COMMENT_ATTACHMENT_DESCRIPTION;
 
 import insty.domain.common.SearchRes;
 import insty.domain.courseqna.dto.CourseAnswerCreateReq;
@@ -87,7 +89,7 @@ public class CommunityQnaController {
     public SuccessRes<CourseQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CourseQuestionCreateReq courseQuestionCreateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = MAX_POST_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_POST_FILE_COUNT) @Schema(description = POST_ATTACHMENT_DESCRIPTION) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
@@ -97,7 +99,7 @@ public class CommunityQnaController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseQuestionUpdateReq courseQuestionUpdateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = MAX_POST_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_POST_FILE_COUNT) @Schema(description = POST_ATTACHMENT_DESCRIPTION) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
@@ -133,7 +135,7 @@ public class CommunityQnaController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseAnswerCreateReq COurseAnswerCreateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = MAX_COMMENT_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_COMMENT_FILE_COUNT) @Schema(description = COMMENT_ATTACHMENT_DESCRIPTION) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
@@ -143,7 +145,7 @@ public class CommunityQnaController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long answerId,
             @RequestPart CourseAnswerUpdateReq courseAnswerUpdateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = MAX_COMMENT_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_COMMENT_FILE_COUNT) @Schema(description = COMMENT_ATTACHMENT_DESCRIPTION) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }

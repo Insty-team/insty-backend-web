@@ -1,5 +1,8 @@
 package insty.domain.courseqna.controller.docs;
 
+import static insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT;
+import static insty.domain.common.AttachmentConstraints.QNA_ATTACHMENT_DESCRIPTION;
+
 import insty.domain.common.SearchRes;
 import insty.domain.courseqna.dto.CourseAnswerCreateReq;
 import insty.domain.courseqna.dto.CourseAnswerRes;
@@ -53,7 +56,7 @@ public interface CourseAnswerControllerDocs {
 
     @Operation(
             summary = "답변 작성",
-            description = "질문에 대한 답변을 작성합니다. 본문과 선택적 첨부파일(최대 1개), 비디오 UUID를 전송합니다."
+            description = "질문에 대한 답변을 작성합니다. 본문과 선택적 첨부파일, 비디오 UUID를 전송합니다."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "답변 생성 성공"),
@@ -66,8 +69,8 @@ public interface CourseAnswerControllerDocs {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseAnswerCreateReq courseAnswerCreateReq,
-            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
+            @Parameter(description = QNA_ATTACHMENT_DESCRIPTION, content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(
@@ -81,8 +84,8 @@ public interface CourseAnswerControllerDocs {
             @PathVariable @NotNull Long questionId,
             @PathVariable @NotNull Long answerId,
             @RequestPart CourseAnswerUpdateReq courseAnswerUpdateReq,
-            @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
+            @Parameter(description = QNA_ATTACHMENT_DESCRIPTION, content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(
