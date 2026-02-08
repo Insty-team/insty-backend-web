@@ -91,14 +91,13 @@ public class CommunityPostService {
     }
 
     public CommunityPostDetailsRes createPost(Long userId, Long courseId, CommunityPostCreateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateTitle(req.title());
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validatePostFileCountForCreate(attachments);
 
         var course = communityValidator.validateCourse(courseId);
         User user = userReader.getUser(userId);
-        CommunityPost post = communityPostWriter.savePost(user, course, req.title(), req.content());
+        CommunityPost post = communityPostWriter.savePost(user, course, "unused-title", req.content());
         List<FileInfo> fileInfos = communityPostFileWriter.savePostFiles(post, attachments);
         VideoCommunityPost video = communityPostVideoManager.attachVideo(post, req.videoUuid());
 
@@ -106,7 +105,6 @@ public class CommunityPostService {
     }
 
     public CommunityPostDetailsRes updatePost(Long userId, Long courseId, Long postId, CommunityPostUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateTitle(req.title());
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
@@ -115,9 +113,9 @@ public class CommunityPostService {
         communityValidator.validatePostAuthor(userId, post);
         communityValidator.validatePostFileCountForUpdate(postId, attachments, req.deleteFileIds());
 
-        communityPostWriter.updatePost(post, req.title(), req.content());
-        List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(post, attachments, req.deleteFileIds());
-        VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid());
+        CommunityPost updated = communityPostWriter.updatePost(post, "unused-title", req.content());
+        List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(updated, attachments, req.deleteFileIds());
+        VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
 
         boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
         long commentCount = communityCommentReader.countByPostId(postId);
@@ -137,8 +135,24 @@ public class CommunityPostService {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommunityPost> page = communityPostReader.findPostsByUser(userId, req.keyword(), pageRequest);
-        List<CommunityMyPostRes> items = page.getContent().stream()
-                .map(CommunityMyPostRes::from)
+        List<CommunityPost> posts = page.getContent();
+        List<Long> postIds = posts.stream()
+                .map(CommunityPost::getId)
+                .toList();
+        Map<Long, List<FileInfo>> attachmentsByPostId = communityPostFileReader.getPostFileInfos(postIds);
+        Map<Long, VideoInfo> videoInfoByPostId = communityPostVideoManager.getVideosByPostIds(postIds)
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> VideoInfo.of(entry.getValue())
+                ));
+
+        List<CommunityMyPostRes> items = posts.stream()
+                .map(post -> CommunityMyPostRes.from(
+                        post,
+                        attachmentsByPostId.getOrDefault(post.getId(), List.of()),
+                        videoInfoByPostId.get(post.getId())
+                ))
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
         return SearchRes.from(paginationRes, items);

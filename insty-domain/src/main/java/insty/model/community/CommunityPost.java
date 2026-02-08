@@ -62,6 +62,7 @@ public class CommunityPost extends BaseEntity {
     @Builder.Default
     private List<CommunityComment> comments = new ArrayList<>();
 
+    @Deprecated
     @Column(nullable = false)
     private String title;
 
