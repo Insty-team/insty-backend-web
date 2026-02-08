@@ -222,7 +222,7 @@ class CommunityPostServiceTest {
         List<MultipartFile> addFiles = List.of(new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1}));
         List<FileInfo> fileInfos = List.of(new FileInfo(2L, "f1.png", "image/png", 10, "url"));
 
-        when(communityValidator.validatePostExists(post.getId())).thenReturn(post);
+        when(communityValidator.validatePostExistsWithUserAndCourse(post.getId())).thenReturn(post);
         when(communityPostWriter.updatePost(post, req.title(), req.content())).thenAnswer(invocation -> {
             post.update(req.title(), req.content());
             return post;

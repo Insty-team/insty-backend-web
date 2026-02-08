@@ -129,7 +129,7 @@ class CommunityCommentServiceTest {
         List<MultipartFile> addFiles = List.of(new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1}));
         List<FileInfo> fileInfos = List.of(new FileInfo(2L, "f1.png", "image/png", 10, "url"));
 
-        when(communityValidator.validateCommentExists(comment.getId())).thenReturn(comment);
+        when(communityValidator.validateCommentExistsWithUserAndPost(comment.getId())).thenReturn(comment);
         when(communityCommentWriter.updateComment(comment, req.content())).thenAnswer(invocation -> {
             comment.update(req.content());
             return comment;
