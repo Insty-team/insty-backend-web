@@ -78,7 +78,7 @@ public interface CourseQuestionControllerDocs {
             @CurrentUser Long userId,
             @RequestPart("courseQuestionReq") CourseQuestionCreateReq courseQuestionCreateReq,
             @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(
@@ -92,7 +92,7 @@ public interface CourseQuestionControllerDocs {
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseQuestionUpdateReq courseQuestionUpdateReq,
             @Parameter(description = "질문 첨부파일 (이미지, 최대 2개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(

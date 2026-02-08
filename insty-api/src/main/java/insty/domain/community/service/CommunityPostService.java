@@ -113,9 +113,9 @@ public class CommunityPostService {
         communityValidator.validatePostAuthor(userId, post);
         communityValidator.validatePostFileCountForUpdate(postId, attachments, req.deleteFileIds());
 
-        CommunityPost updated = communityPostWriter.updatePost(post, "unused-title", req.content());
-        List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(updated, attachments, req.deleteFileIds());
-        VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
+        communityPostWriter.updatePost(post, "unused-title", req.content());
+        List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(post, attachments, req.deleteFileIds());
+        VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid());
 
         boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
         long commentCount = communityCommentReader.countByPostId(postId);

@@ -1,5 +1,7 @@
 package insty.domain.community.controller;
 
+import static insty.domain.common.AttachmentConstraints.MAX_COMMENT_FILE_COUNT;
+
 import insty.domain.common.SearchRes;
 import insty.domain.community.dto.CommunityCommentCreateReq;
 import insty.domain.community.dto.CommunityLikeRes;
@@ -56,7 +58,7 @@ public class CommunityCommentController {
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @RequestPart("comment") @Valid CommunityCommentCreateReq req,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_COMMENT_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityCommentService.createComment(userId, courseId, postId, req, attachments));
     }
@@ -66,7 +68,7 @@ public class CommunityCommentController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long commentId,
             @RequestPart("comment") @Valid CommunityCommentUpdateReq req,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_COMMENT_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityCommentService.updateComment(userId, commentId, req, attachments));
     }

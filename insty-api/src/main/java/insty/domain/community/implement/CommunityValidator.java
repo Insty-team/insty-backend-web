@@ -1,5 +1,8 @@
 package insty.domain.community.implement;
 
+import static insty.domain.common.AttachmentConstraints.MAX_COMMENT_FILE_COUNT;
+import static insty.domain.common.AttachmentConstraints.MAX_POST_FILE_COUNT;
+
 import insty.domain.community.repository.CommunityCommentRepository;
 import insty.domain.community.repository.CommunityPostRepository;
 import insty.domain.course.implement.CourseReader;
@@ -16,9 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @RequiredArgsConstructor
 public class CommunityValidator {
-
-    private static final int MAX_POST_FILE_COUNT = 2;
-    private static final int MAX_COMMENT_FILE_COUNT = 2;
 
     private final CommunityPostRepository communityPostRepository;
     private final CommunityCommentRepository communityCommentRepository;
@@ -81,12 +81,6 @@ public class CommunityValidator {
     public void validateCommentAuthor(Long userId, CommunityComment comment) {
         if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_NOT_COMMENT_AUTHOR);
-        }
-    }
-
-    public void validateTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_TITLE_REQUIRED);
         }
     }
 
