@@ -1,5 +1,7 @@
 package insty.domain.courseqna.implement;
 
+import static insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT;
+
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
 import insty.error.CourseQnaErrorCode;
@@ -21,8 +23,8 @@ public class CourseQnaValidator {
     private final CourseQuestionFileReader courseQuestionFileReader;
     private final CourseAnswerFileReader courseAnswerFileReader;
 
-    private static final int MAX_QUESTION_FILE_COUNT = 2;
-    private static final int MAX_ANSWER_FILE_COUNT = 1;
+    private static final int MAX_QUESTION_FILE_COUNT = MAX_QNA_FILE_COUNT;
+    private static final int MAX_ANSWER_FILE_COUNT = MAX_QNA_FILE_COUNT;
 
     /**
      * 질문 ID가 유효한지 검증 (존재 여부 + 삭제 여부 확인)
