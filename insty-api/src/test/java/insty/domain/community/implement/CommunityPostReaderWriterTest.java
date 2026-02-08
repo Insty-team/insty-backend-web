@@ -74,11 +74,10 @@ class CommunityPostReaderWriterTest {
         when(communityPostRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         CommunityPost saved = communityPostWriter.savePost(UserFixtureBuilder.getUserWithId(),
-                post.getCourse(), post.getTitle(), post.getContent());
-        CommunityPost updated = communityPostWriter.updatePost(saved, "new title", "new content");
+                post.getCourse(), "unused-title", post.getContent());
+        CommunityPost updated = communityPostWriter.updatePost(saved, "unused-title", "new content");
         communityPostWriter.deletePost(updated);
 
-        assertThat(updated.getTitle()).isEqualTo("new title");
         assertThat(updated.isDeleted()).isTrue();
         verify(communityPostRepository, times(2)).save(any());
     }

@@ -171,6 +171,13 @@ class CommunityPostServiceTest {
         Page<CommunityPost> page = new PageImpl<>(List.of(post), PageRequest.of(0, 5), 1);
         CommunityMySearchReq req = new CommunityMySearchReq(1, 5, keyword);
         when(communityPostReader.findPostsByUser(eq(userId), eq(keyword), any(PageRequest.class))).thenReturn(page);
+        List<FileInfo> attachments = List.of(new FileInfo(1L, "file.png", "image/png", 100, "url"));
+        VideoCommunityPost video = VideoCommunityPost.create("video.mp4", UUID.randomUUID(),
+                UserFixtureBuilder.getUserWithId());
+        when(communityPostFileReader.getPostFileInfos(List.of(post.getId())))
+                .thenReturn(Map.of(post.getId(), attachments));
+        when(communityPostVideoManager.getVideosByPostIds(List.of(post.getId())))
+                .thenReturn(Map.of(post.getId(), video));
 
         // when
         SearchRes<CommunityMyPostRes> res = communityPostService.searchMyPosts(userId, req);
@@ -179,6 +186,8 @@ class CommunityPostServiceTest {
         assertThat(res.items()).hasSize(1);
         CommunityMyPostRes myPost = res.items().get(0);
         assertThat(myPost.content()).isEqualTo(post.getContent());
+        assertThat(myPost.attachments()).isEqualTo(attachments);
+        assertThat(myPost.videoInfo()).isNotNull();
         verify(communityPostReader).findPostsByUser(eq(userId), eq(keyword), any(PageRequest.class));
     }
 
