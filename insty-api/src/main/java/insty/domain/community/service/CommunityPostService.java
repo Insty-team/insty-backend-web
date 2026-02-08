@@ -108,7 +108,7 @@ public class CommunityPostService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         communityValidator.validatePostAuthor(userId, post);
         communityValidator.validatePostFileCountForUpdate(postId, attachments, req.deleteFileIds());
@@ -119,11 +119,11 @@ public class CommunityPostService {
 
         boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
         long commentCount = communityCommentReader.countByPostId(postId);
-        return CommunityPostDetailsRes.from(updated, fileInfos, video, commentCount, likedByMe);
+        return CommunityPostDetailsRes.from(post, fileInfos, video, commentCount, likedByMe);
     }
 
     public void deletePost(Long userId, Long courseId, Long postId) {
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         communityValidator.validatePostAuthor(userId, post);
         communityPostFileWriter.deletePostFiles(post);
@@ -159,14 +159,14 @@ public class CommunityPostService {
     }
 
     public CommunityLikeRes likePost(Long userId, Long courseId, Long postId) {
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         User user = userReader.getUser(userId);
         return communityPostLikeManager.likePost(post, user);
     }
 
     public CommunityLikeRes unlikePost(Long userId, Long courseId, Long postId) {
-        CommunityPost post = communityValidator.validatePostExists(postId);
+        CommunityPost post = communityValidator.validatePostExistsWithUserAndCourse(postId);
         communityValidator.validatePostBelongsToCourse(post, courseId);
         User user = userReader.getUser(userId);
         return communityPostLikeManager.unlikePost(post, user);

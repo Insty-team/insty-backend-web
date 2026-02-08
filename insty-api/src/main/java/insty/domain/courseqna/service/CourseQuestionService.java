@@ -84,16 +84,15 @@ public class CourseQuestionService {
         courseQnaValidator.validateFiles(attachments);
         courseQnaValidator.validateQuestionAuthor(userId, questionId);
 
-        // 질문 가져와서 파일 개수 검증
         CourseQuestion question = courseQuestionReader.getCourseQuestionWithFilesById(questionId);
         courseQnaValidator.validateQuestionFileCountForUpdate(question, attachments, req.deleteFileIds());
 
-        CourseQuestion updatedQuestion = courseQuestionWriter.updateQuestion(questionId, req);
+        courseQuestionWriter.updateQuestionContent(question, req);
 
-        List<FileInfo> fileInfos = courseQuestionFileWriter.updateQuestionFiles(updatedQuestion, attachments, req.deleteFileIds());
-        VideoQuestion video = courseQuestionVideoManager.updateAndGetLinkedVideo(updatedQuestion, req.videoUuid());
+        List<FileInfo> fileInfos = courseQuestionFileWriter.updateQuestionFiles(question, attachments, req.deleteFileIds());
+        VideoQuestion video = courseQuestionVideoManager.updateAndGetLinkedVideo(question, req.videoUuid());
 
-        return CourseQuestionDetailsRes.from(updatedQuestion, fileInfos, video);
+        return CourseQuestionDetailsRes.from(question, fileInfos, video);
     }
 
     /**

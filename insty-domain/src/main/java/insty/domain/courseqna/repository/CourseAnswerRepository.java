@@ -2,6 +2,7 @@ package insty.domain.courseqna.repository;
 
 import insty.model.courseqna.CourseAnswer;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -59,4 +60,7 @@ public interface CourseAnswerRepository extends JpaRepository<CourseAnswer, Long
         ORDER BY a.createdAt DESC
     """)
     List<CourseAnswer> findAcceptedAnswersByQuestionId(@Param("questionId") Long questionId);
+
+    @Query("SELECT a FROM CourseAnswer a JOIN FETCH a.user WHERE a.id = :answerId")
+    Optional<CourseAnswer> findByIdWithUser(@Param("answerId") Long answerId);
 }

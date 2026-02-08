@@ -71,6 +71,20 @@ public class CourseAnswerReader {
     }
 
     /**
+     * 강좌 답변 상세 조회 (User fetch join)
+     */
+    public CourseAnswer getCourseAnswerWithUserById(Long answerId) {
+        CourseAnswer answer = courseAnswerRepository.findByIdWithUser(answerId)
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QNA_ANSWER_NOT_FOUND));
+
+        if (answer.isDeleted()) {
+            throw new CustomException(CourseQnaErrorCode.COURSE_QNA_ANSWER_ALREADY_DELETED);
+        }
+
+        return answer;
+    }
+
+    /**
      * 특정 질문에 대한 활성 답변 개수 조회
      */
     public int countActiveAnswersByQuestionId(Long questionId) {

@@ -41,6 +41,13 @@ public class CourseAnswerWriter {
     }
 
     /**
+     * 강좌 답변 내용 수정 (엔티티 직접 전달)
+     */
+    public void updateAnswerContent(CourseAnswer answer, CourseAnswerUpdateReq req) {
+        answer.update(req.content());
+    }
+
+    /**
      * 강좌 답변 삭제
      */
     public void deleteAnswer(CourseAnswer courseAnswer) {

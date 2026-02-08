@@ -85,16 +85,16 @@ public class CourseAnswerService {
         courseQnaValidator.validateContent(req.content());
         courseQnaValidator.validateFiles(attachments);
 
-        CourseAnswer current = courseAnswerReader.getCourseAnswerById(answerId);
-        courseQnaValidator.validateAnswerAuthor(userId, current);
-        courseQnaValidator.validateAnswerFileCountForUpdate(current, attachments, req.deleteFileIds());
+        CourseAnswer answer = courseAnswerReader.getCourseAnswerWithUserById(answerId);
+        courseQnaValidator.validateAnswerAuthor(userId, answer);
+        courseQnaValidator.validateAnswerFileCountForUpdate(answer, attachments, req.deleteFileIds());
 
-        CourseAnswer updatedAnswer = courseAnswerWriter.updateAnswer(answerId, req);
+        courseAnswerWriter.updateAnswerContent(answer, req);
 
-        List<FileInfo> fileInfos = courseAnswerFileWriter.updateAnswerFiles(updatedAnswer, attachments, req.deleteFileIds());
-        VideoAnswer video = courseAnswerVideoManager.updateAndGetLinkedVideo(updatedAnswer, req.videoUuid());
+        List<FileInfo> fileInfos = courseAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
+        VideoAnswer video = courseAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
 
-        return CourseAnswerRes.from(updatedAnswer, fileInfos, video);
+        return CourseAnswerRes.from(answer, fileInfos, video);
     }
 
     /**
