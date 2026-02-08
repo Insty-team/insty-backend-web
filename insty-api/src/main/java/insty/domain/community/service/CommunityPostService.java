@@ -71,7 +71,7 @@ public class CommunityPostService {
                 .map(post -> CommunityPostRes.from(
                         post,
                         attachments.getOrDefault(post.getId(), List.of()),
-                        videoInfoByPostId.get(post.getId()),
+                        videoInfoByPostId.getOrDefault(post.getId(), null),
                         commentCountByPostId.getOrDefault(post.getId(), 0L),
                         likedPostIds.contains(post.getId())
                 ))
@@ -146,12 +146,16 @@ public class CommunityPostService {
                         Map.Entry::getKey,
                         entry -> VideoInfo.of(entry.getValue())
                 ));
+        Map<Long, Long> commentCountByPostId = communityCommentReader.countByPostIds(postIds);
+        var likedPostIds = communityPostLikeManager.getLikedPostIds(userId, postIds);
 
         List<CommunityMyPostRes> items = posts.stream()
                 .map(post -> CommunityMyPostRes.from(
                         post,
                         attachmentsByPostId.getOrDefault(post.getId(), List.of()),
-                        videoInfoByPostId.get(post.getId())
+                        videoInfoByPostId.getOrDefault(post.getId(), null),
+                        commentCountByPostId.getOrDefault(post.getId(), 0L),
+                        likedPostIds.contains(post.getId())
                 ))
                 .toList();
         PaginationRes paginationRes = PaginationRes.of((int) page.getTotalElements(), req.page(), req.pageSize());
