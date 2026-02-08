@@ -2,6 +2,7 @@ package insty.domain.courseqna.implement;
 
 import insty.domain.courseqna.repository.CourseAnswerRepository;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
+import insty.domain.courseqna.repository.CourseQuestionViewRepository;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
 import java.util.List;
@@ -16,6 +17,7 @@ public class CourseQnaCleaner {
 
     private final CourseQuestionRepository courseQuestionRepository;
     private final CourseAnswerRepository courseAnswerRepository;
+    private final CourseQuestionViewRepository courseQuestionViewRepository;
     private final CourseQuestionFileWriter courseQuestionFileWriter;
     private final CourseAnswerFileWriter courseAnswerFileWriter;
     private final CourseQuestionVideoManager courseQuestionVideoManager;
@@ -31,6 +33,11 @@ public class CourseQnaCleaner {
         }
         List<Long> questionIds = questions.stream().map(CourseQuestion::getId).toList();
         List<CourseAnswer> answers = courseAnswerRepository.findAllByCourseQuestionIdIn(questionIds);
+        questions.forEach(question -> {
+            if (question.getAcceptedAnswer() != null) {
+                question.unacceptAnswer();
+            }
+        });
         answers.forEach(this::deleteAnswer);
         questions.forEach(this::deleteQuestionOnly);
     }
@@ -54,12 +61,15 @@ public class CourseQnaCleaner {
     private void deleteAnswer(CourseAnswer answer) {
         courseAnswerFileWriter.deleteAnswerFiles(answer);
         courseAnswerVideoManager.deleteAnswerVideo(answer);
-        courseAnswerRepository.delete(answer);
+        answer.markAsDeleted();
+        courseAnswerRepository.save(answer);
     }
 
     private void deleteQuestionOnly(CourseQuestion question) {
         courseQuestionFileWriter.deleteQuestionFiles(question);
         courseQuestionVideoManager.deleteQuestionVideo(question);
-        courseQuestionRepository.delete(question);
+        courseQuestionViewRepository.deleteAllByCourseQuestionId(question.getId());
+        question.markAsDeleted();
+        courseQuestionRepository.save(question);
     }
 }

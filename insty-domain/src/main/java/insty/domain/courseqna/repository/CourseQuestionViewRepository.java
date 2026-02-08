@@ -18,4 +18,6 @@ public interface CourseQuestionViewRepository extends JpaRepository<CourseQuesti
 
 	@Query("SELECT COUNT(a) > 0 FROM CourseAnswer a WHERE a.courseQuestion.id = :questionId AND a.isDeleted = false AND a.user.id <> :viewerId")
 	boolean existsOtherUserAnswers(@Param("questionId") Long questionId, @Param("viewerId") Long viewerId);
+
+	void deleteAllByCourseQuestionId(Long courseQuestionId);
 }
