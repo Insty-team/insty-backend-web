@@ -91,14 +91,13 @@ public class CommunityPostService {
     }
 
     public CommunityPostDetailsRes createPost(Long userId, Long courseId, CommunityPostCreateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateTitle(req.title());
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
         communityValidator.validatePostFileCountForCreate(attachments);
 
         var course = communityValidator.validateCourse(courseId);
         User user = userReader.getUser(userId);
-        CommunityPost post = communityPostWriter.savePost(user, course, req.title(), req.content());
+        CommunityPost post = communityPostWriter.savePost(user, course, "unused-title", req.content());
         List<FileInfo> fileInfos = communityPostFileWriter.savePostFiles(post, attachments);
         VideoCommunityPost video = communityPostVideoManager.attachVideo(post, req.videoUuid());
 
@@ -106,7 +105,6 @@ public class CommunityPostService {
     }
 
     public CommunityPostDetailsRes updatePost(Long userId, Long courseId, Long postId, CommunityPostUpdateReq req, List<MultipartFile> attachments) {
-        communityValidator.validateTitle(req.title());
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
@@ -115,7 +113,7 @@ public class CommunityPostService {
         communityValidator.validatePostAuthor(userId, post);
         communityValidator.validatePostFileCountForUpdate(postId, attachments, req.deleteFileIds());
 
-        communityPostWriter.updatePost(post, req.title(), req.content());
+        communityPostWriter.updatePost(post, "unused-title", req.content());
         List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(post, attachments, req.deleteFileIds());
         VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid());
 

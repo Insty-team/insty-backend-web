@@ -6,10 +6,6 @@ import java.util.UUID;
 
 public record CommunityPostCreateReq(
         @NotBlank
-        @Schema(description = "게시글 제목", example = "첫 번째 커뮤니티 글입니다.")
-        String title,
-
-        @NotBlank
         @Schema(description = "게시글 내용", example = "커뮤니티 글 내용입니다.")
         String content,
 

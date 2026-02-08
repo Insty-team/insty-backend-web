@@ -192,13 +192,13 @@ class CommunityPostServiceTest {
         List<MultipartFile> attachments = List.of(
                 new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1})
         );
-        CommunityPostCreateReq req = new CommunityPostCreateReq("title", "content", UUID.randomUUID());
+        CommunityPostCreateReq req = new CommunityPostCreateReq("content", UUID.randomUUID());
         List<FileInfo> fileInfos = List.of(new FileInfo(1L, "f1.png", "image/png", 10, "url"));
         VideoCommunityPost video = VideoCommunityPost.create("video.mp4", req.videoUuid(), user);
 
         when(communityValidator.validateCourse(course.getId())).thenReturn(course);
         when(userReader.getUser(userId)).thenReturn(user);
-        when(communityPostWriter.savePost(user, course, req.title(), req.content())).thenReturn(post);
+        when(communityPostWriter.savePost(user, course, "unused-title", req.content())).thenReturn(post);
         when(communityPostFileWriter.savePostFiles(post, attachments)).thenReturn(fileInfos);
         when(communityPostVideoManager.attachVideo(post, req.videoUuid())).thenReturn(video);
 
@@ -218,13 +218,13 @@ class CommunityPostServiceTest {
         Long userId = 1L;
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         Long courseId = post.getCourse().getId();
-        CommunityPostUpdateReq req = new CommunityPostUpdateReq("new title", "new content", List.of(1L), null);
+        CommunityPostUpdateReq req = new CommunityPostUpdateReq("new content", List.of(1L), null);
         List<MultipartFile> addFiles = List.of(new MockMultipartFile("f1", "f1.png", "image/png", new byte[]{1}));
         List<FileInfo> fileInfos = List.of(new FileInfo(2L, "f1.png", "image/png", 10, "url"));
 
         when(communityValidator.validatePostExistsWithUserAndCourse(post.getId())).thenReturn(post);
-        when(communityPostWriter.updatePost(post, req.title(), req.content())).thenAnswer(invocation -> {
-            post.update(req.title(), req.content());
+        when(communityPostWriter.updatePost(post, "unused-title", req.content())).thenAnswer(invocation -> {
+            post.update("unused-title", req.content());
             return post;
         });
         when(communityPostFileWriter.updatePostFiles(post, addFiles, req.deleteFileIds())).thenReturn(fileInfos);
@@ -236,7 +236,6 @@ class CommunityPostServiceTest {
         CommunityPostDetailsRes res = communityPostService.updatePost(userId, courseId, post.getId(), req, addFiles);
 
         // then
-        assertThat(res.title()).isEqualTo(req.title());
         assertThat(res.attachments()).isEqualTo(fileInfos);
         verify(communityValidator).validatePostAuthor(userId, post);
     }

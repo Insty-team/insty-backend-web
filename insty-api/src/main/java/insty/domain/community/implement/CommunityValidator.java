@@ -84,12 +84,6 @@ public class CommunityValidator {
         }
     }
 
-    public void validateTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new CustomException(CommunityErrorCode.COMMUNITY_TITLE_REQUIRED);
-        }
-    }
-
     public void validateContent(String content) {
         if (content == null || content.trim().isEmpty()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_CONTENT_REQUIRED);

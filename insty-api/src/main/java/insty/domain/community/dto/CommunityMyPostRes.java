@@ -6,7 +6,6 @@ import java.time.Instant;
 public record CommunityMyPostRes(
         Long postId,
         Long courseId,
-        String title,
         String content,
         Instant createdAt,
         Instant updatedAt
@@ -15,7 +14,6 @@ public record CommunityMyPostRes(
         return new CommunityMyPostRes(
                 post.getId(),
                 post.getCourse().getId(),
-                post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()

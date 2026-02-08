@@ -18,9 +18,6 @@ public record CommunityPostRes(
         @Schema(description = "강좌 ID", example = "1")
         Long courseId,
 
-        @Schema(description = "게시글 제목")
-        String title,
-
         @Schema(description = "게시글 내용")
         String content,
 
@@ -52,7 +49,6 @@ public record CommunityPostRes(
                 post.getId(),
                 CommunityUserRes.from(post.getUser()),
                 post.getCourse().getId(),
-                post.getTitle(),
                 post.getContent(),
                 Optional.ofNullable(attachments).orElse(List.of()),
                 videoInfo,
