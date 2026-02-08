@@ -70,7 +70,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
             @PathVariable @NotNull Long courseId,
             @CurrentUser Long userId,
             @RequestPart("courseQuestionReq") @Validated CourseQuestionCreateReq courseQuestionCreateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(courseQuestionService.saveQuestion(userId, courseId, courseQuestionCreateReq, attachments));
     }
@@ -81,7 +81,7 @@ public class CourseQuestionController implements CourseQuestionControllerDocs {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseQuestionUpdateReq courseQuestionUpdateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(
                 courseQuestionService.updateQuestion(userId, questionId, courseQuestionUpdateReq, attachments));

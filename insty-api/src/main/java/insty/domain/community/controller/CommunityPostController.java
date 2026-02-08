@@ -1,5 +1,7 @@
 package insty.domain.community.controller;
 
+import static insty.domain.common.AttachmentConstraints.MAX_POST_FILE_COUNT;
+
 import insty.domain.common.SearchRes;
 import insty.domain.community.dto.CommunityMyPostRes;
 import insty.domain.community.dto.CommunityMySearchReq;
@@ -64,7 +66,7 @@ public class CommunityPostController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long courseId,
             @RequestPart("post") @Valid CommunityPostCreateReq req,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_POST_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityPostService.createPost(userId, courseId, req, attachments));
     }
@@ -75,7 +77,7 @@ public class CommunityPostController {
             @PathVariable @NotNull Long courseId,
             @PathVariable @NotNull Long postId,
             @RequestPart("post") @Valid CommunityPostUpdateReq req,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = MAX_POST_FILE_COUNT) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(communityPostService.updatePost(userId, courseId, postId, req, attachments));
     }

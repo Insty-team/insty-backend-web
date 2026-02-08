@@ -60,7 +60,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseAnswerCreateReq courseAnswerCreateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(courseAnswerService.saveAnswer(userId, questionId, courseAnswerCreateReq, attachments));
     }
@@ -72,7 +72,7 @@ public class CourseAnswerController implements CourseAnswerControllerDocs {
             @PathVariable @NotNull Long questionId,
             @PathVariable @NotNull Long answerId,
             @RequestPart CourseAnswerUpdateReq courseAnswerUpdateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     ) {
         return SuccessRes.of(courseAnswerService.updateAnswer(userId, answerId, courseAnswerUpdateReq, attachments));
     }

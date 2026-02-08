@@ -67,7 +67,7 @@ public interface CourseAnswerControllerDocs {
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseAnswerCreateReq courseAnswerCreateReq,
             @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(
@@ -82,7 +82,7 @@ public interface CourseAnswerControllerDocs {
             @PathVariable @NotNull Long answerId,
             @RequestPart CourseAnswerUpdateReq courseAnswerUpdateReq,
             @Parameter(description = "답변 첨부파일 (이미지, 최대 1개)", content = @Content(mediaType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE))
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = insty.domain.common.AttachmentConstraints.MAX_QNA_FILE_COUNT) List<MultipartFile> attachments
     );
 
     @Operation(
