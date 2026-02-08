@@ -46,6 +46,13 @@ public class CourseQuestionWriter {
     }
 
     /**
+     * 강좌 질문 내용 수정 (엔티티 직접 전달)
+     */
+    public void updateQuestionContent(CourseQuestion question, CourseQuestionUpdateReq req) {
+        question.update(req.title(), req.content());
+    }
+
+    /**
      * 강좌 질문 삭제
      */
     public void deleteQuestion(CourseQuestion courseQuestion) {

@@ -59,4 +59,7 @@ public interface CommunityCommentRepository extends JpaRepository<CommunityComme
         WHERE c.id = :commentId
     """)
     int findLikeCountById(@Param("commentId") Long commentId);
+
+    @Query("SELECT c FROM CommunityComment c JOIN FETCH c.user JOIN FETCH c.communityPost WHERE c.id = :commentId")
+    Optional<CommunityComment> findByIdWithUserAndPost(@Param("commentId") Long commentId);
 }

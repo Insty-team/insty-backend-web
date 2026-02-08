@@ -12,6 +12,7 @@ public interface CourseQuestionRepository extends JpaRepository<CourseQuestion, 
     @Query("""
         SELECT q FROM CourseQuestion q
         JOIN FETCH q.user u
+        JOIN FETCH q.course c
         LEFT JOIN FETCH q.attachments att
         LEFT JOIN FETCH att.file f
         WHERE q.id = :questionId
