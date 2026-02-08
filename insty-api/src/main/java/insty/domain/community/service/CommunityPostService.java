@@ -71,7 +71,7 @@ public class CommunityPostService {
                 .map(post -> CommunityPostRes.from(
                         post,
                         attachments.getOrDefault(post.getId(), List.of()),
-                        videoInfoByPostId.get(post.getId()),
+                        videoInfoByPostId.getOrDefault(post.getId(), null),
                         commentCountByPostId.getOrDefault(post.getId(), 0L),
                         likedPostIds.contains(post.getId())
                 ))
@@ -153,7 +153,7 @@ public class CommunityPostService {
                 .map(post -> CommunityMyPostRes.from(
                         post,
                         attachmentsByPostId.getOrDefault(post.getId(), List.of()),
-                        videoInfoByPostId.get(post.getId()),
+                        videoInfoByPostId.getOrDefault(post.getId(), null),
                         commentCountByPostId.getOrDefault(post.getId(), 0L),
                         likedPostIds.contains(post.getId())
                 ))
