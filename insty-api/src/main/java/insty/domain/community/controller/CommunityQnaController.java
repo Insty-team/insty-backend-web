@@ -15,6 +15,7 @@ import insty.domain.courseqna.dto.CourseQuestionUpdateReq;
 import insty.domain.common.dto.PaginationRes;
 import insty.global.annotation.CurrentUser;
 import insty.global.response.SuccessRes;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -83,7 +84,7 @@ public class CommunityQnaController {
     public SuccessRes<CourseQuestionDetailsRes> createQuestion(
             @CurrentUser Long userId,
             @RequestPart("communityQuestionReq") @Validated CourseQuestionCreateReq courseQuestionCreateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
@@ -93,7 +94,7 @@ public class CommunityQnaController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseQuestionUpdateReq courseQuestionUpdateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 2) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
@@ -129,7 +130,7 @@ public class CommunityQnaController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long questionId,
             @RequestPart CourseAnswerCreateReq COurseAnswerCreateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
@@ -139,7 +140,7 @@ public class CommunityQnaController {
             @CurrentUser Long userId,
             @PathVariable @NotNull Long answerId,
             @RequestPart CourseAnswerUpdateReq courseAnswerUpdateReq,
-            @RequestPart(value = "attachments", required = false) @Size(max = 1) List<MultipartFile> attachments
+            @RequestPart(value = "attachments", required = false) @Size(max = 2) @Schema(description = "첨부파일 (최대 2개)") List<MultipartFile> attachments
     ) {
         return SuccessRes.of(null);
     }
