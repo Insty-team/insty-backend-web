@@ -39,6 +39,9 @@ public class CourseQnaCleaner {
      * 단일 질문 삭제 시 관련 답변/첨부/영상을 모두 정리한다.
      */
     public void deleteQuestion(CourseQuestion question) {
+        if (question.getAcceptedAnswer() != null) {
+            question.unacceptAnswer();
+        }
         deleteAnswers(question);
         deleteQuestionOnly(question);
     }
