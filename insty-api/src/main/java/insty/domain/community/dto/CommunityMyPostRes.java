@@ -14,9 +14,13 @@ public record CommunityMyPostRes(
         List<FileInfo> attachments,
         VideoInfo videoInfo,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        int likeCount,
+        long commentCount,
+        boolean likedByMe
 ) {
-    public static CommunityMyPostRes from(CommunityPost post, List<FileInfo> attachments, VideoInfo videoInfo) {
+    public static CommunityMyPostRes from(CommunityPost post, List<FileInfo> attachments, VideoInfo videoInfo,
+                                          long commentCount, boolean likedByMe) {
         return new CommunityMyPostRes(
                 post.getId(),
                 post.getCourse().getId(),
@@ -24,7 +28,10 @@ public record CommunityMyPostRes(
                 Optional.ofNullable(attachments).orElse(List.of()),
                 videoInfo,
                 post.getCreatedAt(),
-                post.getUpdatedAt()
+                post.getUpdatedAt(),
+                post.getLikeCount(),
+                commentCount,
+                likedByMe
         );
     }
 }
