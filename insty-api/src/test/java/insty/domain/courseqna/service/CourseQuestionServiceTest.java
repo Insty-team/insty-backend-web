@@ -639,7 +639,57 @@ class CourseQuestionServiceTest {
         assertThat(creatorViewAfter).isNotNull();
     }
 
-    /**
-     * 게시판 타입(QNA / COURSE) 별로 필터링되는지 검증한다.
-     */
+    @Test
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'author@example.com', '질문작성자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'replier@example.com', '답변자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (3, 'creator@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 3, '삭제코스', '삭제설명', 10000, 0, 0, '대상', null, true, NOW(), NOW(), false);",
+
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, accepted_answer_id, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '채택 답변 있는 질문', '채택 답변 있는 질문 내용', 'ACCEPTED', null, NOW(), NOW(), false);",
+            "INSERT INTO web_service.files (id, container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
+                    + "VALUES (100, 1, 'QUESTION_IMAGE', 'image/jpeg', 'q_with_accepted.jpg', 'q_with_accepted.jpg', 1024, NOW(), NOW());",
+            "INSERT INTO web_service.course_question_files (question_id, file_id, created_at, updated_at) VALUES (1, 100, NOW(), NOW());",
+
+            "INSERT INTO web_service.video_questions (id, video_uuid, course_question_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (10, '00000000-0000-0000-0000-000000000010', 1, 1, 'vod/QUESTION/mp4/00000000-0000-0000-0000-000000000010/q_with_accepted_video.mp4', 'mp4', 'q_with_accepted_video.mp4', 25, 'COMPLETED', NOW(), NOW(), NOW(), false);",
+
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, 1, '일반 답변', false, DATEADD('MINUTE', -10, NOW()), NOW(), false);",
+            "INSERT INTO web_service.course_answers (id, user_id, question_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (2, 2, 1, '채택된 답변', true, DATEADD('MINUTE', -5, NOW()), NOW(), false);",
+            "INSERT INTO web_service.files (id, container_id, container_type, content_type, name, original_name, size, created_at, updated_at) "
+                    + "VALUES (200, 1, 'ANSWER_IMAGE', 'image/jpeg', 'answer_file.jpg', 'answer_file.jpg', 512, NOW(), NOW());",
+            "INSERT INTO web_service.course_answers_files (answer_id, file_id, created_at, updated_at) VALUES (1, 200, NOW(), NOW());",
+            "INSERT INTO web_service.video_answers (id, video_uuid, course_answer_id, user_id, s3key, extension, original_file_name, duration, encoding_status, encoding_at, created_at, updated_at, is_deleted) "
+                    + "VALUES (20, '00000000-0000-0000-0000-000000000020', 2, 2, 'vod/ANSWER/mp4/00000000-0000-0000-0000-000000000020/accepted_answer_video.mp4', 'mp4', 'accepted_answer_video.mp4', 30, 'COMPLETED', NOW(), NOW(), NOW(), false);",
+
+            "UPDATE web_service.course_questions SET accepted_answer_id = 2 WHERE id = 1;"})
+    void deleteQuestion_채택된답변있는질문_정상삭제() {
+        Long userId = 1L;
+        Long questionId = 1L;
+
+        var question = courseQuestionReader.getCourseQuestionWithAnswerById(questionId);
+        assertThat(question.getAcceptedAnswer()).isNotNull();
+        assertThat(question.getAcceptedAnswer().getId()).isEqualTo(2L);
+        assertThat(question.getAcceptedAnswer().isAccepted()).isTrue();
+        assertThat(question.getStatus()).isEqualTo(QuestionStatus.ACCEPTED);
+        assertThat(question.getAnswers()).hasSize(2);
+
+        when(videoEncodingRepository.findByVideoUuid(any())).thenReturn(Optional.of(mock(insty.model.video.VideoEncoding.class)));
+
+        courseQuestionService.deleteQuestion(userId, questionId);
+
+        assertThatThrownBy(() -> courseQuestionReader.getCourseQuestionWithAnswerById(questionId))
+                .isInstanceOf(insty.exception.CustomException.class);
+        assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(1L))
+                .isInstanceOf(insty.exception.CustomException.class);
+        assertThatThrownBy(() -> courseAnswerReader.getCourseAnswerById(2L))
+                .isInstanceOf(insty.exception.CustomException.class);
+    }
 }
