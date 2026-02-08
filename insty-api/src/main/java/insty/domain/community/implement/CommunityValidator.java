@@ -39,8 +39,26 @@ public class CommunityValidator {
         return post;
     }
 
+    public CommunityPost validatePostExistsWithUserAndCourse(Long postId) {
+        CommunityPost post = communityPostRepository.findByIdWithUserAndCourse(postId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
+        if (post.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_POST_ALREADY_DELETED);
+        }
+        return post;
+    }
+
     public CommunityComment validateCommentExists(Long commentId) {
         CommunityComment comment = communityCommentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_COMMENT_NOT_FOUND));
+        if (comment.isDeleted()) {
+            throw new CustomException(CommunityErrorCode.COMMUNITY_COMMENT_ALREADY_DELETED);
+        }
+        return comment;
+    }
+
+    public CommunityComment validateCommentExistsWithUserAndPost(Long commentId) {
+        CommunityComment comment = communityCommentRepository.findByIdWithUserAndPost(commentId)
                 .orElseThrow(() -> new CustomException(CommunityErrorCode.COMMUNITY_COMMENT_NOT_FOUND));
         if (comment.isDeleted()) {
             throw new CustomException(CommunityErrorCode.COMMUNITY_COMMENT_ALREADY_DELETED);

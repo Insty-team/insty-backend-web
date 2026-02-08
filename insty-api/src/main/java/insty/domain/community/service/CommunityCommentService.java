@@ -97,16 +97,16 @@ public class CommunityCommentService {
         communityValidator.validateContent(req.content());
         communityValidator.validateFiles(attachments);
 
-        CommunityComment comment = communityValidator.validateCommentExists(commentId);
+        CommunityComment comment = communityValidator.validateCommentExistsWithUserAndPost(commentId);
         communityValidator.validateCommentAuthor(userId, comment);
         communityValidator.validateCommentFileCountForUpdate(commentId, attachments, req.deleteFileIds());
 
-        CommunityComment updated = communityCommentWriter.updateComment(comment, req.content());
-        List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(updated, attachments, req.deleteFileIds());
-        VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(updated, req.videoUuid());
+        communityCommentWriter.updateComment(comment, req.content());
+        List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(comment, attachments, req.deleteFileIds());
+        VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(comment, req.videoUuid());
 
-        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, updated.getId());
-        return CommunityCommentRes.from(updated, files, video, likedByMe);
+        boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, comment.getId());
+        return CommunityCommentRes.from(comment, files, video, likedByMe);
     }
 
     public void deleteComment(Long userId, Long commentId) {

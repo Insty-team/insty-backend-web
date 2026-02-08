@@ -65,9 +65,13 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
     @Query("""
         SELECT p FROM CommunityPost p
         JOIN FETCH p.user u
+        JOIN FETCH p.course c
         LEFT JOIN FETCH p.attachments att
         LEFT JOIN FETCH att.file f
         WHERE p.id = :postId AND p.isDeleted = false
     """)
     Optional<CommunityPost> findDetailsWithUserAndAttachments(@Param("postId") Long postId);
+
+    @Query("SELECT p FROM CommunityPost p JOIN FETCH p.user JOIN FETCH p.course WHERE p.id = :postId")
+    Optional<CommunityPost> findByIdWithUserAndCourse(@Param("postId") Long postId);
 }
