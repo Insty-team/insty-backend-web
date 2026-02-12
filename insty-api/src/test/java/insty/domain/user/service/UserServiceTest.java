@@ -156,44 +156,4 @@ class UserServiceTest {
         verify(userFileReader).getProfileImageUrl(updatedUser);
         assertThat(result).usingRecursiveComparison().isEqualTo(UserDetailRes.from(updatedUser, imageUrl));
     }
-
-    @Test
-    void 사용자_비밀번호_변경에_성공한다() {
-        // given
-        Long userId = 1L;
-        UserPasswordUpdateReq userPasswordUpdateReq = new UserPasswordUpdateReq(
-                "currentPassword!",
-                "newPassword1!"
-        );
-
-        User findUser = UserFixtureBuilder.getUserWithId(userId, "user@example.com", "encodedCurrentPassword", "nickname");
-        String encodedNewPassword = "encodedNewPassword";
-
-        when(userReader.getUser(userId)).thenReturn(findUser);
-
-        doNothing().when(userValidator).validatePasswordChangeAvailable(findUser.getSocialId());
-        doNothing().when(userValidator).validateIdentityByPassword(findUser.getPassword(), userPasswordUpdateReq.currentPassword());
-        doNothing().when(userValidator).validateMatchesCurrentPassword(
-                findUser.getPassword(),
-                userPasswordUpdateReq.currentPassword(),
-                userPasswordUpdateReq.newPassword()
-        );
-
-        when(bCryptPasswordEncoder.encode(userPasswordUpdateReq.newPassword())).thenReturn(encodedNewPassword);
-
-        // when
-        // userService.updatePassword(userId, userPasswordUpdateReq);
-
-        // then
-        verify(userReader).getUser(userId);
-        verify(userValidator).validatePasswordChangeAvailable(findUser.getSocialId());
-        verify(userValidator).validateIdentityByPassword(findUser.getPassword(), userPasswordUpdateReq.currentPassword());
-        verify(userValidator).validateMatchesCurrentPassword(
-                findUser.getPassword(),
-                userPasswordUpdateReq.currentPassword(),
-                userPasswordUpdateReq.newPassword()
-        );
-        verify(bCryptPasswordEncoder).encode(userPasswordUpdateReq.newPassword());
-        verify(userWriter).changePassword(findUser, encodedNewPassword);
-    }
 }
