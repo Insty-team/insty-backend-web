@@ -112,9 +112,6 @@ public class UserValidator {
         if(!findUser.getEmail().equals(req.email())) {
             throw new CustomException(SocialErrorCode.NOT_CHANGE_EMAIL);
         }
-        if(!findUser.getPassword().equals(req.currentPassword())){
-            throw new CustomException(SocialErrorCode.NOT_CHANGE_PASSWORD);
-        }
     }
 
     public void validateEmailVerification(String email) {

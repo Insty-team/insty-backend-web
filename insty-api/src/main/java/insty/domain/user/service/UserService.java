@@ -59,18 +59,8 @@ public class UserService {
 
             return UserDetailRes.from(updatedUser, profileImageUrl);
         } else {
-            userValidator.validateIdentityByPassword(findUser.getPassword(), req.currentPassword());
             userValidator.validateDuplicateEmailExcludingSelf(userId, req.email());
             userValidator.validateDuplicateNicknameExcludingSelf(userId, req.nickname());
-
-            // TODO 회원 정보 수정 페이지 분리 되면 삭제 예정
-            if(req.currentPassword() != null && req.newPassword() != null) {
-                userValidator.validatePasswordChangeAvailable(findUser.getSocialId());
-                String encodedPassword = bCryptPasswordEncoder.encode(req.newPassword());
-                userValidator.validateMatchesCurrentPassword(findUser.getPassword(), req.currentPassword(), req.newPassword());
-                userWriter.changePassword(findUser, encodedPassword);
-            }
-
 
             User updatedUser = userWriter.updateUser(
                     findUser,
