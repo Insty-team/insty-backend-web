@@ -13,4 +13,6 @@ public interface VideoCommunityPostRepository extends JpaRepository<VideoCommuni
     Optional<VideoCommunityPost> findByCommunityPostIdAndIsDeleted(Long postId, boolean isDeleted);
 
     List<VideoCommunityPost> findAllByCommunityPostIdInAndIsDeletedFalse(List<Long> postIds);
+
+    List<VideoCommunityPost> findAllByIsDeletedTrue();
 }
