@@ -2,23 +2,15 @@ package insty.domain.community.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoCommunityPostRepository;
-import insty.domain.video.repository.VideoEncodingRepository;
-import insty.error.VideoErrorCode;
-import insty.exception.CustomException;
 import insty.model.community.CommunityPost;
 import insty.model.community.CommunityPostFixtureBuilder;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.video.VideoCommunityPost;
-import insty.model.video.VideoEncoding;
-import insty.s3.adapter.S3FileManager;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -36,12 +28,6 @@ class CommunityPostVideoManagerTest {
     @InjectMocks
     private CommunityPostVideoManager communityPostVideoManager;
 
-    @Mock
-    private AiRequester aiRequester;
-    @Mock
-    private S3FileManager s3FileManager;
-    @Mock
-    private VideoEncodingRepository videoEncodingRepository;
     @Mock
     private VideoCommunityPostRepository videoCommunityPostRepository;
 
@@ -73,7 +59,6 @@ class CommunityPostVideoManagerTest {
         VideoCommunityPost result = communityPostVideoManager.updateAndGetLinkedVideo(post, current.getVideoUuid());
 
         assertThat(result).isEqualTo(current);
-        verify(videoEncodingRepository, never()).findByVideoUuid(any());
     }
 
     @Test
@@ -117,6 +102,5 @@ class CommunityPostVideoManagerTest {
                 .thenReturn(Optional.empty());
 
         assertThatCode(() -> communityPostVideoManager.deleteVideo(post)).doesNotThrowAnyException();
-        verify(videoEncodingRepository, never()).findByVideoUuid(any());
     }
 }
