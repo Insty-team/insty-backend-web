@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -40,36 +41,64 @@ public class VideoResourceCleanupScheduler {
     }
 
     private int cleanupCommentVideos() {
-        List<VideoCommunityComment> deletedVideos =
-                videoCommunityCommentRepository.findAllByIsDeletedTrue();
-
         int successCount = 0;
-        for (VideoCommunityComment video : deletedVideos) {
-            try {
-                if (cleanupSingleCommentVideo(video)) {
-                    successCount++;
-                }
-            } catch (Exception e) {
-                log.error("Failed to cleanup comment video: videoUuid={}", video.getVideoUuid(), e);
+        int batchSize = 100;
+        int page = 0;
+
+        while (true) {
+            List<VideoCommunityComment> deletedVideos =
+                    videoCommunityCommentRepository.findAllByIsDeletedTrue(PageRequest.of(page, batchSize));
+
+            if (deletedVideos.isEmpty()) {
+                break;
             }
+
+            for (VideoCommunityComment video : deletedVideos) {
+                try {
+                    if (cleanupSingleCommentVideo(video)) {
+                        successCount++;
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to cleanup comment video: videoUuid={}", video.getVideoUuid(), e);
+                }
+            }
+
+            if (deletedVideos.size() < batchSize) {
+                break;
+            }
+            page++;
         }
 
         return successCount;
     }
 
     private int cleanupPostVideos() {
-        List<VideoCommunityPost> deletedVideos =
-                videoCommunityPostRepository.findAllByIsDeletedTrue();
-
         int successCount = 0;
-        for (VideoCommunityPost video : deletedVideos) {
-            try {
-                if (cleanupSinglePostVideo(video)) {
-                    successCount++;
-                }
-            } catch (Exception e) {
-                log.error("Failed to cleanup post video: videoUuid={}", video.getVideoUuid(), e);
+        int batchSize = 100;
+        int page = 0;
+
+        while (true) {
+            List<VideoCommunityPost> deletedVideos =
+                    videoCommunityPostRepository.findAllByIsDeletedTrue(PageRequest.of(page, batchSize));
+
+            if (deletedVideos.isEmpty()) {
+                break;
             }
+
+            for (VideoCommunityPost video : deletedVideos) {
+                try {
+                    if (cleanupSinglePostVideo(video)) {
+                        successCount++;
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to cleanup post video: videoUuid={}", video.getVideoUuid(), e);
+                }
+            }
+
+            if (deletedVideos.size() < batchSize) {
+                break;
+            }
+            page++;
         }
 
         return successCount;
