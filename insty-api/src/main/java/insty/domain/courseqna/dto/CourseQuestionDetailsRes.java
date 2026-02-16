@@ -20,6 +20,9 @@ public record CourseQuestionDetailsRes(
         @Schema(description = "질문이 작성된 강좌 ID", example = "1")
         Long courseId,
 
+        @Schema(description = "강의명", example = "스프링 부트 입문")
+        String courseName,
+
         @Schema(description = "질문 제목", example = "자바 스프링 부트 질문입니다.")
         String title,
 
@@ -50,6 +53,7 @@ public record CourseQuestionDetailsRes(
                 question.getId(),
                 CourseUserRes.from(question.getUser()),
                 question.getCourse().getId(),
+                question.getCourse().getTitle(),
                 question.getTitle(),
                 question.getContent(),
                 question.getStatus(),
