@@ -82,36 +82,32 @@ class CommunityPostVideoManagerTest {
         UUID videoUuid = UUID.randomUUID();
         VideoCommunityPost current = VideoCommunityPost.create("v.mp4", videoUuid,
                 UserFixtureBuilder.getUserWithId());
-        VideoEncoding encoding = insty.model.video.VideoFixtureBuilder.getVideoEncodingWithId();
-        org.springframework.test.util.ReflectionTestUtils.setField(encoding, "videoUuid", videoUuid);
 
         when(videoCommunityPostRepository.findByCommunityPostIdAndIsDeleted(post.getId(), false))
                 .thenReturn(Optional.of(current));
-        when(videoEncodingRepository.findByVideoUuid(current.getVideoUuid()))
-                .thenReturn(Optional.of(encoding));
+        when(videoCommunityPostRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         VideoCommunityPost result = communityPostVideoManager.updateAndGetLinkedVideo(post, null);
 
         assertThat(result).isNull();
-        verify(videoCommunityPostRepository).delete(current);
-        verify(videoEncodingRepository).delete(encoding);
+        assertThat(current.isDeleted()).isTrue();
+        verify(videoCommunityPostRepository).save(current);
     }
 
     @Test
-    void deleteVideo_인코딩없으면_예외() {
+    void deleteVideo_정상_soft삭제() {
         CommunityPost post = CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser();
         VideoCommunityPost current = VideoCommunityPost.create("v.mp4", UUID.randomUUID(),
                 UserFixtureBuilder.getUserWithId());
 
         when(videoCommunityPostRepository.findByCommunityPostIdAndIsDeleted(post.getId(), false))
                 .thenReturn(Optional.of(current));
-        when(videoEncodingRepository.findByVideoUuid(current.getVideoUuid()))
-                .thenReturn(Optional.empty());
+        when(videoCommunityPostRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThatThrownBy(() -> communityPostVideoManager.deleteVideo(post))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+        communityPostVideoManager.deleteVideo(post);
+
+        assertThat(current.isDeleted()).isTrue();
+        verify(videoCommunityPostRepository).save(current);
     }
 
     @Test

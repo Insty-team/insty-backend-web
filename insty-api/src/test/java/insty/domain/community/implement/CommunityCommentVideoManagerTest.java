@@ -86,23 +86,20 @@ class CommunityCommentVideoManagerTest {
         UUID videoUuid = UUID.randomUUID();
         VideoCommunityComment current = VideoCommunityComment.create("v.mp4", videoUuid,
                 UserFixtureBuilder.getUserWithId());
-        VideoEncoding encoding = insty.model.video.VideoFixtureBuilder.getVideoEncodingWithId();
-        org.springframework.test.util.ReflectionTestUtils.setField(encoding, "videoUuid", videoUuid);
 
         when(videoCommunityCommentRepository.findByCommunityCommentIdAndIsDeleted(comment.getId(), false))
                 .thenReturn(Optional.of(current));
-        when(videoEncodingRepository.findByVideoUuid(current.getVideoUuid()))
-                .thenReturn(Optional.of(encoding));
+        when(videoCommunityCommentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         VideoCommunityComment result = communityCommentVideoManager.updateAndGetLinkedVideo(comment, null);
 
         assertThat(result).isNull();
-        verify(videoCommunityCommentRepository).delete(current);
-        verify(videoEncodingRepository).delete(encoding);
+        assertThat(current.isDeleted()).isTrue();
+        verify(videoCommunityCommentRepository).save(current);
     }
 
     @Test
-    void deleteVideo_인코딩없으면_예외() {
+    void deleteVideo_정상_soft삭제() {
         CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(
                 CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser());
         VideoCommunityComment current = VideoCommunityComment.create("v.mp4", UUID.randomUUID(),
@@ -110,13 +107,12 @@ class CommunityCommentVideoManagerTest {
 
         when(videoCommunityCommentRepository.findByCommunityCommentIdAndIsDeleted(comment.getId(), false))
                 .thenReturn(Optional.of(current));
-        when(videoEncodingRepository.findByVideoUuid(current.getVideoUuid()))
-                .thenReturn(Optional.empty());
+        when(videoCommunityCommentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThatThrownBy(() -> communityCommentVideoManager.deleteVideo(comment))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+        communityCommentVideoManager.deleteVideo(comment);
+
+        assertThat(current.isDeleted()).isTrue();
+        verify(videoCommunityCommentRepository).save(current);
     }
 
     @Test
