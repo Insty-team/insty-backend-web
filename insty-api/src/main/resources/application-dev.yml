@@ -25,6 +25,8 @@ video:
       course: 6000
       answer: 6000
       question: 6000
+      community-post: 6000
+      community-comment: 6000
 
 mixpanel:
   enabled: false

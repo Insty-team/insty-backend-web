@@ -72,6 +72,26 @@ public class VideoController {
         return SuccessRes.of(videoService.getPreSignedURLForVideoUpload(VideoType.ANSWER, userId, req));
     }
 
+    @Operation(summary = "커뮤니티 게시글 영상 업로드", description = "커뮤니티 게시글 영상을 업로드하기 위한 URL을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
+    @PostMapping("/upload/community-post")
+    public SuccessRes<VideoUploadRes> uploadCommunityPost(
+            @CurrentUser Long userId,
+            @RequestBody @Validated VideoUploadReq req
+    ) {
+        return SuccessRes.of(videoService.getPreSignedURLForVideoUpload(VideoType.COMMUNITY_POST, userId, req));
+    }
+
+    @Operation(summary = "커뮤니티 댓글 영상 업로드", description = "커뮤니티 댓글 영상을 업로드하기 위한 URL을 제공받는다.")
+    @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_UPLOAD)
+    @PostMapping("/upload/community-comment")
+    public SuccessRes<VideoUploadRes> uploadCommunityComment(
+            @CurrentUser Long userId,
+            @RequestBody @Validated VideoUploadReq req
+    ) {
+        return SuccessRes.of(videoService.getPreSignedURLForVideoUpload(VideoType.COMMUNITY_COMMENT, userId, req));
+    }
+
     @Operation(summary = "영상 썸네일 조회", description = "영상에 대한 썸네일을 제공받는다.")
     @CustomExceptionDescription(SwaggerResponseDescription.VIDEO_THUMBNAIL_GET)
     @GetMapping("/{videoUuid}/thumbnail")
