@@ -14,4 +14,6 @@ public class VideoUploadLimitProperties {
     private int course;
     private int question;
     private int answer;
+    private int communityPost;
+    private int communityComment;
 }

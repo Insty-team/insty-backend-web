@@ -106,6 +106,8 @@ video:
       course: 30
       answer: 10
       question: 10
+      community-post: 10
+      community-comment: 10
 
 aop:
   api-logging:
