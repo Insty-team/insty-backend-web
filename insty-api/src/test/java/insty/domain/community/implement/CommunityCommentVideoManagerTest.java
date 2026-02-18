@@ -2,24 +2,16 @@ package insty.domain.community.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoCommunityCommentRepository;
-import insty.domain.video.repository.VideoEncodingRepository;
-import insty.error.VideoErrorCode;
-import insty.exception.CustomException;
 import insty.model.community.CommunityComment;
 import insty.model.community.CommunityCommentFixtureBuilder;
 import insty.model.community.CommunityPostFixtureBuilder;
 import insty.model.user.UserFixtureBuilder;
 import insty.model.video.VideoCommunityComment;
-import insty.model.video.VideoEncoding;
-import insty.s3.adapter.S3FileManager;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Tag;
@@ -37,12 +29,6 @@ class CommunityCommentVideoManagerTest {
     @InjectMocks
     private CommunityCommentVideoManager communityCommentVideoManager;
 
-    @Mock
-    private AiRequester aiRequester;
-    @Mock
-    private S3FileManager s3FileManager;
-    @Mock
-    private VideoEncodingRepository videoEncodingRepository;
     @Mock
     private VideoCommunityCommentRepository videoCommunityCommentRepository;
 
@@ -76,7 +62,6 @@ class CommunityCommentVideoManagerTest {
         VideoCommunityComment result = communityCommentVideoManager.updateAndGetLinkedVideo(comment, current.getVideoUuid());
 
         assertThat(result).isEqualTo(current);
-        verify(videoEncodingRepository, never()).findByVideoUuid(any());
     }
 
     @Test
@@ -86,23 +71,20 @@ class CommunityCommentVideoManagerTest {
         UUID videoUuid = UUID.randomUUID();
         VideoCommunityComment current = VideoCommunityComment.create("v.mp4", videoUuid,
                 UserFixtureBuilder.getUserWithId());
-        VideoEncoding encoding = insty.model.video.VideoFixtureBuilder.getVideoEncodingWithId();
-        org.springframework.test.util.ReflectionTestUtils.setField(encoding, "videoUuid", videoUuid);
 
         when(videoCommunityCommentRepository.findByCommunityCommentIdAndIsDeleted(comment.getId(), false))
                 .thenReturn(Optional.of(current));
-        when(videoEncodingRepository.findByVideoUuid(current.getVideoUuid()))
-                .thenReturn(Optional.of(encoding));
+        when(videoCommunityCommentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         VideoCommunityComment result = communityCommentVideoManager.updateAndGetLinkedVideo(comment, null);
 
         assertThat(result).isNull();
-        verify(videoCommunityCommentRepository).delete(current);
-        verify(videoEncodingRepository).delete(encoding);
+        assertThat(current.isDeleted()).isTrue();
+        verify(videoCommunityCommentRepository).save(current);
     }
 
     @Test
-    void deleteVideo_인코딩없으면_예외() {
+    void deleteVideo_정상_soft삭제() {
         CommunityComment comment = CommunityCommentFixtureBuilder.getCommunityCommentWithIdAndUser(
                 CommunityPostFixtureBuilder.getCommunityPostWithIdAndUser());
         VideoCommunityComment current = VideoCommunityComment.create("v.mp4", UUID.randomUUID(),
@@ -110,13 +92,12 @@ class CommunityCommentVideoManagerTest {
 
         when(videoCommunityCommentRepository.findByCommunityCommentIdAndIsDeleted(comment.getId(), false))
                 .thenReturn(Optional.of(current));
-        when(videoEncodingRepository.findByVideoUuid(current.getVideoUuid()))
-                .thenReturn(Optional.empty());
+        when(videoCommunityCommentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThatThrownBy(() -> communityCommentVideoManager.deleteVideo(comment))
-                .isInstanceOf(CustomException.class)
-                .extracting(e -> ((CustomException) e).getErrorCode())
-                .isEqualTo(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING);
+        communityCommentVideoManager.deleteVideo(comment);
+
+        assertThat(current.isDeleted()).isTrue();
+        verify(videoCommunityCommentRepository).save(current);
     }
 
     @Test
@@ -127,6 +108,5 @@ class CommunityCommentVideoManagerTest {
                 .thenReturn(Optional.empty());
 
         assertThatCode(() -> communityCommentVideoManager.deleteVideo(comment)).doesNotThrowAnyException();
-        verify(videoEncodingRepository, never()).findByVideoUuid(any());
     }
 }

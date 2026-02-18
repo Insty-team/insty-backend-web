@@ -118,4 +118,8 @@ public class VideoCommunityPost extends BaseEntity implements BaseVideo {
     public void updateCommunityPost(CommunityPost communityPost) {
         this.communityPost = communityPost;
     }
+
+    public void markAsDeleted() {
+        this.isDeleted = true;
+    }
 }

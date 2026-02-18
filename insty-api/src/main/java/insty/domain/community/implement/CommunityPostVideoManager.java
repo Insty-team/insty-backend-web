@@ -1,14 +1,10 @@
 package insty.domain.community.implement;
 
-import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoCommunityPostRepository;
-import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityPost;
 import insty.model.video.VideoCommunityPost;
-import insty.model.video.VideoEncoding;
-import insty.s3.adapter.S3FileManager;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,9 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CommunityPostVideoManager {
 
-    private final AiRequester aiRequester;
-    private final S3FileManager s3FileManager;
-    private final VideoEncodingRepository videoEncodingRepository;
     private final VideoCommunityPostRepository videoCommunityPostRepository;
 
     public VideoCommunityPost attachVideo(CommunityPost post, UUID videoUuid) {
@@ -81,12 +74,7 @@ public class CommunityPostVideoManager {
         if (video == null) {
             return;
         }
-        VideoEncoding encoding = videoEncodingRepository.findByVideoUuid(video.getVideoUuid())
-                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING));
-        String directory = encoding.getEncodingVideoDirectoryPath();
-        videoCommunityPostRepository.delete(video);
-        videoEncodingRepository.delete(encoding);
-        aiRequester.deleteAiVideoInfo(video.getVideoUuid());
-        s3FileManager.deleteAllByDirectory(directory);
+        video.markAsDeleted();
+        videoCommunityPostRepository.save(video);
     }
 }

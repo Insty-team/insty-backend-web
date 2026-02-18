@@ -1,27 +1,20 @@
 package insty.domain.community.implement;
 
-import insty.ai.adapter.AiRequester;
 import insty.domain.video.repository.VideoCommunityCommentRepository;
-import insty.domain.video.repository.VideoEncodingRepository;
 import insty.error.VideoErrorCode;
 import insty.exception.CustomException;
 import insty.model.community.CommunityComment;
 import insty.model.video.VideoCommunityComment;
-import insty.model.video.VideoEncoding;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import insty.s3.adapter.S3FileManager;
 
 @Component
 @RequiredArgsConstructor
 @Transactional
 public class CommunityCommentVideoManager {
 
-    private final AiRequester aiRequester;
-    private final S3FileManager s3FileManager;
-    private final VideoEncodingRepository videoEncodingRepository;
     private final VideoCommunityCommentRepository videoCommunityCommentRepository;
 
     public VideoCommunityComment attachVideo(CommunityComment comment, UUID videoUuid) {
@@ -66,13 +59,8 @@ public class CommunityCommentVideoManager {
         if (video == null) {
             return;
         }
-        VideoEncoding encoding = videoEncodingRepository.findByVideoUuid(video.getVideoUuid())
-                .orElseThrow(() -> new CustomException(VideoErrorCode.VIDEO_NOT_FINISHED_ENCODING));
-        String directory = encoding.getEncodingVideoDirectoryPath();
-        videoCommunityCommentRepository.delete(video);
-        videoEncodingRepository.delete(encoding);
-        aiRequester.deleteAiVideoInfo(video.getVideoUuid());
-        s3FileManager.deleteAllByDirectory(directory);
+        video.markAsDeleted();
+        videoCommunityCommentRepository.save(video);
     }
 
     private void validateAttachable(VideoCommunityComment video, CommunityComment targetComment) {
