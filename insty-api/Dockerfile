@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk
+FROM openjdk:17
 
 ARG JAR_FILE=build/libs/insty-api-0.0.1-SNAPSHOT.jar
 
