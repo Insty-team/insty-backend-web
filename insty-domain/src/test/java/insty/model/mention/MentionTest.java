@@ -26,25 +26,25 @@ class MentionTest {
         User mentionerUser = UserFixtureBuilder.getUserWithId(2L);
 
         // when
-        Mention mention = Mention.create(courseAnswer, mentionedUser, mentionerUser);
+        Mention mention = Mention.create(MentionTargetType.COURSE_ANSWER, courseAnswer.getId(), mentionedUser, mentionerUser);
 
         // then
         assertThat(mention).isNotNull();
         assertThat(mention.getId()).isNull();
-        assertThat(mention.getCourseAnswer()).isEqualTo(courseAnswer);
+        assertThat(mention.getTargetType()).isEqualTo(MentionTargetType.COURSE_ANSWER);
+        assertThat(mention.getTargetId()).isEqualTo(courseAnswer.getId());
         assertThat(mention.getMentionedUser()).isEqualTo(mentionedUser);
         assertThat(mention.getMentionerUser()).isEqualTo(mentionerUser);
     }
 
     @Test
-    void create_에러_CommunityAnswer가_null이다() {
+    void create_에러_targetId가_null이다() {
         // given
-        CourseAnswer courseAnswer = null;
         User mentionedUser = UserFixtureBuilder.getUserWithId(1L);
         User mentionerUser = UserFixtureBuilder.getUserWithId(2L);
 
         // when & then
-        assertThatThrownBy(() -> Mention.create(courseAnswer, mentionedUser, mentionerUser))
+        assertThatThrownBy(() -> Mention.create(MentionTargetType.COURSE_ANSWER, null, mentionedUser, mentionerUser))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_CREATE_ERROR);
@@ -60,7 +60,7 @@ class MentionTest {
         User mentionerUser = UserFixtureBuilder.getUserWithId(2L);
 
         // when & then
-        assertThatThrownBy(() -> Mention.create(courseAnswer, mentionedUser, mentionerUser))
+        assertThatThrownBy(() -> Mention.create(MentionTargetType.COURSE_ANSWER, courseAnswer.getId(), mentionedUser, mentionerUser))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_CREATE_ERROR);
@@ -76,7 +76,7 @@ class MentionTest {
         User mentionerUser = null;
 
         // when & then
-        assertThatThrownBy(() -> Mention.create(courseAnswer, mentionedUser, mentionerUser))
+        assertThatThrownBy(() -> Mention.create(MentionTargetType.COURSE_ANSWER, courseAnswer.getId(), mentionedUser, mentionerUser))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_CREATE_ERROR);
@@ -91,7 +91,7 @@ class MentionTest {
         User user = UserFixtureBuilder.getUserWithId(1L);
 
         // when & then
-        assertThatThrownBy(() -> Mention.create(courseAnswer, user, user))
+        assertThatThrownBy(() -> Mention.create(MentionTargetType.COURSE_ANSWER, courseAnswer.getId(), user, user))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_SELF_ERROR);

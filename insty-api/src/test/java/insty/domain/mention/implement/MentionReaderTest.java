@@ -7,6 +7,7 @@ import insty.domain.mention.repository.MentionRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.model.mention.Mention;
 import insty.model.mention.MentionFixtureBuilder;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.util.List;
@@ -83,7 +84,7 @@ class MentionReaderTest {
         List<Mention> expectedMentions = List.of(mention1, mention2);
 
         // mock
-        when(mentionRepository.findAllByCommunityAnswerId(answerId))
+        when(mentionRepository.findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, answerId))
                 .thenReturn(expectedMentions);
 
         // when
@@ -100,7 +101,7 @@ class MentionReaderTest {
         Long answerId = 1L;
 
         // mock
-        when(mentionRepository.findAllByCommunityAnswerId(answerId))
+        when(mentionRepository.findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, answerId))
                 .thenReturn(List.of());
 
         // when

@@ -1,8 +1,10 @@
 package insty.domain.mention.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,12 +19,12 @@ import insty.domain.user.implement.UserFileReader;
 import insty.domain.user.repository.UserRepository;
 import insty.global.property.AppProperties;
 import insty.model.courseqna.CourseAnswer;
-import insty.model.courseqna.CourseQuestion;
 import insty.s3.adapter.S3FileManager;
 import insty.s3.adapter.S3UrlIssuer;
 import insty.cloudfront.adapter.CloudFrontSigner;
 import insty.ai.adapter.AiRequester;
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -140,7 +142,9 @@ class MentionServiceTest {
         verify(mentionNotificationManager)
                 .sendMentionsNotification(
                         argThat(list -> list.size() == 1),
-                        any(CourseQuestion.class)
+                        any(String.class),
+                        eq(MentionTargetType.COURSE_ANSWER),
+                        eq(1L)
                 );
     }
 
@@ -207,7 +211,41 @@ class MentionServiceTest {
         verify(mentionNotificationManager)
                 .sendMentionsNotification(
                         argThat(list -> list.size() == 2),
-                        any(CourseQuestion.class)
+                        any(String.class),
+                        eq(MentionTargetType.COURSE_ANSWER),
+                        eq(1L)
                 );
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'example@example.com', 'example', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'user2@example.com', '홍길동', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (3, 'user3@example.com', '김철수', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, '테스트 강의', '설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.course_questions (id, course_id, user_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 3, '테스트 질문', '질문 내용', 'WAITING', NOW(), NOW(), false);",
+            "INSERT INTO web_service.course_answers (id, question_id, user_id, content, is_accepted, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 2, '테스트 답변', false, NOW(), NOW(), false);",
+            "INSERT INTO web_service.mentions (target_type, target_id, mentioned_user_id, mentioner_user_id, created_at, updated_at) "
+                    + "VALUES ('COURSE_ANSWER', 1, 2, 1, DATEADD('MINUTE', -10, NOW()), DATEADD('MINUTE', -10, NOW()));"
+    })
+    @Test
+    void processMentions_이미_동일멘션이_있어도_409없이_정상() {
+        // given
+        CourseAnswer courseAnswer = courseAnswerReader.getCourseAnswerById(1L);
+        User mentionerUser = userRepository.findById(1L).orElseThrow();
+        String content = "안녕하세요 @[홍길동](2)님!";
+
+        // when & then
+        assertThatCode(() -> mentionService.processMentions(courseAnswer, mentionerUser, content))
+                .doesNotThrowAnyException();
+
+        List<Mention> mentions = mentionReader.getMentionsByAnswerId(1L);
+        assertThat(mentions).hasSize(1);
+        assertThat(mentions.get(0).getMentionedUser().getId()).isEqualTo(2L);
     }
 }

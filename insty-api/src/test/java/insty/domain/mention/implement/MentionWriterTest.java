@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.mention.dto.MentionedUserInfo;
@@ -11,10 +13,9 @@ import insty.domain.mention.repository.MentionRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.MentionErrorCode;
 import insty.exception.CustomException;
-import insty.model.courseqna.CourseAnswer;
-import insty.model.courseqna.CommunityAnswerFixtureBuilder;
 import insty.model.mention.Mention;
 import insty.model.mention.MentionFixtureBuilder;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.time.Instant;
@@ -46,7 +47,6 @@ class MentionWriterTest {
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
         User mentionedUser1 = UserFixtureBuilder.getUserWithId(2L);
         User mentionedUser2 = UserFixtureBuilder.getUserWithId(3L);
-        CourseAnswer courseAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
         
         MentionedUserInfo userInfo1 = new MentionedUserInfo(2L, "홍길동");
         MentionedUserInfo userInfo2 = new MentionedUserInfo(3L, "김철수");
@@ -57,11 +57,15 @@ class MentionWriterTest {
 
         // mock
         when(userRepository.findAllById(java.util.Set.of(2L, 3L))).thenReturn(List.of(mentionedUser1, mentionedUser2));
+        when(mentionRepository.findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                MentionTargetType.COURSE_ANSWER, 1L, 2L, 1L)).thenReturn(Optional.empty());
+        when(mentionRepository.findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                MentionTargetType.COURSE_ANSWER, 1L, 3L, 1L)).thenReturn(Optional.empty());
         when(mentionRepository.save(any(Mention.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        List<Mention> result = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer);
+        List<Mention> result = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, MentionTargetType.COURSE_ANSWER, 1L);
 
         // then
         assertThat(result).hasSize(2);
@@ -71,7 +75,6 @@ class MentionWriterTest {
     void saveMentions_멘션된_사용자_없음() {
         // given
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
-        CourseAnswer courseAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
         
         MentionedUserInfo userInfo = new MentionedUserInfo(999L, "존재하지않는사용자");
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
@@ -80,7 +83,8 @@ class MentionWriterTest {
         when(userRepository.findAllById(java.util.Set.of(999L))).thenReturn(List.of());
 
         // when & then
-        assertThatThrownBy(() -> mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer))
+        assertThatThrownBy(() -> mentionWriter.saveMentions(
+                mentionedUserInfos, mentionerUser, MentionTargetType.COURSE_ANSWER, 1L))
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_USER_NOT_FOUND);
@@ -91,7 +95,6 @@ class MentionWriterTest {
         // given
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
         User mentionedUser = UserFixtureBuilder.getUserWithId(13L);
-        CourseAnswer courseAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
 
         MentionedUserInfo userInfo = new MentionedUserInfo(13L, "사나운낙지304");
         List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
@@ -101,15 +104,61 @@ class MentionWriterTest {
         // mock
         when(userRepository.findAllById(java.util.Set.of(13L))).thenReturn(List.of(mentionedUser));
         when(mentionRepository.save(any(Mention.class))).thenThrow(new DataIntegrityViolationException("duplicate"));
-        when(mentionRepository.findByCourseAnswer_IdAndMentionedUser_IdAndMentionerUser_Id(1L, 13L, 1L))
-                .thenReturn(Optional.of(existingMention));
+        when(mentionRepository.findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                MentionTargetType.COURSE_ANSWER, 1L, 13L, 1L))
+                .thenReturn(Optional.empty(), Optional.of(existingMention));
 
         // when
-        List<Mention> result = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer);
+        List<Mention> result = mentionWriter.saveMentions(
+                mentionedUserInfos, mentionerUser, MentionTargetType.COURSE_ANSWER, 1L);
 
         // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isSameAs(existingMention);
+    }
+
+    @Test
+    void saveMentions_이미_저장된_멘션이_있으면_재사용() {
+        // given
+        User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
+        User mentionedUser = UserFixtureBuilder.getUserWithId(2L);
+        MentionedUserInfo userInfo = new MentionedUserInfo(2L, "홍길동");
+        Mention existingMention = MentionFixtureBuilder.getMentionWithId(100L);
+
+        // mock
+        when(userRepository.findAllById(java.util.Set.of(2L))).thenReturn(List.of(mentionedUser));
+        when(mentionRepository.findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                MentionTargetType.COURSE_ANSWER, 1L, 2L, 1L))
+                .thenReturn(Optional.of(existingMention));
+
+        // when
+        List<Mention> result = mentionWriter.saveMentions(
+                List.of(userInfo), mentionerUser, MentionTargetType.COURSE_ANSWER, 1L);
+
+        // then
+        assertThat(result).containsExactly(existingMention);
+        verify(mentionRepository, never()).save(any(Mention.class));
+    }
+
+    @Test
+    void saveMentions_제약위반_후_기존멘션_없으면_생성실패() {
+        // given
+        User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
+        User mentionedUser = UserFixtureBuilder.getUserWithId(13L);
+        MentionedUserInfo userInfo = new MentionedUserInfo(13L, "사나운낙지304");
+
+        // mock
+        when(userRepository.findAllById(java.util.Set.of(13L))).thenReturn(List.of(mentionedUser));
+        when(mentionRepository.save(any(Mention.class))).thenThrow(new DataIntegrityViolationException("duplicate"));
+        when(mentionRepository.findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                MentionTargetType.COURSE_ANSWER, 1L, 13L, 1L)).thenReturn(Optional.empty(), Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> mentionWriter.saveMentions(
+                List.of(userInfo), mentionerUser, MentionTargetType.COURSE_ANSWER, 1L))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(MentionErrorCode.MENTION_CREATE_ERROR);
     }
 
     @Test

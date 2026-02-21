@@ -16,11 +16,11 @@ public class MentionFixture {
         User mentionedUser = UserFixtureBuilder.getUserWithId(2L);
         User mentionerUser = UserFixtureBuilder.getUserWithId(3L);
         
-        return Mention.create(answer, mentionedUser, mentionerUser);
+        return Mention.create(MentionTargetType.COURSE_ANSWER, 1L, mentionedUser, mentionerUser);
     }
 
     public static Mention getMention(CourseAnswer courseAnswer, User mentionedUser, User mentionerUser) {
-        return Mention.create(courseAnswer, mentionedUser, mentionerUser);
+        return Mention.create(MentionTargetType.COURSE_ANSWER, 1L, mentionedUser, mentionerUser);
     }
 
     public static Mention getMention(Long mentionedUserId, Long mentionerUserId) {
@@ -29,7 +29,6 @@ public class MentionFixture {
         User mentionerUser = UserFixtureBuilder.getUserWithId(mentionerUserId);
         CourseAnswer answer = CommunityAnswerFixture.getCommunityAnswer(question, mentionedUser);
         
-        return Mention.create(answer, mentionedUser, mentionerUser);
+        return Mention.create(MentionTargetType.COURSE_ANSWER, 1L, mentionedUser, mentionerUser);
     }
 }
-
