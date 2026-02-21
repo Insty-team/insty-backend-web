@@ -18,9 +18,11 @@ import insty.domain.community.implement.CommunityCommentVideoManager;
 import insty.domain.community.implement.CommunityCommentWriter;
 import insty.domain.community.implement.CommunityPostReader;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.mention.implement.MentionEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityComment;
 import insty.model.community.CommunityPost;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.video.VideoCommunityComment;
 import java.util.List;
@@ -47,6 +49,7 @@ public class CommunityCommentService {
     private final CommunityCommentLikeManager communityCommentLikeManager;
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
+    private final MentionEventPublisher mentionEventPublisher;
 
     public SearchRes<CommunityCommentRes> getComments(Long userId, Long courseId, Long postId, CommunityCommentSearchReq req) {
         CommunityPost post = communityPostReader.getPost(postId);
@@ -88,6 +91,7 @@ public class CommunityCommentService {
         CommunityComment comment = communityCommentWriter.saveComment(post, user, req.content());
         List<FileInfo> files = communityCommentFileWriter.saveCommentFiles(comment, attachments);
         VideoCommunityComment video = communityCommentVideoManager.attachVideo(comment, req.videoUuid());
+        mentionEventPublisher.publish(userId, MentionTargetType.COMMUNITY_COMMENT, comment.getId(), comment.getContent());
 
         boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, comment.getId());
         return CommunityCommentRes.from(comment, files, video, likedByMe);
@@ -104,6 +108,7 @@ public class CommunityCommentService {
         communityCommentWriter.updateComment(comment, req.content());
         List<FileInfo> files = communityCommentFileWriter.updateCommentFiles(comment, attachments, req.deleteFileIds());
         VideoCommunityComment video = communityCommentVideoManager.updateAndGetLinkedVideo(comment, req.videoUuid());
+        mentionEventPublisher.publish(userId, MentionTargetType.COMMUNITY_COMMENT, comment.getId(), comment.getContent());
 
         boolean likedByMe = communityCommentLikeManager.isLikedByUser(userId, comment.getId());
         return CommunityCommentRes.from(comment, files, video, likedByMe);

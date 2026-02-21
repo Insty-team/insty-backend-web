@@ -22,6 +22,7 @@ import insty.domain.community.implement.CommunityCommentVideoManager;
 import insty.domain.community.implement.CommunityCommentWriter;
 import insty.domain.community.implement.CommunityPostReader;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.mention.implement.MentionEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityComment;
 import insty.model.community.CommunityCommentFixtureBuilder;
@@ -64,6 +65,8 @@ class CommunityCommentServiceTest {
     private CommunityValidator communityValidator;
     @Mock
     private UserReader userReader;
+    @Mock
+    private MentionEventPublisher mentionEventPublisher;
 
     @InjectMocks
     private CommunityCommentService communityCommentService;

@@ -16,7 +16,7 @@ public record NotificationRes(
                 - NEW_COURSE_QUESTION: 새 질문 알림 - 구독/관심있는 강좌에 새로운 질문이 등록되었을 때 발송 (수신자 : CREATOR)
                 - NEW_COURSE_ANSWER: 새 답변 알림 - 내가 작성한 질문에 새로운 답변이 달렸을 때 발송 (수신자 : RUNNER / CREATOR)
                 - COURSE_ANSWER_ACCEPT: 답변 채택 알림 - 내가 작성한 답변이 채택되었을 때 발송 (수신자 : RUNNER)
-                - USER_MENTIONED: 멘션 알림 - 강좌 질문/답변에서 다른 사용자가 나를 멘션했을 때 발송 (수신자 : RUNNER / CREATOR)
+                - USER_MENTIONED: 멘션 알림 - 강좌/커뮤니티 게시글 및 댓글에서 다른 사용자가 나를 멘션했을 때 발송 (수신자 : RUNNER / CREATOR)
                 """,
                 example = "NEW_COURSE_ANSWER")
         NotificationType type,

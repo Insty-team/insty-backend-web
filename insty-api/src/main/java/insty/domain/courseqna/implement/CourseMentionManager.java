@@ -6,6 +6,7 @@ import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionWriter;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,13 @@ public class CourseMentionManager {
         List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
 
-        List<Mention> savedMentions = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, answer);
+        List<Mention> savedMentions = mentionWriter.saveMentions(
+                mentionedUserInfos, mentionerUser, MentionTargetType.COURSE_ANSWER, answer.getId()
+        );
 
-        mentionNotificationManager.sendMentionsNotification(savedMentions, answer.getCourseQuestion());
+        mentionNotificationManager.sendMentionsNotification(
+                savedMentions, content, MentionTargetType.COURSE_ANSWER, answer.getId()
+        );
         
         return savedMentions.stream()
                 .map(Mention::getMentionedUser)

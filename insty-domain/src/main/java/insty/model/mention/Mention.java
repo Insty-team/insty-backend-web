@@ -3,9 +3,11 @@ package insty.model.mention;
 import insty.error.MentionErrorCode;
 import insty.exception.CustomException;
 import insty.model.BaseEntity;
-import insty.model.courseqna.CourseAnswer;
 import insty.model.user.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,9 +35,12 @@ public class Mention extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_answer_id", nullable = false)
-    private CourseAnswer courseAnswer;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_type", nullable = false, length = 30)
+    private MentionTargetType targetType;
+
+    @Column(name = "target_id", nullable = false)
+    private Long targetId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mentioned_user_id", nullable = false)
@@ -48,18 +53,23 @@ public class Mention extends BaseEntity {
     /**
      * 멘션 생성
      */
-    public static Mention create(CourseAnswer courseAnswer, User mentionedUser, User mentionerUser) {
-        validateCreate(courseAnswer, mentionedUser, mentionerUser);
+    public static Mention create(MentionTargetType targetType, Long targetId, User mentionedUser, User mentionerUser) {
+        validateCreate(targetType, targetId, mentionedUser, mentionerUser);
         return Mention.builder()
-                .courseAnswer(courseAnswer)
+                .targetType(targetType)
+                .targetId(targetId)
                 .mentionedUser(mentionedUser)
                 .mentionerUser(mentionerUser)
                 .build();
     }
 
-    private static void validateCreate(CourseAnswer courseAnswer, User mentionedUser, User mentionerUser) {
-        if (courseAnswer == null) {
-            log.error("멘션 생성 오류 - courseAnswer : null");
+    private static void validateCreate(MentionTargetType targetType, Long targetId, User mentionedUser, User mentionerUser) {
+        if (targetType == null) {
+            log.error("멘션 생성 오류 - targetType : null");
+            throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
+        }
+        if (targetId == null) {
+            log.error("멘션 생성 오류 - targetId : null");
             throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
         }
         if (mentionedUser == null) {

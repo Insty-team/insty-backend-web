@@ -63,4 +63,12 @@ public interface CourseAnswerRepository extends JpaRepository<CourseAnswer, Long
 
     @Query("SELECT a FROM CourseAnswer a JOIN FETCH a.user WHERE a.id = :answerId")
     Optional<CourseAnswer> findByIdWithUser(@Param("answerId") Long answerId);
+
+    @Query("""
+        SELECT a.courseQuestion.id
+        FROM CourseAnswer a
+        WHERE a.id = :answerId
+          AND a.isDeleted = false
+    """)
+    Optional<Long> findQuestionIdByAnswerId(@Param("answerId") Long answerId);
 }

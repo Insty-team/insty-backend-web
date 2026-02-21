@@ -1,16 +1,20 @@
 package insty.domain.mention.repository;
 
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MentionRepository extends JpaRepository<Mention, Long> {
 
-    @Query("SELECT m FROM Mention m WHERE m.courseAnswer.id = :answerId")
-    List<Mention> findAllByCommunityAnswerId(@Param("answerId") Long answerId);
+    List<Mention> findAllByTargetTypeAndTargetId(MentionTargetType targetType, Long targetId);
+
+    Optional<Mention> findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+        MentionTargetType targetType, Long targetId, Long mentionedUserId, Long mentionerUserId);
 
     boolean existsByMentionerUser_IdAndMentionedUser_IdAndCreatedAtGreaterThanEqual(
         Long mentionerId, Long mentionedId, Instant since);

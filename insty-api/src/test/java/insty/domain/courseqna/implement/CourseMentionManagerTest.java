@@ -10,9 +10,9 @@ import insty.domain.mention.implement.MentionParser;
 import insty.domain.mention.implement.MentionWriter;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CommunityAnswerFixtureBuilder;
-import insty.model.courseqna.CourseQuestion;
 import insty.model.courseqna.CommunityQuestionFixtureBuilder;
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.util.List;
@@ -42,8 +42,8 @@ class CourseMentionManagerTest {
     @Test
     void processMentions_정상_맨션된사용자목록반환() {
         // given
-        CourseQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "질문 제목", "질문 내용");
-        CourseAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question, 1L, "답변 내용");
+        CourseAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(
+                CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "질문 제목", "질문 내용"), 1L, "답변 내용");
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
         String content = "답변 내용입니다. @[홍길동](2) @[김철수](3)";
 
@@ -58,7 +58,8 @@ class CourseMentionManagerTest {
 
         when(mentionParser.parseMentionedUserInfos(content, mentionerUser))
                 .thenReturn(List.of(mentionedUserInfo1, mentionedUserInfo2));
-        when(mentionWriter.saveMentions(List.of(mentionedUserInfo1, mentionedUserInfo2), mentionerUser, answer))
+        when(mentionWriter.saveMentions(
+                List.of(mentionedUserInfo1, mentionedUserInfo2), mentionerUser, MentionTargetType.COURSE_ANSWER, 1L))
                 .thenReturn(List.of(mention1, mention2));
         when(mention1.getMentionedUser()).thenReturn(mentionedUser1);
         when(mention2.getMentionedUser()).thenReturn(mentionedUser2);
@@ -72,21 +73,23 @@ class CourseMentionManagerTest {
         
         verify(mentionParser).parseMentionedUserInfos(content, mentionerUser);
         verify(mentionWriter).validateMentionCooldown(List.of(mentionedUserInfo1, mentionedUserInfo2), mentionerUser);
-        verify(mentionWriter).saveMentions(List.of(mentionedUserInfo1, mentionedUserInfo2), mentionerUser, answer);
-        verify(mentionNotificationManager).sendMentionsNotification(List.of(mention1, mention2), question);
+        verify(mentionWriter).saveMentions(
+                List.of(mentionedUserInfo1, mentionedUserInfo2), mentionerUser, MentionTargetType.COURSE_ANSWER, 1L);
+        verify(mentionNotificationManager).sendMentionsNotification(
+                List.of(mention1, mention2), content, MentionTargetType.COURSE_ANSWER, 1L);
     }
 
     @Test
     void processMentions_맨션없음_빈목록반환() {
         // given
-        CourseQuestion question = CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "질문 제목", "질문 내용");
-        CourseAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(question, 1L, "답변 내용");
+        CourseAnswer answer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithIdAndUser(
+                CommunityQuestionFixtureBuilder.getCommunityQuestionWithIdAndUser(1L, "질문 제목", "질문 내용"), 1L, "답변 내용");
         User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
         String content = "답변 내용입니다.";
 
         when(mentionParser.parseMentionedUserInfos(content, mentionerUser))
                 .thenReturn(List.of());
-        when(mentionWriter.saveMentions(List.of(), mentionerUser, answer))
+        when(mentionWriter.saveMentions(List.of(), mentionerUser, MentionTargetType.COURSE_ANSWER, 1L))
                 .thenReturn(List.of());
 
         // when
@@ -97,7 +100,8 @@ class CourseMentionManagerTest {
         
         verify(mentionParser).parseMentionedUserInfos(content, mentionerUser);
         verify(mentionWriter).validateMentionCooldown(List.of(), mentionerUser);
-        verify(mentionWriter).saveMentions(List.of(), mentionerUser, answer);
-        verify(mentionNotificationManager).sendMentionsNotification(List.of(), question);
+        verify(mentionWriter).saveMentions(List.of(), mentionerUser, MentionTargetType.COURSE_ANSWER, 1L);
+        verify(mentionNotificationManager).sendMentionsNotification(
+                List.of(), content, MentionTargetType.COURSE_ANSWER, 1L);
     }
 }

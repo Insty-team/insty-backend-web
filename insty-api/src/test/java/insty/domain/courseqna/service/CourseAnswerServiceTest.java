@@ -24,6 +24,7 @@ import insty.domain.courseqna.implement.CourseQuestionReader;
 import insty.domain.courseqna.implement.CourseQuestionStatusManager;
 import insty.domain.courseqna.implement.CourseQnaValidator;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
+import insty.domain.mention.implement.MentionReader;
 import insty.domain.user.implement.UserReader;
 import insty.error.CourseQnaErrorCode;
 import insty.exception.CustomException;
@@ -86,6 +87,8 @@ class CourseAnswerServiceTest {
     private CourseQuestionRepository courseQuestionRepository;
     @Autowired
     private UserReader userReader;
+    @Autowired
+    private MentionReader mentionReader;
 
     @MockitoBean
     private AppProperties appProperties;
@@ -182,6 +185,36 @@ class CourseAnswerServiceTest {
                 .orElse(null);
         assertThat(nonVideoAnswer).isNotNull();
         assertThat(nonVideoAnswer.content()).isEqualTo(secondAnswerContent);
+    }
+
+    @Sql(statements = {
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (1, 'question_author_invalid@example.com', '질문작성자', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (2, 'course_creator_invalid@example.com', '강의제작자', 1234, null, 'CREATOR', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.users (id, email, nickname, password, introduce, user_type, is_deleted, deleted_at, is_email_agreed, last_login_at, created_at, updated_at) "
+                    + "VALUES (3, 'mentioned_invalid@example.com', '홍길동', 1234, null, 'LEARNER', false, null, false, NOW(), NOW(), NOW());",
+            "INSERT INTO web_service.courses (id, user_id, title, description, price, view_count, like_count, target_audience, thumbnail_id, is_show, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 2, '테스트 강의', '테스트 강의 설명', 20000, 0, 0, '테스트 대상자', null, true, NOW(), NOW(), false);",
+            "INSERT INTO web_service.course_questions (id, user_id, course_id, title, content, status, created_at, updated_at, is_deleted) "
+                    + "VALUES (1, 1, 1, '테스트 질문', '테스트 질문 내용', 'WAITING', NOW(), NOW(), false);"
+    })
+    @Test
+    void saveAnswer_멘션형식오류가_있어도_답변저장은_성공() {
+        // given
+        when(appProperties.getDomain()).thenReturn("insty.test.com");
+        CourseAnswerCreateReq req = new CourseAnswerCreateReq("안녕하세요 @[홍길동](2a)", null);
+
+        // when
+        CourseAnswerRes res = courseAnswerService.saveAnswer(1L, 1L, req, List.of());
+
+        // then
+        assertThat(res).isNotNull();
+        assertThat(res.content()).isEqualTo("안녕하세요 @[홍길동](2a)");
+
+        CourseAnswer savedAnswer = courseAnswerReader.getCourseAnswerById(res.answerId());
+        assertThat(savedAnswer.getContent()).isEqualTo("안녕하세요 @[홍길동](2a)");
+        assertThat(mentionReader.getMentionsByAnswerId(savedAnswer.getId())).isEmpty();
     }
 
     @Sql(statements = {

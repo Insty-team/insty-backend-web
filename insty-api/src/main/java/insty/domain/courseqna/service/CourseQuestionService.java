@@ -23,10 +23,12 @@ import insty.domain.courseqna.implement.CourseQuestionWriter;
 import insty.domain.courseqna.implement.CourseQnaValidator;
 import insty.domain.courseqna.implement.CourseQnaCleaner;
 import insty.domain.course.implement.CourseReader;
+import insty.domain.mention.implement.MentionEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
 import insty.model.course.Course;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.video.VideoQuestion;
 import java.util.List;
@@ -49,6 +51,7 @@ public class CourseQuestionService {
     private final CourseReader courseReader;
     private final UserReader userReader;
     private final CourseNotificationManager courseNotificationManager;
+    private final MentionEventPublisher mentionEventPublisher;
     private final CourseQuestionViewManager courseQuestionViewManager;
     private final CourseQnaCleaner courseQnaCleaner;
 
@@ -70,6 +73,7 @@ public class CourseQuestionService {
         VideoQuestion video = courseQuestionVideoManager.attachVideoToQuestion(question, req.videoUuid());
 
         courseQuestionViewManager.recordQuestionView(question, userId);
+        mentionEventPublisher.publish(user.getId(), MentionTargetType.COURSE_QUESTION, question.getId(), question.getContent());
 
         courseNotificationManager.sendNewQuestionNotification(question);
 
@@ -91,6 +95,7 @@ public class CourseQuestionService {
 
         List<FileInfo> fileInfos = courseQuestionFileWriter.updateQuestionFiles(question, attachments, req.deleteFileIds());
         VideoQuestion video = courseQuestionVideoManager.updateAndGetLinkedVideo(question, req.videoUuid());
+        mentionEventPublisher.publish(userId, MentionTargetType.COURSE_QUESTION, question.getId(), question.getContent());
 
         return CourseQuestionDetailsRes.from(question, fileInfos, video);
     }

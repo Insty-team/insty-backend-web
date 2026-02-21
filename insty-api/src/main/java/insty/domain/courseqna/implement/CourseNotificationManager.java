@@ -5,9 +5,9 @@ import insty.model.courseqna.CourseQuestion;
 import insty.model.course.Course;
 import insty.model.user.User;
 import insty.domain.notification.dto.event.NotificationReq;
-import java.util.Objects;
 import java.util.Set;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class CourseNotificationManager {
+    private static final Pattern MENTION_USER_ID_PATTERN = Pattern.compile("@\\[[^\\]]+\\]\\((\\d+)\\)");
 
     private final CourseAnswerReader courseAnswerReader;
     private final ApplicationEventPublisher eventPublisher;
@@ -49,39 +50,56 @@ public class CourseNotificationManager {
 
     /**
      * 새 답변 작성 알림 전송
-     * - 맨션된 사용자에게는 맨션 알림이 별도로 전송됨
      * - 질문의 creator에게는 답변 알림 전송 (다음 조건을 모두 만족할 때만):
      *   1. 답변 작성자가 creator가 아님
-     *   2. creator가 맨션되지 않음
+     *   2. 답변 본문에서 creator가 멘션되지 않음
      *   3. creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있음
      */
-    public void sendNewAnswerNotification(CourseQuestion question, CourseAnswer answer, List<User> mentionedUsers) {
+    public void sendNewAnswerNotification(CourseQuestion question, CourseAnswer answer) {
         User creator = question.getCourse().getUser();
         User answerAuthor = answer.getUser();
 
-        // 답변 작성자가 creator가 아니고, creator가 맨션되지 않은 경우에만 검사
-        List<User> safeMentionedUsers = (mentionedUsers != null) ? mentionedUsers : List.of();
-        boolean creatorMentioned = safeMentionedUsers.stream()
-                .anyMatch(user -> Objects.equals(user.getId(), creator.getId()));
-        
-        if (!Objects.equals(answerAuthor.getId(), creator.getId()) && !creatorMentioned) {
-            // creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있는지 확인
-            boolean hasNewAnswersAfterCreatorLastView = courseQuestionViewManager.hasNewAnswersAfterCreatorLastView(
-                    question.getId(), creator.getId());
+        if (answerAuthor.getId().equals(creator.getId())) {
+            return;
+        }
+        if (isUserMentioned(answer.getContent(), creator.getId())) {
+            return;
+        }
 
-            if (hasNewAnswersAfterCreatorLastView) {
-                NotificationReq request = NotificationReq.newAnswer(
-                        creator.getId(),
-                        question.getId(),
-                        answer.getId(),
-                        question.getTitle(),
-                        answer.getContent(),
-                        answerAuthor.getNickname()
-                );
+        // creator가 마지막으로 질문을 조회한 시점 이후에 새로운 답변이 있는지 확인
+        boolean hasNewAnswersAfterCreatorLastView = courseQuestionViewManager.hasNewAnswersAfterCreatorLastView(
+                question.getId(), creator.getId());
 
-                eventPublisher.publishEvent(request);
+        if (hasNewAnswersAfterCreatorLastView) {
+            NotificationReq request = NotificationReq.newAnswer(
+                    creator.getId(),
+                    question.getId(),
+                    answer.getId(),
+                    question.getTitle(),
+                    answer.getContent(),
+                    answerAuthor.getNickname()
+            );
+
+            eventPublisher.publishEvent(request);
+        }
+    }
+
+    private boolean isUserMentioned(String content, Long userId) {
+        if (content == null || content.isBlank() || userId == null) {
+            return false;
+        }
+
+        Matcher matcher = MENTION_USER_ID_PATTERN.matcher(content);
+        while (matcher.find()) {
+            try {
+                if (userId.equals(Long.parseLong(matcher.group(1)))) {
+                    return true;
+                }
+            } catch (NumberFormatException ignored) {
+                continue;
             }
         }
+        return false;
     }
 
     /**

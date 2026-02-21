@@ -10,6 +10,7 @@ import insty.domain.mention.implement.MentionWriter;
 import insty.domain.user.implement.UserFileReader;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +52,12 @@ public class MentionService {
         List<MentionedUserInfo> mentionedUserInfos = mentionParser.parseMentionedUserInfos(content, mentionerUser);
         mentionWriter.validateMentionCooldown(mentionedUserInfos, mentionerUser);
 
-        List<Mention> savedMentions = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer);
+        List<Mention> savedMentions = mentionWriter.saveMentions(
+                mentionedUserInfos, mentionerUser, MentionTargetType.COURSE_ANSWER, courseAnswer.getId()
+        );
 
-        mentionNotificationManager.sendMentionsNotification(savedMentions, courseAnswer.getCourseQuestion());
+        mentionNotificationManager.sendMentionsNotification(
+                savedMentions, content, MentionTargetType.COURSE_ANSWER, courseAnswer.getId()
+        );
     }
 }

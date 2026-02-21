@@ -28,14 +28,12 @@ public class UserMentionNotificationStrategy extends AbstractNotificationStrateg
     public NotificationData buildNotificationData(NotificationReq request) {
         String mentionerNickname = request.getMentionerNickname();
         String content = request.getContent();
-        String contentType = request.getContentType();
-        Long relatedId = request.getRelatedId();
 
         String title = "누군가 당신을 언급했습니다";
         String message = String.format("%s님이 당신을 언급했습니다: %s",
                 mentionerNickname,
                 truncate(content, NotificationConstants.CONTENT_MAX_LENGTH));
-        String redirectUrl = notificationUtils.buildMentionUrl(contentType, relatedId);
+        String redirectUrl = resolveMentionUrl(request);
 
         return new NotificationData(title, message, redirectUrl);
     }
@@ -45,11 +43,23 @@ public class UserMentionNotificationStrategy extends AbstractNotificationStrateg
     @Override
     protected Map<String, Object> buildEmailContext(NotificationReq request) {
         Map<String, Object> context = new HashMap<>(request.context());
+
+        context.put("mentionUrl", resolveMentionUrl(request));
+
+        return context;
+    }
+
+    private String resolveMentionUrl(NotificationReq request) {
         String contentType = request.getContentType();
         Long relatedId = request.getRelatedId();
 
-        context.put("mentionUrl", notificationUtils.buildMentionUrl(contentType, relatedId));
+        if (isAnswerContentType(contentType) && request.getAnswerId() != null) {
+            return notificationUtils.buildMentionUrl(contentType, relatedId, request.getAnswerId());
+        }
+        return notificationUtils.buildMentionUrl(contentType, relatedId);
+    }
 
-        return context;
+    private boolean isAnswerContentType(String contentType) {
+        return "ANSWER".equals(contentType) || "COURSE_ANSWER".equals(contentType);
     }
 }

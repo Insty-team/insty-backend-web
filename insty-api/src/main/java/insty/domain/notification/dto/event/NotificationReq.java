@@ -96,12 +96,34 @@ public record NotificationReq(
             String contentType,
             Long relatedId
     ) {
+        return userMentioned(receiverId, mentionId, mentionerNickname, content, contentType, relatedId, null, null);
+    }
+
+    /**
+     * 사용자 멘션 알림 생성 (답변 앵커 정보 포함)
+     */
+    public static NotificationReq userMentioned(
+            Long receiverId,
+            Long mentionId,
+            String mentionerNickname,
+            String content,
+            String contentType,
+            Long relatedId,
+            Long questionId,
+            Long answerId
+    ) {
         Map<String, Object> context = new HashMap<>();
         context.put("mentionId", mentionId);
         context.put("mentionerNickname", mentionerNickname);
         context.put("content", content);
         context.put("contentType", contentType);
         context.put("relatedId", relatedId);
+        if (questionId != null) {
+            context.put("questionId", questionId);
+        }
+        if (answerId != null) {
+            context.put("answerId", answerId);
+        }
 
         return new NotificationReq(
                 NotificationType.USER_MENTIONED,

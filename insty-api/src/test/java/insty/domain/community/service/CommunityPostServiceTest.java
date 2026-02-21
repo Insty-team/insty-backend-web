@@ -26,6 +26,7 @@ import insty.domain.community.implement.CommunityPostLikeManager;
 import insty.domain.community.implement.CommunityPostVideoManager;
 import insty.domain.community.implement.CommunityPostWriter;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.mention.implement.MentionEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityPost;
 import insty.model.community.CommunityPostFixtureBuilder;
@@ -70,6 +71,8 @@ class CommunityPostServiceTest {
     private CommunityValidator communityValidator;
     @Mock
     private UserReader userReader;
+    @Mock
+    private MentionEventPublisher mentionEventPublisher;
 
     @InjectMocks
     private CommunityPostService communityPostService;
