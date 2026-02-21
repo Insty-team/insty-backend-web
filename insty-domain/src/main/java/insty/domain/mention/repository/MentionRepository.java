@@ -13,10 +13,6 @@ public interface MentionRepository extends JpaRepository<Mention, Long> {
 
     List<Mention> findAllByTargetTypeAndTargetId(MentionTargetType targetType, Long targetId);
 
-    default List<Mention> findAllByCommunityAnswerId(Long answerId) {
-        return findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, answerId);
-    }
-
     Optional<Mention> findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
         MentionTargetType targetType, Long targetId, Long mentionedUserId, Long mentionerUserId);
 

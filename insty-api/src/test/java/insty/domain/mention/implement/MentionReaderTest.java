@@ -1,6 +1,8 @@
 package insty.domain.mention.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.domain.mention.repository.MentionRepository;
@@ -109,5 +111,45 @@ class MentionReaderTest {
 
         // then
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getMentionsByAnswerId_answerId가Null이면_빈리스트반환() {
+        // when
+        List<Mention> result = mentionReader.getMentionsByAnswerId(null);
+
+        // then
+        assertThat(result).isEmpty();
+        verify(mentionRepository, never()).findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, null);
+    }
+
+    @Test
+    void getMentionsByTarget_타겟파라미터가Null이면_빈리스트반환() {
+        // when
+        List<Mention> result1 = mentionReader.getMentionsByTarget(null, 1L);
+        List<Mention> result2 = mentionReader.getMentionsByTarget(MentionTargetType.COURSE_ANSWER, null);
+
+        // then
+        assertThat(result1).isEmpty();
+        assertThat(result2).isEmpty();
+        verify(mentionRepository, never()).findAllByTargetTypeAndTargetId(null, 1L);
+        verify(mentionRepository, never()).findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, null);
+    }
+
+    @Test
+    void getMentionsByTarget_정상() {
+        // given
+        Mention mention1 = MentionFixtureBuilder.getMentionWithId(1L);
+        Mention mention2 = MentionFixtureBuilder.getMentionWithId(2L);
+        List<Mention> expectedMentions = List.of(mention1, mention2);
+
+        when(mentionRepository.findAllByTargetTypeAndTargetId(MentionTargetType.COMMUNITY_POST, 10L))
+                .thenReturn(expectedMentions);
+
+        // when
+        List<Mention> result = mentionReader.getMentionsByTarget(MentionTargetType.COMMUNITY_POST, 10L);
+
+        // then
+        assertThat(result).containsExactlyInAnyOrder(mention1, mention2);
     }
 }

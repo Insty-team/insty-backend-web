@@ -34,10 +34,19 @@ public class MentionReader {
      * 특정 댓글의 멘션 목록을 조회
      */
     public List<Mention> getMentionsByAnswerId(Long answerId) {
+        if (answerId == null) {
+            log.warn("멘션 조회 중단 - answerId가 null입니다.");
+            return List.of();
+        }
         return mentionRepository.findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, answerId);
     }
 
     public List<Mention> getMentionsByTarget(MentionTargetType targetType, Long targetId) {
+        if (targetType == null || targetId == null) {
+            log.warn("멘션 조회 중단 - targetType 또는 targetId가 null입니다. (targetType={}, targetId={})",
+                    targetType, targetId);
+            return List.of();
+        }
         return mentionRepository.findAllByTargetTypeAndTargetId(targetType, targetId);
     }
 }
