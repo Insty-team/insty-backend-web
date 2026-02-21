@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +53,28 @@ public class MentionWriter {
         for (MentionedUserInfo userInfo : mentionedUserInfos) {
             User mentionedUser = usersById.get(userInfo.userId());
             Mention mention = Mention.create(courseAnswer, mentionedUser, mentionerUser);
-            savedMentions.add(mentionRepository.save(mention));
+            try {
+                savedMentions.add(mentionRepository.save(mention));
+            } catch (DataIntegrityViolationException e) {
+                Long courseAnswerId = courseAnswer != null ? courseAnswer.getId() : null;
+                Long mentionedUserId = mentionedUser != null ? mentionedUser.getId() : null;
+                Long mentionerUserId = mentionerUser != null ? mentionerUser.getId() : null;
+
+                log.warn("멘션 저장 충돌 - 기존 멘션 재사용 시도 (courseAnswerId={}, mentionedUserId={}, mentionerUserId={})",
+                        courseAnswerId, mentionedUserId, mentionerUserId, e);
+
+                if (courseAnswerId == null || mentionedUserId == null || mentionerUserId == null) {
+                    throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
+                }
+
+                Mention existing = mentionRepository
+                        .findByCourseAnswer_IdAndMentionedUser_IdAndMentionerUser_Id(
+                                courseAnswerId, mentionedUserId, mentionerUserId
+                        )
+                        .orElseThrow(() -> new CustomException(MentionErrorCode.MENTION_CREATE_ERROR));
+
+                savedMentions.add(existing);
+            }
         }
         return savedMentions;
     }

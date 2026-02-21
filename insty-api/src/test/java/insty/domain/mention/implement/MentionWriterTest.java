@@ -19,12 +19,14 @@ import insty.model.user.User;
 import insty.model.user.UserFixtureBuilder;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -82,6 +84,32 @@ class MentionWriterTest {
                 .isInstanceOf(CustomException.class)
                 .extracting(e -> ((CustomException) e).getErrorCode())
                 .isEqualTo(MentionErrorCode.MENTION_USER_NOT_FOUND);
+    }
+
+    @Test
+    void saveMentions_제약위반_발생시_기존멘션_재사용() {
+        // given
+        User mentionerUser = UserFixtureBuilder.getUserWithId(1L);
+        User mentionedUser = UserFixtureBuilder.getUserWithId(13L);
+        CourseAnswer courseAnswer = CommunityAnswerFixtureBuilder.getCommunityAnswerWithId(1L);
+
+        MentionedUserInfo userInfo = new MentionedUserInfo(13L, "사나운낙지304");
+        List<MentionedUserInfo> mentionedUserInfos = List.of(userInfo);
+
+        Mention existingMention = MentionFixtureBuilder.getMentionWithId(999L);
+
+        // mock
+        when(userRepository.findAllById(java.util.Set.of(13L))).thenReturn(List.of(mentionedUser));
+        when(mentionRepository.save(any(Mention.class))).thenThrow(new DataIntegrityViolationException("duplicate"));
+        when(mentionRepository.findByCourseAnswer_IdAndMentionedUser_IdAndMentionerUser_Id(1L, 13L, 1L))
+                .thenReturn(Optional.of(existingMention));
+
+        // when
+        List<Mention> result = mentionWriter.saveMentions(mentionedUserInfos, mentionerUser, courseAnswer);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isSameAs(existingMention);
     }
 
     @Test
