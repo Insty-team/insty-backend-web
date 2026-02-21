@@ -1,6 +1,7 @@
 package insty.domain.mention.implement;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -63,10 +65,11 @@ class MentionEventHandlerTest {
         mentionEventHandler.handle(event);
 
         // then
-        verify(mentionWriter).validateMentionCooldown(List.of(mentionedUserInfo), mentionerUser);
-        verify(mentionWriter).saveMentions(
+        InOrder inOrder = inOrder(mentionWriter, mentionNotificationManager);
+        inOrder.verify(mentionWriter).validateMentionCooldown(List.of(mentionedUserInfo), mentionerUser);
+        inOrder.verify(mentionWriter).saveMentions(
                 List.of(mentionedUserInfo), mentionerUser, MentionTargetType.COMMUNITY_COMMENT, 10L);
-        verify(mentionNotificationManager).sendMentionsNotification(
+        inOrder.verify(mentionNotificationManager).sendMentionsNotification(
                 List.of(mention), event.content(), MentionTargetType.COMMUNITY_COMMENT, 10L);
     }
 
