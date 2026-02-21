@@ -15,15 +15,16 @@ import insty.domain.courseqna.implement.CourseAnswerMapper;
 import insty.domain.courseqna.implement.CourseAnswerReader;
 import insty.domain.courseqna.implement.CourseAnswerVideoManager;
 import insty.domain.courseqna.implement.CourseAnswerWriter;
-import insty.domain.courseqna.implement.CourseMentionManager;
 import insty.domain.courseqna.implement.CourseNotificationManager;
 import insty.domain.courseqna.implement.CourseQuestionReader;
 import insty.domain.courseqna.implement.CourseQuestionStatusManager;
 import insty.domain.courseqna.implement.CourseQnaValidator;
 import insty.domain.courseqna.repository.CourseQuestionRepository;
+import insty.domain.mention.implement.MentionEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.courseqna.CourseAnswer;
 import insty.model.courseqna.CourseQuestion;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.video.VideoAnswer;
 import java.util.List;
@@ -49,7 +50,7 @@ public class CourseAnswerService {
     private final CourseQuestionStatusManager courseQuestionStatusManager;
     private final UserReader userReader;
     private final CourseNotificationManager courseNotificationManager;
-    private final CourseMentionManager courseMentionManager;
+    private final MentionEventPublisher mentionEventPublisher;
     private final CourseQuestionRepository courseQuestionRepository;
 
     /**
@@ -70,10 +71,8 @@ public class CourseAnswerService {
         VideoAnswer video = courseAnswerVideoManager.attachVideoToAnswer(answer, req.videoUuid());
 
         courseQuestionStatusManager.updateStatusAfterAnswerCreated(question);
-
-        List<User> mentionedUsers = courseMentionManager.processMentions(answer, user, answer.getContent());
-
-        courseNotificationManager.sendNewAnswerNotification(question, answer, mentionedUsers);
+        mentionEventPublisher.publish(user.getId(), MentionTargetType.COURSE_ANSWER, answer.getId(), answer.getContent());
+        courseNotificationManager.sendNewAnswerNotification(question, answer);
 
         return CourseAnswerRes.from(answer, fileInfos, video);
     }
@@ -93,6 +92,7 @@ public class CourseAnswerService {
 
         List<FileInfo> fileInfos = courseAnswerFileWriter.updateAnswerFiles(answer, attachments, req.deleteFileIds());
         VideoAnswer video = courseAnswerVideoManager.updateAndGetLinkedVideo(answer, req.videoUuid());
+        mentionEventPublisher.publish(userId, MentionTargetType.COURSE_ANSWER, answer.getId(), answer.getContent());
 
         return CourseAnswerRes.from(answer, fileInfos, video);
     }

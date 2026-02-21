@@ -20,8 +20,10 @@ import insty.domain.community.implement.CommunityPostLikeManager;
 import insty.domain.community.implement.CommunityPostVideoManager;
 import insty.domain.community.implement.CommunityPostWriter;
 import insty.domain.community.implement.CommunityValidator;
+import insty.domain.mention.implement.MentionEventPublisher;
 import insty.domain.user.implement.UserReader;
 import insty.model.community.CommunityPost;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import insty.model.video.VideoCommunityPost;
 import java.util.List;
@@ -49,6 +51,7 @@ public class CommunityPostService {
     private final CommunityCommentReader communityCommentReader;
     private final CommunityValidator communityValidator;
     private final UserReader userReader;
+    private final MentionEventPublisher mentionEventPublisher;
 
     public SearchRes<CommunityPostRes> searchPosts(Long userId, Long courseId, CommunityPostSearchReq req) {
         PageRequest pageRequest = PageRequest.of(req.page() - 1, req.pageSize(),
@@ -100,6 +103,7 @@ public class CommunityPostService {
         CommunityPost post = communityPostWriter.savePost(user, course, "unused-title", req.content());
         List<FileInfo> fileInfos = communityPostFileWriter.savePostFiles(post, attachments);
         VideoCommunityPost video = communityPostVideoManager.attachVideo(post, req.videoUuid());
+        mentionEventPublisher.publish(userId, MentionTargetType.COMMUNITY_POST, post.getId(), post.getContent());
 
         return CommunityPostDetailsRes.from(post, fileInfos, video, 0L, false);
     }
@@ -116,6 +120,7 @@ public class CommunityPostService {
         communityPostWriter.updatePost(post, "unused-title", req.content());
         List<FileInfo> fileInfos = communityPostFileWriter.updatePostFiles(post, attachments, req.deleteFileIds());
         VideoCommunityPost video = communityPostVideoManager.updateAndGetLinkedVideo(post, req.videoUuid());
+        mentionEventPublisher.publish(userId, MentionTargetType.COMMUNITY_POST, post.getId(), post.getContent());
 
         boolean likedByMe = communityPostLikeManager.isLikedByUser(userId, postId);
         long commentCount = communityCommentReader.countByPostId(postId);

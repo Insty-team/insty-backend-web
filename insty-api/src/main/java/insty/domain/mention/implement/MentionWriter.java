@@ -5,8 +5,8 @@ import insty.domain.mention.repository.MentionRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.error.MentionErrorCode;
 import insty.exception.CustomException;
-import insty.model.courseqna.CourseAnswer;
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class MentionWriter {
      * 멘션된 사용자 정보 리스트를 받아서 Mention 객체를 생성하고 저장
      */
     public List<Mention> saveMentions(List<MentionedUserInfo> mentionedUserInfos, User mentionerUser,
-                                      CourseAnswer courseAnswer) {
+                                      MentionTargetType targetType, Long targetId) {
         List<Mention> savedMentions = new ArrayList<>();
         if (mentionedUserInfos == null || mentionedUserInfos.isEmpty()) {
             return savedMentions;
@@ -52,24 +52,33 @@ public class MentionWriter {
 
         for (MentionedUserInfo userInfo : mentionedUserInfos) {
             User mentionedUser = usersById.get(userInfo.userId());
-            Mention mention = Mention.create(courseAnswer, mentionedUser, mentionerUser);
+            Mention existingMention = mentionRepository
+                    .findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                            targetType, targetId, mentionedUser.getId(), mentionerUser.getId()
+                    )
+                    .orElse(null);
+            if (existingMention != null) {
+                savedMentions.add(existingMention);
+                continue;
+            }
+
+            Mention mention = Mention.create(targetType, targetId, mentionedUser, mentionerUser);
             try {
                 savedMentions.add(mentionRepository.save(mention));
             } catch (DataIntegrityViolationException e) {
-                Long courseAnswerId = courseAnswer != null ? courseAnswer.getId() : null;
                 Long mentionedUserId = mentionedUser != null ? mentionedUser.getId() : null;
                 Long mentionerUserId = mentionerUser != null ? mentionerUser.getId() : null;
 
-                log.warn("멘션 저장 충돌 - 기존 멘션 재사용 시도 (courseAnswerId={}, mentionedUserId={}, mentionerUserId={})",
-                        courseAnswerId, mentionedUserId, mentionerUserId, e);
+                log.warn("멘션 저장 충돌 - 기존 멘션 재사용 시도 (targetType={}, targetId={}, mentionedUserId={}, mentionerUserId={})",
+                        targetType, targetId, mentionedUserId, mentionerUserId, e);
 
-                if (courseAnswerId == null || mentionedUserId == null || mentionerUserId == null) {
+                if (targetType == null || targetId == null || mentionedUserId == null || mentionerUserId == null) {
                     throw new CustomException(MentionErrorCode.MENTION_CREATE_ERROR);
                 }
 
                 Mention existing = mentionRepository
-                        .findByCourseAnswer_IdAndMentionedUser_IdAndMentionerUser_Id(
-                                courseAnswerId, mentionedUserId, mentionerUserId
+                        .findByTargetTypeAndTargetIdAndMentionedUser_IdAndMentionerUser_Id(
+                                targetType, targetId, mentionedUserId, mentionerUserId
                         )
                         .orElseThrow(() -> new CustomException(MentionErrorCode.MENTION_CREATE_ERROR));
 

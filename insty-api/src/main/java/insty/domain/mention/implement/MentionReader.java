@@ -3,6 +3,7 @@ package insty.domain.mention.implement;
 import insty.domain.mention.repository.MentionRepository;
 import insty.domain.user.repository.UserRepository;
 import insty.model.mention.Mention;
+import insty.model.mention.MentionTargetType;
 import insty.model.user.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,10 @@ public class MentionReader {
      * 특정 댓글의 멘션 목록을 조회
      */
     public List<Mention> getMentionsByAnswerId(Long answerId) {
-        return mentionRepository.findAllByCommunityAnswerId(answerId);
+        return mentionRepository.findAllByTargetTypeAndTargetId(MentionTargetType.COURSE_ANSWER, answerId);
+    }
+
+    public List<Mention> getMentionsByTarget(MentionTargetType targetType, Long targetId) {
+        return mentionRepository.findAllByTargetTypeAndTargetId(targetType, targetId);
     }
 }

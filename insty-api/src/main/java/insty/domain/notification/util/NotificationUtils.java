@@ -37,6 +37,10 @@ public class NotificationUtils {
             case "QUESTION" -> buildQuestionUrl(relatedId);
             case "ANSWER" -> String.format("%s/course/questions/%d", appProperties.getDomain(), relatedId);
             case "COMMENT" -> String.format("%s/course/questions/%d", appProperties.getDomain(), relatedId);
+            case "COURSE_QUESTION" -> buildQuestionUrl(relatedId);
+            case "COURSE_ANSWER" -> String.format("%s/course/questions/%d", appProperties.getDomain(), relatedId);
+            case "COMMUNITY_POST" -> String.format("%s/community/posts/%d", appProperties.getDomain(), relatedId);
+            case "COMMUNITY_COMMENT" -> String.format("%s/community/comments/%d", appProperties.getDomain(), relatedId);
             default -> appProperties.getDomain() + "/course";
         };
     }
