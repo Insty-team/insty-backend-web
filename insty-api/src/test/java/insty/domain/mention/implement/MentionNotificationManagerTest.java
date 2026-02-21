@@ -75,6 +75,7 @@ class MentionNotificationManagerTest {
         verify(eventPublisher).publishEvent(requestCaptor.capture());
 
         NotificationReq request = requestCaptor.getValue();
+        assertThat(request.receiverId()).isEqualTo(2L);
         assertThat(request.getContentType()).isEqualTo("ANSWER");
         assertThat(request.getRelatedId()).isEqualTo(22L);
         assertThat(request.getQuestionId()).isNull();

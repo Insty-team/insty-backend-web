@@ -72,11 +72,4 @@ public class MentionNotificationManager {
         }
     }
 
-    @Deprecated
-    public void sendMentionsNotification(List<Mention> mentions, insty.model.courseqna.CourseQuestion courseQuestion) {
-        if (courseQuestion == null) {
-            return;
-        }
-        sendMentionsNotification(mentions, "", MentionTargetType.COURSE_QUESTION, courseQuestion.getId());
-    }
 }
