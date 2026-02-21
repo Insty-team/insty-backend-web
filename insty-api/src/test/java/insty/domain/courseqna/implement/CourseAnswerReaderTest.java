@@ -96,6 +96,33 @@ class CourseAnswerReaderTest {
     }
 
     @Test
+    void getQuestionIdByAnswerId_정상() {
+        // given
+        Long answerId = 11L;
+        Long questionId = 7L;
+        when(answerRepository.findQuestionIdByAnswerId(answerId)).thenReturn(Optional.of(questionId));
+
+        // when
+        Long result = reader.getQuestionIdByAnswerId(answerId);
+
+        // then
+        assertThat(result).isEqualTo(questionId);
+    }
+
+    @Test
+    void getQuestionIdByAnswerId_에러_존재하지않음() {
+        // given
+        Long answerId = 11L;
+        when(answerRepository.findQuestionIdByAnswerId(answerId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> reader.getQuestionIdByAnswerId(answerId))
+                .isInstanceOf(CustomException.class)
+                .extracting(e -> ((CustomException) e).getErrorCode())
+                .isEqualTo(CourseQnaErrorCode.COURSE_QNA_ANSWER_NOT_FOUND);
+    }
+
+    @Test
     void countActiveAnswersByQuestionId_정상() {
         // given
         Long questionId = 1L;

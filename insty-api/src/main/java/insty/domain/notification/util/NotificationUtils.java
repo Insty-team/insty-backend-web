@@ -34,15 +34,25 @@ public class NotificationUtils {
     /* 멘션된 컨텐츠로 이동하는 URL 생성 */
     public String buildMentionUrl(String contentType, Long relatedId) {
         return switch (contentType) {
-            case "QUESTION" -> buildQuestionUrl(relatedId);
-            case "ANSWER" -> String.format("%s/course/questions/%d", appProperties.getDomain(), relatedId);
+            case "QUESTION", "COURSE_QUESTION" -> buildQuestionUrl(relatedId);
+            case "ANSWER", "COURSE_ANSWER" -> buildQuestionUrl(relatedId);
             case "COMMENT" -> String.format("%s/course/questions/%d", appProperties.getDomain(), relatedId);
-            case "COURSE_QUESTION" -> buildQuestionUrl(relatedId);
-            case "COURSE_ANSWER" -> String.format("%s/course/questions/%d", appProperties.getDomain(), relatedId);
             case "COMMUNITY_POST" -> String.format("%s/community/posts/%d", appProperties.getDomain(), relatedId);
             case "COMMUNITY_COMMENT" -> String.format("%s/community/comments/%d", appProperties.getDomain(), relatedId);
             default -> appProperties.getDomain() + "/course";
         };
+    }
+
+    /* 멘션된 답변 URL 생성 (질문/답변 ID 모두 존재할 때 앵커 포함) */
+    public String buildMentionUrl(String contentType, Long relatedId, Long answerId) {
+        if (isAnswerContentType(contentType) && relatedId != null && answerId != null) {
+            return buildAnswerUrl(relatedId, answerId);
+        }
+        return buildMentionUrl(contentType, relatedId);
+    }
+
+    private boolean isAnswerContentType(String contentType) {
+        return "ANSWER".equals(contentType) || "COURSE_ANSWER".equals(contentType);
     }
 
     /* 강의 상세 페이지 URL 생성 */

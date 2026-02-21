@@ -3,6 +3,7 @@ package insty.domain.notification.strategy.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import insty.constants.NotificationConstants;
@@ -158,6 +159,37 @@ class UserMentionNotificationStrategyTest {
         Map<String, Object> variables = mailContent.variables();
         assertEquals("ANSWER", variables.get("contentType"));
         assertEquals(expectedMentionUrl, variables.get("mentionUrl"));
+    }
+
+    @Test
+    void 인앱_알림_데이터_빌드_답변아이디가_있으면_앵커URL을_사용() {
+        // Given
+        NotificationReq answerMentionRequest = NotificationReq.userMentioned(
+                1L,
+                300L,
+                "홍길동",
+                "@김철수님 답변 드립니다.",
+                "ANSWER",
+                100L,
+                100L,
+                200L
+        );
+
+        String expectedUrl = "https://example.com/course/questions/100#answer-200";
+        when(notificationUtils.truncateContent(
+                "@김철수님 답변 드립니다.",
+                NotificationConstants.CONTENT_MAX_LENGTH))
+                .thenReturn("@김철수님 답변 드립니다.");
+        when(notificationUtils.buildMentionUrl("ANSWER", 100L, 200L))
+                .thenReturn(expectedUrl);
+
+        // When
+        NotificationData data = strategy.buildNotificationData(answerMentionRequest);
+
+        // Then
+        assertNotNull(data);
+        assertEquals(expectedUrl, data.redirectUrl());
+        verify(notificationUtils).buildMentionUrl("ANSWER", 100L, 200L);
     }
 
     @Test

@@ -85,6 +85,14 @@ public class CourseAnswerReader {
     }
 
     /**
+     * 답변 ID로 부모 질문 ID 조회
+     */
+    public Long getQuestionIdByAnswerId(Long answerId) {
+        return courseAnswerRepository.findQuestionIdByAnswerId(answerId)
+                .orElseThrow(() -> new CustomException(CourseQnaErrorCode.COURSE_QNA_ANSWER_NOT_FOUND));
+    }
+
+    /**
      * 특정 질문에 대한 활성 답변 개수 조회
      */
     public int countActiveAnswersByQuestionId(Long questionId) {
